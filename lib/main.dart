@@ -1,11 +1,10 @@
-import 'package:chat_app/screens/auth.dart';
+import 'package:chat_app/screens/menu.dart';
 import 'package:chat_app/screens/search.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 import 'firebase_options.dart';
-import 'package:chat_app/screens/menu.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -34,7 +33,7 @@ class App extends StatelessWidget {
             }
 
             // return const AuthScreen();
-            return const SearchScreen();
+            return const MenuScreen();
           }),
     );
   }

@@ -12,7 +12,6 @@ class MenuScreen extends StatefulWidget {
 class _MenuScreenState extends State<MenuScreen> {
   int _selectedIndex = 0;
 
-  // Dummy screens for each tab
   final List<Widget> _screens = [
     const Center(child: HomeScreen()),
     const Center(child: SearchScreen()),

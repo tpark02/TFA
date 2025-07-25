@@ -1,12 +1,17 @@
-import 'package:chat_app/screens/calendar_sheet.dart';
-import 'package:chat_app/screens/search_airport_sheet.dart';
-import 'package:chat_app/screens/traveler_selector_sheet.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:chat_app/screens/search_flight.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-class SearchScreen extends StatelessWidget {
-  const SearchScreen({Key? key}) : super(key: key);
+class SearchScreen extends StatefulWidget {
+  const SearchScreen({super.key});
+
+  @override
+  State<SearchScreen> createState() => _SearchScreenState();
+}
+
+class _SearchScreenState extends State<SearchScreen> {
   static const double _padding = 20.0;
+  int _selectedIndex = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -26,231 +31,97 @@ class SearchScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: Container(
-        decoration: const BoxDecoration(
-            // border: Border.all(color: Colors.red, width: 2),
-            ),
-        child: SizedBox.expand(
-          // ✅ Fill available space
-          child: Column(
-            children: [
-              // Avatar Row
-              Container(
-                decoration: const BoxDecoration(
-                    // border: Border.all(color: Colors.red, width: 2),
-                    ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      body: Column(
+        children: [
+          // Avatar Row
+          Container(
+            decoration: const BoxDecoration(
+                // border: Border.all(color: Colors.red, width: 2),
+                ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Column(
                   children: [
                     IconButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          setState(() {
+                            _selectedIndex = 0;
+                          });
+                        },
                         icon: const Icon(Icons.flight_takeoff),
                         iconSize: 30,
                         style: IconButton.styleFrom(
                             shape: const CircleBorder(),
                             backgroundColor: Colors.grey[200],
-                            foregroundColor:
-                                Theme.of(context).colorScheme.primary)),
+                            foregroundColor: _selectedIndex == 0
+                                ? Theme.of(context).colorScheme.primary
+                                : Colors.grey[500]!)),
+                    SizedBox(height: 8),
+                    const Text("Flight")
+                  ],
+                ),
+                Column(
+                  children: [
                     IconButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          setState(() {
+                            _selectedIndex = 1;
+                          });
+                        },
                         icon: const Icon(Icons.hotel),
                         iconSize: 30,
                         style: IconButton.styleFrom(
                             shape: const CircleBorder(),
                             backgroundColor: Colors.grey[200],
-                            foregroundColor:
-                                Theme.of(context).colorScheme.primary)),
+                            foregroundColor: _selectedIndex == 1
+                                ? Theme.of(context).colorScheme.primary
+                                : Colors.grey[500]!)),
+                    SizedBox(height: 8),
+                    const Text("Hotel")
+                  ],
+                ),
+                Column(
+                  children: [
                     IconButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          setState(() {
+                            _selectedIndex = 2;
+                          });
+                        },
                         icon: const Icon(Icons.car_rental),
                         iconSize: 30,
                         style: IconButton.styleFrom(
                             shape: const CircleBorder(),
                             backgroundColor: Colors.grey[200],
-                            foregroundColor:
-                                Theme.of(context).colorScheme.primary)),
+                            foregroundColor: _selectedIndex == 2
+                                ? Theme.of(context).colorScheme.primary
+                                : Colors.grey[500]!)),
+                    SizedBox(height: 8),
+                    const Text("Cars")
                   ],
                 ),
-              ),
-              const SizedBox(height: _padding),
-              // Search area + button
-              Column(
-                children: [
-                  Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: _padding),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                              color: Theme.of(context).colorScheme.primary,
-                              width: 1),
-                        ),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: OutlinedButton(
-                                style: OutlinedButton.styleFrom(
-                                  side:
-                                      BorderSide.none, // Remove default border
-                                  foregroundColor:
-                                      Theme.of(context).colorScheme.primary,
-                                  shape: const RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.zero,
-                                  ),
-                                ),
-                                onPressed: () {
-                                  showModalBottomSheet(
-                                      context: context,
-                                      isScrollControlled: true,
-                                      shape: const RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.vertical(
-                                              top: Radius.circular(20))),
-                                      builder: (ctx) =>
-                                          const SearchAirportSheet(
-                                              title: "Departure Airport"));
-                                },
-                                child: const Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    Icon(Icons.near_me),
-                                    SizedBox(width: 8),
-                                    Text('Departure'),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              child: OutlinedButton(
-                                style: OutlinedButton.styleFrom(
-                                  side: BorderSide.none,
-                                  foregroundColor:
-                                      Theme.of(context).colorScheme.primary,
-                                  shape: const RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.zero,
-                                  ),
-                                ),
-                                onPressed: () {
-                                  showModalBottomSheet(
-                                      context: context,
-                                      isScrollControlled: true,
-                                      shape: const RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.vertical(
-                                              top: Radius.circular(20))),
-                                      builder: (ctx) =>
-                                          const SearchAirportSheet(
-                                              title: "Arrival Airport"));
-                                },
-                                child: const Row(
-                                  children: [
-                                    Icon(Icons.swap_calls),
-                                    SizedBox(width: 8),
-                                    Text('Arrival'),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      )),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: _padding),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          flex: 7,
-                          child: OutlinedButton(
-                            onPressed: () {
-                              showModalBottomSheet(
-                                  context: context,
-                                  isScrollControlled: true,
-                                  shape: const RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.vertical(
-                                          top: Radius.circular(20))),
-                                  builder: (ctx) => const CalendarSheet());
-                            },
-                            style: OutlinedButton.styleFrom(
-                              side: BorderSide(
-                                  color: Theme.of(context).colorScheme.primary,
-                                  width: 1),
-                              shape: const RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.zero),
-                            ),
-                            child: const Row(children: [
-                              Icon(Icons.calendar_month),
-                              SizedBox(width: _padding),
-                              Text('Search')
-                            ]),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                            flex: 2,
-                            child: OutlinedButton(
-                              onPressed: () {
-                                showModalBottomSheet(
-                                    context: context,
-                                    isScrollControlled: true,
-                                    shape: const RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.vertical(
-                                            top: Radius.circular(20))),
-                                    builder: (ctx) =>
-                                        const TravelerSelectorSheet());
-                              },
-                              style: OutlinedButton.styleFrom(
-                                side: BorderSide(
-                                    color:
-                                        Theme.of(context).colorScheme.primary,
-                                    width: 1),
-                                shape: const RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.zero),
-                              ),
-                              child: const Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    Icon(Icons.person),
-                                    SizedBox(width: 5),
-                                    Text('1')
-                                  ]),
-                            ))
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: _padding),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: ElevatedButton(
-                            onPressed: () {},
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor:
-                                  Theme.of(context).colorScheme.primary,
-                              foregroundColor: Colors.white,
-                              shape: const RoundedRectangleBorder(
-                                borderRadius: BorderRadius.zero,
-                              ),
-                            ),
-                            child: const Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [Text('Search Flight')]),
-                          ),
-                        )
-                      ],
-                    ),
-                  )
-                ],
-              ),
-
-              // Bottom box
-              Container(
-                decoration: const BoxDecoration(
-                    // border: Border.all(color: Colors.green, width: 2),
-                    ),
-                height: 50,
-                child: const Row(),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
+          const SizedBox(height: _padding),
+          // Search area + button
+          Expanded(
+            child: _selectedIndex == 0
+                ? SearchFlight()
+                : _selectedIndex == 1
+                    ? SearchFlight()
+                    : SearchFlight(),
+          ),
+          // Bottom box
+          Container(
+            decoration: const BoxDecoration(
+                // border: Border.all(color: Colors.green, width: 2),
+                ),
+            height: 50,
+            child: const Row(),
+          ),
+        ],
       ),
     );
   }
