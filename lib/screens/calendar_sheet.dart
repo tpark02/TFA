@@ -1,7 +1,15 @@
 import 'package:flutter/material.dart';
 
 class CalendarSheet extends StatefulWidget {
-  const CalendarSheet({super.key});
+  CalendarSheet(
+      {super.key,
+      required this.firstTitle,
+      required this.secondTitle,
+      required this.isOnlyTab});
+
+  final String firstTitle;
+  final String secondTitle;
+  final bool isOnlyTab;
 
   @override
   State<CalendarSheet> createState() => _CalendarSheetState();
@@ -25,8 +33,9 @@ class _CalendarSheetState extends State<CalendarSheet>
 
   @override
   Widget build(BuildContext context) {
+    print(" is only : " + widget.isOnlyTab.toString());
     final height =
-        MediaQuery.of(context).size.height * 0.95; // 95% of screen height
+        MediaQuery.of(context).size.height * 0.7; // 95% of screen height
 
     return SafeArea(
       child: Padding(
@@ -50,16 +59,18 @@ class _CalendarSheetState extends State<CalendarSheet>
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
-              TabBar(
-                controller: _tabController,
-                labelColor: Colors.deepPurple,
-                unselectedLabelColor: Colors.grey,
-                indicatorColor: Colors.deepPurple,
-                tabs: const [
-                  Tab(text: "One-way"),
-                  Tab(text: "Round-trip"),
-                ],
-              ),
+              !widget.isOnlyTab
+                  ? TabBar(
+                      controller: _tabController,
+                      labelColor: Colors.deepPurple,
+                      unselectedLabelColor: Colors.grey,
+                      indicatorColor: Colors.deepPurple,
+                      tabs: [
+                        Tab(text: widget.firstTitle),
+                        Tab(text: widget.secondTitle),
+                      ],
+                    )
+                  : const SizedBox.shrink(),
               const SizedBox(height: 8),
               Expanded(
                 child: TabBarView(

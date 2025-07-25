@@ -1,4 +1,6 @@
-import 'package:chat_app/screens/search_flight.dart';
+import 'package:chat_app/screens/car_search_panel.dart';
+import 'package:chat_app/screens/flight_search_panel.dart';
+import 'package:chat_app/screens/hotel_search_panel.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -108,10 +110,10 @@ class _SearchScreenState extends State<SearchScreen> {
           // Search area + button
           Expanded(
             child: _selectedIndex == 0
-                ? SearchFlight()
+                ? FlightSearchPanel()
                 : _selectedIndex == 1
-                    ? SearchFlight()
-                    : SearchFlight(),
+                    ? HotelSearchPanel()
+                    : CarSearchPanel(),
           ),
           // Bottom box
           Container(

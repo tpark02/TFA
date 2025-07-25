@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 
-class SearchAirportSheet extends StatefulWidget {
-  const SearchAirportSheet({super.key, required this.title});
+class SearchHotelSheet extends StatefulWidget {
+  const SearchHotelSheet({super.key, required this.title});
   final String title;
 
   @override
-  State<SearchAirportSheet> createState() => _AirportSheetState();
+  State<SearchHotelSheet> createState() => _SearchHotelSheetState();
 }
 
-class _AirportSheetState extends State<SearchAirportSheet> {
+class _SearchHotelSheetState extends State<SearchHotelSheet> {
   @override
   void initState() {
     super.initState();
@@ -22,7 +22,6 @@ class _AirportSheetState extends State<SearchAirportSheet> {
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height * 0.5;
-
     return SafeArea(
       child: Padding(
         padding: EdgeInsets.only(
@@ -47,7 +46,7 @@ class _AirportSheetState extends State<SearchAirportSheet> {
                   Expanded(
                     child: TextField(
                       decoration: InputDecoration(
-                        hintText: "Where do you want to go?",
+                        hintText: 'Hotel',
                         hintStyle: TextStyle(color: Colors.grey),
                         prefixIcon: Icon(Icons.search,
                             color: Theme.of(context).colorScheme.primary),
@@ -81,7 +80,6 @@ class _AirportSheetState extends State<SearchAirportSheet> {
                           padding: const EdgeInsets.only(bottom: 10),
                           child: Row(
                             children: [
-                              const Icon(Icons.local_airport),
                               const SizedBox(width: 8),
                               Expanded(
                                 child: TextButton(
@@ -96,24 +94,33 @@ class _AirportSheetState extends State<SearchAirportSheet> {
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: const [
-                                          Text(
-                                            "Incheon Int' Airport",
-                                            style: TextStyle(
-                                                fontSize: 18,
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                          Text('Incheon, Korea'),
-                                        ],
+                                      Align(
+                                        alignment: Alignment.centerLeft,
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: const [
+                                            Text(
+                                              "Tokyo",
+                                              style: TextStyle(
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                            Text(
+                                              'Japan',
+                                            ),
+                                          ],
+                                        ),
                                       ),
-                                      const Text(
-                                        'ICN',
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          color: Color.fromRGBO(48, 48, 48, 1),
+                                      Align(
+                                        alignment: Alignment.bottomRight,
+                                        child: const Text(
+                                          '5,367',
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            color:
+                                                Color.fromRGBO(48, 48, 48, 1),
+                                          ),
                                         ),
                                       ),
                                     ],

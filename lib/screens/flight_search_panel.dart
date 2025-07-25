@@ -3,13 +3,13 @@ import 'package:chat_app/screens/calendar_sheet.dart';
 import 'package:chat_app/screens/search_airport_sheet.dart';
 import 'package:chat_app/screens/traveler_selector_sheet.dart';
 
-class SearchFlight extends StatefulWidget {
-  const SearchFlight({super.key});
+class FlightSearchPanel extends StatefulWidget {
+  const FlightSearchPanel({super.key});
   @override
-  State<SearchFlight> createState() => _SearchFlightState();
+  State<FlightSearchPanel> createState() => _FlightSearchPanelState();
 }
 
-class _SearchFlightState extends State<SearchFlight> {
+class _FlightSearchPanelState extends State<FlightSearchPanel> {
   static const double _padding = 20.0;
 
   @override
@@ -41,8 +41,8 @@ class _SearchFlightState extends State<SearchFlight> {
                             shape: const RoundedRectangleBorder(
                                 borderRadius: BorderRadius.vertical(
                                     top: Radius.circular(20))),
-                            builder: (ctx) => const SearchAirportSheet(
-                                title: "Departure Airport"));
+                            builder: (ctx) =>
+                                const SearchAirportSheet(title: "Airport"));
                       },
                       child: const Row(
                         mainAxisAlignment: MainAxisAlignment.start,
@@ -99,7 +99,11 @@ class _SearchFlightState extends State<SearchFlight> {
                         shape: const RoundedRectangleBorder(
                             borderRadius: BorderRadius.vertical(
                                 top: Radius.circular(20))),
-                        builder: (ctx) => const CalendarSheet());
+                        builder: (ctx) => CalendarSheet(
+                              firstTitle: "One Way",
+                              secondTitle: "Round Trip",
+                              isOnlyTab: false,
+                            ));
                   },
                   style: OutlinedButton.styleFrom(
                     side: BorderSide(
@@ -137,7 +141,7 @@ class _SearchFlightState extends State<SearchFlight> {
                           borderRadius: BorderRadius.zero),
                     ),
                     child: const Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Icon(Icons.person),
                           SizedBox(width: 5),
