@@ -191,10 +191,21 @@ class _FlightSearchPanelState extends State<FlightSearchPanel> {
                 border: Border.all(color: Colors.green, width: 2),
               ),
               height: 1000,
-              child: const Column(
+              child: Column(
                 children: [
                   SizedBox(height: _padding),
-                  RecentSearchPanel(),
+                  RecentSearchPanel(
+                    destination: "Busan to New York City",
+                    tripDateRange: "Aug 9 - Aug 11",
+                    icons: [
+                      const SizedBox(width: 10),
+                      Icon(
+                        Icons.person,
+                        color: Colors.grey[500],
+                        size: 20.0,
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),

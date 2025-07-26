@@ -245,7 +245,44 @@ class _HotelSearchPanelState extends State<HotelSearchPanel> {
                     ],
                   ),
                   SizedBox(height: _padding),
-                  RecentSearchPanel(),
+                  RecentSearchPanel(
+                    destination: "Seoul",
+                    tripDateRange: "Aug 9 - Aug 11",
+                    icons: [
+                      const SizedBox(width: 10),
+                      Text(
+                        "|",
+                        style: TextStyle(color: Colors.grey[500]),
+                      ),
+                      const SizedBox(width: 10),
+                      Icon(
+                        Icons.bed,
+                        color: Colors.grey[500],
+                        size: 20.0,
+                      ),
+                      const SizedBox(width: 10),
+                      Text(
+                        "1",
+                        style: TextStyle(
+                          color: Colors.grey[500],
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Icon(
+                        Icons.person,
+                        color: Colors.grey[500],
+                        size: 20.0,
+                      ),
+                      const SizedBox(width: 10),
+                      Text(
+                        "2",
+                        style: TextStyle(
+                          color: Colors.grey[500],
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                    ],
+                  ),
                 ],
               ),
             ),

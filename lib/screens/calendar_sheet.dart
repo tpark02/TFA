@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class CalendarSheet extends StatefulWidget {
-  CalendarSheet(
+  const CalendarSheet(
       {super.key,
       required this.firstTitle,
       required this.secondTitle,
@@ -33,7 +33,7 @@ class _CalendarSheetState extends State<CalendarSheet>
 
   @override
   Widget build(BuildContext context) {
-    print(" is only : " + widget.isOnlyTab.toString());
+    print(" is only : ${widget.isOnlyTab}");
     final height =
         MediaQuery.of(context).size.height * 0.7; // 95% of screen height
 
