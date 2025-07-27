@@ -151,8 +151,11 @@ class _HotelSearchPanelState extends State<HotelSearchPanel> {
                       ),
                     ),
                     child: const Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [Text('Search Hotel')]),
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text('Search Hotel'),
+                      ],
+                    ),
                   ),
                 ),
               ],
@@ -161,130 +164,122 @@ class _HotelSearchPanelState extends State<HotelSearchPanel> {
           // Bottom box
           Padding(
             padding: const EdgeInsets.all(_padding),
-            child: Container(
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.green, width: 2),
-              ),
-              child: Column(
-                children: [
-                  const Row(
-                    children: [
-                      Text(
-                        "Suggestions",
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: _padding),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: InkWell(
-                          onTap: () {
-                            // your code here
-                          },
-                          child: Card(
-                            elevation: 1,
-                            color: Theme.of(context).cardColor,
-                            shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.zero,
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(5),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    Icons.near_me,
-                                    color: Color.fromRGBO(0, 140, 255, 1),
-                                  ),
-                                  SizedBox(width: 8),
-                                  Column(
-                                    children: [
-                                      Text(
-                                        "Seoul",
-                                        style: TextStyle(
-                                            fontSize: 16,
-                                            color:
-                                                Color.fromRGBO(99, 99, 99, 1)),
-                                      ),
-                                      Text(
-                                        "Tonight",
-                                        style: TextStyle(
-                                            fontSize: 12,
-                                            color:
-                                                Color.fromRGBO(99, 99, 99, 1)),
-                                      ),
-                                    ],
-                                  ),
-                                  const Spacer(),
-                                  Container(
-                                    width: 100,
-                                    height: 30,
-                                    alignment: Alignment.center,
-                                    decoration: BoxDecoration(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .primary,
-                                        borderRadius: BorderRadius.zero),
-                                    child: Text(
-                                      "Check",
+            child: Column(
+              children: [
+                const Row(
+                  children: [
+                    Text(
+                      "Suggestions",
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+                SizedBox(height: _padding),
+                Row(
+                  children: [
+                    Expanded(
+                      child: InkWell(
+                        onTap: () {
+                          // your code here
+                        },
+                        child: Card(
+                          elevation: 1,
+                          color: Theme.of(context).cardColor,
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.zero,
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(5),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.near_me,
+                                  color: Color.fromRGBO(0, 140, 255, 1),
+                                ),
+                                SizedBox(width: 8),
+                                Column(
+                                  children: [
+                                    Text(
+                                      "Seoul",
                                       style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold),
-                                      textAlign: TextAlign.center,
+                                          fontSize: 16,
+                                          color: Color.fromRGBO(99, 99, 99, 1)),
                                     ),
-                                  )
-                                ],
-                              ),
+                                    Text(
+                                      "Tonight",
+                                      style: TextStyle(
+                                          fontSize: 12,
+                                          color: Color.fromRGBO(99, 99, 99, 1)),
+                                    ),
+                                  ],
+                                ),
+                                const Spacer(),
+                                Container(
+                                  width: 100,
+                                  height: 30,
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
+                                      color:
+                                          Theme.of(context).colorScheme.primary,
+                                      borderRadius: BorderRadius.zero),
+                                  child: Text(
+                                    "Check",
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                )
+                              ],
                             ),
                           ),
                         ),
                       ),
-                    ],
-                  ),
-                  SizedBox(height: _padding),
-                  RecentSearchPanel(
-                    destination: "Seoul",
-                    tripDateRange: "Aug 9 - Aug 11",
-                    icons: [
-                      const SizedBox(width: 10),
-                      Text(
-                        "|",
-                        style: TextStyle(color: Colors.grey[500]),
-                      ),
-                      const SizedBox(width: 10),
-                      Icon(
-                        Icons.bed,
+                    ),
+                  ],
+                ),
+                SizedBox(height: _padding),
+                RecentSearchPanel(
+                  destination: "Seoul",
+                  tripDateRange: "Aug 9 - Aug 11",
+                  icons: [
+                    const SizedBox(width: 10),
+                    Text(
+                      "|",
+                      style: TextStyle(color: Colors.grey[500]),
+                    ),
+                    const SizedBox(width: 10),
+                    Icon(
+                      Icons.bed,
+                      color: Colors.grey[500],
+                      size: 20.0,
+                    ),
+                    const SizedBox(width: 10),
+                    Text(
+                      "1",
+                      style: TextStyle(
                         color: Colors.grey[500],
-                        size: 20.0,
                       ),
-                      const SizedBox(width: 10),
-                      Text(
-                        "1",
-                        style: TextStyle(
-                          color: Colors.grey[500],
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Icon(
-                        Icons.person,
+                    ),
+                    const SizedBox(width: 10),
+                    Icon(
+                      Icons.person,
+                      color: Colors.grey[500],
+                      size: 20.0,
+                    ),
+                    const SizedBox(width: 10),
+                    Text(
+                      "2",
+                      style: TextStyle(
                         color: Colors.grey[500],
-                        size: 20.0,
                       ),
-                      const SizedBox(width: 10),
-                      Text(
-                        "2",
-                        style: TextStyle(
-                          color: Colors.grey[500],
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                    ],
-                  ),
-                ],
-              ),
+                    ),
+                    const SizedBox(width: 10),
+                  ],
+                ),
+              ],
             ),
           ),
         ],

@@ -33,7 +33,7 @@ class _CalendarSheetState extends State<CalendarSheet>
 
   @override
   Widget build(BuildContext context) {
-    print(" is only : ${widget.isOnlyTab}");
+    debugPrint(" is only : ${widget.isOnlyTab}");
     final height =
         MediaQuery.of(context).size.height * 0.7; // 95% of screen height
 
@@ -82,7 +82,7 @@ class _CalendarSheetState extends State<CalendarSheet>
                           DateTime.now().subtract(const Duration(days: 365)),
                       lastDate: DateTime.now().add(const Duration(days: 365)),
                       onDateChanged: (date) {
-                        print("Selected date: $date");
+                        debugPrint("Selected date: $date");
                       },
                     ),
                     CalendarDatePicker(
@@ -91,7 +91,7 @@ class _CalendarSheetState extends State<CalendarSheet>
                           DateTime.now().subtract(const Duration(days: 365)),
                       lastDate: DateTime.now().add(const Duration(days: 365)),
                       onDateChanged: (date) {
-                        print("Selected date: $date");
+                        debugPrint("Selected date: $date");
                       },
                     ),
                   ],

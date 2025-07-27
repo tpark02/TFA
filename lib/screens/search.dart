@@ -110,11 +110,26 @@ class _SearchScreenState extends State<SearchScreen> {
           const SizedBox(height: _padding),
           // Search area + button
           Expanded(
-            child: _selectedIndex == 0
-                ? FlightSearchPanel()
-                : _selectedIndex == 1
-                    ? HotelSearchPanel()
-                    : CarSearchPanel(),
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              transitionBuilder: (Widget child, Animation<double> animation) {
+                return FadeTransition(
+                  opacity: animation,
+                  child: SlideTransition(
+                    position: Tween<Offset>(
+                      begin: const Offset(0.0, 0.1), // slight vertical offset
+                      end: Offset.zero,
+                    ).animate(animation),
+                    child: child,
+                  ),
+                );
+              },
+              child: _selectedIndex == 0
+                  ? const FlightSearchPanel(key: ValueKey(0))
+                  : _selectedIndex == 1
+                      ? const HotelSearchPanel(key: ValueKey(1))
+                      : const CarSearchPanel(key: ValueKey(2)),
+            ),
           ),
           // Bottom box
           Container(

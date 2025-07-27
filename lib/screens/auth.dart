@@ -32,11 +32,11 @@ class _AuthScreenState extends State<AuthScreen> {
       if (_isLogin) {
         final userCredentials = await _firebase.signInWithEmailAndPassword(
             email: _enteredEmail, password: _enteredPassword);
-        print(userCredentials);
+        debugPrint(userCredentials as String?);
       } else {
         final userCredentials = await _firebase.createUserWithEmailAndPassword(
             email: _enteredEmail, password: _enteredPassword);
-        print(userCredentials);
+        debugPrint(userCredentials as String?);
       }
     } on FirebaseAuthException catch (error) {
       if (error.code == 'email-already-in-use') {

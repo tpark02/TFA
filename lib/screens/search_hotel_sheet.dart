@@ -10,16 +10,6 @@ class SearchHotelSheet extends StatefulWidget {
 
 class _SearchHotelSheetState extends State<SearchHotelSheet> {
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height * 0.5;
     return SafeArea(

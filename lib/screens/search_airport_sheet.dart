@@ -1,14 +1,18 @@
+import 'package:chat_app/providers/airport_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class SearchAirportSheet extends StatefulWidget {
-  const SearchAirportSheet({super.key, required this.title});
+class SearchAirportSheet extends ConsumerStatefulWidget {
+  const SearchAirportSheet(
+      {super.key, required this.title, required this.isDeparture});
   final String title;
+  final bool isDeparture;
 
   @override
-  State<SearchAirportSheet> createState() => _AirportSheetState();
+  ConsumerState<SearchAirportSheet> createState() => _AirportSheetState();
 }
 
-class _AirportSheetState extends State<SearchAirportSheet> {
+class _AirportSheetState extends ConsumerState<SearchAirportSheet> {
   @override
   void initState() {
     super.initState();
@@ -22,6 +26,28 @@ class _AirportSheetState extends State<SearchAirportSheet> {
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height * 0.5;
+    final query = ref.watch(searchQueryProvider);
+    final airportData = ref.watch(airportDataProvider);
+
+    final filteredAirports = airportData.maybeWhen(
+      data: (airports) {
+        // debugPrint('Query: "$query"');
+        if (query.length < 2) {
+          return [];
+        }
+
+        final matches = airports.where((a) {
+          final inIATA = a.iataCode.toLowerCase().contains(query);
+          final inName = a.airportName.toLowerCase().contains(query);
+          final inCity = a.city.toLowerCase().contains(query);
+          final inCountry = a.country.toLowerCase().contains(query);
+
+          return inName || inCity || inCountry || inIATA;
+        }).toList();
+        return matches;
+      },
+      orElse: () => [],
+    );
 
     return SafeArea(
       child: Padding(
@@ -46,8 +72,10 @@ class _AirportSheetState extends State<SearchAirportSheet> {
                 children: [
                   Expanded(
                     child: TextField(
+                      onChanged: (value) =>
+                          ref.read(searchQueryProvider.notifier).state = value,
                       decoration: InputDecoration(
-                        hintText: "Where do you want to go?",
+                        hintText: widget.isDeparture ? "From" : "To",
                         hintStyle: TextStyle(color: Colors.grey),
                         prefixIcon: Icon(Icons.search,
                             color: Theme.of(context).colorScheme.primary),
@@ -76,7 +104,7 @@ class _AirportSheetState extends State<SearchAirportSheet> {
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
-                      for (int i = 0; i < 10; i++)
+                      for (final airport in filteredAirports)
                         Padding(
                           padding: const EdgeInsets.only(bottom: 10),
                           child: Row(
@@ -85,36 +113,47 @@ class _AirportSheetState extends State<SearchAirportSheet> {
                               const SizedBox(width: 8),
                               Expanded(
                                 child: TextButton(
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    // handle selection
+                                    debugPrint("Selected: ${airport.iataCode}");
+                                    Navigator.pop(context, airport.iataCode);
+                                  },
                                   style: TextButton.styleFrom(
-                                    padding: EdgeInsets
-                                        .zero, // remove default padding
-                                    alignment: Alignment
-                                        .centerLeft, // align entire content left
+                                    padding: EdgeInsets.zero,
+                                    alignment: Alignment.centerLeft,
                                   ),
                                   child: Row(
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: const [
-                                          Text(
-                                            "Incheon Int' Airport",
-                                            style: TextStyle(
-                                                fontSize: 18,
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                          Text('Incheon, Korea'),
-                                        ],
-                                      ),
-                                      const Text(
-                                        'ICN',
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          color: Color.fromRGBO(48, 48, 48, 1),
+                                      Flexible(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              airport.airportName,
+                                              overflow: TextOverflow
+                                                  .ellipsis, // 🔥 cut if too long
+                                              style: const TextStyle(
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                            Text(
+                                                overflow: TextOverflow
+                                                    .ellipsis, // 🔥 cut if too long
+                                                '${airport.city}, ${airport.country}'),
+                                          ],
                                         ),
+                                      ),
+                                      Text(
+                                        airport.iataCode,
+                                        overflow: TextOverflow
+                                            .ellipsis, // 🔥 cut if too long
+                                        style: const TextStyle(
+                                            fontSize: 14,
+                                            color:
+                                                Color.fromRGBO(48, 48, 48, 1)),
                                       ),
                                     ],
                                   ),
@@ -122,7 +161,7 @@ class _AirportSheetState extends State<SearchAirportSheet> {
                               ),
                             ],
                           ),
-                        ),
+                        )
                     ],
                   ),
                 ),

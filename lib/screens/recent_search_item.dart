@@ -22,6 +22,7 @@ class RecentSearchItem extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                SizedBox(height: 10.0),
                 Text(
                   destination,
                   style: TextStyle(
@@ -43,6 +44,7 @@ class RecentSearchItem extends StatelessWidget {
                     for (int i = 0; i < icons.length; i++) icons[i],
                   ],
                 ),
+                SizedBox(height: 10.0),
               ],
             ),
           ),

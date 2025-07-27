@@ -3,15 +3,19 @@ import 'package:flutter/material.dart';
 import 'package:chat_app/screens/calendar_sheet.dart';
 import 'package:chat_app/screens/search_airport_sheet.dart';
 import 'package:chat_app/screens/traveler_selector_sheet.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:chat_app/providers/airport_provider.dart';
 
-class FlightSearchPanel extends StatefulWidget {
+class FlightSearchPanel extends ConsumerStatefulWidget {
   const FlightSearchPanel({super.key});
   @override
-  State<FlightSearchPanel> createState() => _FlightSearchPanelState();
+  ConsumerState<FlightSearchPanel> createState() => _FlightSearchPanelState();
 }
 
-class _FlightSearchPanelState extends State<FlightSearchPanel> {
+class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
   static const double _padding = 20.0;
+  var _departureAirport = "";
+  var _arrivalAirport = "";
 
   @override
   Widget build(BuildContext context) {
@@ -37,22 +41,34 @@ class _FlightSearchPanelState extends State<FlightSearchPanel> {
                             borderRadius: BorderRadius.zero,
                           ),
                         ),
-                        onPressed: () {
-                          showModalBottomSheet(
-                              context: context,
-                              isScrollControlled: true,
-                              shape: const RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.vertical(
-                                      top: Radius.circular(20))),
-                              builder: (ctx) =>
-                                  const SearchAirportSheet(title: "Airport"));
+                        onPressed: () async {
+                          final result = await showModalBottomSheet<String>(
+                            context: context,
+                            isScrollControlled: true,
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.vertical(
+                                  top: Radius.circular(20)),
+                            ),
+                            builder: (ctx) => const SearchAirportSheet(
+                              title: "Airport",
+                              isDeparture: true,
+                            ),
+                          );
+
+                          if (result != null) {
+                            setState(() {
+                              _departureAirport = result;
+                            });
+                          }
                         },
-                        child: const Row(
+                        child: Row(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
-                            Icon(Icons.near_me),
-                            SizedBox(width: 8),
-                            Text('Departure'),
+                            const Icon(Icons.near_me),
+                            const SizedBox(width: 8),
+                            Text(_departureAirport.isEmpty
+                                ? 'Departure'
+                                : _departureAirport)
                           ],
                         ),
                       ),
@@ -67,21 +83,30 @@ class _FlightSearchPanelState extends State<FlightSearchPanel> {
                             borderRadius: BorderRadius.zero,
                           ),
                         ),
-                        onPressed: () {
-                          showModalBottomSheet(
+                        onPressed: () async {
+                          final result = await showModalBottomSheet<String>(
                               context: context,
                               isScrollControlled: true,
                               shape: const RoundedRectangleBorder(
                                   borderRadius: BorderRadius.vertical(
                                       top: Radius.circular(20))),
                               builder: (ctx) => const SearchAirportSheet(
-                                  title: "Arrival Airport"));
+                                    title: "Arrival Airport",
+                                    isDeparture: false,
+                                  ));
+                          if (result != null) {
+                            setState(() {
+                              _arrivalAirport = result;
+                            });
+                          }
                         },
-                        child: const Row(
+                        child: Row(
                           children: [
                             Icon(Icons.swap_calls),
                             SizedBox(width: 8),
-                            Text('Arrival'),
+                            Text(_arrivalAirport.isEmpty
+                                ? 'Arrival'
+                                : _arrivalAirport)
                           ],
                         ),
                       ),
@@ -163,51 +188,43 @@ class _FlightSearchPanelState extends State<FlightSearchPanel> {
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: _padding),
-            child: Row(
+            child: Column(
               children: [
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Theme.of(context).colorScheme.primary,
-                      foregroundColor: Colors.white,
-                      shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.zero,
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () {},
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                              Theme.of(context).colorScheme.primary,
+                          foregroundColor: Colors.white,
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.zero,
+                          ),
+                        ),
+                        child: const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [Text('Search Flight')]),
                       ),
+                    )
+                  ],
+                ),
+                // Bottom box
+                SizedBox(height: _padding),
+                RecentSearchPanel(
+                  destination: "Busan to New York City",
+                  tripDateRange: "Aug 9 - Aug 11",
+                  icons: [
+                    const SizedBox(width: 10),
+                    Icon(
+                      Icons.person,
+                      color: Colors.grey[500],
+                      size: 20.0,
                     ),
-                    child: const Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [Text('Search Flight')]),
-                  ),
-                )
+                  ],
+                ),
               ],
-            ),
-          ),
-          // Bottom box
-          Padding(
-            padding: const EdgeInsets.all(_padding),
-            child: Container(
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.green, width: 2),
-              ),
-              height: 1000,
-              child: Column(
-                children: [
-                  SizedBox(height: _padding),
-                  RecentSearchPanel(
-                    destination: "Busan to New York City",
-                    tripDateRange: "Aug 9 - Aug 11",
-                    icons: [
-                      const SizedBox(width: 10),
-                      Icon(
-                        Icons.person,
-                        color: Colors.grey[500],
-                        size: 20.0,
-                      ),
-                    ],
-                  ),
-                ],
-              ),
             ),
           ),
         ],
