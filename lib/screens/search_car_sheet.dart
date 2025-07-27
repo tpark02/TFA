@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class SearchCarSheet extends StatefulWidget {
+  const SearchCarSheet({super.key});
+
   @override
   State<SearchCarSheet> createState() => _SearchHotelSheetState();
 }

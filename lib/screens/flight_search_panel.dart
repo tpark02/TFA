@@ -4,7 +4,6 @@ import 'package:chat_app/screens/calendar_sheet.dart';
 import 'package:chat_app/screens/search_airport_sheet.dart';
 import 'package:chat_app/screens/traveler_selector_sheet.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:chat_app/providers/airport_provider.dart';
 
 class FlightSearchPanel extends ConsumerStatefulWidget {
   const FlightSearchPanel({super.key});
