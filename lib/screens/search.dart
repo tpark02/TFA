@@ -18,8 +18,10 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: Colors.white,
       appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        foregroundColor: Colors.white,
         title: const Text('Search'),
         centerTitle: true,
         actions: [
@@ -39,69 +41,75 @@ class _SearchScreenState extends State<SearchScreen> {
           // Avatar Row
           Container(
             decoration: const BoxDecoration(
-                // border: Border.all(color: Colors.red, width: 2),
-                ),
+              // border: Border.all(color: Colors.red, width: 2),
+            ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 Column(
                   children: [
                     IconButton(
-                        onPressed: () {
-                          setState(() {
-                            _selectedIndex = 0;
-                          });
-                        },
-                        icon: const Icon(Icons.flight_takeoff),
-                        iconSize: 30,
-                        style: IconButton.styleFrom(
-                            shape: const CircleBorder(),
-                            backgroundColor: Colors.grey[200],
-                            foregroundColor: _selectedIndex == 0
-                                ? Theme.of(context).colorScheme.primary
-                                : Colors.grey[500]!)),
+                      onPressed: () {
+                        setState(() {
+                          _selectedIndex = 0;
+                        });
+                      },
+                      icon: const Icon(Icons.flight_takeoff),
+                      iconSize: 30,
+                      style: IconButton.styleFrom(
+                        shape: const CircleBorder(),
+                        backgroundColor: Colors.grey[200],
+                        foregroundColor: _selectedIndex == 0
+                            ? Theme.of(context).colorScheme.primary
+                            : Colors.grey[500]!,
+                      ),
+                    ),
                     SizedBox(height: 8),
-                    const Text("Flight")
+                    const Text("Flight"),
                   ],
                 ),
                 Column(
                   children: [
                     IconButton(
-                        onPressed: () {
-                          setState(() {
-                            _selectedIndex = 1;
-                          });
-                        },
-                        icon: const Icon(Icons.hotel),
-                        iconSize: 30,
-                        style: IconButton.styleFrom(
-                            shape: const CircleBorder(),
-                            backgroundColor: Colors.grey[200],
-                            foregroundColor: _selectedIndex == 1
-                                ? Theme.of(context).colorScheme.primary
-                                : Colors.grey[500]!)),
+                      onPressed: () {
+                        setState(() {
+                          _selectedIndex = 1;
+                        });
+                      },
+                      icon: const Icon(Icons.hotel),
+                      iconSize: 30,
+                      style: IconButton.styleFrom(
+                        shape: const CircleBorder(),
+                        backgroundColor: Colors.grey[200],
+                        foregroundColor: _selectedIndex == 1
+                            ? Theme.of(context).colorScheme.primary
+                            : Colors.grey[500]!,
+                      ),
+                    ),
                     SizedBox(height: 8),
-                    const Text("Hotel")
+                    const Text("Hotel"),
                   ],
                 ),
                 Column(
                   children: [
                     IconButton(
-                        onPressed: () {
-                          setState(() {
-                            _selectedIndex = 2;
-                          });
-                        },
-                        icon: const Icon(Icons.car_rental),
-                        iconSize: 30,
-                        style: IconButton.styleFrom(
-                            shape: const CircleBorder(),
-                            backgroundColor: Colors.grey[200],
-                            foregroundColor: _selectedIndex == 2
-                                ? Theme.of(context).colorScheme.primary
-                                : Colors.grey[500]!)),
+                      onPressed: () {
+                        setState(() {
+                          _selectedIndex = 2;
+                        });
+                      },
+                      icon: const Icon(Icons.car_rental),
+                      iconSize: 30,
+                      style: IconButton.styleFrom(
+                        shape: const CircleBorder(),
+                        backgroundColor: Colors.grey[200],
+                        foregroundColor: _selectedIndex == 2
+                            ? Theme.of(context).colorScheme.primary
+                            : Colors.grey[500]!,
+                      ),
+                    ),
                     SizedBox(height: 8),
-                    const Text("Cars")
+                    const Text("Cars"),
                   ],
                 ),
               ],
@@ -127,15 +135,15 @@ class _SearchScreenState extends State<SearchScreen> {
               child: _selectedIndex == 0
                   ? const FlightSearchPanel(key: ValueKey(0))
                   : _selectedIndex == 1
-                      ? const HotelSearchPanel(key: ValueKey(1))
-                      : const CarSearchPanel(key: ValueKey(2)),
+                  ? const HotelSearchPanel(key: ValueKey(1))
+                  : const CarSearchPanel(key: ValueKey(2)),
             ),
           ),
           // Bottom box
           Container(
             decoration: const BoxDecoration(
-                // border: Border.all(color: Colors.green, width: 2),
-                ),
+              // border: Border.all(color: Colors.green, width: 2),
+            ),
             height: 50,
             child: const Row(),
           ),

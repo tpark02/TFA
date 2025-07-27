@@ -23,97 +23,106 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
       child: Column(
         children: [
           Padding(
-              padding: const EdgeInsets.symmetric(horizontal: _padding),
-              child: Container(
-                decoration: BoxDecoration(
-                  border: Border.all(
-                      color: Theme.of(context).colorScheme.primary, width: 1),
+            padding: const EdgeInsets.symmetric(horizontal: _padding),
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: Theme.of(context).colorScheme.primary,
+                  width: 1,
                 ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        style: OutlinedButton.styleFrom(
-                          side: BorderSide.none, // Remove default border
-                          foregroundColor:
-                              Theme.of(context).colorScheme.primary,
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.zero,
-                          ),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      style: OutlinedButton.styleFrom(
+                        side: BorderSide.none, // Remove default border
+                        foregroundColor: Theme.of(context).colorScheme.primary,
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.zero,
                         ),
-                        onPressed: () async {
-                          final result = await showModalBottomSheet<String>(
-                            context: context,
-                            isScrollControlled: true,
-                            shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.vertical(
-                                  top: Radius.circular(20)),
+                      ),
+                      onPressed: () async {
+                        final result = await showModalBottomSheet<String>(
+                          context: context,
+                          isScrollControlled: true,
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.vertical(
+                              top: Radius.circular(20),
                             ),
-                            builder: (ctx) => const SearchAirportSheet(
-                              title: "Airport",
-                              isDeparture: true,
-                            ),
-                          );
+                          ),
+                          builder: (ctx) => const SearchAirportSheet(
+                            title: "Airport",
+                            isDeparture: true,
+                          ),
+                        );
 
-                          if (result != null) {
-                            setState(() {
-                              _departureAirport = result;
-                            });
-                          }
-                        },
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            const Icon(Icons.near_me),
-                            const SizedBox(width: 8),
-                            Text(_departureAirport.isEmpty
+                        if (result != null) {
+                          setState(() {
+                            _departureAirport = result;
+                          });
+                        }
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          const Icon(Icons.near_me),
+                          const SizedBox(width: 8),
+                          Text(
+                            _departureAirport.isEmpty
                                 ? 'Departure'
-                                : _departureAirport)
-                          ],
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: OutlinedButton(
-                        style: OutlinedButton.styleFrom(
-                          side: BorderSide.none,
-                          foregroundColor:
-                              Theme.of(context).colorScheme.primary,
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.zero,
+                                : _departureAirport,
                           ),
-                        ),
-                        onPressed: () async {
-                          final result = await showModalBottomSheet<String>(
-                              context: context,
-                              isScrollControlled: true,
-                              shape: const RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.vertical(
-                                      top: Radius.circular(20))),
-                              builder: (ctx) => const SearchAirportSheet(
-                                    title: "Arrival Airport",
-                                    isDeparture: false,
-                                  ));
-                          if (result != null) {
-                            setState(() {
-                              _arrivalAirport = result;
-                            });
-                          }
-                        },
-                        child: Row(
-                          children: [
-                            Icon(Icons.swap_calls),
-                            SizedBox(width: 8),
-                            Text(_arrivalAirport.isEmpty
-                                ? 'Arrival'
-                                : _arrivalAirport)
-                          ],
-                        ),
+                        ],
                       ),
                     ),
-                  ],
-                ),
-              )),
+                  ),
+                  Expanded(
+                    child: OutlinedButton(
+                      style: OutlinedButton.styleFrom(
+                        side: BorderSide.none,
+                        foregroundColor: Theme.of(context).colorScheme.primary,
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.zero,
+                        ),
+                      ),
+                      onPressed: () async {
+                        final result = await showModalBottomSheet<String>(
+                          context: context,
+                          isScrollControlled: true,
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.vertical(
+                              top: Radius.circular(20),
+                            ),
+                          ),
+                          builder: (ctx) => const SearchAirportSheet(
+                            title: "Arrival Airport",
+                            isDeparture: false,
+                          ),
+                        );
+                        if (result != null) {
+                          setState(() {
+                            _arrivalAirport = result;
+                          });
+                        }
+                      },
+                      child: Row(
+                        children: [
+                          Icon(Icons.swap_calls),
+                          SizedBox(width: 8),
+                          Text(
+                            _arrivalAirport.isEmpty
+                                ? 'Arrival'
+                                : _arrivalAirport,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: _padding),
             child: Row(
@@ -123,66 +132,80 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
                   child: OutlinedButton(
                     onPressed: () {
                       showModalBottomSheet(
-                          context: context,
-                          isScrollControlled: true,
-                          shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.vertical(
-                                  top: Radius.circular(20))),
-                          builder: (ctx) => CalendarSheet(
-                                firstTitle: "One Way",
-                                secondTitle: "Round Trip",
-                                isOnlyTab: false,
-                              ));
+                        context: context,
+                        isScrollControlled: true,
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.vertical(
+                            top: Radius.circular(20),
+                          ),
+                        ),
+                        builder: (ctx) => CalendarSheet(
+                          firstTitle: "One Way",
+                          secondTitle: "Round Trip",
+                          isOnlyTab: false,
+                        ),
+                      );
                     },
                     style: OutlinedButton.styleFrom(
                       side: BorderSide(
-                          color: Theme.of(context).colorScheme.primary,
-                          width: 1),
+                        color: Theme.of(context).colorScheme.primary,
+                        width: 1,
+                      ),
                       shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.zero),
+                        borderRadius: BorderRadius.zero,
+                      ),
                     ),
-                    child: const Row(children: [
-                      Icon(Icons.calendar_month),
-                      SizedBox(width: _padding),
-                      Text('Search')
-                    ]),
+                    child: const Row(
+                      children: [
+                        Icon(Icons.calendar_month),
+                        SizedBox(width: _padding),
+                        Text('Search'),
+                      ],
+                    ),
                   ),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
-                    flex: 4,
-                    child: OutlinedButton(
-                      onPressed: () {
-                        showModalBottomSheet(
-                            context: context,
-                            isScrollControlled: true,
-                            shape: const RoundedRectangleBorder(
-                                borderRadius: BorderRadius.vertical(
-                                    top: Radius.circular(20))),
-                            builder: (ctx) => const TravelerSelectorSheet());
-                      },
-                      style: OutlinedButton.styleFrom(
-                        // padding: EdgeInsets.only(
-                        //     left: 10), // 🔥 Kill default horizontal padding
-                        side: BorderSide(
-                            color: Theme.of(context).colorScheme.primary,
-                            width: 1),
+                  flex: 4,
+                  child: OutlinedButton(
+                    onPressed: () {
+                      showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
                         shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.zero),
+                          borderRadius: BorderRadius.vertical(
+                            top: Radius.circular(20),
+                          ),
+                        ),
+                        builder: (ctx) => const TravelerSelectorSheet(),
+                      );
+                    },
+                    style: OutlinedButton.styleFrom(
+                      // padding: EdgeInsets.only(
+                      //     left: 10), // 🔥 Kill default horizontal padding
+                      side: BorderSide(
+                        color: Theme.of(context).colorScheme.primary,
+                        width: 1,
                       ),
-                      child: const Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Icon(Icons.person),
-                            SizedBox(width: 5),
-                            Text('1'),
-                            SizedBox(width: 5),
-                            Text('|'),
-                            SizedBox(width: 5),
-                            Icon(Icons.airline_seat_recline_normal),
-                            Text('Eco'),
-                          ]),
-                    )),
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.zero,
+                      ),
+                    ),
+                    child: const Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Icon(Icons.person),
+                        SizedBox(width: 5),
+                        Text('1'),
+                        SizedBox(width: 5),
+                        Text('|'),
+                        SizedBox(width: 5),
+                        Icon(Icons.airline_seat_recline_normal),
+                        Text('Eco'),
+                      ],
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
@@ -196,18 +219,22 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
                       child: ElevatedButton(
                         onPressed: () {},
                         style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              Theme.of(context).colorScheme.primary,
-                          foregroundColor: Colors.white,
+                          backgroundColor: Theme.of(
+                            context,
+                          ).colorScheme.primary,
+                          foregroundColor: Theme.of(
+                            context,
+                          ).colorScheme.onPrimary,
                           shape: const RoundedRectangleBorder(
                             borderRadius: BorderRadius.zero,
                           ),
                         ),
                         child: const Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [Text('Search Flight')]),
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [Text('Search Flight')],
+                        ),
                       ),
-                    )
+                    ),
                   ],
                 ),
                 // Bottom box
@@ -217,11 +244,7 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
                   tripDateRange: "Aug 9 - Aug 11",
                   icons: [
                     const SizedBox(width: 10),
-                    Icon(
-                      Icons.person,
-                      color: Colors.grey[500],
-                      size: 20.0,
-                    ),
+                    Icon(Icons.person, color: Colors.grey[500], size: 20.0),
                   ],
                 ),
               ],

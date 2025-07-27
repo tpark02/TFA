@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
 class CalendarSheet extends StatefulWidget {
-  const CalendarSheet(
-      {super.key,
-      required this.firstTitle,
-      required this.secondTitle,
-      required this.isOnlyTab});
+  const CalendarSheet({
+    super.key,
+    required this.firstTitle,
+    required this.secondTitle,
+    required this.isOnlyTab,
+  });
 
   final String firstTitle;
   final String secondTitle;
@@ -31,6 +33,9 @@ class _CalendarSheetState extends State<CalendarSheet>
     super.dispose();
   }
 
+  void _onSelectionChanged(DateRangePickerSelectionChangedArgs args) {
+    // TODO: implement your code here
+  }
   @override
   Widget build(BuildContext context) {
     debugPrint(" is only : ${widget.isOnlyTab}");
@@ -43,13 +48,11 @@ class _CalendarSheetState extends State<CalendarSheet>
           bottom: MediaQuery.of(context).viewInsets.bottom,
         ),
         child: Container(
-          constraints: BoxConstraints(
-            maxHeight: height,
-          ),
+          constraints: BoxConstraints(maxHeight: height),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: const BoxDecoration(
             borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-            color: Colors.white,
+            // color: Colors.white,
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -62,9 +65,9 @@ class _CalendarSheetState extends State<CalendarSheet>
               !widget.isOnlyTab
                   ? TabBar(
                       controller: _tabController,
-                      labelColor: Colors.deepPurple,
-                      unselectedLabelColor: Colors.grey,
-                      indicatorColor: Colors.deepPurple,
+                      // labelColor: Colors.deepPurple,
+                      // unselectedLabelColor: Colors.grey,
+                      // indicatorColor: Colors.deepPurple,
                       tabs: [
                         Tab(text: widget.firstTitle),
                         Tab(text: widget.secondTitle),
@@ -76,23 +79,31 @@ class _CalendarSheetState extends State<CalendarSheet>
                 child: TabBarView(
                   controller: _tabController,
                   children: [
-                    CalendarDatePicker(
-                      initialDate: DateTime.now(),
-                      firstDate:
-                          DateTime.now().subtract(const Duration(days: 365)),
-                      lastDate: DateTime.now().add(const Duration(days: 365)),
-                      onDateChanged: (date) {
-                        debugPrint("Selected date: $date");
-                      },
+                    SfDateRangePicker(
+                      onSelectionChanged: _onSelectionChanged,
+                      selectionMode: DateRangePickerSelectionMode.single,
+                      backgroundColor: Colors.transparent,
+                      headerStyle: DateRangePickerHeaderStyle(
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                        textStyle: TextStyle(
+                          color: Theme.of(context).colorScheme.onPrimary,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
-                    CalendarDatePicker(
-                      initialDate: DateTime.now(),
-                      firstDate:
-                          DateTime.now().subtract(const Duration(days: 365)),
-                      lastDate: DateTime.now().add(const Duration(days: 365)),
-                      onDateChanged: (date) {
-                        debugPrint("Selected date: $date");
-                      },
+                    SfDateRangePicker(
+                      onSelectionChanged: _onSelectionChanged,
+                      selectionMode: DateRangePickerSelectionMode.range,
+                      backgroundColor: Colors.transparent,
+                      headerStyle: DateRangePickerHeaderStyle(
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                        textStyle: TextStyle(
+                          color: Theme.of(context).colorScheme.onPrimary,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -103,7 +114,9 @@ class _CalendarSheetState extends State<CalendarSheet>
                   Expanded(
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        foregroundColor: Colors.white,
+                        foregroundColor: Theme.of(
+                          context,
+                        ).colorScheme.onPrimary,
                         backgroundColor: Theme.of(context).colorScheme.primary,
                         shape: RoundedRectangleBorder(
                           borderRadius:
@@ -115,7 +128,7 @@ class _CalendarSheetState extends State<CalendarSheet>
                     ),
                   ),
                 ],
-              )
+              ),
             ],
           ),
         ),

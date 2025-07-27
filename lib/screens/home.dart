@@ -8,7 +8,8 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.blue[800],
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        foregroundColor: Colors.white,
         elevation: 0,
         title: const TextField(
           decoration: InputDecoration(
@@ -56,12 +57,18 @@ class HomeScreen extends StatelessWidget {
                       children: [
                         Text('소개합니다', style: TextStyle(fontSize: 12)),
                         SizedBox(height: 4),
-                        Text('스킵래그드 보장',
-                            style: TextStyle(
-                                fontSize: 18, fontWeight: FontWeight.bold)),
+                        Text(
+                          '스킵래그드 보장',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                         SizedBox(height: 8),
-                        Text('모든 항공권에 추가 비용 없이 자동 보호 제공.',
-                            style: TextStyle(fontSize: 12)),
+                        Text(
+                          '모든 항공권에 추가 비용 없이 자동 보호 제공.',
+                          style: TextStyle(fontSize: 12),
+                        ),
                         SizedBox(height: 8),
                         ElevatedButton(
                           onPressed: null,
@@ -132,9 +139,11 @@ class HomeScreen extends StatelessWidget {
             backgroundImage: AssetImage('assets/images/chat.png'),
           ),
           const SizedBox(height: 6),
-          Text(label,
-              style: const TextStyle(fontSize: 12),
-              overflow: TextOverflow.ellipsis),
+          Text(
+            label,
+            style: const TextStyle(fontSize: 12),
+            overflow: TextOverflow.ellipsis,
+          ),
         ],
       ),
     );
@@ -169,10 +178,14 @@ class HomeScreen extends StatelessWidget {
                 left: 8,
                 child: Container(
                   color: Colors.redAccent,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                  child: const Text('Skiplagging',
-                      style: TextStyle(color: Colors.white, fontSize: 12)),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 2,
+                  ),
+                  child: const Text(
+                    'Skiplagging',
+                    style: TextStyle(color: Colors.white, fontSize: 12),
+                  ),
                 ),
               ),
               Positioned(
@@ -180,14 +193,17 @@ class HomeScreen extends StatelessWidget {
                 left: 8,
                 child: Container(
                   color: Colors.black.withOpacity(0.6),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 2,
+                  ),
                   child: Text(
                     '$originalPrice → $discountPrice',
                     style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold),
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),
