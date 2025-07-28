@@ -35,15 +35,15 @@ class RecentSearchPanel extends ConsumerWidget {
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 20),
-        ListView.separated(
+        ListView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           itemCount: paddedSearches.length,
           itemBuilder: (context, index) {
             return RecentSearchItem(search: paddedSearches[index]);
           },
-          separatorBuilder: (context, index) =>
-              const Divider(color: Colors.grey, thickness: 0.5, height: 10),
+          // separatorBuilder: (context, index) =>
+          // const Divider(color: Colors.grey, thickness: 0.5, height: 10),
         ),
       ],
     );

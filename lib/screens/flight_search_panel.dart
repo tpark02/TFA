@@ -262,6 +262,17 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
                       child: ElevatedButton(
                         onPressed: () {
                           debugPrint(flightState.toString());
+                          final hasPassengers = flightState.passengerCount > 0;
+                          final hasAirports =
+                              flightState.departureAirportCode.isNotEmpty &&
+                              flightState.arrivalAirportCode.isNotEmpty;
+                          final hasDate =
+                              (flightState.displayDate ?? '').isNotEmpty;
+
+                          if (!hasPassengers || !hasAirports || !hasDate) {
+                            return;
+                          }
+
                           controller.addRecentSearch(
                             RecentSearch(
                               destination:
