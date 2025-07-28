@@ -63,7 +63,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '523980747506',
     projectId: 'flutter-chat-app-42c5e',
     storageBucket: 'flutter-chat-app-42c5e.appspot.com',
-    iosClientId: '523980747506-1fd8e8pg1ld5dvnn854b2pvnt6vjm9vd.apps.googleusercontent.com',
+    iosClientId:
+        '523980747506-1fd8e8pg1ld5dvnn854b2pvnt6vjm9vd.apps.googleusercontent.com',
     iosBundleId: 'com.example.chatApp',
   );
 }
