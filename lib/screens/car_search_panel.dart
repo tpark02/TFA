@@ -1,5 +1,4 @@
 import 'package:chat_app/screens/calendar_sheet.dart';
-import 'package:chat_app/screens/recent_search_panel.dart';
 import 'package:chat_app/screens/search_car_sheet.dart';
 import 'package:chat_app/screens/show_adaptive_time_picker.dart';
 import 'package:flutter/material.dart';
@@ -232,11 +231,11 @@ class _CarSearchPanelState extends State<CarSearchPanel> {
             padding: const EdgeInsets.all(_padding),
             child: Column(
               children: [
-                RecentSearchPanel(
-                  destination: "Incheon Intl",
-                  tripDateRange: "Aug 9 - Aug 11, 12:00pn - 12:00pm",
-                  icons: [],
-                ),
+                // RecentSearchPanel(
+                //   destination: "Incheon Intl",
+                //   tripDateRange: "Aug 9 - Aug 11, 12:00pn - 12:00pm",
+                //   icons: [],
+                // ),
               ],
             ),
           ),

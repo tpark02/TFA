@@ -1,21 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:chat_app/models/recent_search.dart';
 
 class RecentSearchItem extends StatelessWidget {
-  const RecentSearchItem({
-    super.key,
-    required this.destination,
-    required this.tripDateRange,
-    required this.icons,
-  });
-  final String destination;
-  final String tripDateRange;
-  final List<Widget> icons;
+  const RecentSearchItem({super.key, required this.search});
+
+  final RecentSearch search;
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        // your code here
+        // TODO: handle tap
       },
       child: Row(
         children: [
@@ -23,10 +18,11 @@ class RecentSearchItem extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(height: 10.0),
+                const SizedBox(height: 10.0),
                 Text(
-                  destination,
+                  search.destination,
                   style: TextStyle(
+                    overflow: TextOverflow.ellipsis,
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                     color: Colors.grey[800],
@@ -35,18 +31,35 @@ class RecentSearchItem extends StatelessWidget {
                 Row(
                   children: [
                     Text(
-                      tripDateRange,
+                      search.tripDateRange,
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
                         color: Colors.grey[500],
                       ),
                     ),
-                    for (int i = 0; i < icons.length; i++) icons[i],
+                    ...search.icons,
                   ],
                 ),
-                SizedBox(height: 10.0),
+                const SizedBox(height: 10.0),
               ],
+            ),
+          ),
+          Expanded(
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: Column(
+                children: [
+                  Text(
+                    search.destinationCode,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 20.0),
+                ],
+              ),
             ),
           ),
         ],

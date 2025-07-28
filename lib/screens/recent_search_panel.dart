@@ -1,25 +1,32 @@
+import 'package:chat_app/models/recent_search.dart';
+import 'package:chat_app/providers/flight_search_controller.dart';
 import 'package:chat_app/screens/recent_search_item.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class RecentSearchPanel extends StatefulWidget {
-  const RecentSearchPanel({
-    super.key,
-    required this.destination,
-    required this.tripDateRange,
-    required this.icons,
-  });
-
-  final String destination;
-  final String tripDateRange;
-  final List<Widget> icons;
+class RecentSearchPanel extends ConsumerWidget {
+  const RecentSearchPanel({super.key});
 
   @override
-  State<RecentSearchPanel> createState() => _RecentSearchPanelState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final flightState = ref.watch(flightSearchProvider);
+    final List<RecentSearch> searches = flightState.recentSearches;
 
-class _RecentSearchPanelState extends State<RecentSearchPanel> {
-  @override
-  Widget build(BuildContext context) {
+    // Always produce 5 items, fill with empty ones if needed
+    final paddedSearches = List<RecentSearch>.generate(
+      5,
+      (i) => i < searches.length
+          ? searches[i]
+          : const RecentSearch(
+              destination: '',
+              tripDateRange: '',
+              icons: [],
+              destinationCode: '',
+            ),
+    );
+
+    if (searches.isEmpty) return const SizedBox.shrink();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -27,18 +34,16 @@ class _RecentSearchPanelState extends State<RecentSearchPanel> {
           "Recent searches",
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
-        SizedBox(height: 20),
+        const SizedBox(height: 20),
         ListView.separated(
           shrinkWrap: true,
-          physics: NeverScrollableScrollPhysics(),
-          itemCount: 10,
-          itemBuilder: (context, index) => RecentSearchItem(
-            destination: widget.destination,
-            tripDateRange: widget.tripDateRange,
-            icons: widget.icons,
-          ),
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: paddedSearches.length,
+          itemBuilder: (context, index) {
+            return RecentSearchItem(search: paddedSearches[index]);
+          },
           separatorBuilder: (context, index) =>
-              Divider(color: Colors.grey, thickness: 0.5, height: 10),
+              const Divider(color: Colors.grey, thickness: 0.5, height: 10),
         ),
       ],
     );

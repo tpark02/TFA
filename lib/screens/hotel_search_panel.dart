@@ -1,3 +1,4 @@
+import 'package:chat_app/models/recent_search.dart';
 import 'package:chat_app/screens/calendar_sheet.dart';
 import 'package:chat_app/screens/recent_search_panel.dart';
 import 'package:chat_app/screens/room_guest_selector_sheet.dart';
@@ -261,23 +262,27 @@ class _HotelSearchPanelState extends State<HotelSearchPanel> {
                   ],
                 ),
                 SizedBox(height: _padding),
-                RecentSearchPanel(
-                  destination: "Seoul",
-                  tripDateRange: "Aug 9 - Aug 11",
-                  icons: [
-                    const SizedBox(width: 10),
-                    Text("|", style: TextStyle(color: Colors.grey[500])),
-                    const SizedBox(width: 10),
-                    Icon(Icons.bed, color: Colors.grey[500], size: 20.0),
-                    const SizedBox(width: 10),
-                    Text("1", style: TextStyle(color: Colors.grey[500])),
-                    const SizedBox(width: 10),
-                    Icon(Icons.person, color: Colors.grey[500], size: 20.0),
-                    const SizedBox(width: 10),
-                    Text("2", style: TextStyle(color: Colors.grey[500])),
-                    const SizedBox(width: 10),
-                  ],
-                ),
+                // RecentSearchPanel(
+                //   searches: [
+                //     RecentSearch(
+                //       destination: 'Seoul',
+                //       tripDateRange: 'Aug 9 - Aug 11',
+                //       icons: [
+                //         const SizedBox(width: 10),
+                //         const Text('|', style: TextStyle(color: Colors.grey)),
+                //         const SizedBox(width: 10),
+                //         const Icon(Icons.bed, color: Colors.grey, size: 20),
+                //         const SizedBox(width: 10),
+                //         const Text("1", style: TextStyle(color: Colors.grey)),
+                //         const SizedBox(width: 10),
+                //         const Icon(Icons.person, color: Colors.grey, size: 20),
+                //         const SizedBox(width: 10),
+                //         const Text("2", style: TextStyle(color: Colors.grey)),
+                //       ],
+                //       destinationCode: 'SEL',
+                //     ),
+                //   ],
+                // ),
               ],
             ),
           ),

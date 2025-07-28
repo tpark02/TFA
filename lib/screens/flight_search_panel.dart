@@ -1,10 +1,12 @@
+import 'package:chat_app/models/airport_selection.dart';
+import 'package:chat_app/models/recent_search.dart';
+import 'package:chat_app/providers/flight_search_controller.dart';
 import 'package:chat_app/screens/recent_search_panel.dart';
 import 'package:flutter/material.dart';
 import 'package:chat_app/screens/calendar_sheet.dart';
 import 'package:chat_app/screens/search_airport_sheet.dart';
 import 'package:chat_app/screens/traveler_selector_sheet.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
 class FlightSearchPanel extends ConsumerStatefulWidget {
   const FlightSearchPanel({super.key});
@@ -14,18 +16,20 @@ class FlightSearchPanel extends ConsumerStatefulWidget {
 
 class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
   static const double _padding = 20.0;
-  var _departureAirport = "";
-  var _arrivalAirport = "";
-  String? _displayDate;
-  String _cabinClass = 'Economy';
-  int _passengerCount = 0;
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
+    final flightState = ref.watch(flightSearchProvider);
+    final controller = ref.read(flightSearchProvider.notifier);
+
     return SingleChildScrollView(
       child: Column(
         children: [
-          // const SizedBox(height: _padding),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: _padding),
             child: Container(
@@ -37,50 +41,7 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
               ),
               child: Row(
                 children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      style: OutlinedButton.styleFrom(
-                        side: BorderSide.none, // Remove default border
-                        foregroundColor: Theme.of(context).colorScheme.primary,
-                        shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.zero,
-                        ),
-                      ),
-                      onPressed: () async {
-                        final result = await showModalBottomSheet<String>(
-                          context: context,
-                          isScrollControlled: true,
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.vertical(
-                              top: Radius.circular(20),
-                            ),
-                          ),
-                          builder: (ctx) => const SearchAirportSheet(
-                            title: "Airport",
-                            isDeparture: true,
-                          ),
-                        );
-
-                        if (result != null) {
-                          setState(() {
-                            _departureAirport = result;
-                          });
-                        }
-                      },
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          const Icon(Icons.near_me),
-                          const SizedBox(width: 8),
-                          Text(
-                            _departureAirport.isEmpty
-                                ? 'Departure'
-                                : _departureAirport,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
+                  // Departure
                   Expanded(
                     child: OutlinedButton(
                       style: OutlinedButton.styleFrom(
@@ -91,33 +52,82 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
                         ),
                       ),
                       onPressed: () async {
-                        final result = await showModalBottomSheet<String>(
-                          context: context,
-                          isScrollControlled: true,
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.vertical(
-                              top: Radius.circular(20),
-                            ),
-                          ),
-                          builder: (ctx) => const SearchAirportSheet(
-                            title: "Arrival Airport",
-                            isDeparture: false,
-                          ),
-                        );
+                        final result =
+                            await showModalBottomSheet<AirportSelection>(
+                              context: context,
+                              isScrollControlled: true,
+                              shape: const RoundedRectangleBorder(
+                                borderRadius: BorderRadius.vertical(
+                                  top: Radius.circular(20),
+                                ),
+                              ),
+                              builder: (ctx) => const SearchAirportSheet(
+                                title: "Airport",
+                                isDeparture: true,
+                              ),
+                            );
+
                         if (result != null) {
-                          setState(() {
-                            _arrivalAirport = result;
-                          });
+                          controller.setDepartureCode(result.code);
+                          controller.setDepartureName(result.name);
+                          controller.setDepartureCity(result.city);
+                        }
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          const Icon(Icons.near_me),
+                          const SizedBox(width: 8),
+                          Text(
+                            flightState.departureAirportCode.isEmpty
+                                ? 'Departure'
+                                : flightState.departureAirportCode,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  // Arrival
+                  Expanded(
+                    child: OutlinedButton(
+                      style: OutlinedButton.styleFrom(
+                        side: BorderSide.none,
+                        foregroundColor: Theme.of(context).colorScheme.primary,
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.zero,
+                        ),
+                      ),
+                      onPressed: () async {
+                        final result =
+                            await showModalBottomSheet<AirportSelection>(
+                              context: context,
+                              isScrollControlled: true,
+                              shape: const RoundedRectangleBorder(
+                                borderRadius: BorderRadius.vertical(
+                                  top: Radius.circular(20),
+                                ),
+                              ),
+                              builder: (ctx) => const SearchAirportSheet(
+                                title: "Arrival Airport",
+                                isDeparture: false,
+                              ),
+                            );
+
+                        if (result != null) {
+                          controller.setArrivalCode(result.code);
+                          controller.setArrivalName(result.name);
+                          controller.setArrivalCity(result.city);
                         }
                       },
                       child: Row(
                         children: [
-                          Icon(Icons.swap_calls),
-                          SizedBox(width: 8),
+                          const Icon(Icons.swap_calls),
+                          const SizedBox(width: 8),
                           Text(
-                            _arrivalAirport.isEmpty
+                            flightState.arrivalAirportName.isEmpty
                                 ? 'Arrival'
-                                : _arrivalAirport,
+                                : flightState.arrivalAirportCode,
                           ),
                         ],
                       ),
@@ -127,10 +137,13 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
               ),
             ),
           ),
+
+          // Date + Travelers
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: _padding),
             child: Row(
               children: [
+                // Date
                 Expanded(
                   flex: 6,
                   child: OutlinedButton(
@@ -150,19 +163,8 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
                         ),
                       );
 
-                      if (result != null) {
-                        debugPrint('showModalBottomSheet');
-                        final selectedDate =
-                            result['selectedDate'] as DateTime?;
-                        final selectedRange =
-                            result['selectedRange'] as PickerDateRange?;
-                        debugPrint('selected date :$selectedDate');
-                        debugPrint('selected Range : $selectedRange');
-                        if (result != null) {
-                          setState(() {
-                            _displayDate = result['displayDate'];
-                          });
-                        }
+                      if (result != null && result['displayDate'] != null) {
+                        controller.setDisplayDate(result['displayDate']);
                       }
                     },
                     style: OutlinedButton.styleFrom(
@@ -178,12 +180,15 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
                       children: [
                         const Icon(Icons.calendar_month),
                         const SizedBox(width: _padding),
-                        Text(_displayDate ?? 'Select'),
+                        Text(flightState.displayDate ?? 'Select'),
                       ],
                     ),
                   ),
                 ),
+
                 const SizedBox(width: 8),
+
+                // Travelers
                 Expanded(
                   flex: 4,
                   child: OutlinedButton(
@@ -200,28 +205,19 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
                       );
 
                       if (result != null) {
-                        setState(() {
-                          final rawPassenger = result['passengerCount'];
-                          final rawClassIdx = result['cabinClass'];
+                        final rawPassenger = result['passengerCount'];
+                        final rawClassIdx = result['cabinClass'];
 
-                          _passengerCount = rawPassenger is int
-                              ? rawPassenger
-                              : 1;
-                          int cabinIdx = rawClassIdx is int ? rawClassIdx : 0;
-                          if (cabinIdx == 0) {
-                            _cabinClass = 'Economy';
-                          } else if (cabinIdx == 1)
-                            _cabinClass = 'Premium Economy';
-                          else if (cabinIdx == 2)
-                            _cabinClass = 'Business';
-                          else
-                            _cabinClass = 'First';
-                        });
+                        final pax = rawPassenger is int ? rawPassenger : 1;
+                        final cabinIdx = rawClassIdx is int ? rawClassIdx : 0;
+
+                        controller.setPassengers(
+                          count: pax,
+                          cabinIndex: cabinIdx,
+                        );
                       }
                     },
                     style: OutlinedButton.styleFrom(
-                      // padding: EdgeInsets.only(
-                      //     left: 10), // 🔥 Kill default horizontal padding
                       side: BorderSide(
                         color: Theme.of(context).colorScheme.primary,
                         width: 1,
@@ -233,16 +229,16 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Icon(Icons.person),
-                        SizedBox(width: 5),
-                        Text(_passengerCount.toString()),
-                        SizedBox(width: 5),
-                        Text('|'),
-                        SizedBox(width: 5),
-                        Icon(Icons.airline_seat_recline_normal),
+                        const Icon(Icons.person),
+                        const SizedBox(width: 5),
+                        Text(flightState.passengerCount.toString()),
+                        const SizedBox(width: 5),
+                        const Text('|'),
+                        const SizedBox(width: 5),
+                        const Icon(Icons.airline_seat_recline_normal),
                         Flexible(
                           child: Text(
-                            _cabinClass.toString(),
+                            flightState.cabinClass,
                             overflow: TextOverflow.ellipsis,
                             maxLines: 1,
                           ),
@@ -254,6 +250,8 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
               ],
             ),
           ),
+
+          // Search button + Recent search
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: _padding),
             child: Column(
@@ -262,7 +260,27 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
                   children: [
                     Expanded(
                       child: ElevatedButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          debugPrint(flightState.toString());
+                          controller.addRecentSearch(
+                            RecentSearch(
+                              destination:
+                                  '${flightState.departureCity} - ${flightState.arrivalCity}',
+                              tripDateRange: flightState.displayDate ?? '',
+                              icons: [
+                                const SizedBox(width: 10),
+                                Icon(
+                                  Icons.person,
+                                  color: Colors.grey[500],
+                                  size: 20.0,
+                                ),
+                                Text(flightState.passengerCount.toString()),
+                              ],
+                              destinationCode:
+                                  '${flightState.departureAirportCode} - ${flightState.arrivalAirportCode}',
+                            ),
+                          );
+                        },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Theme.of(
                             context,
@@ -282,16 +300,8 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
                     ),
                   ],
                 ),
-                // Bottom box
-                SizedBox(height: _padding),
-                RecentSearchPanel(
-                  destination: "Busan to New York City",
-                  tripDateRange: "Aug 9 - Aug 11",
-                  icons: [
-                    const SizedBox(width: 10),
-                    Icon(Icons.person, color: Colors.grey[500], size: 20.0),
-                  ],
-                ),
+                const SizedBox(height: _padding),
+                RecentSearchPanel(),
               ],
             ),
           ),
