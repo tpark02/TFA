@@ -156,10 +156,8 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
                             result['selectedDate'] as DateTime?;
                         final selectedRange =
                             result['selectedRange'] as PickerDateRange?;
-                        debugPrint('selected date :' + selectedDate.toString());
-                        debugPrint(
-                          'selected Range : ' + selectedRange.toString(),
-                        );
+                        debugPrint('selected date :$selectedDate');
+                        debugPrint('selected Range : $selectedRange');
                         if (result != null) {
                           setState(() {
                             _displayDate = result['displayDate'];
@@ -210,9 +208,9 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
                               ? rawPassenger
                               : 1;
                           int cabinIdx = rawClassIdx is int ? rawClassIdx : 0;
-                          if (cabinIdx == 0)
+                          if (cabinIdx == 0) {
                             _cabinClass = 'Economy';
-                          else if (cabinIdx == 1)
+                          } else if (cabinIdx == 1)
                             _cabinClass = 'Premium Economy';
                           else if (cabinIdx == 2)
                             _cabinClass = 'Business';

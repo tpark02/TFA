@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class CounterControl extends StatefulWidget {
-  CounterControl({super.key, required this.count, this.onChanged});
+  const CounterControl({super.key, required this.count, this.onChanged});
   final int count;
   final ValueChanged<int>? onChanged;
 
@@ -41,7 +41,7 @@ class _CounterControlState extends State<CounterControl> {
       children: [
         _circleButton(context, Icons.remove, _decrement, false),
         const SizedBox(width: 10),
-        Text('${_count}', style: const TextStyle(fontSize: 16)),
+        Text('$_count', style: const TextStyle(fontSize: 16)),
         const SizedBox(width: 10),
         _circleButton(context, Icons.add, _increment),
       ],

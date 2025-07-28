@@ -14,8 +14,6 @@ const lightColorScheme = ColorScheme(
   onError: Color(0xFFFFFFFF),
   errorContainer: Color(0xFFF9DEDC),
   onErrorContainer: Color(0xFF410E0B),
-  background: Color(0xFFFFFBFE),
-  onBackground: Color(0xFF1C1B1F),
   surface: Color(0xFFFFFBFE),
   onSurface: Color(0xFF1C1B1F),
 );
@@ -34,8 +32,6 @@ const darkColorScheme = ColorScheme(
   onError: Color(0xFF601410),
   errorContainer: Color(0xFF8C1D18),
   onErrorContainer: Color(0xFFF9DEDC),
-  background: Color(0xFF1C1B1F),
-  onBackground: Color(0xFFE6E1E5),
   surface: Color(0xFF1C1B1F),
   onSurface: Color(0xFFE6E1E5),
 );
