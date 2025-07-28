@@ -67,7 +67,7 @@ class _RoomGuestSelectorSheet extends State<RoomGuestSelectorSheet> {
                         Expanded(
                           child: Align(
                             alignment: Alignment.centerRight,
-                            child: CounterControl(),
+                            child: CounterControl(count: 0),
                           ),
                         ),
                       ],
@@ -89,7 +89,7 @@ class _RoomGuestSelectorSheet extends State<RoomGuestSelectorSheet> {
                         Expanded(
                           child: Align(
                             alignment: Alignment.centerRight,
-                            child: CounterControl(),
+                            child: CounterControl(count: 0),
                           ),
                         ),
                       ],
@@ -111,7 +111,7 @@ class _RoomGuestSelectorSheet extends State<RoomGuestSelectorSheet> {
                         Expanded(
                           child: Align(
                             alignment: Alignment.centerRight,
-                            child: CounterControl(),
+                            child: CounterControl(count: 0),
                           ),
                         ),
                       ],

@@ -1,25 +1,35 @@
 import 'package:flutter/material.dart';
 
 class CounterControl extends StatefulWidget {
-  const CounterControl({super.key});
+  CounterControl({super.key, required this.count, this.onChanged});
+  final int count;
+  final ValueChanged<int>? onChanged;
 
   @override
   State<CounterControl> createState() => _CounterControlState();
 }
 
 class _CounterControlState extends State<CounterControl> {
-  int count = 1;
+  late int _count;
+
+  @override
+  void initState() {
+    super.initState();
+    _count = widget.count;
+  }
 
   void _increment() {
     setState(() {
-      count++;
+      _count++;
+      widget.onChanged?.call(_count);
     });
   }
 
   void _decrement() {
-    if (count > 0) {
+    if (_count > 0) {
       setState(() {
-        count--;
+        _count--;
+        widget.onChanged?.call(_count);
       });
     }
   }
@@ -31,7 +41,7 @@ class _CounterControlState extends State<CounterControl> {
       children: [
         _circleButton(context, Icons.remove, _decrement, false),
         const SizedBox(width: 10),
-        Text('$count', style: const TextStyle(fontSize: 16)),
+        Text('${_count}', style: const TextStyle(fontSize: 16)),
         const SizedBox(width: 10),
         _circleButton(context, Icons.add, _increment),
       ],

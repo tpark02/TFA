@@ -11,6 +11,10 @@ class TravelerSelectorSheet extends StatefulWidget {
 class _TravelerSelectorState extends State<TravelerSelectorSheet> {
   int _selectedIndex = 0;
   int _selectedClassIdx = 0;
+  int _adultCount = 1;
+  int _childCount = 0;
+  int _infantLapCount = 0;
+  int _infantSeatCount = 0;
 
   @override
   void initState() {
@@ -97,7 +101,7 @@ class _TravelerSelectorState extends State<TravelerSelectorSheet> {
                             children: [
                               const Expanded(
                                 child: Text(
-                                  "Adults > 18",
+                                  "Adults",
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
@@ -107,29 +111,94 @@ class _TravelerSelectorState extends State<TravelerSelectorSheet> {
                               Expanded(
                                 child: Align(
                                   alignment: Alignment.centerRight,
-                                  child: CounterControl(),
+                                  child: CounterControl(
+                                    count: _adultCount,
+                                    onChanged: (val) =>
+                                        setState(() => _adultCount = val),
+                                  ),
                                 ),
                               ),
                             ],
                           ),
                           Row(
                             children: [
-                              const Expanded(
-                                child: Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Text(
-                                    "Children 2 - 11",
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                              Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  "Children",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              SizedBox(width: 8.0),
+                              Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  "2-11",
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.grey[700],
                                   ),
                                 ),
                               ),
                               Expanded(
                                 child: Align(
                                   alignment: Alignment.centerRight,
-                                  child: CounterControl(),
+                                  child: CounterControl(
+                                    count: _childCount,
+                                    onChanged: (val) =>
+                                        setState(() => _childCount = val),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  "Infant (lap)",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                child: Align(
+                                  alignment: Alignment.centerRight,
+                                  child: CounterControl(
+                                    count: _infantLapCount,
+                                    onChanged: (val) =>
+                                        setState(() => _infantLapCount = val),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  "Infant (seat)",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                child: Align(
+                                  alignment: Alignment.centerRight,
+                                  child: CounterControl(
+                                    count: _infantSeatCount,
+                                    onChanged: (val) =>
+                                        setState(() => _infantSeatCount = val),
+                                  ),
                                 ),
                               ),
                             ],
@@ -287,7 +356,18 @@ class _TravelerSelectorState extends State<TravelerSelectorSheet> {
                       ),
               ),
               ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  final total =
+                      _adultCount +
+                      _childCount +
+                      _infantLapCount +
+                      _infantSeatCount;
+
+                  Navigator.pop(context, {
+                    'passengerCount': total,
+                    'cabinClass': _selectedClassIdx,
+                  });
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Theme.of(context).colorScheme.primary,
                   foregroundColor: Colors.white,
@@ -297,7 +377,7 @@ class _TravelerSelectorState extends State<TravelerSelectorSheet> {
                 ),
                 child: const Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: [Text('Complete')],
+                  children: [Text('Done')],
                 ),
               ),
             ],

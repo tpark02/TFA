@@ -17,6 +17,8 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
   var _departureAirport = "";
   var _arrivalAirport = "";
   String? _displayDate;
+  String _cabinClass = 'Economy';
+  int _passengerCount = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -187,17 +189,37 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
                 Expanded(
                   flex: 4,
                   child: OutlinedButton(
-                    onPressed: () {
-                      showModalBottomSheet(
+                    onPressed: () async {
+                      final result = await showModalBottomSheet(
                         context: context,
                         isScrollControlled: true,
                         shape: const RoundedRectangleBorder(
                           borderRadius: BorderRadius.vertical(
-                            top: Radius.circular(20),
+                            top: Radius.circular(0),
                           ),
                         ),
                         builder: (ctx) => const TravelerSelectorSheet(),
                       );
+
+                      if (result != null) {
+                        setState(() {
+                          final rawPassenger = result['passengerCount'];
+                          final rawClassIdx = result['cabinClass'];
+
+                          _passengerCount = rawPassenger is int
+                              ? rawPassenger
+                              : 1;
+                          int cabinIdx = rawClassIdx is int ? rawClassIdx : 0;
+                          if (cabinIdx == 0)
+                            _cabinClass = 'Economy';
+                          else if (cabinIdx == 1)
+                            _cabinClass = 'Premium Economy';
+                          else if (cabinIdx == 2)
+                            _cabinClass = 'Business';
+                          else
+                            _cabinClass = 'First';
+                        });
+                      }
                     },
                     style: OutlinedButton.styleFrom(
                       // padding: EdgeInsets.only(
@@ -210,17 +232,23 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
                         borderRadius: BorderRadius.zero,
                       ),
                     ),
-                    child: const Row(
+                    child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Icon(Icons.person),
                         SizedBox(width: 5),
-                        Text('1'),
+                        Text(_passengerCount.toString()),
                         SizedBox(width: 5),
                         Text('|'),
                         SizedBox(width: 5),
                         Icon(Icons.airline_seat_recline_normal),
-                        Text('Eco'),
+                        Flexible(
+                          child: Text(
+                            _cabinClass.toString(),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
+                        ),
                       ],
                     ),
                   ),
