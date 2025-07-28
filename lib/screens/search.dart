@@ -38,7 +38,7 @@ class _SearchScreenState extends State<SearchScreen> {
       ),
       body: Column(
         children: [
-          // Avatar Row
+          const SizedBox(height: _padding),
           Container(
             decoration: const BoxDecoration(
               // border: Border.all(color: Colors.red, width: 2),
@@ -115,7 +115,7 @@ class _SearchScreenState extends State<SearchScreen> {
               ],
             ),
           ),
-          const SizedBox(height: _padding),
+          const SizedBox(height: _padding * 2),
           // Search area + button
           Expanded(
             child: AnimatedSwitcher(

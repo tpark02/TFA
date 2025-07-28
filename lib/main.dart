@@ -53,7 +53,7 @@ class App extends StatelessWidget {
       // ),
       theme: ThemeData(useMaterial3: true, colorScheme: lightColorScheme),
       darkTheme: ThemeData(useMaterial3: true, colorScheme: darkColorScheme),
-      themeMode: ThemeMode.dark,
+      themeMode: ThemeMode.light,
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,

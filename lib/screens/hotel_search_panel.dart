@@ -23,7 +23,9 @@ class _HotelSearchPanelState extends State<HotelSearchPanel> {
             child: Container(
               decoration: BoxDecoration(
                 border: Border.all(
-                    color: Theme.of(context).colorScheme.primary, width: 1),
+                  color: Theme.of(context).colorScheme.primary,
+                  width: 1,
+                ),
               ),
               child: Row(
                 children: [
@@ -38,13 +40,16 @@ class _HotelSearchPanelState extends State<HotelSearchPanel> {
                       ),
                       onPressed: () {
                         showModalBottomSheet(
-                            context: context,
-                            isScrollControlled: true,
-                            shape: const RoundedRectangleBorder(
-                                borderRadius: BorderRadius.vertical(
-                                    top: Radius.circular(20))),
-                            builder: (ctx) =>
-                                const SearchHotelSheet(title: "Hotel"));
+                          context: context,
+                          isScrollControlled: true,
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.vertical(
+                              top: Radius.circular(20),
+                            ),
+                          ),
+                          builder: (ctx) =>
+                              const SearchHotelSheet(title: "Hotel"),
+                        );
                       },
                       child: const Row(
                         mainAxisAlignment: MainAxisAlignment.start,
@@ -69,29 +74,34 @@ class _HotelSearchPanelState extends State<HotelSearchPanel> {
                   child: OutlinedButton(
                     onPressed: () {
                       showModalBottomSheet(
-                          context: context,
-                          isScrollControlled: true,
-                          shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.vertical(
-                                  top: Radius.circular(20))),
-                          builder: (ctx) => CalendarSheet(
-                                firstTitle: "",
-                                secondTitle: "",
-                                isOnlyTab: true,
-                              ));
+                        context: context,
+                        isScrollControlled: true,
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.vertical(
+                            top: Radius.circular(20),
+                          ),
+                        ),
+                        builder: (ctx) => CalendarSheet(
+                          firstTitle: "",
+                          secondTitle: "",
+                          isOnlyTab: true,
+                        ),
+                      );
                     },
                     style: OutlinedButton.styleFrom(
                       side: BorderSide(
-                          color: Theme.of(context).colorScheme.primary,
-                          width: 1),
+                        color: Theme.of(context).colorScheme.primary,
+                        width: 1,
+                      ),
                       shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.zero),
+                        borderRadius: BorderRadius.zero,
+                      ),
                     ),
                     child: const Row(
                       children: [
                         Icon(Icons.calendar_month),
                         SizedBox(width: _padding),
-                        Text('Search')
+                        Text('Search'),
                       ],
                     ),
                   ),
@@ -102,21 +112,26 @@ class _HotelSearchPanelState extends State<HotelSearchPanel> {
                   child: OutlinedButton(
                     onPressed: () {
                       showModalBottomSheet(
-                          context: context,
-                          isScrollControlled: true,
-                          shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.vertical(
-                                  top: Radius.circular(20))),
-                          builder: (ctx) => const RoomGuestSelectorSheet());
+                        context: context,
+                        isScrollControlled: true,
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.vertical(
+                            top: Radius.circular(20),
+                          ),
+                        ),
+                        builder: (ctx) => const RoomGuestSelectorSheet(),
+                      );
                     },
                     style: OutlinedButton.styleFrom(
                       // padding: EdgeInsets.only(
                       //     left: 10), // 🔥 Kill default horizontal padding
                       side: BorderSide(
-                          color: Theme.of(context).colorScheme.primary,
-                          width: 1),
+                        color: Theme.of(context).colorScheme.primary,
+                        width: 1,
+                      ),
                       shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.zero),
+                        borderRadius: BorderRadius.zero,
+                      ),
                     ),
                     child: const Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -152,9 +167,7 @@ class _HotelSearchPanelState extends State<HotelSearchPanel> {
                     ),
                     child: const Row(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text('Search Hotel'),
-                      ],
+                      children: [Text('Search Hotel')],
                     ),
                   ),
                 ),
@@ -170,8 +183,10 @@ class _HotelSearchPanelState extends State<HotelSearchPanel> {
                   children: [
                     Text(
                       "Suggestions",
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ],
                 ),
@@ -204,14 +219,16 @@ class _HotelSearchPanelState extends State<HotelSearchPanel> {
                                     Text(
                                       "Seoul",
                                       style: TextStyle(
-                                          fontSize: 16,
-                                          color: Color.fromRGBO(99, 99, 99, 1)),
+                                        fontSize: 16,
+                                        color: Color.fromRGBO(99, 99, 99, 1),
+                                      ),
                                     ),
                                     Text(
                                       "Tonight",
                                       style: TextStyle(
-                                          fontSize: 12,
-                                          color: Color.fromRGBO(99, 99, 99, 1)),
+                                        fontSize: 12,
+                                        color: Color.fromRGBO(99, 99, 99, 1),
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -221,17 +238,20 @@ class _HotelSearchPanelState extends State<HotelSearchPanel> {
                                   height: 30,
                                   alignment: Alignment.center,
                                   decoration: BoxDecoration(
-                                      color:
-                                          Theme.of(context).colorScheme.primary,
-                                      borderRadius: BorderRadius.zero),
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.primary,
+                                    borderRadius: BorderRadius.zero,
+                                  ),
                                   child: Text(
                                     "Check",
                                     style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold),
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                     textAlign: TextAlign.center,
                                   ),
-                                )
+                                ),
                               ],
                             ),
                           ),
@@ -246,36 +266,15 @@ class _HotelSearchPanelState extends State<HotelSearchPanel> {
                   tripDateRange: "Aug 9 - Aug 11",
                   icons: [
                     const SizedBox(width: 10),
-                    Text(
-                      "|",
-                      style: TextStyle(color: Colors.grey[500]),
-                    ),
+                    Text("|", style: TextStyle(color: Colors.grey[500])),
                     const SizedBox(width: 10),
-                    Icon(
-                      Icons.bed,
-                      color: Colors.grey[500],
-                      size: 20.0,
-                    ),
+                    Icon(Icons.bed, color: Colors.grey[500], size: 20.0),
                     const SizedBox(width: 10),
-                    Text(
-                      "1",
-                      style: TextStyle(
-                        color: Colors.grey[500],
-                      ),
-                    ),
+                    Text("1", style: TextStyle(color: Colors.grey[500])),
                     const SizedBox(width: 10),
-                    Icon(
-                      Icons.person,
-                      color: Colors.grey[500],
-                      size: 20.0,
-                    ),
+                    Icon(Icons.person, color: Colors.grey[500], size: 20.0),
                     const SizedBox(width: 10),
-                    Text(
-                      "2",
-                      style: TextStyle(
-                        color: Colors.grey[500],
-                      ),
-                    ),
+                    Text("2", style: TextStyle(color: Colors.grey[500])),
                     const SizedBox(width: 10),
                   ],
                 ),

@@ -18,9 +18,7 @@ class _SearchHotelSheetState extends State<SearchHotelSheet> {
           bottom: MediaQuery.of(context).viewInsets.bottom,
         ),
         child: Container(
-          constraints: BoxConstraints(
-            maxHeight: height,
-          ),
+          constraints: BoxConstraints(maxHeight: height),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: const BoxDecoration(
             borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -28,8 +26,10 @@ class _SearchHotelSheetState extends State<SearchHotelSheet> {
           ),
           child: Column(
             children: [
-              Text(widget.title,
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              Text(
+                widget.title,
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
               const SizedBox(height: 8),
               Row(
                 children: [
@@ -38,20 +38,24 @@ class _SearchHotelSheetState extends State<SearchHotelSheet> {
                       decoration: InputDecoration(
                         hintText: 'Hotel',
                         hintStyle: TextStyle(color: Colors.grey),
-                        prefixIcon: Icon(Icons.search,
-                            color: Theme.of(context).colorScheme.primary),
+                        prefixIcon: Icon(
+                          Icons.search,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
 
                         // Add visible border
                         enabledBorder: OutlineInputBorder(
                           borderSide: BorderSide(
-                              color: Theme.of(context).colorScheme.primary,
-                              width: 1),
+                            color: Theme.of(context).colorScheme.primary,
+                            width: 1,
+                          ),
                           borderRadius: BorderRadius.circular(0),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderSide: BorderSide(
-                              color: Theme.of(context).colorScheme.primary,
-                              width: 2),
+                            color: Theme.of(context).colorScheme.primary,
+                            width: 2,
+                          ),
                           borderRadius: BorderRadius.circular(0),
                         ),
                       ),
@@ -93,12 +97,11 @@ class _SearchHotelSheetState extends State<SearchHotelSheet> {
                                             Text(
                                               "Tokyo",
                                               style: TextStyle(
-                                                  fontSize: 18,
-                                                  fontWeight: FontWeight.bold),
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.bold,
+                                              ),
                                             ),
-                                            Text(
-                                              'Japan',
-                                            ),
+                                            Text('Japan'),
                                           ],
                                         ),
                                       ),
@@ -108,8 +111,12 @@ class _SearchHotelSheetState extends State<SearchHotelSheet> {
                                           '5,367',
                                           style: TextStyle(
                                             fontSize: 14,
-                                            color:
-                                                Color.fromRGBO(48, 48, 48, 1),
+                                            color: Color.fromRGBO(
+                                              48,
+                                              48,
+                                              48,
+                                              1,
+                                            ),
                                           ),
                                         ),
                                       ),
@@ -123,7 +130,7 @@ class _SearchHotelSheetState extends State<SearchHotelSheet> {
                     ],
                   ),
                 ),
-              )
+              ),
             ],
           ),
         ),

@@ -35,13 +35,15 @@ class _RoomGuestSelectorSheet extends State<RoomGuestSelectorSheet> {
                     TextButton(
                       onPressed: () {},
                       style: TextButton.styleFrom(
-                          padding: EdgeInsets.zero,
-                          foregroundColor:
-                              Theme.of(context).colorScheme.primary),
+                        padding: EdgeInsets.zero,
+                        foregroundColor: Theme.of(context).colorScheme.primary,
+                      ),
                       child: const Text(
                         "Room / Guest",
                         style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ],
@@ -54,27 +56,34 @@ class _RoomGuestSelectorSheet extends State<RoomGuestSelectorSheet> {
                     Row(
                       children: [
                         const Expanded(
+                          child: Text(
+                            "Room",
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: Align(
+                            alignment: Alignment.centerRight,
+                            child: CounterControl(),
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        const Expanded(
+                          child: Align(
+                            alignment: Alignment.centerLeft,
                             child: Text(
-                          "Room",
-                          style: TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.bold),
-                        )),
-                        Expanded(
-                          child: Align(
-                            alignment: Alignment.centerRight,
-                            child: CounterControl(),
-                          ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        const Expanded(
-                          child: Align(
-                            alignment: Alignment.centerLeft,
-                            child: Text("Adults",
-                                style: TextStyle(
-                                    fontSize: 16, fontWeight: FontWeight.bold)),
+                              "Adults",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                           ),
                         ),
                         Expanded(
@@ -90,9 +99,13 @@ class _RoomGuestSelectorSheet extends State<RoomGuestSelectorSheet> {
                         const Expanded(
                           child: Align(
                             alignment: Alignment.centerLeft,
-                            child: Text("Children",
-                                style: TextStyle(
-                                    fontSize: 16, fontWeight: FontWeight.bold)),
+                            child: Text(
+                              "Children",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                           ),
                         ),
                         Expanded(

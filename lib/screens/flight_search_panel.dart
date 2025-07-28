@@ -4,6 +4,7 @@ import 'package:chat_app/screens/calendar_sheet.dart';
 import 'package:chat_app/screens/search_airport_sheet.dart';
 import 'package:chat_app/screens/traveler_selector_sheet.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
 class FlightSearchPanel extends ConsumerStatefulWidget {
   const FlightSearchPanel({super.key});
@@ -15,12 +16,14 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
   static const double _padding = 20.0;
   var _departureAirport = "";
   var _arrivalAirport = "";
+  String? _displayDate;
 
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       child: Column(
         children: [
+          // const SizedBox(height: _padding),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: _padding),
             child: Container(
@@ -129,8 +132,8 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
                 Expanded(
                   flex: 6,
                   child: OutlinedButton(
-                    onPressed: () {
-                      showModalBottomSheet(
+                    onPressed: () async {
+                      final result = await showModalBottomSheet(
                         context: context,
                         isScrollControlled: true,
                         shape: const RoundedRectangleBorder(
@@ -144,6 +147,23 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
                           isOnlyTab: false,
                         ),
                       );
+
+                      if (result != null) {
+                        debugPrint('showModalBottomSheet');
+                        final selectedDate =
+                            result['selectedDate'] as DateTime?;
+                        final selectedRange =
+                            result['selectedRange'] as PickerDateRange?;
+                        debugPrint('selected date :' + selectedDate.toString());
+                        debugPrint(
+                          'selected Range : ' + selectedRange.toString(),
+                        );
+                        if (result != null) {
+                          setState(() {
+                            _displayDate = result['displayDate'];
+                          });
+                        }
+                      }
                     },
                     style: OutlinedButton.styleFrom(
                       side: BorderSide(
@@ -154,11 +174,11 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
                         borderRadius: BorderRadius.zero,
                       ),
                     ),
-                    child: const Row(
+                    child: Row(
                       children: [
-                        Icon(Icons.calendar_month),
-                        SizedBox(width: _padding),
-                        Text('Search'),
+                        const Icon(Icons.calendar_month),
+                        const SizedBox(width: _padding),
+                        Text(_displayDate ?? 'Select'),
                       ],
                     ),
                   ),

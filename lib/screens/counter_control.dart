@@ -39,8 +39,11 @@ class _CounterControlState extends State<CounterControl> {
   }
 
   Widget _circleButton(
-      BuildContext context, IconData icon, VoidCallback onPressed,
-      [bool isInc = true]) {
+    BuildContext context,
+    IconData icon,
+    VoidCallback onPressed, [
+    bool isInc = true,
+  ]) {
     return Container(
       width: 25,
       height: 25,
@@ -49,10 +52,7 @@ class _CounterControlState extends State<CounterControl> {
         shape: CircleBorder(),
       ),
       child: IconButton(
-        icon: Icon(
-          icon,
-          size: 14,
-        ),
+        icon: Icon(icon, size: 14),
         padding: EdgeInsets.zero, // ← removes the default padding
         constraints: BoxConstraints(), // ← removes min size constraints
         color: isInc

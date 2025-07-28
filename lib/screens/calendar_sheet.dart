@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
 class CalendarSheet extends StatefulWidget {
@@ -20,6 +21,9 @@ class CalendarSheet extends StatefulWidget {
 class _CalendarSheetState extends State<CalendarSheet>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  String? displayDate;
+  PickerDateRange? selectedRange;
+  DateTime? selectedDate;
 
   @override
   void initState() {
@@ -33,9 +37,36 @@ class _CalendarSheetState extends State<CalendarSheet>
     super.dispose();
   }
 
-  void _onSelectionChanged(DateRangePickerSelectionChangedArgs args) {
-    // TODO: implement your code here
+  void _onSelectionRange(DateRangePickerSelectionChangedArgs args) {
+    debugPrint('_onSelectionRange');
+
+    if (args.value is PickerDateRange) {
+      final range = args.value as PickerDateRange;
+      final DateTime? start = range.startDate;
+      final DateTime? end = range.endDate;
+
+      if (start != null && end != null) {
+        selectedRange = range; // ✅ store it
+        displayDate =
+            '${DateFormat('MMM d').format(start)} – ${DateFormat('MMM d').format(end)}';
+        debugPrint('selected range: $displayDate');
+      } else {
+        debugPrint('selected range: start or end is null');
+      }
+    } else {
+      debugPrint('selected range: null or not a valid range');
+    }
   }
+
+  void _onSelectionChanged(DateRangePickerSelectionChangedArgs args) {
+    debugPrint('_onSelectionChanged');
+
+    selectedDate = args.value as DateTime;
+    if (selectedDate != null) {
+      displayDate = DateFormat('MMMM d').format(selectedDate!);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     debugPrint(" is only : ${widget.isOnlyTab}");
@@ -64,10 +95,8 @@ class _CalendarSheetState extends State<CalendarSheet>
               const SizedBox(height: 8),
               !widget.isOnlyTab
                   ? TabBar(
+                      dividerColor: Colors.transparent,
                       controller: _tabController,
-                      // labelColor: Colors.deepPurple,
-                      // unselectedLabelColor: Colors.grey,
-                      // indicatorColor: Colors.deepPurple,
                       tabs: [
                         Tab(text: widget.firstTitle),
                         Tab(text: widget.secondTitle),
@@ -93,7 +122,7 @@ class _CalendarSheetState extends State<CalendarSheet>
                       ),
                     ),
                     SfDateRangePicker(
-                      onSelectionChanged: _onSelectionChanged,
+                      onSelectionChanged: _onSelectionRange,
                       selectionMode: DateRangePickerSelectionMode.range,
                       backgroundColor: Colors.transparent,
                       headerStyle: DateRangePickerHeaderStyle(
@@ -123,7 +152,18 @@ class _CalendarSheetState extends State<CalendarSheet>
                               BorderRadius.zero, // sharp corners, no rounding
                         ),
                       ),
-                      onPressed: () => Navigator.pop(context),
+                      onPressed: () {
+                        if (displayDate != null) {
+                          Navigator.pop(context, {
+                            'displayDate': displayDate,
+                            'selectedDate': selectedDate,
+                            'selectedRange': selectedRange,
+                          }); // 🔥 returns it to caller
+                        } else {
+                          // optional: show a message or prevent closing
+                          debugPrint('No date selected yet.');
+                        }
+                      },
                       child: const Text("Confirm"),
                     ),
                   ),

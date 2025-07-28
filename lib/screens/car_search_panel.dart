@@ -24,7 +24,9 @@ class _CarSearchPanelState extends State<CarSearchPanel> {
             child: Container(
               decoration: BoxDecoration(
                 border: Border.all(
-                    color: Theme.of(context).colorScheme.primary, width: 1),
+                  color: Theme.of(context).colorScheme.primary,
+                  width: 1,
+                ),
               ),
               child: Row(
                 children: [
@@ -39,18 +41,19 @@ class _CarSearchPanelState extends State<CarSearchPanel> {
                       ),
                       onPressed: () {
                         showModalBottomSheet(
-                            context: context,
-                            isScrollControlled: true,
-                            shape: const RoundedRectangleBorder(
-                                borderRadius: BorderRadius.vertical(
-                                    top: Radius.circular(20))),
-                            builder: (ctx) => SearchCarSheet());
+                          context: context,
+                          isScrollControlled: true,
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.vertical(
+                              top: Radius.circular(20),
+                            ),
+                          ),
+                          builder: (ctx) => SearchCarSheet(),
+                        );
                       },
                       child: const Row(
                         mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Text('Incheon Intl'),
-                        ],
+                        children: [Text('Incheon Intl')],
                       ),
                     ),
                   ),
@@ -67,29 +70,34 @@ class _CarSearchPanelState extends State<CarSearchPanel> {
                   child: OutlinedButton(
                     onPressed: () {
                       showModalBottomSheet(
-                          context: context,
-                          isScrollControlled: true,
-                          shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.vertical(
-                                  top: Radius.circular(20))),
-                          builder: (ctx) => CalendarSheet(
-                                firstTitle: "",
-                                secondTitle: "",
-                                isOnlyTab: true,
-                              ));
+                        context: context,
+                        isScrollControlled: true,
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.vertical(
+                            top: Radius.circular(20),
+                          ),
+                        ),
+                        builder: (ctx) => CalendarSheet(
+                          firstTitle: "",
+                          secondTitle: "",
+                          isOnlyTab: true,
+                        ),
+                      );
                     },
                     style: OutlinedButton.styleFrom(
                       side: BorderSide(
-                          color: Theme.of(context).colorScheme.primary,
-                          width: 1),
+                        color: Theme.of(context).colorScheme.primary,
+                        width: 1,
+                      ),
                       shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.zero),
+                        borderRadius: BorderRadius.zero,
+                      ),
                     ),
                     child: const Row(
                       children: [
                         Icon(Icons.calendar_month),
                         SizedBox(width: _padding),
-                        Text('Sun Aug 10th')
+                        Text('Sun Aug 10th'),
                       ],
                     ),
                   ),
@@ -100,7 +108,9 @@ class _CarSearchPanelState extends State<CarSearchPanel> {
                   child: OutlinedButton(
                     onPressed: () async {
                       final picked = await showAdaptiveTimePicker(
-                          context, TimeOfDay(hour: 12, minute: 0));
+                        context,
+                        TimeOfDay(hour: 12, minute: 0),
+                      );
                       if (picked != null) {
                         debugPrint("Time picked: ${picked.format(context)}");
                         // update state here
@@ -110,10 +120,12 @@ class _CarSearchPanelState extends State<CarSearchPanel> {
                       // padding: EdgeInsets.only(
                       //     left: 10), // 🔥 Kill default horizontal padding
                       side: BorderSide(
-                          color: Theme.of(context).colorScheme.primary,
-                          width: 1),
+                        color: Theme.of(context).colorScheme.primary,
+                        width: 1,
+                      ),
                       shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.zero),
+                        borderRadius: BorderRadius.zero,
+                      ),
                     ),
                     child: const Text("12:00 pm"),
                   ),
@@ -130,29 +142,34 @@ class _CarSearchPanelState extends State<CarSearchPanel> {
                   child: OutlinedButton(
                     onPressed: () {
                       showModalBottomSheet(
-                          context: context,
-                          isScrollControlled: true,
-                          shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.vertical(
-                                  top: Radius.circular(20))),
-                          builder: (ctx) => CalendarSheet(
-                                firstTitle: "",
-                                secondTitle: "",
-                                isOnlyTab: true,
-                              ));
+                        context: context,
+                        isScrollControlled: true,
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.vertical(
+                            top: Radius.circular(20),
+                          ),
+                        ),
+                        builder: (ctx) => CalendarSheet(
+                          firstTitle: "",
+                          secondTitle: "",
+                          isOnlyTab: true,
+                        ),
+                      );
                     },
                     style: OutlinedButton.styleFrom(
                       side: BorderSide(
-                          color: Theme.of(context).colorScheme.primary,
-                          width: 1),
+                        color: Theme.of(context).colorScheme.primary,
+                        width: 1,
+                      ),
                       shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.zero),
+                        borderRadius: BorderRadius.zero,
+                      ),
                     ),
                     child: const Row(
                       children: [
                         Icon(Icons.calendar_month),
                         SizedBox(width: _padding),
-                        Text('Sun Aug 10th')
+                        Text('Sun Aug 10th'),
                       ],
                     ),
                   ),
@@ -163,7 +180,9 @@ class _CarSearchPanelState extends State<CarSearchPanel> {
                   child: OutlinedButton(
                     onPressed: () async {
                       final picked = await showAdaptiveTimePicker(
-                          context, TimeOfDay(hour: 12, minute: 0));
+                        context,
+                        TimeOfDay(hour: 12, minute: 0),
+                      );
                       if (picked != null) {
                         debugPrint("Time picked: ${picked.format(context)}");
                         // update state here
@@ -173,10 +192,12 @@ class _CarSearchPanelState extends State<CarSearchPanel> {
                       // padding: EdgeInsets.only(
                       //     left: 10), // 🔥 Kill default horizontal padding
                       side: BorderSide(
-                          color: Theme.of(context).colorScheme.primary,
-                          width: 1),
+                        color: Theme.of(context).colorScheme.primary,
+                        width: 1,
+                      ),
                       shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.zero),
+                        borderRadius: BorderRadius.zero,
+                      ),
                     ),
                     child: const Text("12:00 pm"),
                   ),
@@ -200,9 +221,7 @@ class _CarSearchPanelState extends State<CarSearchPanel> {
                     ),
                     child: const Row(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text('Search Cars'),
-                      ],
+                      children: [Text('Search Cars')],
                     ),
                   ),
                 ),

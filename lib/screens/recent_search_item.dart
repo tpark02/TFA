@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 
 class RecentSearchItem extends StatelessWidget {
-  const RecentSearchItem(
-      {super.key,
-      required this.destination,
-      required this.tripDateRange,
-      required this.icons});
+  const RecentSearchItem({
+    super.key,
+    required this.destination,
+    required this.tripDateRange,
+    required this.icons,
+  });
   final String destination;
   final String tripDateRange;
   final List<Widget> icons;

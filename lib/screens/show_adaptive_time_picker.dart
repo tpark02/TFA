@@ -3,7 +3,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 Future<TimeOfDay?> showAdaptiveTimePicker(
-    BuildContext context, TimeOfDay initialTime) async {
+  BuildContext context,
+  TimeOfDay initialTime,
+) async {
   if (Platform.isIOS) {
     // Cupertino-style (iOS)
     TimeOfDay? pickedTime;
@@ -12,8 +14,13 @@ Future<TimeOfDay?> showAdaptiveTimePicker(
       context: context,
       backgroundColor: Colors.white,
       builder: (BuildContext builder) {
-        DateTime initialDateTime =
-            DateTime(0, 0, 0, initialTime.hour, initialTime.minute);
+        DateTime initialDateTime = DateTime(
+          0,
+          0,
+          0,
+          initialTime.hour,
+          initialTime.minute,
+        );
         return SizedBox(
           height: 250,
           child: Column(
@@ -34,7 +41,9 @@ Future<TimeOfDay?> showAdaptiveTimePicker(
                   use24hFormat: false,
                   onDateTimeChanged: (DateTime newDateTime) {
                     pickedTime = TimeOfDay(
-                        hour: newDateTime.hour, minute: newDateTime.minute);
+                      hour: newDateTime.hour,
+                      minute: newDateTime.minute,
+                    );
                   },
                 ),
               ),
@@ -47,9 +56,6 @@ Future<TimeOfDay?> showAdaptiveTimePicker(
     return pickedTime;
   } else {
     // Material-style (Android)
-    return await showTimePicker(
-      context: context,
-      initialTime: initialTime,
-    );
+    return await showTimePicker(context: context, initialTime: initialTime);
   }
 }

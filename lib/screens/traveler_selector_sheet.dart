@@ -57,7 +57,9 @@ class _TravelerSelectorState extends State<TravelerSelectorSheet> {
                       child: const Text(
                         "Travelers",
                         style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -76,7 +78,9 @@ class _TravelerSelectorState extends State<TravelerSelectorSheet> {
                       child: const Text(
                         "Class",
                         style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ],
@@ -92,11 +96,14 @@ class _TravelerSelectorState extends State<TravelerSelectorSheet> {
                           Row(
                             children: [
                               const Expanded(
-                                  child: Text(
-                                "Adults > 18",
-                                style: TextStyle(
-                                    fontSize: 16, fontWeight: FontWeight.bold),
-                              )),
+                                child: Text(
+                                  "Adults > 18",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
                               Expanded(
                                 child: Align(
                                   alignment: Alignment.centerRight,
@@ -110,10 +117,13 @@ class _TravelerSelectorState extends State<TravelerSelectorSheet> {
                               const Expanded(
                                 child: Align(
                                   alignment: Alignment.centerLeft,
-                                  child: Text("Children 2 - 11",
-                                      style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold)),
+                                  child: Text(
+                                    "Children 2 - 11",
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
                                 ),
                               ),
                               Expanded(
@@ -145,21 +155,24 @@ class _TravelerSelectorState extends State<TravelerSelectorSheet> {
                                         _selectedClassIdx = 0;
                                       });
                                     },
-                                    child: Text("Economy",
-                                        style: TextStyle(
-                                            color: _selectedClassIdx == 0
-                                                ? Theme.of(context)
-                                                    .colorScheme
-                                                    .primary
-                                                : Colors.grey,
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold)),
+                                    child: Text(
+                                      "Economy",
+                                      style: TextStyle(
+                                        color: _selectedClassIdx == 0
+                                            ? Theme.of(
+                                                context,
+                                              ).colorScheme.primary
+                                            : Colors.grey,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ),
                               _selectedClassIdx == 0
                                   ? const Icon(Icons.check)
-                                  : const SizedBox.shrink()
+                                  : const SizedBox.shrink(),
                             ],
                           ),
                           Row(
@@ -170,28 +183,32 @@ class _TravelerSelectorState extends State<TravelerSelectorSheet> {
                                   alignment: Alignment.centerLeft,
                                   child: TextButton(
                                     style: TextButton.styleFrom(
-                                        padding: EdgeInsets.zero,
-                                        minimumSize: Size.zero),
+                                      padding: EdgeInsets.zero,
+                                      minimumSize: Size.zero,
+                                    ),
                                     onPressed: () {
                                       setState(() {
                                         _selectedClassIdx = 1;
                                       });
                                     },
-                                    child: Text("Premium Economy",
-                                        style: TextStyle(
-                                            color: _selectedClassIdx == 1
-                                                ? Theme.of(context)
-                                                    .colorScheme
-                                                    .primary
-                                                : Colors.grey,
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold)),
+                                    child: Text(
+                                      "Premium Economy",
+                                      style: TextStyle(
+                                        color: _selectedClassIdx == 1
+                                            ? Theme.of(
+                                                context,
+                                              ).colorScheme.primary
+                                            : Colors.grey,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ),
                               _selectedClassIdx == 1
                                   ? const Icon(Icons.check)
-                                  : const SizedBox.shrink()
+                                  : const SizedBox.shrink(),
                             ],
                           ),
                           Row(
@@ -210,21 +227,24 @@ class _TravelerSelectorState extends State<TravelerSelectorSheet> {
                                         _selectedClassIdx = 2;
                                       });
                                     },
-                                    child: Text("Business",
-                                        style: TextStyle(
-                                            color: _selectedClassIdx == 2
-                                                ? Theme.of(context)
-                                                    .colorScheme
-                                                    .primary
-                                                : Colors.grey,
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold)),
+                                    child: Text(
+                                      "Business",
+                                      style: TextStyle(
+                                        color: _selectedClassIdx == 2
+                                            ? Theme.of(
+                                                context,
+                                              ).colorScheme.primary
+                                            : Colors.grey,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ),
                               _selectedClassIdx == 2
                                   ? const Icon(Icons.check)
-                                  : const SizedBox.shrink()
+                                  : const SizedBox.shrink(),
                             ],
                           ),
                           Row(
@@ -243,21 +263,24 @@ class _TravelerSelectorState extends State<TravelerSelectorSheet> {
                                         _selectedClassIdx = 3;
                                       });
                                     },
-                                    child: Text("First",
-                                        style: TextStyle(
-                                            color: _selectedClassIdx == 3
-                                                ? Theme.of(context)
-                                                    .colorScheme
-                                                    .primary
-                                                : Colors.grey,
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold)),
+                                    child: Text(
+                                      "First",
+                                      style: TextStyle(
+                                        color: _selectedClassIdx == 3
+                                            ? Theme.of(
+                                                context,
+                                              ).colorScheme.primary
+                                            : Colors.grey,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ),
                               _selectedClassIdx == 3
                                   ? const Icon(Icons.check)
-                                  : const SizedBox.shrink()
+                                  : const SizedBox.shrink(),
                             ],
                           ),
                         ],
