@@ -82,6 +82,10 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
                             flightState.departureAirportCode.isEmpty
                                 ? 'Departure'
                                 : flightState.departureAirportCode,
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ],
                       ),
@@ -128,6 +132,10 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
                             flightState.arrivalAirportName.isEmpty
                                 ? 'Arrival'
                                 : flightState.arrivalAirportCode,
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ],
                       ),
@@ -137,7 +145,7 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
               ),
             ),
           ),
-
+          const SizedBox(height: 8),
           // Date + Travelers
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: _padding),
@@ -180,14 +188,18 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
                       children: [
                         const Icon(Icons.calendar_month),
                         const SizedBox(width: _padding),
-                        Text(flightState.displayDate ?? 'Select'),
+                        Text(
+                          flightState.displayDate ?? 'Select',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ],
                     ),
                   ),
                 ),
-
                 const SizedBox(width: 8),
-
                 // Travelers
                 Expanded(
                   flex: 4,
@@ -218,6 +230,7 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
                       }
                     },
                     style: OutlinedButton.styleFrom(
+                      padding: EdgeInsets.symmetric(horizontal: 10.0),
                       side: BorderSide(
                         color: Theme.of(context).colorScheme.primary,
                         width: 1,
@@ -227,11 +240,15 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
                       ),
                     ),
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const Icon(Icons.person),
-                        const SizedBox(width: 5),
-                        Text(flightState.passengerCount.toString()),
+                        Text(
+                          flightState.passengerCount.toString(),
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                         const SizedBox(width: 5),
                         const Text('|'),
                         const SizedBox(width: 5),
@@ -241,6 +258,10 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
                             flightState.cabinClass,
                             overflow: TextOverflow.ellipsis,
                             maxLines: 1,
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                       ],
@@ -250,7 +271,7 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
               ],
             ),
           ),
-
+          const SizedBox(height: 8.0),
           // Search button + Recent search
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: _padding),
@@ -303,9 +324,18 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
                             borderRadius: BorderRadius.zero,
                           ),
                         ),
+
                         child: const Row(
                           mainAxisAlignment: MainAxisAlignment.center,
-                          children: [Text('Search Flight')],
+                          children: [
+                            Text(
+                              'Search Flight',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),

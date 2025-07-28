@@ -55,7 +55,7 @@ class _SearchScreenState extends State<SearchScreen> {
                         });
                       },
                       icon: const Icon(Icons.flight_takeoff),
-                      iconSize: 30,
+                      iconSize: 50,
                       style: IconButton.styleFrom(
                         shape: const CircleBorder(),
                         backgroundColor: Colors.grey[200],
@@ -65,7 +65,13 @@ class _SearchScreenState extends State<SearchScreen> {
                       ),
                     ),
                     SizedBox(height: 8),
-                    const Text("Flight"),
+                    const Text(
+                      "Flight",
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ],
                 ),
                 Column(
@@ -77,7 +83,7 @@ class _SearchScreenState extends State<SearchScreen> {
                         });
                       },
                       icon: const Icon(Icons.hotel),
-                      iconSize: 30,
+                      iconSize: 50,
                       style: IconButton.styleFrom(
                         shape: const CircleBorder(),
                         backgroundColor: Colors.grey[200],
@@ -87,7 +93,13 @@ class _SearchScreenState extends State<SearchScreen> {
                       ),
                     ),
                     SizedBox(height: 8),
-                    const Text("Hotel"),
+                    const Text(
+                      "Hotel",
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ],
                 ),
                 Column(
@@ -99,7 +111,7 @@ class _SearchScreenState extends State<SearchScreen> {
                         });
                       },
                       icon: const Icon(Icons.car_rental),
-                      iconSize: 30,
+                      iconSize: 50,
                       style: IconButton.styleFrom(
                         shape: const CircleBorder(),
                         backgroundColor: Colors.grey[200],
@@ -109,7 +121,13 @@ class _SearchScreenState extends State<SearchScreen> {
                       ),
                     ),
                     SizedBox(height: 8),
-                    const Text("Cars"),
+                    const Text(
+                      "Cars",
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ],
                 ),
               ],
