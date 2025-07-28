@@ -1,3 +1,4 @@
+import 'package:chat_app/colors.dart';
 import 'package:chat_app/screens/menu.dart';
 import 'package:chat_app/screens/search.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -26,30 +27,33 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'FlutterChat',
-      theme: ThemeData(
-        // Define the default brightness and colors.
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.blueAccent,
-          // ···
-          // brightness: Brightness.dark,
-        ),
+      // theme: ThemeData(
+      //   // Define the default brightness and colors.
+      //   colorScheme: ColorScheme.fromSeed(
+      //     seedColor: Colors.blueAccent,
+      //     // ···
+      //     // brightness: Brightness.dark,
+      //   ),
 
-        // Define the default `TextTheme`. Use this to specify the default
-        // text styling for headlines, titles, bodies of text, and more.
-        textTheme: TextTheme(
-          displayLarge: const TextStyle(
-            fontSize: 72,
-            fontWeight: FontWeight.bold,
-          ),
-          // ···
-          titleLarge: GoogleFonts.lato(
-            fontSize: 30,
-            // fontStyle: FontStyle.italic,
-          ),
-          bodyMedium: GoogleFonts.lato(),
-          displaySmall: GoogleFonts.lato(),
-        ),
-      ),
+      //   // Define the default `TextTheme`. Use this to specify the default
+      //   // text styling for headlines, titles, bodies of text, and more.
+      //   textTheme: TextTheme(
+      //     displayLarge: const TextStyle(
+      //       fontSize: 72,
+      //       fontWeight: FontWeight.bold,
+      //     ),
+      //     // ···
+      //     titleLarge: GoogleFonts.lato(
+      //       fontSize: 30,
+      //       // fontStyle: FontStyle.italic,
+      //     ),
+      //     bodyMedium: GoogleFonts.lato(),
+      //     displaySmall: GoogleFonts.lato(),
+      //   ),
+      // ),
+      theme: ThemeData(useMaterial3: true, colorScheme: lightColorScheme),
+      darkTheme: ThemeData(useMaterial3: true, colorScheme: darkColorScheme),
+      themeMode: ThemeMode.dark,
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,

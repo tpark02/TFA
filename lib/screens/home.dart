@@ -6,19 +6,14 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        foregroundColor: Colors.white,
         elevation: 0,
         title: const TextField(
           decoration: InputDecoration(
-            hintText: '당신은 어디로 가고 싶나요?',
-            hintStyle: TextStyle(color: Colors.white70),
+            hintText: 'Where do you want to go?',
             border: InputBorder.none,
-            prefixIcon: Icon(Icons.search, color: Colors.white),
+            prefixIcon: Icon(Icons.search),
           ),
-          style: TextStyle(color: Colors.white),
         ),
       ),
       body: SingleChildScrollView(
@@ -32,11 +27,11 @@ class HomeScreen extends StatelessWidget {
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 children: [
-                  categoryChip("스포트라이트"),
-                  categoryChip("서울"),
-                  categoryChip("포르토데일"),
-                  categoryChip("뉴욕"),
-                  categoryChip("울산"),
+                  categoryChip("Spotlight"),
+                  categoryChip("Seoul"),
+                  categoryChip("Porto Dale"),
+                  categoryChip("New York"),
+                  categoryChip("Ulsan"),
                 ],
               ),
             ),
@@ -46,7 +41,6 @@ class HomeScreen extends StatelessWidget {
               margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.grey[100],
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
@@ -55,10 +49,10 @@ class HomeScreen extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('소개합니다', style: TextStyle(fontSize: 12)),
+                        Text('Introducing', style: TextStyle(fontSize: 12)),
                         SizedBox(height: 4),
                         Text(
-                          '스킵래그드 보장',
+                          'Skiplagged Guarantee',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -66,13 +60,13 @@ class HomeScreen extends StatelessWidget {
                         ),
                         SizedBox(height: 8),
                         Text(
-                          '모든 항공권에 추가 비용 없이 자동 보호 제공.',
+                          'Automatic protection included with every ticket at no extra cost.',
                           style: TextStyle(fontSize: 12),
                         ),
                         SizedBox(height: 8),
                         ElevatedButton(
                           onPressed: null,
-                          child: Text('자세히 알아보기'),
+                          child: Text('Learn More'),
                         ),
                       ],
                     ),
@@ -95,7 +89,7 @@ class HomeScreen extends StatelessWidget {
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Text(
-                '위대한 거래',
+                'Great Deals',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
             ),
@@ -106,15 +100,15 @@ class HomeScreen extends StatelessWidget {
                 padding: const EdgeInsets.only(left: 16),
                 children: [
                   dealCard(
-                    title: '몬트리올에서 보고타로',
-                    date: '9월 22일 월',
+                    title: 'From Montreal to Bogota',
+                    date: 'Mon, Sep 22',
                     imageUrl: '',
                     originalPrice: '₩325,808',
                     discountPrice: '₩255,101',
                   ),
                   dealCard(
-                    title: '마나우스에서 리마로',
-                    date: '10월 16일 화',
+                    title: 'From Manaus to Lima',
+                    date: 'Tue, Oct 16',
                     imageUrl: '',
                     originalPrice: '₩412,000',
                     discountPrice: '₩322,800',
@@ -177,22 +171,17 @@ class HomeScreen extends StatelessWidget {
                 top: 8,
                 left: 8,
                 child: Container(
-                  color: Colors.redAccent,
                   padding: const EdgeInsets.symmetric(
                     horizontal: 8,
                     vertical: 2,
                   ),
-                  child: const Text(
-                    'Skiplagging',
-                    style: TextStyle(color: Colors.white, fontSize: 12),
-                  ),
+                  child: const Text('Skiplagging'),
                 ),
               ),
               Positioned(
                 bottom: 8,
                 left: 8,
                 child: Container(
-                  color: Colors.black.withOpacity(0.6),
                   padding: const EdgeInsets.symmetric(
                     horizontal: 8,
                     vertical: 2,
@@ -200,7 +189,6 @@ class HomeScreen extends StatelessWidget {
                   child: Text(
                     '$originalPrice → $discountPrice',
                     style: const TextStyle(
-                      color: Colors.white,
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
                     ),
@@ -211,7 +199,6 @@ class HomeScreen extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-          Text(date, style: const TextStyle(fontSize: 12, color: Colors.grey)),
         ],
       ),
     );
