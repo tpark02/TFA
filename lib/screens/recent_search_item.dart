@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:chat_app/models/recent_search.dart';
+import 'package:chat_app/providers/recent_search.dart';
 
 class RecentSearchItem extends StatelessWidget {
   const RecentSearchItem({super.key, required this.search});

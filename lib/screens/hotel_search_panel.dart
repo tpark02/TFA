@@ -1,21 +1,30 @@
-import 'package:chat_app/models/recent_search.dart';
+import 'package:chat_app/providers/hotel/hotel_provider.dart';
+import 'package:chat_app/providers/hotel/hotel_search_controller.dart';
 import 'package:chat_app/screens/calendar_sheet.dart';
 import 'package:chat_app/screens/recent_search_panel.dart';
 import 'package:chat_app/screens/room_guest_selector_sheet.dart';
 import 'package:chat_app/screens/search_hotel_sheet.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class HotelSearchPanel extends StatefulWidget {
+class HotelSearchPanel extends ConsumerStatefulWidget {
   const HotelSearchPanel({super.key});
   @override
-  State<HotelSearchPanel> createState() => _HotelSearchPanelState();
+  ConsumerState<HotelSearchPanel> createState() => _HotelSearchPanelState();
 }
 
-class _HotelSearchPanelState extends State<HotelSearchPanel> {
+class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
   static const double _padding = 20.0;
 
   @override
   Widget build(BuildContext context) {
+    final hotelState = ref.watch(hotelSearchProvider);
+    final controller = ref.read(hotelSearchProvider.notifier);
+
+    print(hotelState.guestCount);
+    // ref.read(hotelSearchProvider.notifier).updateLocation('Bangkok');
+    // ref.read(hotelSearchProvider.notifier).updateGuestCount(3);
+
     return SingleChildScrollView(
       child: Column(
         children: [
@@ -262,27 +271,7 @@ class _HotelSearchPanelState extends State<HotelSearchPanel> {
                   ],
                 ),
                 SizedBox(height: _padding),
-                // RecentSearchPanel(
-                //   searches: [
-                //     RecentSearch(
-                //       destination: 'Seoul',
-                //       tripDateRange: 'Aug 9 - Aug 11',
-                //       icons: [
-                //         const SizedBox(width: 10),
-                //         const Text('|', style: TextStyle(color: Colors.grey)),
-                //         const SizedBox(width: 10),
-                //         const Icon(Icons.bed, color: Colors.grey, size: 20),
-                //         const SizedBox(width: 10),
-                //         const Text("1", style: TextStyle(color: Colors.grey)),
-                //         const SizedBox(width: 10),
-                //         const Icon(Icons.person, color: Colors.grey, size: 20),
-                //         const SizedBox(width: 10),
-                //         const Text("2", style: TextStyle(color: Colors.grey)),
-                //       ],
-                //       destinationCode: 'SEL',
-                //     ),
-                //   ],
-                // ),
+                RecentSearchPanel(),
               ],
             ),
           ),

@@ -30,4 +30,4 @@ final airportDataProvider = FutureProvider<List<Airport>>((ref) async {
   return airportList;
 });
 
-final searchQueryProvider = StateProvider<String>((ref) => '');
+final airportSearchQueryProvider = StateProvider<String>((ref) => '');

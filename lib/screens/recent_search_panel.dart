@@ -1,4 +1,4 @@
-import 'package:chat_app/models/recent_search.dart';
+import 'package:chat_app/providers/recent_search.dart';
 import 'package:chat_app/providers/flight_search_controller.dart';
 import 'package:chat_app/screens/recent_search_item.dart';
 import 'package:flutter/material.dart';

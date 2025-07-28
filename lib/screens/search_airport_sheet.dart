@@ -1,4 +1,4 @@
-import 'package:chat_app/models/airport_selection.dart';
+import 'package:chat_app/providers/airport_selection.dart';
 import 'package:chat_app/providers/airport_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -21,7 +21,7 @@ class _AirportSheetState extends ConsumerState<SearchAirportSheet> {
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height * 0.5;
-    final query = ref.watch(searchQueryProvider);
+    final query = ref.watch(airportSearchQueryProvider);
     final airportData = ref.watch(airportDataProvider);
 
     final filteredAirports = airportData.maybeWhen(
@@ -66,7 +66,8 @@ class _AirportSheetState extends ConsumerState<SearchAirportSheet> {
                   Expanded(
                     child: TextField(
                       onChanged: (value) =>
-                          ref.read(searchQueryProvider.notifier).state = value,
+                          ref.read(airportSearchQueryProvider.notifier).state =
+                              value,
                       decoration: InputDecoration(
                         hintText: widget.isDeparture ? "From" : "To",
                         hintStyle: const TextStyle(color: Colors.grey),

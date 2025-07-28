@@ -1,6 +1,6 @@
-import 'package:chat_app/models/recent_search.dart';
+import 'package:chat_app/providers/recent_search.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../models/flight_search_state.dart';
+import 'flight_search_state.dart';
 
 class FlightSearchController extends StateNotifier<FlightSearchState> {
   FlightSearchController() : super(const FlightSearchState());
