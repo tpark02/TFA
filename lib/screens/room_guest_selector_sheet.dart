@@ -8,6 +8,10 @@ class RoomGuestSelectorSheet extends StatefulWidget {
 }
 
 class _RoomGuestSelectorSheet extends State<RoomGuestSelectorSheet> {
+  int _rooms = 1;
+  int _adultCount = 0;
+  int _childCount = 0;
+
   @override
   Widget build(BuildContext content) {
     final height =
@@ -67,7 +71,10 @@ class _RoomGuestSelectorSheet extends State<RoomGuestSelectorSheet> {
                         Expanded(
                           child: Align(
                             alignment: Alignment.centerRight,
-                            child: CounterControl(count: 0),
+                            child: CounterControl(
+                              count: _rooms,
+                              onChanged: (val) => setState(() => _rooms = val),
+                            ),
                           ),
                         ),
                       ],
@@ -89,7 +96,11 @@ class _RoomGuestSelectorSheet extends State<RoomGuestSelectorSheet> {
                         Expanded(
                           child: Align(
                             alignment: Alignment.centerRight,
-                            child: CounterControl(count: 0),
+                            child: CounterControl(
+                              count: _adultCount,
+                              onChanged: (val) =>
+                                  setState(() => _adultCount = val),
+                            ),
                           ),
                         ),
                       ],
@@ -111,7 +122,11 @@ class _RoomGuestSelectorSheet extends State<RoomGuestSelectorSheet> {
                         Expanded(
                           child: Align(
                             alignment: Alignment.centerRight,
-                            child: CounterControl(count: 0),
+                            child: CounterControl(
+                              count: _childCount,
+                              onChanged: (val) =>
+                                  setState(() => _childCount = val),
+                            ),
                           ),
                         ),
                       ],
@@ -123,7 +138,15 @@ class _RoomGuestSelectorSheet extends State<RoomGuestSelectorSheet> {
                 width: double.infinity,
                 height: 50,
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    final total = _adultCount + _childCount;
+                    Navigator.pop(context, {
+                      'roomCnt': _rooms,
+                      'guestsCnt': total,
+                      'childCnt': _childCount,
+                      'adultCnt': _adultCount,
+                    });
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Theme.of(context).colorScheme.primary,
                     foregroundColor: Colors.white,

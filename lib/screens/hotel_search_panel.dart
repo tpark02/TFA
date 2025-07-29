@@ -1,4 +1,6 @@
 import 'package:chat_app/providers/hotel/hotel_search_controller.dart';
+import 'package:chat_app/providers/hotel/hotel_search_state.dart';
+import 'package:chat_app/providers/recent_search.dart';
 import 'package:chat_app/screens/calendar_sheet.dart';
 import 'package:chat_app/screens/recent_search_panel.dart';
 import 'package:chat_app/screens/room_guest_selector_sheet.dart';
@@ -55,9 +57,9 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
                               const SearchHotelSheet(title: "Hotel"),
                         );
                         if (result != null) {
-                          String country = result['country'];
-                          debugPrint(country);
-                          controller.setCountry(country);
+                          String city = result['country'];
+                          debugPrint(city);
+                          controller.setCity(city);
                         }
                       },
                       child: Row(
@@ -65,7 +67,7 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
                         children: [
                           const Icon(Icons.apartment),
                           const SizedBox(width: 8),
-                          Text(hotelState.country),
+                          Text(hotelState.city),
                         ],
                       ),
                     ),
@@ -81,8 +83,8 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
                 Expanded(
                   flex: 6,
                   child: OutlinedButton(
-                    onPressed: () {
-                      showModalBottomSheet(
+                    onPressed: () async {
+                      final result = await showModalBottomSheet(
                         context: context,
                         isScrollControlled: true,
                         shape: const RoundedRectangleBorder(
@@ -96,6 +98,10 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
                           isOnlyTab: true,
                         ),
                       );
+
+                      if (result != null && result['displayDate'] != null) {
+                        controller.setDisplayDate(result['displayDate']);
+                      }
                     },
                     style: OutlinedButton.styleFrom(
                       side: BorderSide(
@@ -106,11 +112,17 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
                         borderRadius: BorderRadius.zero,
                       ),
                     ),
-                    child: const Row(
+                    child: Row(
                       children: [
                         Icon(Icons.calendar_month),
                         SizedBox(width: _padding),
-                        Text('Search'),
+                        Text(
+                          hotelState.displayDate ?? 'Select',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -119,8 +131,8 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
                 Expanded(
                   flex: 4,
                   child: OutlinedButton(
-                    onPressed: () {
-                      showModalBottomSheet(
+                    onPressed: () async {
+                      final result = await showModalBottomSheet(
                         context: context,
                         isScrollControlled: true,
                         shape: const RoundedRectangleBorder(
@@ -130,6 +142,23 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
                         ),
                         builder: (ctx) => const RoomGuestSelectorSheet(),
                       );
+
+                      if (result != null) {
+                        final roomCnt = result['roomCnt'];
+                        final guestsCnt = result['guestsCnt'];
+                        final adultCnt = result['adultCnt'];
+                        final childCnt = result['childCnt'];
+
+                        final rooms = roomCnt is int ? roomCnt : 1;
+
+                        debugPrint(
+                          'guestCnt: $guestsCnt (${guestsCnt.runtimeType})',
+                        );
+
+                        controller.setRoomCnt(rooms.toString());
+                        controller.setAdultCnt(adultCnt.toString());
+                        controller.setChildCnt(childCnt.toString());
+                      }
                     },
                     style: OutlinedButton.styleFrom(
                       // padding: EdgeInsets.only(
@@ -142,17 +171,31 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
                         borderRadius: BorderRadius.zero,
                       ),
                     ),
-                    child: const Row(
+                    child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Icon(Icons.bed),
                         SizedBox(width: 5),
-                        Text('1'),
+                        Text(
+                          hotelState.roomCnt,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                         SizedBox(width: 5),
                         Text('|'),
                         SizedBox(width: 5),
                         Icon(Icons.person),
-                        Text('2'),
+                        Text(
+                          ((int.tryParse(hotelState.adultCnt) ?? 0) +
+                                  (int.tryParse(hotelState.childCnt) ?? 0))
+                              .toString(),
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -166,7 +209,56 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
               children: [
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      debugPrint(hotelState.toString());
+                      // final hasPassengers = hotelState.passengerCount > 0;
+                      // final hasAirports =
+                      //     hotelState.departureAirportCode.isNotEmpty &&
+                      //     hotelState.arrivalAirportCode.isNotEmpty;
+                      // final hasDate =
+                      //     (flightState.displayDate ?? '').isNotEmpty;
+
+                      final hasCity = !hotelState.city.isEmpty;
+                      final hasDate = (hotelState.displayDate ?? '').isNotEmpty;
+                      final hasGuests =
+                          ((int.tryParse(hotelState.adultCnt) ?? 0) +
+                              (int.tryParse(hotelState.childCnt) ?? 0)) >
+                          0;
+                      final hasRoom =
+                          (int.tryParse(hotelState.roomCnt) ?? 0) > 0;
+
+                      if (!hasCity || !hasGuests || !hasRoom || !hasDate) {
+                        return;
+                      }
+
+                      int totalGuest =
+                          ((int.tryParse(hotelState.adultCnt) ?? 0) +
+                          (int.tryParse(hotelState.childCnt) ?? 0));
+
+                      controller.addRecentSearch(
+                        RecentSearch(
+                          destination: hotelState.city,
+                          tripDateRange: hotelState.displayDate ?? '',
+                          icons: [
+                            const SizedBox(width: 10),
+                            Icon(
+                              Icons.bed,
+                              color: Colors.grey[500],
+                              size: 20.0,
+                            ),
+                            Text(hotelState.roomCnt),
+                            const SizedBox(width: 10),
+                            Icon(
+                              Icons.person,
+                              color: Colors.grey[500],
+                              size: 20.0,
+                            ),
+                            Text(totalGuest.toString()),
+                          ],
+                          destinationCode: '',
+                        ),
+                      );
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Theme.of(context).colorScheme.primary,
                       foregroundColor: Colors.white,
@@ -270,7 +362,7 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
                   ],
                 ),
                 SizedBox(height: _padding),
-                RecentSearchPanel(),
+                RecentSearchPanel(panelName: 'hotel'),
               ],
             ),
           ),

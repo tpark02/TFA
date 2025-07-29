@@ -83,32 +83,45 @@ class _SearchHotelSheetState extends ConsumerState<SearchHotelSheet> {
 
                     return ListView(
                       children: grouped.entries.map((entry) {
-                        final country = entry.key;
+                        final city = entry.key;
                         final hotels = entry.value;
 
                         return Column(
                           children: [
-                            ElevatedButton(
+                            TextButton(
                               onPressed: () {
-                                Navigator.pop(context, {'country': country});
+                                Navigator.pop(context, {'country': city});
                               },
                               child: Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    country,
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        city,
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      Text(
+                                        hotels[0].country,
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          // fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                   Text(
-                                    hotels.length.toString(),
+                                    hotels.length.toString() + ' hotels',
                                     style: const TextStyle(
                                       fontSize: 16,
-                                      fontWeight: FontWeight.bold,
+                                      // fontWeight: FontWeight.bold,
                                     ),
                                   ),
                                 ],
