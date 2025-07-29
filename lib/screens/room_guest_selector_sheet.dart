@@ -19,7 +19,7 @@ class _RoomGuestSelectorSheet extends State<RoomGuestSelectorSheet> {
         ),
         child: Container(
           decoration: const BoxDecoration(
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+            borderRadius: BorderRadius.vertical(top: Radius.zero),
             color: Colors.white,
           ),
           padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -39,9 +39,9 @@ class _RoomGuestSelectorSheet extends State<RoomGuestSelectorSheet> {
                         foregroundColor: Theme.of(context).colorScheme.primary,
                       ),
                       child: const Text(
-                        "Room / Guest",
+                        "Number of Rooms / Guests",
                         style: TextStyle(
-                          fontSize: 18,
+                          fontSize: 24,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -57,7 +57,7 @@ class _RoomGuestSelectorSheet extends State<RoomGuestSelectorSheet> {
                       children: [
                         const Expanded(
                           child: Text(
-                            "Room",
+                            "Number of Rooms",
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
@@ -78,7 +78,7 @@ class _RoomGuestSelectorSheet extends State<RoomGuestSelectorSheet> {
                           child: Align(
                             alignment: Alignment.centerLeft,
                             child: Text(
-                              "Adults",
+                              "Number of Adults",
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
@@ -100,7 +100,7 @@ class _RoomGuestSelectorSheet extends State<RoomGuestSelectorSheet> {
                           child: Align(
                             alignment: Alignment.centerLeft,
                             child: Text(
-                              "Children",
+                              "Number of Children",
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
@@ -119,18 +119,22 @@ class _RoomGuestSelectorSheet extends State<RoomGuestSelectorSheet> {
                   ],
                 ),
               ),
-              ElevatedButton(
-                onPressed: () {},
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.primary,
-                  foregroundColor: Colors.white,
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.zero,
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  onPressed: () {},
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    foregroundColor: Colors.white,
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.zero,
+                    ),
                   ),
-                ),
-                child: const Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [Text('Complete')],
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [Text('Done', style: TextStyle(fontSize: 16))],
+                  ),
                 ),
               ),
             ],

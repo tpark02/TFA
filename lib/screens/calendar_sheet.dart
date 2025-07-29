@@ -105,37 +105,57 @@ class _CalendarSheetState extends State<CalendarSheet>
                   : const SizedBox.shrink(),
               const SizedBox(height: 8),
               Expanded(
-                child: TabBarView(
-                  controller: _tabController,
-                  children: [
-                    SfDateRangePicker(
-                      onSelectionChanged: _onSelectionChanged,
-                      selectionMode: DateRangePickerSelectionMode.single,
-                      backgroundColor: Colors.transparent,
-                      headerStyle: DateRangePickerHeaderStyle(
-                        backgroundColor: Theme.of(context).colorScheme.primary,
-                        textStyle: TextStyle(
-                          color: Theme.of(context).colorScheme.onPrimary,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
+                child: widget.isOnlyTab
+                    ? SfDateRangePicker(
+                        onSelectionChanged: _onSelectionRange,
+                        selectionMode: DateRangePickerSelectionMode.range,
+                        backgroundColor: Colors.transparent,
+                        headerStyle: DateRangePickerHeaderStyle(
+                          backgroundColor: Theme.of(
+                            context,
+                          ).colorScheme.primary,
+                          textStyle: TextStyle(
+                            color: Theme.of(context).colorScheme.onPrimary,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
+                      )
+                    : TabBarView(
+                        controller: _tabController,
+                        children: [
+                          SfDateRangePicker(
+                            onSelectionChanged: _onSelectionChanged,
+                            selectionMode: DateRangePickerSelectionMode.single,
+                            backgroundColor: Colors.transparent,
+                            headerStyle: DateRangePickerHeaderStyle(
+                              backgroundColor: Theme.of(
+                                context,
+                              ).colorScheme.primary,
+                              textStyle: TextStyle(
+                                color: Theme.of(context).colorScheme.onPrimary,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          SfDateRangePicker(
+                            onSelectionChanged: _onSelectionRange,
+                            selectionMode: DateRangePickerSelectionMode.range,
+                            backgroundColor: Colors.transparent,
+                            headerStyle: DateRangePickerHeaderStyle(
+                              backgroundColor: Theme.of(
+                                context,
+                              ).colorScheme.primary,
+                              textStyle: TextStyle(
+                                color: Theme.of(context).colorScheme.onPrimary,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                    SfDateRangePicker(
-                      onSelectionChanged: _onSelectionRange,
-                      selectionMode: DateRangePickerSelectionMode.range,
-                      backgroundColor: Colors.transparent,
-                      headerStyle: DateRangePickerHeaderStyle(
-                        backgroundColor: Theme.of(context).colorScheme.primary,
-                        textStyle: TextStyle(
-                          color: Theme.of(context).colorScheme.onPrimary,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
               ),
               const SizedBox(height: 12),
               Row(
