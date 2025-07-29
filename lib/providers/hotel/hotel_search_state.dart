@@ -1,37 +1,43 @@
-import 'package:flutter/material.dart';
-
 class HotelSearchState {
-  final String location;
-  final DateTime? checkInDate;
-  final DateTime? checkOutDate;
-  final int guestCount;
-  final int roomCount;
-  final RangeValues priceRange;
+  final String name;
+  final String rating;
+  final String score;
+  final String numberOfReviews;
+  final String price;
+  final String roomType;
+  final String city;
+  final String country;
 
   const HotelSearchState({
-    this.location = '',
-    this.checkInDate,
-    this.checkOutDate,
-    this.guestCount = 1,
-    this.roomCount = 1,
-    this.priceRange = const RangeValues(0, 1000),
+    this.name = '',
+    this.rating = '',
+    this.score = '',
+    this.numberOfReviews = '',
+    this.price = '',
+    this.roomType = '',
+    this.city = '',
+    this.country = '',
   });
 
   HotelSearchState copyWith({
-    String? location,
-    DateTime? checkInDate,
-    DateTime? checkOutDate,
-    int? guestCount,
-    int? roomCount,
-    RangeValues? priceRange,
+    String? name,
+    String? rating,
+    String? score,
+    String? numberOfReviews,
+    String? price,
+    String? roomType,
+    String? city,
+    String? country,
   }) {
     return HotelSearchState(
-      location: location ?? this.location,
-      checkInDate: checkInDate ?? this.checkInDate,
-      checkOutDate: checkOutDate ?? this.checkOutDate,
-      guestCount: guestCount ?? this.guestCount,
-      roomCount: roomCount ?? this.roomCount,
-      priceRange: priceRange ?? this.priceRange,
+      name: name ?? this.name,
+      rating: rating ?? this.rating,
+      score: score ?? this.score,
+      numberOfReviews: numberOfReviews ?? this.numberOfReviews,
+      price: price ?? this.price,
+      roomType: roomType ?? this.roomType,
+      city: city ?? this.city,
+      country: country ?? this.country,
     );
   }
 }

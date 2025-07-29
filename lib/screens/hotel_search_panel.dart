@@ -1,3 +1,4 @@
+import 'package:chat_app/providers/hotel/hotel_search_controller.dart';
 import 'package:chat_app/screens/calendar_sheet.dart';
 import 'package:chat_app/screens/recent_search_panel.dart';
 import 'package:chat_app/screens/room_guest_selector_sheet.dart';
@@ -13,9 +14,11 @@ class HotelSearchPanel extends ConsumerStatefulWidget {
 
 class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
   static const double _padding = 20.0;
-
   @override
   Widget build(BuildContext context) {
+    final hotelState = ref.watch(hotelSearchProvider);
+    final controller = ref.read(hotelSearchProvider.notifier);
+
     return SingleChildScrollView(
       child: Column(
         children: [
@@ -39,8 +42,8 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
                           borderRadius: BorderRadius.zero,
                         ),
                       ),
-                      onPressed: () {
-                        showModalBottomSheet(
+                      onPressed: () async {
+                        final result = await showModalBottomSheet(
                           context: context,
                           isScrollControlled: true,
                           shape: const RoundedRectangleBorder(
@@ -51,13 +54,18 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
                           builder: (ctx) =>
                               const SearchHotelSheet(title: "Hotel"),
                         );
+                        if (result != null) {
+                          String country = result['country'];
+                          debugPrint(country);
+                          controller.setCountry(country);
+                        }
                       },
-                      child: const Row(
+                      child: Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
-                          Icon(Icons.apartment),
-                          SizedBox(width: 8),
-                          Text('New York, NY'),
+                          const Icon(Icons.apartment),
+                          const SizedBox(width: 8),
+                          Text(hotelState.country),
                         ],
                       ),
                     ),
