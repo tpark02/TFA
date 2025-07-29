@@ -43,6 +43,8 @@ dependencies:
   google_fonts: ^6.2.1 # Check pub.dev for the latest version
   intl: ^0.20.2
   collection: ^1.17.2
+  geolocator: ^10.1.0 # use the latest version
+  geocoding: ^2.1.1
 
 dev_dependencies:
   flutter_test:

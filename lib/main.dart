@@ -16,6 +16,8 @@ void main() async {
   final raw = await rootBundle.loadString('assets/data/airports.csv');
   debugPrint("🧪 CSV line count: ${raw.split('\n').length}");
 
+  WidgetsFlutterBinding.ensureInitialized(); // ✅ required for plugins
+
   runApp(const ProviderScope(child: App()));
 }
 

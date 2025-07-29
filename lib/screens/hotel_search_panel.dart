@@ -5,6 +5,8 @@ import 'package:chat_app/screens/room_guest_selector_sheet.dart';
 import 'package:chat_app/screens/search_hotel_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:chat_app/services/location_service.dart'; // ✅ your service
+import 'package:geocoding/geocoding.dart';
 
 class HotelSearchPanel extends ConsumerStatefulWidget {
   const HotelSearchPanel({super.key});
@@ -14,6 +16,26 @@ class HotelSearchPanel extends ConsumerStatefulWidget {
 
 class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
   static const double _padding = 20.0;
+
+  Future<void> fetchCurrentCountry() async {
+    try {
+      final position =
+          await LocationService.getCurrentLocation(); // ✅ your class
+      final placemarks = await placemarkFromCoordinates(
+        position.latitude,
+        position.longitude,
+      );
+
+      if (placemarks.isNotEmpty) {
+        final city = placemarks.first.locality ?? '';
+        ref.read(hotelSearchProvider.notifier).setCity(city);
+        debugPrint("📍 Set country: $city");
+      }
+    } catch (e) {
+      debugPrint("❌ Location error: $e");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final hotelState = ref.watch(hotelSearchProvider);
@@ -43,6 +65,7 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
                         ),
                       ),
                       onPressed: () async {
+                        fetchCurrentCountry();
                         final result = await showModalBottomSheet(
                           context: context,
                           isScrollControlled: true,
@@ -55,9 +78,9 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
                               const SearchHotelSheet(title: "Hotel"),
                         );
                         if (result != null) {
-                          String country = result['country'];
-                          debugPrint(country);
-                          controller.setCountry(country);
+                          String city = result['city'];
+                          debugPrint(city);
+                          controller.setCity(city);
                         }
                       },
                       child: Row(
@@ -65,7 +88,7 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
                         children: [
                           const Icon(Icons.apartment),
                           const SizedBox(width: 8),
-                          Text(hotelState.country),
+                          Text(hotelState.city),
                         ],
                       ),
                     ),
