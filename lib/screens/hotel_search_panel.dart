@@ -1,5 +1,3 @@
-import 'package:chat_app/providers/hotel/hotel_provider.dart';
-import 'package:chat_app/providers/hotel/hotel_search_controller.dart';
 import 'package:chat_app/screens/calendar_sheet.dart';
 import 'package:chat_app/screens/recent_search_panel.dart';
 import 'package:chat_app/screens/room_guest_selector_sheet.dart';
@@ -18,13 +16,6 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
 
   @override
   Widget build(BuildContext context) {
-    final hotelState = ref.watch(hotelSearchProvider);
-    final controller = ref.read(hotelSearchProvider.notifier);
-
-    print(hotelState.guestCount);
-    // ref.read(hotelSearchProvider.notifier).updateLocation('Bangkok');
-    // ref.read(hotelSearchProvider.notifier).updateGuestCount(3);
-
     return SingleChildScrollView(
       child: Column(
         children: [

@@ -1,17 +1,21 @@
+import 'package:chat_app/providers/hotel/hotel_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class SearchHotelSheet extends StatefulWidget {
+class SearchHotelSheet extends ConsumerStatefulWidget {
   const SearchHotelSheet({super.key, required this.title});
   final String title;
 
   @override
-  State<SearchHotelSheet> createState() => _SearchHotelSheetState();
+  ConsumerState<SearchHotelSheet> createState() => _SearchHotelSheetState();
 }
 
-class _SearchHotelSheetState extends State<SearchHotelSheet> {
+class _SearchHotelSheetState extends ConsumerState<SearchHotelSheet> {
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height * 0.5;
+    final filteredHotels = ref.watch(filteredHotelProvider);
+
     return SafeArea(
       child: Padding(
         padding: EdgeInsets.only(
@@ -28,22 +32,27 @@ class _SearchHotelSheetState extends State<SearchHotelSheet> {
             children: [
               Text(
                 widget.title,
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 8),
               Row(
                 children: [
                   Expanded(
                     child: TextField(
+                      onChanged: (value) {
+                        ref.read(searchHotelQueryProvider.notifier).state =
+                            value;
+                      },
                       decoration: InputDecoration(
                         hintText: 'Hotel',
-                        hintStyle: TextStyle(color: Colors.grey),
+                        hintStyle: const TextStyle(color: Colors.grey),
                         prefixIcon: Icon(
                           Icons.search,
                           color: Theme.of(context).colorScheme.primary,
                         ),
-
-                        // Add visible border
                         enabledBorder: OutlineInputBorder(
                           borderSide: BorderSide(
                             color: Theme.of(context).colorScheme.primary,
@@ -59,76 +68,54 @@ class _SearchHotelSheetState extends State<SearchHotelSheet> {
                           borderRadius: BorderRadius.circular(0),
                         ),
                       ),
-                      style: TextStyle(color: Colors.black),
+                      style: const TextStyle(color: Colors.black),
                     ),
                   ),
                 ],
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      for (int i = 0; i < 10; i++)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 10),
-                          child: Row(
-                            children: [
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: TextButton(
-                                  onPressed: () {},
-                                  style: TextButton.styleFrom(
-                                    padding: EdgeInsets
-                                        .zero, // remove default padding
-                                    alignment: Alignment
-                                        .centerLeft, // align entire content left
-                                  ),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Align(
-                                        alignment: Alignment.centerLeft,
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: const [
-                                            Text(
-                                              "Tokyo",
-                                              style: TextStyle(
-                                                fontSize: 18,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                            Text('Japan'),
-                                          ],
-                                        ),
-                                      ),
-                                      Align(
-                                        alignment: Alignment.bottomRight,
-                                        child: const Text(
-                                          '5,367',
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            color: Color.fromRGBO(
-                                              48,
-                                              48,
-                                              48,
-                                              1,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
+                child: filteredHotels.when(
+                  data: (grouped) {
+                    if (grouped.isEmpty) {
+                      return const Center(child: Text("No matching countries"));
+                    }
+
+                    return ListView(
+                      children: grouped.entries.map((entry) {
+                        final country = entry.key;
+                        final hotels = entry.value;
+
+                        return Column(
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  country,
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        ),
-                    ],
-                  ),
+                                Text(
+                                  hotels.length.toString(),
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        );
+                      }).toList(),
+                    );
+                  },
+                  loading: () =>
+                      const Center(child: CircularProgressIndicator()),
+                  error: (err, _) => Center(child: Text('Error: $err')),
                 ),
               ),
             ],
