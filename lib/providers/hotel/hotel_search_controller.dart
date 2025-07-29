@@ -1,9 +1,28 @@
 import 'package:chat_app/models/hotel.dart';
+import 'package:chat_app/providers/recent_search.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'hotel_search_state.dart';
 
 class HotelSearchController extends StateNotifier<HotelSearchState> {
   HotelSearchController() : super(const HotelSearchState());
+
+  void addRecentSearch(RecentSearch search) {
+    final updated = [search, ...state.recentSearches];
+    if (updated.length > 5) updated.removeLast(); // optional: cap at 5 items
+    state = state.copyWith(recentSearches: updated);
+  }
+
+  void setRoomCnt(String cnt) {
+    state = state.copyWith(roomCnt: cnt);
+  }
+
+  void setAdultCnt(String cnt) {
+    state = state.copyWith(adultCnt: cnt);
+  }
+
+  void setChildCnt(String cnt) {
+    state = state.copyWith(childCnt: cnt);
+  }
 
   void setName(String name) {
     state = state.copyWith(name: name);
@@ -35,6 +54,10 @@ class HotelSearchController extends StateNotifier<HotelSearchState> {
 
   void setCountry(String country) {
     state = state.copyWith(country: country);
+  }
+
+  void setDisplayDate(String displayDate) {
+    state = state.copyWith(displayDate: displayDate);
   }
 
   void setFromHotelModel(Hotel hotel) {

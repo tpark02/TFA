@@ -342,7 +342,7 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
                   ],
                 ),
                 const SizedBox(height: _padding),
-                RecentSearchPanel(),
+                RecentSearchPanel(panelName: 'flight'),
               ],
             ),
           ),
