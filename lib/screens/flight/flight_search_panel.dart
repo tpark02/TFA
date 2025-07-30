@@ -1,3 +1,4 @@
+import 'package:chat_app/constants/font_size.dart';
 import 'package:chat_app/providers/airport/airport_provider.dart';
 import 'package:chat_app/providers/airport/airport_selection.dart';
 import 'package:chat_app/providers/recent_search.dart';
@@ -163,7 +164,7 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
                                         ? 'Departure'
                                         : flightState.departureAirportCode,
                                     style: TextStyle(
-                                      fontSize: 16,
+                                      fontSize: kFontSize14,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
@@ -214,7 +215,7 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
                                 ? 'Arrival'
                                 : flightState.arrivalAirportCode,
                             style: TextStyle(
-                              fontSize: 16,
+                              fontSize: kFontSize14,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -273,7 +274,7 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
                         Text(
                           flightState.displayDate ?? 'Select',
                           style: TextStyle(
-                            fontSize: 16,
+                            fontSize: kFontSize14,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -327,7 +328,7 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
                         Text(
                           flightState.passengerCount.toString(),
                           style: TextStyle(
-                            fontSize: 14,
+                            fontSize: kFontSize14,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -341,7 +342,7 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
                             overflow: TextOverflow.ellipsis,
                             maxLines: 1,
                             style: TextStyle(
-                              fontSize: 14,
+                              fontSize: kFontSize14,
                               fontWeight: FontWeight.bold,
                             ),
                           ),

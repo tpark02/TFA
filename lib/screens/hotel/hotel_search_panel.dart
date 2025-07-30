@@ -1,3 +1,4 @@
+import 'package:chat_app/constants/font_size.dart';
 import 'package:chat_app/providers/hotel/hotel_search_controller.dart';
 import 'package:chat_app/providers/recent_search.dart';
 import 'package:chat_app/screens/shared/calendar_sheet.dart';
@@ -135,7 +136,7 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
                               : Text(
                                   hotelState.city,
                                   style: TextStyle(
-                                    fontSize: 16,
+                                    fontSize: kFontSize14,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
@@ -191,7 +192,7 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
                         Text(
                           hotelState.displayDate ?? 'Select',
                           style: TextStyle(
-                            fontSize: 16,
+                            fontSize: kFontSize14,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -251,7 +252,7 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
                         Text(
                           hotelState.roomCnt,
                           style: TextStyle(
-                            fontSize: 14,
+                            fontSize: kFontSize14,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -264,7 +265,7 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
                                   (int.tryParse(hotelState.childCnt) ?? 0))
                               .toString(),
                           style: TextStyle(
-                            fontSize: 14,
+                            fontSize: kFontSize14,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -386,7 +387,7 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
                                     Text(
                                       hotelState.city,
                                       style: TextStyle(
-                                        fontSize: 16,
+                                        fontSize: kFontSize14,
                                         color: Color.fromRGBO(99, 99, 99, 1),
                                       ),
                                     ),

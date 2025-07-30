@@ -1,3 +1,4 @@
+import 'package:chat_app/constants/font_size.dart';
 import 'package:chat_app/providers/car/car_search_controller.dart';
 import 'package:chat_app/providers/recent_search.dart';
 import 'package:chat_app/screens/shared/calendar_sheet.dart';
@@ -89,18 +90,18 @@ class _CarSearchPanelState extends ConsumerState<CarSearchPanel> {
     return SingleChildScrollView(
       child: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: _padding),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Row(
+          Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: _padding),
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     Text(
                       'Different drop-off',
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: kFontSize14,
                         fontWeight: FontWeight.bold,
                         color: Colors.grey.shade700,
                       ),
@@ -122,212 +123,136 @@ class _CarSearchPanelState extends ConsumerState<CarSearchPanel> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 10.0),
-                Row(
+              ),
+              const SizedBox(height: 10.0),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: _padding),
+                child: Row(
                   children: [
                     // 🟦 Pickup
-                    Expanded(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          border: Border.all(
+                    SizedBox(
+                      width: !_isDifferentDropOff
+                          ? (MediaQuery.of(context).size.width) - _padding * 2
+                          : (MediaQuery.of(context).size.width -
+                                    _padding * 2 -
+                                    8) /
+                                2,
+                      child: OutlinedButton(
+                        style: OutlinedButton.styleFrom(
+                          side: BorderSide(
                             color: Theme.of(context).colorScheme.primary,
                             width: 1,
                           ),
+                          foregroundColor: Theme.of(
+                            context,
+                          ).colorScheme.primary,
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.zero,
+                          ),
                         ),
-                        child: OutlinedButton(
-                          style: OutlinedButton.styleFrom(
-                            side: BorderSide.none,
-                            foregroundColor: Theme.of(
-                              context,
-                            ).colorScheme.primary,
+                        onPressed: () async {
+                          final result = await showModalBottomSheet(
+                            context: context,
+                            isScrollControlled: true,
                             shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.zero,
-                            ),
-                          ),
-                          onPressed: () async {
-                            final result = await showModalBottomSheet(
-                              context: context,
-                              isScrollControlled: true,
-                              shape: const RoundedRectangleBorder(
-                                borderRadius: BorderRadius.vertical(
-                                  top: Radius.circular(20),
-                                ),
+                              borderRadius: BorderRadius.vertical(
+                                top: Radius.circular(20),
                               ),
-                              builder: (ctx) =>
-                                  SearchCarSheet(title: 'Pick-up Location'),
-                            );
+                            ),
+                            builder: (ctx) =>
+                                SearchCarSheet(title: 'Pick-up Location'),
+                          );
 
-                            if (result != null) {
-                              String city = result['city'];
-                              controller.setCity(city);
-                            }
-                          },
-                          child: Align(
-                            alignment: Alignment.centerLeft,
-                            child: _isLoadingCity
-                                ? const SizedBox(
-                                    width: 16,
-                                    height: 16,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2.0,
-                                    ),
-                                  )
-                                : Text(
-                                    carState.selectedCity.isEmpty
-                                        ? 'Pick-up Location'
-                                        : carState.selectedCity,
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                          if (result != null) {
+                            String city = result['city'];
+                            controller.setCity(city);
+                          }
+                        },
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: _isLoadingCity
+                              ? const SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2.0,
                                   ),
-                          ),
+                                )
+                              : Text(
+                                  carState.selectedCity.isEmpty
+                                      ? 'Pick-up Location'
+                                      : carState.selectedCity,
+                                  style: TextStyle(
+                                    fontSize: kFontSize14,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                         ),
                       ),
                     ),
-                    // const SizedBox(width: 8),
-
+                    _isDifferentDropOff
+                        ? const SizedBox(width: 8)
+                        : const SizedBox.shrink(),
                     // 🟪 Drop-off (only show if toggled ON)
-                    AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 0),
-                      transitionBuilder: (child, animation) =>
-                          FadeTransition(opacity: animation, child: child),
-                      child: _isDifferentDropOff
-                          ? Expanded(
-                              key: const ValueKey("dropoff"),
-                              child: Row(
-                                children: [
-                                  const SizedBox(width: 8),
-                                  Container(
-                                    decoration: BoxDecoration(
-                                      border: Border.all(
-                                        color: Theme.of(
-                                          context,
-                                        ).colorScheme.primary,
-                                        width: 1,
-                                      ),
-                                    ),
-                                    child: OutlinedButton(
-                                      style: OutlinedButton.styleFrom(
-                                        side: BorderSide.none,
-                                        foregroundColor: Theme.of(
-                                          context,
-                                        ).colorScheme.primary,
-                                        shape: const RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.zero,
-                                        ),
-                                      ),
-                                      onPressed: () async {
-                                        final result =
-                                            await showModalBottomSheet(
-                                              context: context,
-                                              isScrollControlled: true,
-                                              shape:
-                                                  const RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        BorderRadius.vertical(
-                                                          top: Radius.circular(
-                                                            20,
-                                                          ),
-                                                        ),
-                                                  ),
-                                              builder: (ctx) => SearchCarSheet(
-                                                title: 'Drop-off Location',
-                                              ),
-                                            );
-
-                                        if (result != null) {
-                                          setState(() {
-                                            _dropOffCity = result['city'];
-                                          });
-                                        }
-                                      },
-                                      child: Align(
-                                        alignment: Alignment.centerLeft,
-                                        child: Text(
-                                          _dropOffCity.isEmpty
-                                              ? 'Drop-off Location'
-                                              : _dropOffCity,
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ),
+                    _isDifferentDropOff
+                        ? SizedBox(
+                            width:
+                                (MediaQuery.of(context).size.width -
+                                    _padding * 2 -
+                                    8) /
+                                2,
+                            child: OutlinedButton(
+                              style: OutlinedButton.styleFrom(
+                                side: BorderSide(
+                                  color: Theme.of(context).colorScheme.primary,
+                                  width: 1,
+                                ),
+                                foregroundColor: Theme.of(
+                                  context,
+                                ).colorScheme.primary,
+                                shape: const RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.zero,
+                                ),
+                              ),
+                              onPressed: () async {
+                                final result = await showModalBottomSheet(
+                                  context: context,
+                                  isScrollControlled: true,
+                                  shape: const RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.vertical(
+                                      top: Radius.circular(20),
                                     ),
                                   ),
-                                ],
+                                  builder: (ctx) => SearchCarSheet(
+                                    title: 'Drop-off Location',
+                                  ),
+                                );
+
+                                if (result != null) {
+                                  setState(() {
+                                    _dropOffCity = result['city'];
+                                  });
+                                }
+                              },
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  _dropOffCity.isEmpty
+                                      ? 'Drop-off Location'
+                                      : _dropOffCity,
+                                  style: TextStyle(
+                                    fontSize: kFontSize14,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                               ),
-                            )
-                          : const SizedBox.shrink(key: ValueKey("empty")),
-                    ),
+                            ),
+                          )
+                        : const SizedBox.shrink(),
                   ],
                 ),
-                // Container(
-                //   decoration: BoxDecoration(
-                //     border: Border.all(
-                //       color: Theme.of(context).colorScheme.primary,
-                //       width: 1,
-                //     ),
-                //   ),
-                //   child: Row(
-                //     children: [
-                //       Expanded(
-                //         child: OutlinedButton(
-                //           style: OutlinedButton.styleFrom(
-                //             side: BorderSide.none, // Remove default border
-                //             foregroundColor: Theme.of(
-                //               context,
-                //             ).colorScheme.primary,
-                //             shape: const RoundedRectangleBorder(
-                //               borderRadius: BorderRadius.zero,
-                //             ),
-                //           ),
-                //           onPressed: () async {
-                //             final result = await showModalBottomSheet(
-                //               context: context,
-                //               isScrollControlled: true,
-                //               shape: const RoundedRectangleBorder(
-                //                 borderRadius: BorderRadius.vertical(
-                //                   top: Radius.circular(20),
-                //                 ),
-                //               ),
-                //               builder: (ctx) => SearchCarSheet(title: 'Cars'),
-                //             );
-
-                //             if (result != null) {
-                //               String city = result['city'];
-                //               debugPrint(city);
-                //               controller.setCity(city);
-                //             }
-                //           },
-                //           child: Row(
-                //             mainAxisAlignment: MainAxisAlignment.start,
-                //             children: [
-                //               if (_isLoadingCity)
-                //                 const SizedBox(
-                //                   width: 16,
-                //                   height: 16,
-                //                   child: CircularProgressIndicator(
-                //                     strokeWidth: 2.0,
-                //                   ),
-                //                 )
-                //               else
-                //                 Text(
-                //                   carState.selectedCity.isEmpty
-                //                       ? 'Select location'
-                //                       : carState.selectedCity,
-                //                   style: const TextStyle(fontSize: 16),
-                //                 ),
-                //             ],
-                //           ),
-                //         ),
-                //       ),
-                //     ],
-                //   ),
-                // ),
-              ],
-            ),
+              ),
+            ],
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: _padding),
@@ -378,7 +303,7 @@ class _CarSearchPanelState extends ConsumerState<CarSearchPanel> {
                         Text(
                           carState.beginDate,
                           style: TextStyle(
-                            fontSize: 16,
+                            fontSize: kFontSize14,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -416,7 +341,7 @@ class _CarSearchPanelState extends ConsumerState<CarSearchPanel> {
                     child: Text(
                       carState.beginTime,
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: kFontSize14,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -473,7 +398,7 @@ class _CarSearchPanelState extends ConsumerState<CarSearchPanel> {
                         Text(
                           carState.endDate,
                           style: TextStyle(
-                            fontSize: 16,
+                            fontSize: kFontSize14,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -513,7 +438,7 @@ class _CarSearchPanelState extends ConsumerState<CarSearchPanel> {
                     child: Text(
                       carState.endTime,
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: kFontSize14,
                         fontWeight: FontWeight.bold,
                       ),
                     ),

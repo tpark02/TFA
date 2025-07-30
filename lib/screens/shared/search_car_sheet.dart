@@ -1,3 +1,4 @@
+import 'package:chat_app/constants/font_size.dart';
 import 'package:chat_app/providers/car/car_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -13,7 +14,7 @@ class SearchCarSheet extends ConsumerStatefulWidget {
 class _SearchCarSheetState extends ConsumerState<SearchCarSheet> {
   @override
   Widget build(BuildContext context) {
-    final height = MediaQuery.of(context).size.height * 0.5;
+    final height = MediaQuery.of(context).size.height * 0.7;
     final filteredCars = ref.watch(filteredCarProvider);
 
     return SafeArea(
@@ -103,7 +104,7 @@ class _SearchCarSheetState extends ConsumerState<SearchCarSheet> {
                                       Text(
                                         city,
                                         style: const TextStyle(
-                                          fontSize: 16,
+                                          fontSize: kFontSize14,
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
@@ -119,7 +120,7 @@ class _SearchCarSheetState extends ConsumerState<SearchCarSheet> {
                                   Text(
                                     '${cars.length} cars',
                                     style: const TextStyle(
-                                      fontSize: 16,
+                                      fontSize: kFontSize14,
                                       // fontWeight: FontWeight.bold,
                                     ),
                                   ),

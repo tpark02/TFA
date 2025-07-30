@@ -1,3 +1,4 @@
+import 'package:chat_app/constants/font_size.dart';
 import 'package:chat_app/widgets/counter_control.dart';
 import 'package:flutter/material.dart';
 
@@ -103,7 +104,7 @@ class _TravelerSelectorState extends State<TravelerSelectorSheet> {
                                 child: Text(
                                   "Adults",
                                   style: TextStyle(
-                                    fontSize: 16,
+                                    fontSize: kFontSize14,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
@@ -127,7 +128,7 @@ class _TravelerSelectorState extends State<TravelerSelectorSheet> {
                                 child: Text(
                                   "Children",
                                   style: TextStyle(
-                                    fontSize: 16,
+                                    fontSize: kFontSize14,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
@@ -138,7 +139,7 @@ class _TravelerSelectorState extends State<TravelerSelectorSheet> {
                                 child: Text(
                                   "2-11",
                                   style: TextStyle(
-                                    fontSize: 14,
+                                    fontSize: kFontSize14,
                                     color: Colors.grey[700],
                                   ),
                                 ),
@@ -162,7 +163,7 @@ class _TravelerSelectorState extends State<TravelerSelectorSheet> {
                                 child: Text(
                                   "Infant (lap)",
                                   style: TextStyle(
-                                    fontSize: 16,
+                                    fontSize: kFontSize14,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
@@ -186,7 +187,7 @@ class _TravelerSelectorState extends State<TravelerSelectorSheet> {
                                 child: Text(
                                   "Infant (seat)",
                                   style: TextStyle(
-                                    fontSize: 16,
+                                    fontSize: kFontSize14,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
@@ -232,7 +233,7 @@ class _TravelerSelectorState extends State<TravelerSelectorSheet> {
                                                 context,
                                               ).colorScheme.primary
                                             : Colors.grey,
-                                        fontSize: 16,
+                                        fontSize: kFontSize14,
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
@@ -268,7 +269,7 @@ class _TravelerSelectorState extends State<TravelerSelectorSheet> {
                                                 context,
                                               ).colorScheme.primary
                                             : Colors.grey,
-                                        fontSize: 16,
+                                        fontSize: kFontSize14,
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
@@ -304,7 +305,7 @@ class _TravelerSelectorState extends State<TravelerSelectorSheet> {
                                                 context,
                                               ).colorScheme.primary
                                             : Colors.grey,
-                                        fontSize: 16,
+                                        fontSize: kFontSize14,
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
@@ -340,7 +341,7 @@ class _TravelerSelectorState extends State<TravelerSelectorSheet> {
                                                 context,
                                               ).colorScheme.primary
                                             : Colors.grey,
-                                        fontSize: 16,
+                                        fontSize: kFontSize14,
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),

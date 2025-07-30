@@ -1,3 +1,4 @@
+import 'package:chat_app/constants/font_size.dart';
 import 'package:chat_app/providers/hotel/hotel_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -13,7 +14,7 @@ class SearchHotelSheet extends ConsumerStatefulWidget {
 class _SearchHotelSheetState extends ConsumerState<SearchHotelSheet> {
   @override
   Widget build(BuildContext context) {
-    final height = MediaQuery.of(context).size.height * 0.5;
+    final height = MediaQuery.of(context).size.height * 0.7;
     final filteredHotels = ref.watch(filteredHotelProvider);
 
     return SafeArea(
@@ -104,7 +105,7 @@ class _SearchHotelSheetState extends ConsumerState<SearchHotelSheet> {
                                       Text(
                                         city,
                                         style: const TextStyle(
-                                          fontSize: 16,
+                                          fontSize: kFontSize14,
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
@@ -120,7 +121,7 @@ class _SearchHotelSheetState extends ConsumerState<SearchHotelSheet> {
                                   Text(
                                     '${hotels.length} hotels',
                                     style: const TextStyle(
-                                      fontSize: 16,
+                                      fontSize: kFontSize14,
                                       // fontWeight: FontWeight.bold,
                                     ),
                                   ),

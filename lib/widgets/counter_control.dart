@@ -1,3 +1,4 @@
+import 'package:chat_app/constants/font_size.dart';
 import 'package:flutter/material.dart';
 
 class CounterControl extends StatefulWidget {
@@ -41,7 +42,7 @@ class _CounterControlState extends State<CounterControl> {
       children: [
         _circleButton(context, Icons.remove, _decrement, false),
         const SizedBox(width: 10),
-        Text('$_count', style: const TextStyle(fontSize: 16)),
+        Text('$_count', style: const TextStyle(fontSize: kFontSize14)),
         const SizedBox(width: 10),
         _circleButton(context, Icons.add, _increment),
       ],

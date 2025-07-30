@@ -1,3 +1,4 @@
+import 'package:chat_app/constants/font_size.dart';
 import 'package:chat_app/widgets/counter_control.dart';
 import 'package:flutter/material.dart';
 
@@ -63,7 +64,7 @@ class _RoomGuestSelectorSheet extends State<RoomGuestSelectorSheet> {
                           child: Text(
                             "Number of Rooms",
                             style: TextStyle(
-                              fontSize: 16,
+                              fontSize: kFontSize14,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -87,7 +88,7 @@ class _RoomGuestSelectorSheet extends State<RoomGuestSelectorSheet> {
                             child: Text(
                               "Number of Adults",
                               style: TextStyle(
-                                fontSize: 16,
+                                fontSize: kFontSize14,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -113,7 +114,7 @@ class _RoomGuestSelectorSheet extends State<RoomGuestSelectorSheet> {
                             child: Text(
                               "Number of Children",
                               style: TextStyle(
-                                fontSize: 16,
+                                fontSize: kFontSize14,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -156,7 +157,9 @@ class _RoomGuestSelectorSheet extends State<RoomGuestSelectorSheet> {
                   ),
                   child: const Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: [Text('Done', style: TextStyle(fontSize: 16))],
+                    children: [
+                      Text('Done', style: TextStyle(fontSize: kFontSize14)),
+                    ],
                   ),
                 ),
               ),

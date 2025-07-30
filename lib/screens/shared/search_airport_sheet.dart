@@ -1,3 +1,4 @@
+import 'package:chat_app/constants/font_size.dart';
 import 'package:chat_app/providers/airport/airport_selection.dart';
 import 'package:chat_app/providers/airport/airport_provider.dart';
 import 'package:flutter/material.dart';
@@ -20,7 +21,7 @@ class SearchAirportSheet extends ConsumerStatefulWidget {
 class _AirportSheetState extends ConsumerState<SearchAirportSheet> {
   @override
   Widget build(BuildContext context) {
-    final height = MediaQuery.of(context).size.height * 0.5;
+    final height = MediaQuery.of(context).size.height * 0.7;
     final query = ref.watch(airportSearchQueryProvider);
     final airportData = ref.watch(airportDataProvider);
 
@@ -152,7 +153,7 @@ class _AirportSheetState extends ConsumerState<SearchAirportSheet> {
                                     airport.iataCode,
                                     overflow: TextOverflow.ellipsis,
                                     style: const TextStyle(
-                                      fontSize: 14,
+                                      fontSize: kFontSize14,
                                       color: Color.fromRGBO(48, 48, 48, 1),
                                     ),
                                   ),

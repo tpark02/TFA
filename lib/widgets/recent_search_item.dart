@@ -1,3 +1,4 @@
+import 'package:chat_app/constants/font_size.dart';
 import 'package:flutter/material.dart';
 import 'package:chat_app/providers/recent_search.dart';
 
@@ -22,7 +23,7 @@ class RecentSearchItem extends StatelessWidget {
                 search.destination,
                 style: TextStyle(
                   overflow: TextOverflow.ellipsis,
-                  fontSize: 16,
+                  fontSize: kFontSize14,
                   fontWeight: FontWeight.bold,
                   color: Colors.grey[800],
                 ),
@@ -51,7 +52,7 @@ class RecentSearchItem extends StatelessWidget {
                   Text(
                     search.destinationCode,
                     style: const TextStyle(
-                      fontSize: 16,
+                      fontSize: kFontSize14,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
