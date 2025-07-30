@@ -8,12 +8,13 @@ class CalendarSheet extends StatefulWidget {
     required this.firstTitle,
     required this.secondTitle,
     required this.isOnlyTab,
+    required this.isRange,
   });
 
   final String firstTitle;
   final String secondTitle;
   final bool isOnlyTab;
-
+  final bool isRange;
   @override
   State<CalendarSheet> createState() => _CalendarSheetState();
 }
@@ -61,9 +62,14 @@ class _CalendarSheetState extends State<CalendarSheet>
   void _onSelectionChanged(DateRangePickerSelectionChangedArgs args) {
     debugPrint('_onSelectionChanged');
 
-    selectedDate = args.value as DateTime;
-    if (selectedDate != null) {
+    if (args.value is DateTime) {
+      selectedDate = args.value;
       displayDate = DateFormat('MMMM d').format(selectedDate!);
+      debugPrint('Selected: $displayDate');
+    } else {
+      debugPrint('Selection is not a DateTime: ${args.value.runtimeType}');
+      selectedDate = null;
+      displayDate = null;
     }
   }
 
@@ -107,8 +113,12 @@ class _CalendarSheetState extends State<CalendarSheet>
               Expanded(
                 child: widget.isOnlyTab
                     ? SfDateRangePicker(
-                        onSelectionChanged: _onSelectionRange,
-                        selectionMode: DateRangePickerSelectionMode.range,
+                        onSelectionChanged: widget.isRange
+                            ? _onSelectionRange
+                            : _onSelectionChanged,
+                        selectionMode: widget.isRange
+                            ? DateRangePickerSelectionMode.range
+                            : DateRangePickerSelectionMode.single,
                         backgroundColor: Colors.transparent,
                         headerStyle: DateRangePickerHeaderStyle(
                           backgroundColor: Theme.of(

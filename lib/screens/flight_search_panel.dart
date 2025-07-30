@@ -168,6 +168,7 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
                           firstTitle: "One Way",
                           secondTitle: "Round Trip",
                           isOnlyTab: false,
+                          isRange: false,
                         ),
                       );
 

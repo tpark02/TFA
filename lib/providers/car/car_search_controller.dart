@@ -26,6 +26,22 @@ class CarSearchController extends StateNotifier<CarSearchState> {
   void clearSearch() {
     state = const CarSearchState();
   }
+
+  void setBeginDate(String selectedDate) {
+    state = state.copyWith(beginDate: selectedDate);
+  }
+
+  void setEndDate(String selectedDate) {
+    state = state.copyWith(endDate: selectedDate);
+  }
+
+  void setBeginTime(String selectedTime) {
+    state = state.copyWith(beginTime: selectedTime);
+  }
+
+  void setEndTime(String selectedTime) {
+    state = state.copyWith(endTime: selectedTime);
+  }
 }
 
 final carSearchProvider =

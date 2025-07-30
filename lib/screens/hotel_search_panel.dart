@@ -118,6 +118,7 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
                           firstTitle: "",
                           secondTitle: "",
                           isOnlyTab: true,
+                          isRange: true,
                         ),
                       );
 

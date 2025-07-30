@@ -79,8 +79,8 @@ class _CarSearchPanelState extends ConsumerState<CarSearchPanel> {
                 Expanded(
                   flex: 6,
                   child: OutlinedButton(
-                    onPressed: () {
-                      showModalBottomSheet(
+                    onPressed: () async {
+                      final result = await showModalBottomSheet(
                         context: context,
                         isScrollControlled: true,
                         shape: const RoundedRectangleBorder(
@@ -89,11 +89,21 @@ class _CarSearchPanelState extends ConsumerState<CarSearchPanel> {
                           ),
                         ),
                         builder: (ctx) => CalendarSheet(
+                          key: UniqueKey(), // ✅ Force new state
                           firstTitle: "",
                           secondTitle: "",
                           isOnlyTab: true,
+                          isRange: false,
                         ),
                       );
+
+                      if (result != null) {
+                        debugPrint('SET BEGIN: ${result['displayDate']}');
+                        controller.setBeginDate(result['displayDate']);
+                        debugPrint(
+                          'AFTER BEGIN STATE: ${ref.read(carSearchProvider).beginDate}',
+                        );
+                      }
                     },
                     style: OutlinedButton.styleFrom(
                       side: BorderSide(
@@ -104,11 +114,11 @@ class _CarSearchPanelState extends ConsumerState<CarSearchPanel> {
                         borderRadius: BorderRadius.zero,
                       ),
                     ),
-                    child: const Row(
+                    child: Row(
                       children: [
                         Icon(Icons.calendar_month),
                         SizedBox(width: _padding),
-                        Text('Sun Aug 10th'),
+                        Text(carState.beginDate),
                       ],
                     ),
                   ),
@@ -124,7 +134,11 @@ class _CarSearchPanelState extends ConsumerState<CarSearchPanel> {
                       );
                       if (picked != null) {
                         debugPrint("Time picked: ${picked.format(context)}");
-                        // update state here
+                        String formatted = picked
+                            .format(context)
+                            .toLowerCase(); // → "12:00 PM"
+
+                        controller.setBeginTime(formatted.toString());
                       }
                     },
                     style: OutlinedButton.styleFrom(
@@ -138,7 +152,7 @@ class _CarSearchPanelState extends ConsumerState<CarSearchPanel> {
                         borderRadius: BorderRadius.zero,
                       ),
                     ),
-                    child: const Text("12:00 pm"),
+                    child: Text(carState.beginTime),
                   ),
                 ),
               ],
@@ -151,8 +165,8 @@ class _CarSearchPanelState extends ConsumerState<CarSearchPanel> {
                 Expanded(
                   flex: 6,
                   child: OutlinedButton(
-                    onPressed: () {
-                      showModalBottomSheet(
+                    onPressed: () async {
+                      final result = await showModalBottomSheet(
                         context: context,
                         isScrollControlled: true,
                         shape: const RoundedRectangleBorder(
@@ -161,11 +175,20 @@ class _CarSearchPanelState extends ConsumerState<CarSearchPanel> {
                           ),
                         ),
                         builder: (ctx) => CalendarSheet(
+                          key: UniqueKey(), // ✅ Force new state
                           firstTitle: "",
                           secondTitle: "",
                           isOnlyTab: true,
+                          isRange: false,
                         ),
                       );
+                      if (result != null) {
+                        debugPrint('SET END: ${result['displayDate']}');
+                        controller.setEndDate(result['displayDate']);
+                        debugPrint(
+                          'AFTER END STATE: ${ref.read(carSearchProvider).endDate}',
+                        );
+                      }
                     },
                     style: OutlinedButton.styleFrom(
                       side: BorderSide(
@@ -176,11 +199,11 @@ class _CarSearchPanelState extends ConsumerState<CarSearchPanel> {
                         borderRadius: BorderRadius.zero,
                       ),
                     ),
-                    child: const Row(
+                    child: Row(
                       children: [
                         Icon(Icons.calendar_month),
                         SizedBox(width: _padding),
-                        Text('Sun Aug 10th'),
+                        Text(carState.endDate),
                       ],
                     ),
                   ),
@@ -196,7 +219,11 @@ class _CarSearchPanelState extends ConsumerState<CarSearchPanel> {
                       );
                       if (picked != null) {
                         debugPrint("Time picked: ${picked.format(context)}");
-                        // update state here
+                        String formatted = picked
+                            .format(context)
+                            .toLowerCase(); // → "12:00 PM"
+
+                        controller.setEndTime(formatted.toString());
                       }
                     },
                     style: OutlinedButton.styleFrom(
@@ -210,7 +237,7 @@ class _CarSearchPanelState extends ConsumerState<CarSearchPanel> {
                         borderRadius: BorderRadius.zero,
                       ),
                     ),
-                    child: const Text("12:00 pm"),
+                    child: Text(carState.endTime),
                   ),
                 ),
               ],
