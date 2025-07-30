@@ -1,8 +1,8 @@
+import 'package:chat_app/providers/car/car_search_controller.dart';
 import 'package:chat_app/providers/hotel/hotel_search_controller.dart';
 import 'package:chat_app/providers/recent_search.dart';
 import 'package:chat_app/providers/flight_search_controller.dart';
 import 'package:chat_app/screens/recent_search_item.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -20,7 +20,10 @@ class RecentSearchPanel extends ConsumerWidget {
     } else if (panelName == 'hotel') {
       final hstate = ref.watch(hotelSearchProvider);
       searches = hstate.recentSearches;
-    } else {}
+    } else {
+      final cstate = ref.watch(carSearchProvider);
+      searches = cstate.recentSearches;
+    }
     // Always produce 5 items, fill with empty ones if needed
     final paddedSearches = List<RecentSearch>.generate(
       5,

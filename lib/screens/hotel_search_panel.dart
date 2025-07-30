@@ -1,5 +1,4 @@
 import 'package:chat_app/providers/hotel/hotel_search_controller.dart';
-import 'package:chat_app/providers/hotel/hotel_search_state.dart';
 import 'package:chat_app/providers/recent_search.dart';
 import 'package:chat_app/screens/calendar_sheet.dart';
 import 'package:chat_app/screens/recent_search_panel.dart';
@@ -80,7 +79,7 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
                               const SearchHotelSheet(title: "Hotel"),
                         );
                         if (result != null) {
-                          String city = result['country'];
+                          String city = result['city'];
                           debugPrint(city);
                           controller.setCity(city);
                         }
@@ -241,7 +240,7 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
                       // final hasDate =
                       //     (flightState.displayDate ?? '').isNotEmpty;
 
-                      final hasCity = !hotelState.city.isEmpty;
+                      final hasCity = hotelState.city.isNotEmpty;
                       final hasDate = (hotelState.displayDate ?? '').isNotEmpty;
                       final hasGuests =
                           ((int.tryParse(hotelState.adultCnt) ?? 0) +
@@ -339,9 +338,10 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
                                 ),
                                 SizedBox(width: 8),
                                 Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      "Seoul",
+                                      hotelState.city,
                                       style: TextStyle(
                                         fontSize: 16,
                                         color: Color.fromRGBO(99, 99, 99, 1),

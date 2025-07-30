@@ -90,7 +90,7 @@ class _SearchHotelSheetState extends ConsumerState<SearchHotelSheet> {
                           children: [
                             TextButton(
                               onPressed: () {
-                                Navigator.pop(context, {'country': city});
+                                Navigator.pop(context, {'city': city});
                               },
                               child: Row(
                                 mainAxisAlignment:
@@ -118,7 +118,7 @@ class _SearchHotelSheetState extends ConsumerState<SearchHotelSheet> {
                                     ],
                                   ),
                                   Text(
-                                    hotels.length.toString() + ' hotels',
+                                    '${hotels.length} hotels',
                                     style: const TextStyle(
                                       fontSize: 16,
                                       // fontWeight: FontWeight.bold,

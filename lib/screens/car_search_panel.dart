@@ -1,20 +1,26 @@
+import 'package:chat_app/providers/car/car_search_controller.dart';
 import 'package:chat_app/screens/calendar_sheet.dart';
+import 'package:chat_app/screens/recent_search_panel.dart';
 import 'package:chat_app/screens/search_car_sheet.dart';
 import 'package:chat_app/screens/show_adaptive_time_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class CarSearchPanel extends StatefulWidget {
+class CarSearchPanel extends ConsumerStatefulWidget {
   const CarSearchPanel({super.key});
 
   @override
-  State<CarSearchPanel> createState() => _CarSearchPanelState();
+  ConsumerState<CarSearchPanel> createState() => _CarSearchPanelState();
 }
 
-class _CarSearchPanelState extends State<CarSearchPanel> {
+class _CarSearchPanelState extends ConsumerState<CarSearchPanel> {
   static const double _padding = 20.0;
 
   @override
   Widget build(BuildContext context) {
+    final carState = ref.watch(carSearchProvider);
+    final controller = ref.read(carSearchProvider.notifier);
+
     return SingleChildScrollView(
       child: Column(
         children: [
@@ -38,8 +44,8 @@ class _CarSearchPanelState extends State<CarSearchPanel> {
                           borderRadius: BorderRadius.zero,
                         ),
                       ),
-                      onPressed: () {
-                        showModalBottomSheet(
+                      onPressed: () async {
+                        final result = await showModalBottomSheet(
                           context: context,
                           isScrollControlled: true,
                           shape: const RoundedRectangleBorder(
@@ -47,12 +53,18 @@ class _CarSearchPanelState extends State<CarSearchPanel> {
                               top: Radius.circular(20),
                             ),
                           ),
-                          builder: (ctx) => SearchCarSheet(),
+                          builder: (ctx) => SearchCarSheet(title: 'Cars'),
                         );
+
+                        if (result != null) {
+                          String city = result['city'];
+                          debugPrint(city);
+                          controller.setCity(city);
+                        }
                       },
-                      child: const Row(
+                      child: Row(
                         mainAxisAlignment: MainAxisAlignment.start,
-                        children: [Text('Incheon Intl')],
+                        children: [Text(carState.selectedCity)],
                       ),
                     ),
                   ),
@@ -231,11 +243,8 @@ class _CarSearchPanelState extends State<CarSearchPanel> {
             padding: const EdgeInsets.all(_padding),
             child: Column(
               children: [
-                // RecentSearchPanel(
-                //   destination: "Incheon Intl",
-                //   tripDateRange: "Aug 9 - Aug 11, 12:00pn - 12:00pm",
-                //   icons: [],
-                // ),
+                SizedBox(height: _padding),
+                RecentSearchPanel(panelName: 'car'),
               ],
             ),
           ),

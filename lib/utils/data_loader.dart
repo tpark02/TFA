@@ -16,3 +16,11 @@ Future<List<List<dynamic>>> loadHotelData() async {
   ).convert(rawData);
   return csvTable;
 }
+
+Future<List<List<dynamic>>> loadCarData() async {
+  final rawData = await rootBundle.loadString('assets/data/cars.csv');
+  final List<List<dynamic>> csvTable = const CsvToListConverter(
+    eol: '\n',
+  ).convert(rawData);
+  return csvTable;
+}

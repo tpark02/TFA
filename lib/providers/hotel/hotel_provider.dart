@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 final hotelDataProvider = FutureProvider<List<Hotel>>((ref) async {
   final raw = await loadHotelData();
   final hotelList = raw
+      .skip(1)
       .map((row) {
         try {
           return Hotel.fromCsvRow(row); // ✅ Parse each row into a Hotel object
@@ -17,7 +18,7 @@ final hotelDataProvider = FutureProvider<List<Hotel>>((ref) async {
       })
       .whereType<Hotel>()
       .toList();
-  debugPrint("✅ Final loaded airports: ${hotelList.length}");
+  debugPrint("✅ Final loaded hotels: ${hotelList.length}");
   return hotelList;
 });
 
