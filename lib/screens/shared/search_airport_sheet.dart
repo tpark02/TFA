@@ -1,5 +1,5 @@
-import 'package:chat_app/providers/airport_selection.dart';
-import 'package:chat_app/providers/airport_provider.dart';
+import 'package:chat_app/providers/airport/airport_selection.dart';
+import 'package:chat_app/providers/airport/airport_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

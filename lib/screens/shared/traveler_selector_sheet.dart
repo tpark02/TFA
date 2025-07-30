@@ -1,4 +1,4 @@
-import 'package:chat_app/screens/counter_control.dart';
+import 'package:chat_app/widgets/counter_control.dart';
 import 'package:flutter/material.dart';
 
 class TravelerSelectorSheet extends StatefulWidget {

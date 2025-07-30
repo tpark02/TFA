@@ -1,8 +1,8 @@
 import 'package:chat_app/providers/car/car_search_controller.dart';
 import 'package:chat_app/providers/hotel/hotel_search_controller.dart';
 import 'package:chat_app/providers/recent_search.dart';
-import 'package:chat_app/providers/flight_search_controller.dart';
-import 'package:chat_app/screens/recent_search_item.dart';
+import 'package:chat_app/providers/flight/flight_search_controller.dart';
+import 'package:chat_app/widgets/recent_search_item.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

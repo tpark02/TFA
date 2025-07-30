@@ -1,6 +1,6 @@
-import 'package:chat_app/screens/car_search_panel.dart';
-import 'package:chat_app/screens/flight_search_panel.dart';
-import 'package:chat_app/screens/hotel_search_panel.dart';
+import 'package:chat_app/screens/car/car_search_panel.dart';
+import 'package:chat_app/screens/flight/flight_search_panel.dart';
+import 'package:chat_app/screens/hotel/hotel_search_panel.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 

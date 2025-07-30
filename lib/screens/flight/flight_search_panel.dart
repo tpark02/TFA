@@ -1,11 +1,11 @@
-import 'package:chat_app/providers/airport_selection.dart';
+import 'package:chat_app/providers/airport/airport_selection.dart';
 import 'package:chat_app/providers/recent_search.dart';
-import 'package:chat_app/providers/flight_search_controller.dart';
-import 'package:chat_app/screens/recent_search_panel.dart';
+import 'package:chat_app/providers/flight/flight_search_controller.dart';
+import 'package:chat_app/screens/shared/recent_search_panel.dart';
+import 'package:chat_app/screens/shared/search_airport_sheet.dart';
 import 'package:flutter/material.dart';
-import 'package:chat_app/screens/calendar_sheet.dart';
-import 'package:chat_app/screens/search_airport_sheet.dart';
-import 'package:chat_app/screens/traveler_selector_sheet.dart';
+import 'package:chat_app/screens/shared/calendar_sheet.dart';
+import 'package:chat_app/screens/shared/traveler_selector_sheet.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class FlightSearchPanel extends ConsumerStatefulWidget {
