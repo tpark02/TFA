@@ -1,4 +1,5 @@
 import 'package:chat_app/providers/car/car_search_controller.dart';
+import 'package:chat_app/providers/recent_search.dart';
 import 'package:chat_app/screens/calendar_sheet.dart';
 import 'package:chat_app/screens/recent_search_panel.dart';
 import 'package:chat_app/screens/search_car_sheet.dart';
@@ -249,7 +250,30 @@ class _CarSearchPanelState extends ConsumerState<CarSearchPanel> {
               children: [
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      debugPrint(carState.toString());
+                      final hasCity = carState.selectedCity.isNotEmpty;
+                      final hasDate =
+                          ((carState.beginDate ?? '').isNotEmpty) &&
+                          ((carState.endDate ?? '').isNotEmpty) &&
+                          ((carState.beginTime ?? '').isNotEmpty) &&
+                          ((carState.endTime ?? '').isNotEmpty);
+                      if (!hasCity || !hasDate) {
+                        return;
+                      }
+
+                      String displayDate =
+                          '${carState.beginDate} - ${carState.endDate}, ${carState.beginTime} - ${carState.endTime}';
+
+                      controller.addRecentSearch(
+                        RecentSearch(
+                          destination: carState.selectedCity,
+                          tripDateRange: displayDate ?? '',
+                          icons: [],
+                          destinationCode: '',
+                        ),
+                      );
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Theme.of(context).colorScheme.primary,
                       foregroundColor: Colors.white,

@@ -234,13 +234,6 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
                   child: ElevatedButton(
                     onPressed: () {
                       debugPrint(hotelState.toString());
-                      // final hasPassengers = hotelState.passengerCount > 0;
-                      // final hasAirports =
-                      //     hotelState.departureAirportCode.isNotEmpty &&
-                      //     hotelState.arrivalAirportCode.isNotEmpty;
-                      // final hasDate =
-                      //     (flightState.displayDate ?? '').isNotEmpty;
-
                       final hasCity = hotelState.city.isNotEmpty;
                       final hasDate = (hotelState.displayDate ?? '').isNotEmpty;
                       final hasGuests =

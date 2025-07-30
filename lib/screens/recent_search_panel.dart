@@ -52,7 +52,10 @@ class RecentSearchPanel extends ConsumerWidget {
           physics: const NeverScrollableScrollPhysics(),
           itemCount: paddedSearches.length,
           itemBuilder: (context, index) {
-            return RecentSearchItem(search: paddedSearches[index]);
+            return SizedBox(
+              width: double.infinity,
+              child: RecentSearchItem(search: paddedSearches[index]),
+            );
           },
           // separatorBuilder: (context, index) =>
           // const Divider(color: Colors.grey, thickness: 0.5, height: 10),

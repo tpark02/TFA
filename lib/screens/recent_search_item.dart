@@ -14,36 +14,34 @@ class RecentSearchItem extends StatelessWidget {
       },
       child: Row(
         children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 10.0),
-                Text(
-                  search.destination,
-                  style: TextStyle(
-                    overflow: TextOverflow.ellipsis,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.grey[800],
-                  ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 10.0),
+              Text(
+                search.destination,
+                style: TextStyle(
+                  overflow: TextOverflow.ellipsis,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.grey[800],
                 ),
-                Row(
-                  children: [
-                    Text(
-                      search.tripDateRange,
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.grey[500],
-                      ),
+              ),
+              Row(
+                children: [
+                  Text(
+                    search.tripDateRange,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey[500],
                     ),
-                    ...search.icons,
-                  ],
-                ),
-                const SizedBox(height: 10.0),
-              ],
-            ),
+                  ),
+                  ...search.icons,
+                ],
+              ),
+              const SizedBox(height: 10.0),
+            ],
           ),
           Expanded(
             child: Align(
