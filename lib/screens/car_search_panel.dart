@@ -18,11 +18,49 @@ class CarSearchPanel extends ConsumerStatefulWidget {
 
 class _CarSearchPanelState extends ConsumerState<CarSearchPanel> {
   static const double _padding = 20.0;
+  bool _initialized = false;
+  bool _isLoadingCity = true;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    if (!_initialized) {
+      _initialized = true;
+
+      Future.microtask(() async {
+        _setDefaultDateTime();
+        await fetchCurrentCountry();
+      });
+    }
+  }
+
+  void _setDefaultDateTime() {
+    final now = DateTime.now();
+    final today = "${_monthName(now.month)} ${now.day}";
+    final time = TimeOfDay.fromDateTime(now).format(context).toLowerCase();
+
+    final controller = ref.read(carSearchProvider.notifier);
+    controller.setBeginDate(today);
+    controller.setEndDate(today);
+    controller.setBeginTime(time);
+    controller.setEndTime(time);
+  }
+
+  String _monthName(int month) {
+    const months = [
+      '', // dummy for 0 index
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December',
+    ];
+    return months[month];
+  }
 
   Future<void> fetchCurrentCountry() async {
+    setState(() => _isLoadingCity = true);
+
     try {
-      final position =
-          await LocationService.getCurrentLocation(); // ✅ your class
+      final position = await LocationService.getCurrentLocation();
       final placemarks = await placemarkFromCoordinates(
         position.latitude,
         position.longitude,
@@ -35,6 +73,8 @@ class _CarSearchPanelState extends ConsumerState<CarSearchPanel> {
       }
     } catch (e) {
       debugPrint("❌ Location error: $e");
+    } finally {
+      if (mounted) setState(() => _isLoadingCity = false);
     }
   }
 
@@ -86,7 +126,23 @@ class _CarSearchPanelState extends ConsumerState<CarSearchPanel> {
                       },
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.start,
-                        children: [Text(carState.selectedCity)],
+                        children: [
+                          if (_isLoadingCity)
+                            const SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2.0,
+                              ),
+                            )
+                          else
+                            Text(
+                              carState.selectedCity.isEmpty
+                                  ? 'Select location'
+                                  : carState.selectedCity,
+                              style: const TextStyle(fontSize: 16),
+                            ),
+                        ],
                       ),
                     ),
                   ),
