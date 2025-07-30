@@ -17,11 +17,44 @@ class HotelSearchPanel extends ConsumerStatefulWidget {
 
 class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
   static const double _padding = 20.0;
+  bool _isLoadingCity = true;
+  bool _initialized = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    if (!_initialized) {
+      _initialized = true;
+
+      Future.microtask(() async {
+        _setDefaultDateTime();
+        await fetchCurrentCountry();
+      });
+    }
+  }
+
+  void _setDefaultDateTime() {
+    final now = DateTime.now();
+    final today = "${_monthName(now.month)} ${now.day}";
+    final controller = ref.read(hotelSearchProvider.notifier);
+    controller.setDisplayDate('$today - $today');
+  }
+
+  String _monthName(int month) {
+    const months = [
+      '', // dummy for 0 index
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December',
+    ];
+    return months[month];
+  }
 
   Future<void> fetchCurrentCountry() async {
+    setState(() => _isLoadingCity = true);
+
     try {
-      final position =
-          await LocationService.getCurrentLocation(); // ✅ your class
+      final position = await LocationService.getCurrentLocation();
       final placemarks = await placemarkFromCoordinates(
         position.latitude,
         position.longitude,
@@ -30,10 +63,12 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
       if (placemarks.isNotEmpty) {
         final city = placemarks.first.locality ?? '';
         ref.read(hotelSearchProvider.notifier).setCity(city);
-        debugPrint("📍 Set country: $city");
+        debugPrint("📍 Set city: $city");
       }
     } catch (e) {
       debugPrint("❌ Location error: $e");
+    } finally {
+      if (mounted) setState(() => _isLoadingCity = false);
     }
   }
 
@@ -89,7 +124,21 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
                         children: [
                           const Icon(Icons.apartment),
                           const SizedBox(width: 8),
-                          Text(hotelState.city),
+                          _isLoadingCity
+                              ? const SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2.0,
+                                  ),
+                                )
+                              : Text(
+                                  hotelState.city,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                         ],
                       ),
                     ),
@@ -142,7 +191,7 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
                         Text(
                           hotelState.displayDate ?? 'Select',
                           style: TextStyle(
-                            fontSize: 18,
+                            fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),
                         ),

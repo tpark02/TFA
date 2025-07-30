@@ -110,7 +110,7 @@ class _SearchScreenState extends State<SearchScreen> {
                           _selectedIndex = 2;
                         });
                       },
-                      icon: const Icon(Icons.car_rental),
+                      icon: const Icon(Icons.directions_car_filled),
                       iconSize: 50,
                       style: IconButton.styleFrom(
                         shape: const CircleBorder(),
@@ -133,7 +133,7 @@ class _SearchScreenState extends State<SearchScreen> {
               ],
             ),
           ),
-          const SizedBox(height: _padding * 2),
+          SizedBox(height: _selectedIndex != 2 ? _padding * 2 : _padding),
           // Search area + button
           Expanded(
             child: AnimatedSwitcher(

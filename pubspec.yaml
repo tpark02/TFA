@@ -45,6 +45,7 @@ dependencies:
   collection: ^1.17.2
   geolocator: ^10.1.0 # use the latest version
   geocoding: ^2.1.1
+  flutter_switch: ^0.3.2
 
 dev_dependencies:
   flutter_test:

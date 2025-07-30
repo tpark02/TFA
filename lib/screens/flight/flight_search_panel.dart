@@ -1,12 +1,15 @@
+import 'package:chat_app/providers/airport/airport_provider.dart';
 import 'package:chat_app/providers/airport/airport_selection.dart';
 import 'package:chat_app/providers/recent_search.dart';
 import 'package:chat_app/providers/flight/flight_search_controller.dart';
 import 'package:chat_app/screens/shared/recent_search_panel.dart';
 import 'package:chat_app/screens/shared/search_airport_sheet.dart';
+import 'package:chat_app/services/location_service.dart';
 import 'package:flutter/material.dart';
 import 'package:chat_app/screens/shared/calendar_sheet.dart';
 import 'package:chat_app/screens/shared/traveler_selector_sheet.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:geocoding/geocoding.dart';
 
 class FlightSearchPanel extends ConsumerStatefulWidget {
   const FlightSearchPanel({super.key});
@@ -16,10 +19,76 @@ class FlightSearchPanel extends ConsumerStatefulWidget {
 
 class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
   static const double _padding = 20.0;
+  bool _isLoadingCity = true;
+  bool _initialized = false;
 
   @override
-  void initState() {
-    super.initState();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    if (!_initialized) {
+      _initialized = true;
+
+      Future.microtask(() async {
+        _setDefaultDateTime();
+        await fetchCurrentCountry();
+      });
+    }
+  }
+
+  void _setDefaultDateTime() {
+    final now = DateTime.now();
+    final today = "${_monthName(now.month)} ${now.day}";
+    final controller = ref.read(flightSearchProvider.notifier);
+    controller.setDisplayDate('$today - $today');
+  }
+
+  String _monthName(int month) {
+    const months = [
+      '', // dummy for 0 index
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December',
+    ];
+    return months[month];
+  }
+
+  Future<void> fetchCurrentCountry() async {
+    setState(() => _isLoadingCity = true);
+
+    try {
+      final position = await LocationService.getCurrentLocation();
+      final placemarks = await placemarkFromCoordinates(
+        position.latitude,
+        position.longitude,
+      );
+
+      if (placemarks.isNotEmpty) {
+        final city = placemarks.first.locality ?? '';
+        final airportData = ref.watch(airportDataProvider);
+
+        final filteredAirports = airportData.maybeWhen(
+          data: (airports) {
+            return airports.where((a) {
+              return a.airportName.toLowerCase().contains(city) ||
+                  a.city.toLowerCase().contains(city);
+            }).toList();
+          },
+          orElse: () => [],
+        );
+        if (filteredAirports.isNotEmpty) {
+          ref
+              .read(flightSearchProvider.notifier)
+              .setDepartureCode(filteredAirports[0].iataCode);
+          debugPrint("📍 set iataCode: ${filteredAirports[0].iataCode}");
+          return;
+        }
+        debugPrint("📍 set default iataCode: JFK");
+      }
+    } catch (e) {
+      debugPrint("❌ Location error: $e");
+    } finally {
+      if (mounted) setState(() => _isLoadingCity = false);
+    }
   }
 
   @override
@@ -73,19 +142,31 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
                           controller.setDepartureCity(result.city);
                         }
                       },
+
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           const Icon(Icons.near_me),
                           const SizedBox(width: 8),
-                          Text(
-                            flightState.departureAirportCode.isEmpty
-                                ? 'Departure'
-                                : flightState.departureAirportCode,
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: _isLoadingCity
+                                ? const SizedBox(
+                                    width: 16,
+                                    height: 16,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2.0,
+                                    ),
+                                  )
+                                : Text(
+                                    flightState.departureAirportCode.isEmpty
+                                        ? 'Departure'
+                                        : flightState.departureAirportCode,
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
                           ),
                         ],
                       ),
@@ -133,7 +214,7 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
                                 ? 'Arrival'
                                 : flightState.arrivalAirportCode,
                             style: TextStyle(
-                              fontSize: 18,
+                              fontSize: 16,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -192,7 +273,7 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
                         Text(
                           flightState.displayDate ?? 'Select',
                           style: TextStyle(
-                            fontSize: 18,
+                            fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
