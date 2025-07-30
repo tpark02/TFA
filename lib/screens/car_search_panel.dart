@@ -4,8 +4,10 @@ import 'package:chat_app/screens/calendar_sheet.dart';
 import 'package:chat_app/screens/recent_search_panel.dart';
 import 'package:chat_app/screens/search_car_sheet.dart';
 import 'package:chat_app/screens/show_adaptive_time_picker.dart';
+import 'package:chat_app/services/location_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:geocoding/geocoding.dart';
 
 class CarSearchPanel extends ConsumerStatefulWidget {
   const CarSearchPanel({super.key});
@@ -16,6 +18,25 @@ class CarSearchPanel extends ConsumerStatefulWidget {
 
 class _CarSearchPanelState extends ConsumerState<CarSearchPanel> {
   static const double _padding = 20.0;
+
+  Future<void> fetchCurrentCountry() async {
+    try {
+      final position =
+          await LocationService.getCurrentLocation(); // ✅ your class
+      final placemarks = await placemarkFromCoordinates(
+        position.latitude,
+        position.longitude,
+      );
+
+      if (placemarks.isNotEmpty) {
+        final city = placemarks.first.locality ?? '';
+        ref.read(carSearchProvider.notifier).setCity(city);
+        debugPrint("📍 Set country: $city");
+      }
+    } catch (e) {
+      debugPrint("❌ Location error: $e");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
