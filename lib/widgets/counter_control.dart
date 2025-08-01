@@ -1,4 +1,4 @@
-import 'package:chat_app/constants/font_size.dart';
+import 'package:TFA/constants/font_size.dart';
 import 'package:flutter/material.dart';
 
 class CounterControl extends StatefulWidget {

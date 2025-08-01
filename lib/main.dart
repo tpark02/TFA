@@ -1,7 +1,6 @@
-import 'package:chat_app/constants/colors.dart';
-import 'package:chat_app/screens/auth.dart';
-import 'package:chat_app/screens/menu.dart';
-import 'package:chat_app/screens/search.dart';
+import 'package:TFA/constants/colors.dart';
+import 'package:TFA/screens/auth.dart';
+import 'package:TFA/screens/search.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -28,7 +27,7 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'FlutterChat',
+      title: 'TFA',
       // theme: ThemeData(
       //   // Define the default brightness and colors.
       //   colorScheme: ColorScheme.fromSeed(
@@ -65,9 +64,9 @@ class App extends StatelessWidget {
       home: StreamBuilder(
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: (ctx, snapshot) {
-          // if (snapshot.hasData) {
-          //   return const SearchScreen();
-          // }
+          if (snapshot.hasData) {
+            return const SearchScreen();
+          }
 
           return const AuthScreen();
           // return const MenuScreen();

@@ -1,5 +1,5 @@
-import 'package:chat_app/models/hotel.dart';
-import 'package:chat_app/utils/data_loader.dart';
+import 'package:TFA/models/hotel.dart';
+import 'package:TFA/utils/data_loader.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

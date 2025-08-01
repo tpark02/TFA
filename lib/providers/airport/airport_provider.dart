@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:chat_app/utils/data_loader.dart';
-import 'package:chat_app/models/airport.dart';
+import 'package:TFA/utils/data_loader.dart';
+import 'package:TFA/models/airport.dart';
 
 final airportDataProvider = FutureProvider<List<Airport>>((ref) async {
   final raw = await loadAirportData();

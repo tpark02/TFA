@@ -1,14 +1,14 @@
-import 'package:chat_app/constants/font_size.dart';
-import 'package:chat_app/providers/airport/airport_provider.dart';
-import 'package:chat_app/providers/airport/airport_selection.dart';
-import 'package:chat_app/providers/recent_search.dart';
-import 'package:chat_app/providers/flight/flight_search_controller.dart';
-import 'package:chat_app/screens/shared/recent_search_panel.dart';
-import 'package:chat_app/screens/shared/search_airport_sheet.dart';
-import 'package:chat_app/services/location_service.dart';
+import 'package:TFA/constants/font_size.dart';
+import 'package:TFA/providers/airport/airport_provider.dart';
+import 'package:TFA/providers/airport/airport_selection.dart';
+import 'package:TFA/providers/recent_search.dart';
+import 'package:TFA/providers/flight/flight_search_controller.dart';
+import 'package:TFA/screens/shared/recent_search_panel.dart';
+import 'package:TFA/screens/shared/search_airport_sheet.dart';
+import 'package:TFA/services/location_service.dart';
 import 'package:flutter/material.dart';
-import 'package:chat_app/screens/shared/calendar_sheet.dart';
-import 'package:chat_app/screens/shared/traveler_selector_sheet.dart';
+import 'package:TFA/screens/shared/calendar_sheet.dart';
+import 'package:TFA/screens/shared/traveler_selector_sheet.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geocoding/geocoding.dart';
 

@@ -1,5 +1,5 @@
-import 'package:chat_app/constants/font_size.dart';
-import 'package:chat_app/widgets/counter_control.dart';
+import 'package:TFA/constants/font_size.dart';
+import 'package:TFA/widgets/counter_control.dart';
 import 'package:flutter/material.dart';
 
 class RoomGuestSelectorSheet extends StatefulWidget {

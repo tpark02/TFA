@@ -1,6 +1,6 @@
-import 'package:chat_app/screens/search.dart';
+import 'package:TFA/screens/search.dart';
 import 'package:flutter/material.dart';
-import 'package:chat_app/screens/home.dart';
+import 'package:TFA/screens/home.dart';
 
 class MenuScreen extends StatefulWidget {
   const MenuScreen({super.key});

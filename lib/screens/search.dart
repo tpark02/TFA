@@ -1,6 +1,6 @@
-import 'package:chat_app/screens/car/car_search_panel.dart';
-import 'package:chat_app/screens/flight/flight_search_panel.dart';
-import 'package:chat_app/screens/hotel/hotel_search_panel.dart';
+import 'package:TFA/screens/car/car_search_panel.dart';
+import 'package:TFA/screens/flight/flight_search_panel.dart';
+import 'package:TFA/screens/hotel/hotel_search_panel.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -29,10 +29,7 @@ class _SearchScreenState extends State<SearchScreen> {
             onPressed: () {
               FirebaseAuth.instance.signOut();
             },
-            icon: Icon(
-              Icons.exit_to_app,
-              color: Theme.of(context).colorScheme.primary,
-            ),
+            icon: Icon(Icons.exit_to_app, color: Colors.white),
           ),
         ],
       ),

@@ -53,7 +53,7 @@ class _AuthScreenState extends State<AuthScreen> {
 
       // ✅ Make test call to FastAPI `/me` endpoint
       final response = await http.get(
-        Uri.parse('http://10.0.2.2:8000/me'),
+        Uri.parse('http://10.0.2.2:8000/api/v1/auth/me'),
         headers: {'Authorization': 'Bearer $idToken'},
       );
     } on FirebaseAuthException catch (error) {

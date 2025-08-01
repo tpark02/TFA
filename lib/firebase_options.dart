@@ -17,10 +17,7 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      throw UnsupportedError(
-        'DefaultFirebaseOptions have not been configured for web - '
-        'you can reconfigure this by running the FlutterFire CLI again.',
-      );
+      return web;
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
@@ -50,21 +47,29 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyD7hqK4JCoPXXBkoGQC1Ksw92XmqH38rYw',
-    appId: '1:292018258702:android:d67e5f1f1f8aa26c90cd5f',
-    messagingSenderId: '292018258702',
-    projectId: 'flutter-chat-app-8815e',
-    storageBucket: 'flutter-chat-app-8815e.firebasestorage.app',
+    apiKey: 'AIzaSyCHGvRqxrtcAUuiyoarFnAziP7Mw93O9Og',
+    appId: '1:34506647750:android:231995162200bb37d14fc7',
+    messagingSenderId: '34506647750',
+    projectId: 'tfa-auth-demo-2025',
+    storageBucket: 'tfa-auth-demo-2025.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyAQ-0vC0x8sw8DBUoCuiGiLJZ2deK_IQ1Q',
-    appId: '1:523980747506:ios:160f9d084cab3ac15f166b',
-    messagingSenderId: '523980747506',
-    projectId: 'flutter-chat-app-42c5e',
-    storageBucket: 'flutter-chat-app-42c5e.appspot.com',
-    iosClientId:
-        '523980747506-1fd8e8pg1ld5dvnn854b2pvnt6vjm9vd.apps.googleusercontent.com',
-    iosBundleId: 'com.example.chatApp',
+    apiKey: 'AIzaSyCIyIoqUWHs4Scm6NQPF76Sv_1pp0e6uWI',
+    appId: '1:34506647750:ios:1db0ccc3abc5a9e1d14fc7',
+    messagingSenderId: '34506647750',
+    projectId: 'tfa-auth-demo-2025',
+    storageBucket: 'tfa-auth-demo-2025.firebasestorage.app',
+    iosBundleId: 'com.example.tfa',
   );
+
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyAbnWPSW2jpuv5aWWGWleiud7irN9vApJs',
+    appId: '1:34506647750:web:f09b7e134fd617b2d14fc7',
+    messagingSenderId: '34506647750',
+    projectId: 'tfa-auth-demo-2025',
+    authDomain: 'tfa-auth-demo-2025.firebaseapp.com',
+    storageBucket: 'tfa-auth-demo-2025.firebasestorage.app',
+  );
+
 }

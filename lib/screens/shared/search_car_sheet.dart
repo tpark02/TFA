@@ -1,5 +1,5 @@
-import 'package:chat_app/constants/font_size.dart';
-import 'package:chat_app/providers/car/car_provider.dart';
+import 'package:TFA/constants/font_size.dart';
+import 'package:TFA/providers/car/car_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

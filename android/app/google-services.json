@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "292018258702",
-    "project_id": "flutter-chat-app-8815e",
-    "storage_bucket": "flutter-chat-app-8815e.firebasestorage.app"
+    "project_number": "34506647750",
+    "project_id": "tfa-auth-demo-2025",
+    "storage_bucket": "tfa-auth-demo-2025.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:292018258702:android:d67e5f1f1f8aa26c90cd5f",
+        "mobilesdk_app_id": "1:34506647750:android:231995162200bb37d14fc7",
         "android_client_info": {
           "package_name": "com.example.chat_app"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyD7hqK4JCoPXXBkoGQC1Ksw92XmqH38rYw"
+          "current_key": "AIzaSyCHGvRqxrtcAUuiyoarFnAziP7Mw93O9Og"
         }
       ],
       "services": {

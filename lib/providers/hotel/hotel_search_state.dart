@@ -1,4 +1,4 @@
-import 'package:chat_app/providers/recent_search.dart';
+import 'package:TFA/providers/recent_search.dart';
 
 class HotelSearchState {
   final List<RecentSearch> recentSearches;

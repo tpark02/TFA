@@ -1,5 +1,5 @@
-import 'package:chat_app/models/hotel.dart';
-import 'package:chat_app/providers/recent_search.dart';
+import 'package:TFA/models/hotel.dart';
+import 'package:TFA/providers/recent_search.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'hotel_search_state.dart';
 

@@ -1,13 +1,13 @@
-import 'package:chat_app/constants/font_size.dart';
-import 'package:chat_app/providers/hotel/hotel_search_controller.dart';
-import 'package:chat_app/providers/recent_search.dart';
-import 'package:chat_app/screens/shared/calendar_sheet.dart';
-import 'package:chat_app/screens/shared/recent_search_panel.dart';
-import 'package:chat_app/screens/shared/room_guest_selector_sheet.dart';
-import 'package:chat_app/screens/shared/search_hotel_sheet.dart';
+import 'package:TFA/constants/font_size.dart';
+import 'package:TFA/providers/hotel/hotel_search_controller.dart';
+import 'package:TFA/providers/recent_search.dart';
+import 'package:TFA/screens/shared/calendar_sheet.dart';
+import 'package:TFA/screens/shared/recent_search_panel.dart';
+import 'package:TFA/screens/shared/room_guest_selector_sheet.dart';
+import 'package:TFA/screens/shared/search_hotel_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:chat_app/services/location_service.dart'; // ✅ your service
+import 'package:TFA/services/location_service.dart'; // ✅ your service
 import 'package:geocoding/geocoding.dart';
 
 class HotelSearchPanel extends ConsumerStatefulWidget {
