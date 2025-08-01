@@ -1,4 +1,5 @@
 import 'package:chat_app/constants/colors.dart';
+import 'package:chat_app/screens/auth.dart';
 import 'package:chat_app/screens/menu.dart';
 import 'package:chat_app/screens/search.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -64,12 +65,12 @@ class App extends StatelessWidget {
       home: StreamBuilder(
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: (ctx, snapshot) {
-          if (snapshot.hasData) {
-            return const SearchScreen();
-          }
+          // if (snapshot.hasData) {
+          //   return const SearchScreen();
+          // }
 
-          // return const AuthScreen();
-          return const MenuScreen();
+          return const AuthScreen();
+          // return const MenuScreen();
         },
       ),
     );

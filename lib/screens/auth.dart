@@ -36,13 +36,15 @@ class _AuthScreenState extends State<AuthScreen> {
           email: _enteredEmail,
           password: _enteredPassword,
         );
-        debugPrint(userCredentials as String?);
+        // debugPrint(userCredentials as String?);
+        debugPrint(userCredentials.toString());
       } else {
         userCredentials = await _firebase.createUserWithEmailAndPassword(
           email: _enteredEmail,
           password: _enteredPassword,
         );
-        debugPrint(userCredentials as String?);
+        // debugPrint(userCredentials as String?);
+        debugPrint(userCredentials.toString());
       }
 
       // ✅ Get Firebase ID token
@@ -51,9 +53,7 @@ class _AuthScreenState extends State<AuthScreen> {
 
       // ✅ Make test call to FastAPI `/me` endpoint
       final response = await http.get(
-        Uri.parse(
-          'http://127.0.0.1:8000/me',
-        ), // 🔁 Replace with your server IP if on mobile
+        Uri.parse('http://10.0.2.2:8000/me'),
         headers: {'Authorization': 'Bearer $idToken'},
       );
     } on FirebaseAuthException catch (error) {
