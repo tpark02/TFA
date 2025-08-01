@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:http/http.dart' as http;
 
 final _firebase = FirebaseAuth.instance;
 
@@ -29,19 +30,32 @@ class _AuthScreenState extends State<AuthScreen> {
     _form.currentState!.save();
 
     try {
+      UserCredential userCredentials;
       if (_isLogin) {
-        final userCredentials = await _firebase.signInWithEmailAndPassword(
+        userCredentials = await _firebase.signInWithEmailAndPassword(
           email: _enteredEmail,
           password: _enteredPassword,
         );
         debugPrint(userCredentials as String?);
       } else {
-        final userCredentials = await _firebase.createUserWithEmailAndPassword(
+        userCredentials = await _firebase.createUserWithEmailAndPassword(
           email: _enteredEmail,
           password: _enteredPassword,
         );
         debugPrint(userCredentials as String?);
       }
+
+      // ✅ Get Firebase ID token
+      final idToken = await userCredentials.user!.getIdToken();
+      debugPrint("🔥 Firebase ID Token: $idToken");
+
+      // ✅ Make test call to FastAPI `/me` endpoint
+      final response = await http.get(
+        Uri.parse(
+          'http://127.0.0.1:8000/me',
+        ), // 🔁 Replace with your server IP if on mobile
+        headers: {'Authorization': 'Bearer $idToken'},
+      );
     } on FirebaseAuthException catch (error) {
       if (error.code == 'email-already-in-use') {
         // ...
