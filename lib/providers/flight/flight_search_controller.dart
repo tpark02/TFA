@@ -1,14 +1,33 @@
 import 'package:TFA/providers/recent_search.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'flight_search_state.dart';
+import 'package:TFA/services/recent_search_service.dart';
 
 class FlightSearchController extends StateNotifier<FlightSearchState> {
   FlightSearchController() : super(const FlightSearchState());
 
-  void addRecentSearch(RecentSearch search) {
+  void addRecentSearch(RecentSearch search, String jwtToken) {
+    // ✅ Always update state, even for empty ones (to preserve visual 5-item layout)
     final updated = [search, ...state.recentSearches];
-    if (updated.length > 5) updated.removeLast(); // optional: cap at 5 items
+    if (updated.length > 5) updated.removeLast();
     state = state.copyWith(recentSearches: updated);
+
+    // ❌ Only send to backend if not placeholder
+    if (search.destination.trim().isEmpty ||
+        search.tripDateRange.trim().isEmpty ||
+        search.destinationCode.trim().isEmpty) {
+      debugPrint("⚠️ Skipped sending empty search to backend");
+      return;
+    }
+
+    // ✅ Send only valid searches
+    RecentSearchApiService.sendRecentSearch(
+      destination: search.destination,
+      tripDateRange: search.tripDateRange,
+      destinationCode: search.destinationCode,
+      jwtToken: jwtToken,
+    );
   }
 
   void setDepartureCity(String city) {

@@ -22,47 +22,75 @@ class _AuthScreenState extends State<AuthScreen> {
 
   void _submit() async {
     final isValid = _form.currentState!.validate();
-
-    if (!isValid) {
-      return;
-    }
+    if (!isValid) return;
 
     _form.currentState!.save();
 
     try {
       UserCredential userCredentials;
+
       if (_isLogin) {
         userCredentials = await _firebase.signInWithEmailAndPassword(
           email: _enteredEmail,
           password: _enteredPassword,
         );
-        // debugPrint(userCredentials as String?);
-        debugPrint(userCredentials.toString());
       } else {
         userCredentials = await _firebase.createUserWithEmailAndPassword(
           email: _enteredEmail,
           password: _enteredPassword,
         );
-        // debugPrint(userCredentials as String?);
-        debugPrint(userCredentials.toString());
       }
 
-      // ✅ Get Firebase ID token
-      final idToken = await userCredentials.user!.getIdToken();
-      debugPrint("🔥 Firebase ID Token: $idToken");
+      debugPrint("👤 Firebase User: ${userCredentials.user}");
 
-      // ✅ Make test call to FastAPI `/me` endpoint
-      final response = await http.get(
-        Uri.parse('http://10.0.2.2:8000/api/v1/auth/me'),
-        headers: {'Authorization': 'Bearer $idToken'},
-      );
+      // ✅ Try to get the ID token and call the backend
+      try {
+        final idToken = await userCredentials.user!.getIdToken(
+          true,
+        ); // force refresh
+        debugPrint("🔥 Firebase ID Token: $idToken");
+
+        final response = await http.get(
+          Uri.parse(
+            'http://localhost:8000/api/v1/auth/me',
+          ), // ← use localhost for iOS Simulator
+          headers: {'Authorization': 'Bearer $idToken'},
+        );
+
+        debugPrint(
+          "🟢 /me response: ${response.statusCode} - ${response.body}",
+        );
+
+        if (response.statusCode != 200) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('❌ Server rejected token')),
+          );
+        }
+      } catch (e) {
+        debugPrint("❌ Token fetch or server call failed: $e");
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to verify with backend')),
+        );
+      }
     } on FirebaseAuthException catch (error) {
+      String message = 'Authentication failed.';
+
       if (error.code == 'email-already-in-use') {
-        // ...
+        message = 'Email is already in use.';
+      } else if (error.code == 'user-not-found') {
+        message = 'No user found for that email.';
+      } else if (error.code == 'wrong-password') {
+        message = 'Incorrect password.';
       }
+
       ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(message)));
+    } catch (e) {
+      debugPrint("❌ Unexpected error: $e");
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(error.message ?? 'Authentication failed.')),
+        const SnackBar(content: Text('An unexpected error occurred.')),
       );
     }
   }

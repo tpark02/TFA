@@ -11,6 +11,7 @@ import 'package:TFA/screens/shared/calendar_sheet.dart';
 import 'package:TFA/screens/shared/traveler_selector_sheet.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class FlightSearchPanel extends ConsumerStatefulWidget {
   const FlightSearchPanel({super.key});
@@ -22,6 +23,7 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
   static const double _padding = 20.0;
   bool _isLoadingCity = true;
   bool _initialized = false;
+  final user = FirebaseAuth.instance.currentUser;
 
   @override
   void didChangeDependencies() {
@@ -364,7 +366,7 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
                   children: [
                     Expanded(
                       child: ElevatedButton(
-                        onPressed: () {
+                        onPressed: () async {
                           debugPrint(flightState.toString());
                           final hasPassengers = flightState.passengerCount > 0;
                           final hasAirports =
@@ -376,6 +378,8 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
                           if (!hasPassengers || !hasAirports || !hasDate) {
                             return;
                           }
+
+                          final idToken = await user!.getIdToken();
 
                           controller.addRecentSearch(
                             RecentSearch(
@@ -394,6 +398,7 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
                               destinationCode:
                                   '${flightState.departureAirportCode} - ${flightState.arrivalAirportCode}',
                             ),
+                            idToken!,
                           );
                         },
                         style: ElevatedButton.styleFrom(
