@@ -1,6 +1,6 @@
 import 'package:TFA/constants/colors.dart';
 import 'package:TFA/screens/auth.dart';
-import 'package:TFA/screens/search.dart';
+import 'package:TFA/screens/menu.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -65,7 +65,7 @@ class App extends StatelessWidget {
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: (ctx, snapshot) {
           if (snapshot.hasData) {
-            return const SearchScreen();
+            return const MenuScreen();
           }
 
           return const AuthScreen();

@@ -40,8 +40,8 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
         children: [
           const SizedBox(height: _padding),
           Container(
-            decoration: const BoxDecoration(
-              // border: Border.all(color: Colors.red, width: 2),
+            decoration: BoxDecoration(
+              // color: Theme.of(context).colorScheme.primary,
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
