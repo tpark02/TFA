@@ -39,30 +39,35 @@ class HotelSearchState {
       tripDateRange: '',
       icons: [],
       destinationCode: '',
+      guests: 0,
     ),
     RecentSearch(
       destination: '',
       tripDateRange: '',
       icons: [],
       destinationCode: '',
+      guests: 0,
     ),
     RecentSearch(
       destination: '',
       tripDateRange: '',
       icons: [],
       destinationCode: '',
+      guests: 0,
     ),
     RecentSearch(
       destination: '',
       tripDateRange: '',
       icons: [],
       destinationCode: '',
+      guests: 0,
     ),
     RecentSearch(
       destination: '',
       tripDateRange: '',
       icons: [],
       destinationCode: '',
+      guests: 0,
     ),
   ];
 

@@ -34,6 +34,7 @@ class RecentSearchPanel extends ConsumerWidget {
               tripDateRange: '',
               icons: [],
               destinationCode: '',
+              guests: 0,
             ),
     );
 

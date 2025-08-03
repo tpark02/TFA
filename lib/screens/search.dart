@@ -1,17 +1,19 @@
+import 'package:TFA/providers/flight/flight_search_controller.dart';
 import 'package:TFA/screens/car/car_search_panel.dart';
 import 'package:TFA/screens/flight/flight_search_panel.dart';
 import 'package:TFA/screens/hotel/hotel_search_panel.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class SearchScreen extends StatefulWidget {
+class SearchScreen extends ConsumerStatefulWidget {
   const SearchScreen({super.key});
 
   @override
-  State<SearchScreen> createState() => _SearchScreenState();
+  ConsumerState<SearchScreen> createState() => _SearchScreenState();
 }
 
-class _SearchScreenState extends State<SearchScreen> {
+class _SearchScreenState extends ConsumerState<SearchScreen> {
   static const double _padding = 20.0;
   int _selectedIndex = 0;
 
@@ -27,6 +29,7 @@ class _SearchScreenState extends State<SearchScreen> {
         actions: [
           IconButton(
             onPressed: () {
+              ref.read(flightSearchProvider.notifier).clearRecentSearches();
               FirebaseAuth.instance.signOut();
             },
             icon: Icon(Icons.exit_to_app, color: Colors.white),

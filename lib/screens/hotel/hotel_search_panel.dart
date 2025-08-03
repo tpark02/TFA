@@ -322,6 +322,7 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
                             Text(totalGuest.toString()),
                           ],
                           destinationCode: '',
+                          guests: totalGuest,
                         ),
                       );
                     },

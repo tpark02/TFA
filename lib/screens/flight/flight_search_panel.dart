@@ -6,6 +6,7 @@ import 'package:TFA/providers/flight/flight_search_controller.dart';
 import 'package:TFA/screens/shared/recent_search_panel.dart';
 import 'package:TFA/screens/shared/search_airport_sheet.dart';
 import 'package:TFA/services/location_service.dart';
+import 'package:TFA/services/recent_search_service.dart';
 import 'package:flutter/material.dart';
 import 'package:TFA/screens/shared/calendar_sheet.dart';
 import 'package:TFA/screens/shared/traveler_selector_sheet.dart';
@@ -24,6 +25,15 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
   bool _isLoadingCity = true;
   bool _initialized = false;
   final user = FirebaseAuth.instance.currentUser;
+
+  @override
+  void initState() {
+    super.initState();
+
+    Future.microtask(() {
+      ref.read(flightSearchProvider.notifier).loadRecentSearchesFromApi();
+    });
+  }
 
   @override
   void didChangeDependencies() {
@@ -381,7 +391,7 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
 
                           final idToken = await user!.getIdToken();
 
-                          controller.addRecentSearch(
+                          bool success = await controller.addRecentSearch(
                             RecentSearch(
                               destination:
                                   '${flightState.departureCity} - ${flightState.arrivalCity}',
@@ -397,9 +407,18 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
                               ],
                               destinationCode:
                                   '${flightState.departureAirportCode} - ${flightState.arrivalAirportCode}',
+                              guests: flightState.passengerCount,
                             ),
                             idToken!,
                           );
+
+                          if (!success) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('❌ Failed to save recent search'),
+                              ),
+                            );
+                          }
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Theme.of(

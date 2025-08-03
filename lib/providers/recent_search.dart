@@ -5,19 +5,22 @@ class RecentSearch {
   final String tripDateRange;
   final List<Widget> icons;
   final String destinationCode;
+  final int guests;
 
   const RecentSearch({
     required this.destination,
     required this.tripDateRange,
     required this.icons,
     required this.destinationCode,
+    required this.guests,
   });
 
   @override
   String toString() {
     return 'RecentSearch(destination: $destination, '
         'tripDateRange: $tripDateRange, '
-        'destinationCode: $destinationCode)';
+        'destinationCode: $destinationCode),'
+        'guests: $guests),';
   }
 
   @override
@@ -27,9 +30,12 @@ class RecentSearch {
           runtimeType == other.runtimeType &&
           destination == other.destination &&
           tripDateRange == other.tripDateRange &&
-          destinationCode == other.destinationCode;
-
+          destinationCode == other.destinationCode &&
+          guests == other.guests;
   @override
   int get hashCode =>
-      destination.hashCode ^ tripDateRange.hashCode ^ destinationCode.hashCode;
+      destination.hashCode ^
+      tripDateRange.hashCode ^
+      destinationCode.hashCode ^
+      guests.hashCode;
 }

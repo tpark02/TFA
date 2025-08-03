@@ -474,6 +474,7 @@ class _CarSearchPanelState extends ConsumerState<CarSearchPanel> {
                           tripDateRange: displayDate ?? '',
                           icons: [],
                           destinationCode: '',
+                          guests: 0,
                         ),
                       );
                     },

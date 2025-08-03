@@ -1,21 +1,22 @@
+import 'package:TFA/utils/api_config.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 
 final _firebase = FirebaseAuth.instance;
 
-class AuthScreen extends StatefulWidget {
+class AuthScreen extends ConsumerStatefulWidget {
   const AuthScreen({super.key});
 
   @override
-  State<AuthScreen> createState() {
+  ConsumerState<AuthScreen> createState() {
     return _AuthScreenState();
   }
 }
 
-class _AuthScreenState extends State<AuthScreen> {
+class _AuthScreenState extends ConsumerState<AuthScreen> {
   final _form = GlobalKey<FormState>();
-
   var _isLogin = true;
   var _enteredEmail = '';
   var _enteredPassword = '';
@@ -51,9 +52,7 @@ class _AuthScreenState extends State<AuthScreen> {
         debugPrint("🔥 Firebase ID Token: $idToken");
 
         final response = await http.get(
-          Uri.parse(
-            'http://localhost:8000/api/v1/auth/me',
-          ), // ← use localhost for iOS Simulator
+          getBackendUri(),
           headers: {'Authorization': 'Bearer $idToken'},
         );
 
@@ -89,6 +88,7 @@ class _AuthScreenState extends State<AuthScreen> {
       ).showSnackBar(SnackBar(content: Text(message)));
     } catch (e) {
       debugPrint("❌ Unexpected error: $e");
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('An unexpected error occurred.')),
       );

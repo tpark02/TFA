@@ -7,7 +7,13 @@ import 'package:TFA/services/recent_search_service.dart';
 class FlightSearchController extends StateNotifier<FlightSearchState> {
   FlightSearchController() : super(const FlightSearchState());
 
-  void addRecentSearch(RecentSearch search, String jwtToken) {
+  Future<void> initRecentSearch(RecentSearch search) async {
+    final updated = [search, ...state.recentSearches];
+    if (updated.length > 5) updated.removeLast();
+    state = state.copyWith(recentSearches: updated);
+  }
+
+  Future<bool> addRecentSearch(RecentSearch search, String jwtToken) async {
     // ✅ Always update state, even for empty ones (to preserve visual 5-item layout)
     final updated = [search, ...state.recentSearches];
     if (updated.length > 5) updated.removeLast();
@@ -16,16 +22,18 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
     // ❌ Only send to backend if not placeholder
     if (search.destination.trim().isEmpty ||
         search.tripDateRange.trim().isEmpty ||
-        search.destinationCode.trim().isEmpty) {
+        search.destinationCode.trim().isEmpty ||
+        search.guests == 0) {
       debugPrint("⚠️ Skipped sending empty search to backend");
-      return;
+      return false;
     }
 
     // ✅ Send only valid searches
-    RecentSearchApiService.sendRecentSearch(
+    return await RecentSearchApiService.sendRecentSearch(
       destination: search.destination,
       tripDateRange: search.tripDateRange,
       destinationCode: search.destinationCode,
+      guests: search.guests,
       jwtToken: jwtToken,
     );
   }
@@ -78,6 +86,41 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
     }
 
     state = state.copyWith(passengerCount: count, cabinClass: cabin);
+  }
+
+  void clearRecentSearches() {
+    state = state.copyWith(recentSearches: []);
+  }
+
+  Future<void> loadRecentSearchesFromApi() async {
+    try {
+      final results = await RecentSearchApiService.fetchRecentSearches();
+
+      for (final r in results) {
+        final guestsValue = r['guests'];
+        final guests = guestsValue is int
+            ? guestsValue
+            : int.tryParse(guestsValue.toString()) ?? 1;
+
+        initRecentSearch(
+          RecentSearch(
+            destination: r['destination'],
+            tripDateRange: r['trip_date_range'],
+            icons: [
+              const SizedBox(width: 10),
+              Icon(Icons.person, color: Colors.grey[500], size: 20.0),
+              Text(r['guests'].toString()),
+            ],
+            destinationCode: r['destination_code'],
+            guests: guests,
+          ),
+        );
+      }
+
+      debugPrint("✅ Fetched into state: $results");
+    } catch (e) {
+      debugPrint("❌ Failed loading recent searches: $e");
+    }
   }
 }
 
