@@ -34,6 +34,7 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
       tripDateRange: search.tripDateRange,
       destinationCode: search.destinationCode,
       guests: search.guests,
+      kind: search.kind,
       jwtToken: jwtToken,
     );
   }
@@ -94,7 +95,10 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
 
   Future<void> loadRecentSearchesFromApi() async {
     try {
-      final results = await RecentSearchApiService.fetchRecentSearches();
+      final results = await RecentSearchApiService.fetchRecentSearches(
+        'flight',
+      );
+      state = state.copyWith(recentSearches: []);
 
       for (final r in results) {
         final guestsValue = r['guests'];
@@ -109,10 +113,10 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
             icons: [
               const SizedBox(width: 10),
               Icon(Icons.person, color: Colors.grey[500], size: 20.0),
-              Text(r['guests'].toString()),
             ],
             destinationCode: r['destination_code'],
             guests: guests,
+            kind: 'flight',
           ),
         );
       }

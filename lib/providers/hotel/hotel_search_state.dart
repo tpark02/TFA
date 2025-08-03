@@ -40,6 +40,7 @@ class HotelSearchState {
       icons: [],
       destinationCode: '',
       guests: 0,
+      kind: 'hotel',
     ),
     RecentSearch(
       destination: '',
@@ -47,6 +48,7 @@ class HotelSearchState {
       icons: [],
       destinationCode: '',
       guests: 0,
+      kind: 'hotel',
     ),
     RecentSearch(
       destination: '',
@@ -54,6 +56,7 @@ class HotelSearchState {
       icons: [],
       destinationCode: '',
       guests: 0,
+      kind: 'hotel',
     ),
     RecentSearch(
       destination: '',
@@ -61,6 +64,7 @@ class HotelSearchState {
       icons: [],
       destinationCode: '',
       guests: 0,
+      kind: 'hotel',
     ),
     RecentSearch(
       destination: '',
@@ -68,6 +72,7 @@ class HotelSearchState {
       icons: [],
       destinationCode: '',
       guests: 0,
+      kind: 'hotel',
     ),
   ];
 

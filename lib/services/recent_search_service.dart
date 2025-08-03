@@ -10,6 +10,7 @@ class RecentSearchApiService {
     required String tripDateRange,
     required String destinationCode,
     required int guests,
+    required String kind,
     required String jwtToken,
   }) async {
     final url = Uri.parse("$baseUrl/api/v1/recent-searches/");
@@ -26,6 +27,7 @@ class RecentSearchApiService {
           'trip_date_range': tripDateRange,
           'destination_code': destinationCode,
           'guests': guests,
+          'kind': kind,
         }),
       );
 
@@ -48,7 +50,9 @@ class RecentSearchApiService {
     return false;
   }
 
-  static Future<List<Map<String, dynamic>>> fetchRecentSearches() async {
+  static Future<List<Map<String, dynamic>>> fetchRecentSearches(
+    String kind,
+  ) async {
     final user = FirebaseAuth.instance.currentUser;
     final idToken = await user?.getIdToken();
 
@@ -56,7 +60,7 @@ class RecentSearchApiService {
       throw Exception("User not authenticated.");
     }
 
-    final url = Uri.parse("$baseUrl/api/v1/recent-searches/");
+    final url = Uri.parse("$baseUrl/api/v1/recent-searches/$kind");
 
     final response = await http.get(
       url,

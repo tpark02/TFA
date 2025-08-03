@@ -6,6 +6,7 @@ class RecentSearch {
   final List<Widget> icons;
   final String destinationCode;
   final int guests;
+  final String kind;
 
   const RecentSearch({
     required this.destination,
@@ -13,6 +14,7 @@ class RecentSearch {
     required this.icons,
     required this.destinationCode,
     required this.guests,
+    required this.kind,
   });
 
   @override
@@ -20,7 +22,8 @@ class RecentSearch {
     return 'RecentSearch(destination: $destination, '
         'tripDateRange: $tripDateRange, '
         'destinationCode: $destinationCode),'
-        'guests: $guests),';
+        'guests: $guests),'
+        'kind: $kind)';
   }
 
   @override
@@ -31,11 +34,13 @@ class RecentSearch {
           destination == other.destination &&
           tripDateRange == other.tripDateRange &&
           destinationCode == other.destinationCode &&
-          guests == other.guests;
+          guests == other.guests &&
+          kind == other.kind;
   @override
   int get hashCode =>
       destination.hashCode ^
       tripDateRange.hashCode ^
       destinationCode.hashCode ^
-      guests.hashCode;
+      guests.hashCode ^
+      kind.hashCode;
 }

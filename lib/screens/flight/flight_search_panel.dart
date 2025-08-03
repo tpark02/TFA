@@ -6,7 +6,6 @@ import 'package:TFA/providers/flight/flight_search_controller.dart';
 import 'package:TFA/screens/shared/recent_search_panel.dart';
 import 'package:TFA/screens/shared/search_airport_sheet.dart';
 import 'package:TFA/services/location_service.dart';
-import 'package:TFA/services/recent_search_service.dart';
 import 'package:flutter/material.dart';
 import 'package:TFA/screens/shared/calendar_sheet.dart';
 import 'package:TFA/screens/shared/traveler_selector_sheet.dart';
@@ -29,7 +28,6 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
   @override
   void initState() {
     super.initState();
-
     Future.microtask(() {
       ref.read(flightSearchProvider.notifier).loadRecentSearchesFromApi();
     });
@@ -408,6 +406,7 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
                               destinationCode:
                                   '${flightState.departureAirportCode} - ${flightState.arrivalAirportCode}',
                               guests: flightState.passengerCount,
+                              kind: 'flight',
                             ),
                             idToken!,
                           );
@@ -415,7 +414,9 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
                           if (!success) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                content: Text('❌ Failed to save recent search'),
+                                content: Text(
+                                  '❌ Failed to save flight recent search',
+                                ),
                               ),
                             );
                           }

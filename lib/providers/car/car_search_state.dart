@@ -28,6 +28,7 @@ class CarSearchState {
       icons: [],
       destinationCode: '',
       guests: 0,
+      kind: 'car',
     ),
     RecentSearch(
       destination: '',
@@ -35,6 +36,7 @@ class CarSearchState {
       icons: [],
       destinationCode: '',
       guests: 0,
+      kind: 'car',
     ),
     RecentSearch(
       destination: '',
@@ -42,6 +44,7 @@ class CarSearchState {
       icons: [],
       destinationCode: '',
       guests: 0,
+      kind: 'car',
     ),
     RecentSearch(
       destination: '',
@@ -49,6 +52,7 @@ class CarSearchState {
       icons: [],
       destinationCode: '',
       guests: 0,
+      kind: 'car',
     ),
     RecentSearch(
       destination: '',
@@ -56,6 +60,7 @@ class CarSearchState {
       icons: [],
       destinationCode: '',
       guests: 0,
+      kind: 'car',
     ),
   ];
 

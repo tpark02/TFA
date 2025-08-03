@@ -6,6 +6,7 @@ import 'package:TFA/screens/shared/recent_search_panel.dart';
 import 'package:TFA/screens/shared/search_car_sheet.dart';
 import 'package:TFA/screens/shared/show_adaptive_time_picker.dart';
 import 'package:TFA/services/location_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_switch/flutter_switch.dart';
@@ -24,20 +25,7 @@ class _CarSearchPanelState extends ConsumerState<CarSearchPanel> {
   bool _isLoadingCity = true;
   bool _isDifferentDropOff = false;
   String _dropOffCity = '';
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-
-    if (!_initialized) {
-      _initialized = true;
-
-      Future.microtask(() async {
-        _setDefaultDateTime();
-        await fetchCurrentCountry();
-      });
-    }
-  }
+  final user = FirebaseAuth.instance.currentUser;
 
   void _setDefaultDateTime() {
     final now = DateTime.now();
@@ -79,6 +67,28 @@ class _CarSearchPanelState extends ConsumerState<CarSearchPanel> {
       debugPrint("❌ Location error: $e");
     } finally {
       if (mounted) setState(() => _isLoadingCity = false);
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      ref.read(carSearchProvider.notifier).loadRecentSearchesFromApi();
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    if (!_initialized) {
+      _initialized = true;
+
+      Future.microtask(() async {
+        _setDefaultDateTime();
+        await fetchCurrentCountry();
+      });
     }
   }
 
@@ -453,7 +463,7 @@ class _CarSearchPanelState extends ConsumerState<CarSearchPanel> {
               children: [
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () {
+                    onPressed: () async {
                       debugPrint(carState.toString());
                       final hasCity = carState.selectedCity.isNotEmpty;
                       final hasDate =
@@ -468,15 +478,26 @@ class _CarSearchPanelState extends ConsumerState<CarSearchPanel> {
                       String displayDate =
                           '${carState.beginDate} - ${carState.endDate}, ${carState.beginTime} - ${carState.endTime}';
 
-                      controller.addRecentSearch(
+                      final idToken = await user!.getIdToken();
+
+                      bool success = await controller.addRecentSearch(
                         RecentSearch(
                           destination: carState.selectedCity,
-                          tripDateRange: displayDate ?? '',
+                          tripDateRange: displayDate,
                           icons: [],
                           destinationCode: '',
-                          guests: 0,
+                          guests: -1,
+                          kind: 'car',
                         ),
+                        idToken!,
                       );
+                      if (!success) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('❌ Failed to save car recent search'),
+                          ),
+                        );
+                      }
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Theme.of(context).colorScheme.primary,

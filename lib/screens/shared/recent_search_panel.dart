@@ -13,28 +13,33 @@ class RecentSearchPanel extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     List<RecentSearch> searches = [];
+    String kind = '';
 
     if (panelName == 'flight') {
       final fstate = ref.watch(flightSearchProvider);
       searches = fstate.recentSearches;
+      kind = 'flight';
     } else if (panelName == 'hotel') {
       final hstate = ref.watch(hotelSearchProvider);
       searches = hstate.recentSearches;
+      kind = 'hotel';
     } else {
       final cstate = ref.watch(carSearchProvider);
       searches = cstate.recentSearches;
+      kind = 'car';
     }
     // Always produce 5 items, fill with empty ones if needed
     final paddedSearches = List<RecentSearch>.generate(
       5,
       (i) => i < searches.length
           ? searches[i]
-          : const RecentSearch(
+          : RecentSearch(
               destination: '',
               tripDateRange: '',
-              icons: [],
+              icons: const [],
               destinationCode: '',
               guests: 0,
+              kind: kind,
             ),
     );
 

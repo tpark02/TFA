@@ -323,6 +323,7 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
                           ],
                           destinationCode: '',
                           guests: totalGuest,
+                          kind: 'hotel',
                         ),
                       );
                     },
