@@ -25,28 +25,6 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
   bool _initialized = false;
   final user = FirebaseAuth.instance.currentUser;
 
-  @override
-  void initState() {
-    super.initState();
-    Future.microtask(() {
-      ref.read(flightSearchProvider.notifier).loadRecentSearchesFromApi();
-    });
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-
-    if (!_initialized) {
-      _initialized = true;
-
-      Future.microtask(() async {
-        _setDefaultDateTime();
-        await fetchCurrentCountry();
-      });
-    }
-  }
-
   void _setDefaultDateTime() {
     final now = DateTime.now();
     final today = "${_monthName(now.month)} ${now.day}";
@@ -99,6 +77,28 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
       debugPrint("❌ Location error: $e");
     } finally {
       if (mounted) setState(() => _isLoadingCity = false);
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      ref.read(flightSearchProvider.notifier).loadRecentSearchesFromApi();
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    if (!_initialized) {
+      _initialized = true;
+
+      Future.microtask(() async {
+        _setDefaultDateTime();
+        await fetchCurrentCountry();
+      });
     }
   }
 
@@ -406,6 +406,7 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
                               destinationCode:
                                   '${flightState.departureAirportCode} - ${flightState.arrivalAirportCode}',
                               guests: flightState.passengerCount,
+                              rooms: 0,
                               kind: 'flight',
                             ),
                             idToken!,

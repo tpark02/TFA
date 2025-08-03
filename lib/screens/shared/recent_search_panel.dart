@@ -39,6 +39,7 @@ class RecentSearchPanel extends ConsumerWidget {
               icons: const [],
               destinationCode: '',
               guests: 0,
+              rooms: 0,
               kind: kind,
             ),
     );

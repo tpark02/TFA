@@ -34,6 +34,7 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
       tripDateRange: search.tripDateRange,
       destinationCode: search.destinationCode,
       guests: search.guests,
+      rooms: search.rooms,
       kind: search.kind,
       jwtToken: jwtToken,
     );
@@ -113,9 +114,11 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
             icons: [
               const SizedBox(width: 10),
               Icon(Icons.person, color: Colors.grey[500], size: 20.0),
+              Text(guests.toString()),
             ],
             destinationCode: r['destination_code'],
             guests: guests,
+            rooms: 0,
             kind: 'flight',
           ),
         );

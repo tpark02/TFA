@@ -22,6 +22,7 @@ class FlightSearchState {
       icons: [],
       destinationCode: '',
       guests: 0,
+      rooms: 0,
       kind: 'flight',
     ),
     RecentSearch(
@@ -30,6 +31,7 @@ class FlightSearchState {
       icons: [],
       destinationCode: '',
       guests: 0,
+      rooms: 0,
       kind: 'flight',
     ),
     RecentSearch(
@@ -38,6 +40,7 @@ class FlightSearchState {
       icons: [],
       destinationCode: '',
       guests: 0,
+      rooms: 0,
       kind: 'flight',
     ),
     RecentSearch(
@@ -46,6 +49,7 @@ class FlightSearchState {
       icons: [],
       destinationCode: '',
       guests: 0,
+      rooms: 0,
       kind: 'flight',
     ),
     RecentSearch(
@@ -54,6 +58,7 @@ class FlightSearchState {
       icons: [],
       destinationCode: '',
       guests: 0,
+      rooms: 0,
       kind: 'flight',
     ),
   ];

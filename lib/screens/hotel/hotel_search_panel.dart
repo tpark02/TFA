@@ -5,6 +5,7 @@ import 'package:TFA/screens/shared/calendar_sheet.dart';
 import 'package:TFA/screens/shared/recent_search_panel.dart';
 import 'package:TFA/screens/shared/room_guest_selector_sheet.dart';
 import 'package:TFA/screens/shared/search_hotel_sheet.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:TFA/services/location_service.dart'; // ✅ your service
@@ -20,20 +21,7 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
   static const double _padding = 20.0;
   bool _isLoadingCity = true;
   bool _initialized = false;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-
-    if (!_initialized) {
-      _initialized = true;
-
-      Future.microtask(() async {
-        _setDefaultDateTime();
-        await fetchCurrentCountry();
-      });
-    }
-  }
+  final user = FirebaseAuth.instance.currentUser;
 
   void _setDefaultDateTime() {
     final now = DateTime.now();
@@ -70,6 +58,28 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
       debugPrint("❌ Location error: $e");
     } finally {
       if (mounted) setState(() => _isLoadingCity = false);
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      ref.read(hotelSearchProvider.notifier).loadRecentSearchesFromApi();
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    if (!_initialized) {
+      _initialized = true;
+
+      Future.microtask(() async {
+        _setDefaultDateTime();
+        await fetchCurrentCountry();
+      });
     }
   }
 
@@ -282,7 +292,7 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
               children: [
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () {
+                    onPressed: () async {
                       debugPrint(hotelState.toString());
                       final hasCity = hotelState.city.isNotEmpty;
                       final hasDate = (hotelState.displayDate ?? '').isNotEmpty;
@@ -301,7 +311,9 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
                           ((int.tryParse(hotelState.adultCnt) ?? 0) +
                           (int.tryParse(hotelState.childCnt) ?? 0));
 
-                      controller.addRecentSearch(
+                      final idToken = await user!.getIdToken();
+
+                      bool success = await controller.addRecentSearch(
                         RecentSearch(
                           destination: hotelState.city,
                           tripDateRange: hotelState.displayDate ?? '',
@@ -323,9 +335,20 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
                           ],
                           destinationCode: '',
                           guests: totalGuest,
+                          rooms: int.tryParse(hotelState.roomCnt)!,
                           kind: 'hotel',
                         ),
+                        idToken!,
                       );
+                      if (!success) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              '❌ Failed to save horel recent search',
+                            ),
+                          ),
+                        );
+                      }
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Theme.of(context).colorScheme.primary,

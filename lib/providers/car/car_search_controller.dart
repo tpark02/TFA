@@ -44,6 +44,7 @@ class CarSearchController extends StateNotifier<CarSearchState> {
       tripDateRange: search.tripDateRange,
       destinationCode: search.destinationCode,
       guests: search.guests,
+      rooms: search.rooms,
       kind: search.kind,
       jwtToken: jwtToken,
     );
@@ -87,6 +88,7 @@ class CarSearchController extends StateNotifier<CarSearchState> {
             icons: [],
             destinationCode: r['destination_code'],
             guests: guests,
+            rooms: 0,
             kind: 'car',
           ),
         );

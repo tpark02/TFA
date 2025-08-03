@@ -487,6 +487,7 @@ class _CarSearchPanelState extends ConsumerState<CarSearchPanel> {
                           icons: [],
                           destinationCode: '',
                           guests: -1,
+                          rooms: 0,
                           kind: 'car',
                         ),
                         idToken!,

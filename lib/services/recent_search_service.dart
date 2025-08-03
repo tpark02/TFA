@@ -10,6 +10,7 @@ class RecentSearchApiService {
     required String tripDateRange,
     required String destinationCode,
     required int guests,
+    required int rooms,
     required String kind,
     required String jwtToken,
   }) async {
@@ -27,6 +28,7 @@ class RecentSearchApiService {
           'trip_date_range': tripDateRange,
           'destination_code': destinationCode,
           'guests': guests,
+          'rooms': rooms,
           'kind': kind,
         }),
       );

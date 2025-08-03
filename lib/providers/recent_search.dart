@@ -6,6 +6,7 @@ class RecentSearch {
   final List<Widget> icons;
   final String destinationCode;
   final int guests;
+  final int rooms;
   final String kind;
 
   const RecentSearch({
@@ -14,6 +15,7 @@ class RecentSearch {
     required this.icons,
     required this.destinationCode,
     required this.guests,
+    required this.rooms,
     required this.kind,
   });
 
@@ -23,6 +25,7 @@ class RecentSearch {
         'tripDateRange: $tripDateRange, '
         'destinationCode: $destinationCode),'
         'guests: $guests),'
+        'rooms: $rooms),'
         'kind: $kind)';
   }
 
@@ -35,6 +38,7 @@ class RecentSearch {
           tripDateRange == other.tripDateRange &&
           destinationCode == other.destinationCode &&
           guests == other.guests &&
+          rooms == other.rooms &&
           kind == other.kind;
   @override
   int get hashCode =>
@@ -42,5 +46,6 @@ class RecentSearch {
       tripDateRange.hashCode ^
       destinationCode.hashCode ^
       guests.hashCode ^
+      rooms.hashCode ^
       kind.hashCode;
 }
