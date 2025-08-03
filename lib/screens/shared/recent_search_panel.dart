@@ -44,7 +44,7 @@ class RecentSearchPanel extends ConsumerWidget {
             ),
     );
 
-    if (searches.isEmpty) return const SizedBox.shrink();
+    // if (searches.isEmpty) return const SizedBox.shrink();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
