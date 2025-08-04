@@ -1,9 +1,29 @@
 import 'package:TFA/widgets/filter_button.dart';
 import 'package:TFA/widgets/search_summary_card.dart';
+import 'package:TFA/widgets/search_summary_loading_card.dart';
 import 'package:flutter/material.dart';
 
-class FlightListPage extends StatelessWidget {
+class FlightListPage extends StatefulWidget {
   const FlightListPage({super.key});
+
+  @override
+  State<FlightListPage> createState() => _FlightListPageState();
+}
+
+class _FlightListPageState extends State<FlightListPage> {
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(const Duration(seconds: 2), () {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -97,88 +117,112 @@ class FlightListPage extends StatelessWidget {
               ),
             ),
           ),
-
-          Container(
-            padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
-            decoration: BoxDecoration(
-              border: Border(
-                top: BorderSide(
-                  color: Colors.grey[400]!, // or any color you want
-                  width: 1.0, // thickness of the top border
-                ),
-              ),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  "Choose Departing flight",
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                ),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: Text(
-                    "Total Cost",
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.grey[700],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
           Expanded(
-            child: ListView(
-              children: [
-                Container(
-                  color: Colors.amber[50],
-                  padding: const EdgeInsets.all(20),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            child: isLoading
+                ? const Center(
+                    child: SearchSummaryLoadingCard(
+                      routeText: 'ICN - New York',
+                      dateText: 'Aug 16 - Aug 18',
+                    ),
+                  )
+                : Column(
                     children: [
-                      Expanded(
-                        child: RichText(
-                          text: TextSpan(
-                            style: TextStyle(
-                              fontSize: 18,
-                              color: Theme.of(context).colorScheme.primary,
+                      Container(
+                        padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
+                        decoration: BoxDecoration(
+                          border: Border(
+                            top: BorderSide(
+                              color: Colors.grey[400]!, // or any color you want
+                              width: 1.0, // thickness of the top border
                             ),
-                            children: [
-                              const TextSpan(
-                                text: 'Automatic protection on every flight. ',
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              "Choose Departing flight",
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
                               ),
-                              TextSpan(
-                                text: 'The Skiplagged Guarantee.',
-                                style: const TextStyle(
+                            ),
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: Text(
+                                "Total Cost",
+                                style: TextStyle(
+                                  fontSize: 14,
                                   fontWeight: FontWeight.bold,
+                                  color: Colors.grey[700],
                                 ),
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       ),
-                      ElevatedButton(
-                        onPressed: () {},
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Theme.of(
-                            context,
-                          ).colorScheme.primary,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(4.0),
-                          ),
-                          padding: const EdgeInsets.all(10.0),
+                      Expanded(
+                        child: ListView(
+                          children: [
+                            Container(
+                              color: Colors.amber[50],
+                              padding: const EdgeInsets.all(20),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: RichText(
+                                      text: TextSpan(
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.primary,
+                                        ),
+                                        children: [
+                                          const TextSpan(
+                                            text:
+                                                'Automatic protection on every flight. ',
+                                          ),
+                                          TextSpan(
+                                            text: 'The Skiplagged Guarantee.',
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  ElevatedButton(
+                                    onPressed: () {},
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Theme.of(
+                                        context,
+                                      ).colorScheme.primary,
+                                      foregroundColor: Colors.white,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(
+                                          4.0,
+                                        ),
+                                      ),
+                                      padding: const EdgeInsets.all(10.0),
+                                    ),
+                                    child: const Text("Learn More"),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            ...List.generate(
+                              flights.length,
+                              (index) => flights[index],
+                            ),
+                          ],
                         ),
-                        child: const Text("Learn More"),
                       ),
                     ],
                   ),
-                ),
-                ...List.generate(flights.length, (index) => flights[index]),
-              ],
-            ),
           ),
         ],
       ),
