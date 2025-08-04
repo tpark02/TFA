@@ -49,7 +49,6 @@ class _FlightListPageState extends State<FlightListPage> {
             ), // status bar spacing
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 IconButton(
                   padding: EdgeInsets.zero,
@@ -58,22 +57,30 @@ class _FlightListPageState extends State<FlightListPage> {
                   },
                   icon: Icon(Icons.arrow_back, color: Colors.white),
                 ),
-                SearchSummaryCard(
-                  from: 'ICN',
-                  to: 'New York',
-                  dateRange: 'Aug 18 - Aug 20',
-                  passengerCount: 1,
-                  cabinClass: 'Economy',
+                const SizedBox(width: 8),
+                Expanded(
+                  child: SearchSummaryCard(
+                    from: 'ICN',
+                    to: 'New York',
+                    dateRange: 'Aug 18 - Aug 20',
+                    passengerCount: 1,
+                    cabinClass: 'Economy',
+                  ),
                 ),
-                IconButton(
-                  padding: EdgeInsets.zero,
-                  onPressed: () {},
-                  icon: Icon(Icons.favorite_border, color: Colors.white),
-                ),
-                IconButton(
-                  padding: EdgeInsets.zero,
-                  onPressed: () {},
-                  icon: Icon(Icons.share, color: Colors.white),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      padding: EdgeInsets.zero,
+                      onPressed: () {},
+                      icon: Icon(Icons.favorite_border, color: Colors.white),
+                    ),
+                    IconButton(
+                      padding: EdgeInsets.zero,
+                      onPressed: () {},
+                      icon: Icon(Icons.share, color: Colors.white),
+                    ),
+                  ],
                 ),
               ],
             ),
