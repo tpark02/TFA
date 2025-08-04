@@ -1,40 +1,55 @@
-import 'package:TFA/screens/search.dart';
+import 'package:TFA/providers/menu_tab_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:TFA/screens/search.dart';
 import 'package:TFA/screens/home.dart';
 
-class MenuScreen extends StatefulWidget {
+class MenuScreen extends ConsumerWidget {
   const MenuScreen({super.key});
 
   @override
-  State<MenuScreen> createState() => _MenuScreenState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final currentTab = ref.watch(menuTabProvider);
 
-class _MenuScreenState extends State<MenuScreen> {
-  int _selectedIndex = 0;
+    Widget body;
+    switch (currentTab) {
+      case MenuTab.home:
+        body = const HomeScreen();
+        break;
+      case MenuTab.search:
+        body = const SearchScreen();
+        break;
+      case MenuTab.travel:
+        body = const Center(child: Text('여행'));
+        break;
+      case MenuTab.account:
+        body = const Center(child: Text('계정'));
+        break;
+    }
 
-  final List<Widget> _screens = [
-    const Center(child: HomeScreen()),
-    const Center(child: SearchScreen()),
-    const Center(child: Text('여행')),
-    const Center(child: Text('계정')),
-  ];
-
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
-      body: _screens[_selectedIndex],
+      body: body,
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
-        currentIndex: _selectedIndex,
+        currentIndex:
+            [
+              MenuTab.home,
+              MenuTab.search,
+              MenuTab.travel,
+              MenuTab.account,
+            ].contains(currentTab)
+            ? [
+                MenuTab.home,
+                MenuTab.search,
+                MenuTab.travel,
+                MenuTab.account,
+              ].indexOf(currentTab)
+            : 0, // fallback when on flightList (or any non-tab screen)
         selectedItemColor: Colors.blue,
         unselectedItemColor: Colors.grey,
-        onTap: _onItemTapped,
+        onTap: (index) {
+          ref.read(menuTabProvider.notifier).state = MenuTab.values[index];
+        },
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),

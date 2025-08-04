@@ -1,3 +1,5 @@
+import 'package:TFA/widgets/filter_button.dart';
+import 'package:TFA/widgets/search_summary_card.dart';
 import 'package:flutter/material.dart';
 
 class FlightListPage extends StatelessWidget {
@@ -20,25 +22,39 @@ class FlightListPage extends StatelessWidget {
           Container(
             color: Theme.of(context).colorScheme.primary,
             padding: const EdgeInsets.fromLTRB(
-              16,
-              24,
-              16,
-              16,
+              0,
+              25,
+              0,
+              10,
             ), // status bar spacing
-
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Icon(Icons.arrow_back, color: Colors.white),
-                FlightSearchSummaryCard(
+                IconButton(
+                  padding: EdgeInsets.zero,
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  icon: Icon(Icons.arrow_back, color: Colors.white),
+                ),
+                SearchSummaryCard(
                   from: 'ICN',
                   to: 'New York',
                   dateRange: 'Aug 18 - Aug 20',
                   passengerCount: 1,
                   cabinClass: 'Economy',
                 ),
-                Icon(Icons.favorite_border, color: Colors.white),
-                Icon(Icons.share, color: Colors.white),
+                IconButton(
+                  padding: EdgeInsets.zero,
+                  onPressed: () {},
+                  icon: Icon(Icons.favorite_border, color: Colors.white),
+                ),
+                IconButton(
+                  padding: EdgeInsets.zero,
+                  onPressed: () {},
+                  icon: Icon(Icons.share, color: Colors.white),
+                ),
               ],
             ),
           ),
@@ -71,15 +87,27 @@ class FlightListPage extends StatelessWidget {
                   FilterButton(label: "Travel Hacks"),
                   FilterButton(label: "Stops"),
                   FilterButton(label: "Take Off"),
-                  FilterButton(label: "Take Off"),
-                  FilterButton(label: "Take Off"),
-                  FilterButton(label: "Take Off"),
+                  FilterButton(label: "Landing"),
+                  FilterButton(label: "Flight Duration"),
+                  FilterButton(label: "Layover Duration"),
+                  FilterButton(label: "Airlines"),
+                  FilterButton(label: "Arrival Airport"),
+                  FilterButton(label: "Layover Cities"),
                 ],
               ),
             ),
           ),
+
           Container(
             padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
+            decoration: BoxDecoration(
+              border: Border(
+                top: BorderSide(
+                  color: Colors.grey[400]!, // or any color you want
+                  width: 1.0, // thickness of the top border
+                ),
+              ),
+            ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -295,106 +323,6 @@ class FlightInfo extends StatelessWidget {
                   ),
                 ),
               ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class FilterButton extends StatelessWidget {
-  final String label;
-  const FilterButton({super.key, required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(left: 8),
-      child: OutlinedButton(
-        style: OutlinedButton.styleFrom(
-          padding: EdgeInsets.all(10),
-          backgroundColor: Colors.white,
-          minimumSize: const Size(0, 32),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(4.0),
-          ),
-          side: BorderSide(color: Colors.grey[400]!, width: 1),
-        ),
-        onPressed: () {},
-        child: Text(
-          label,
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-        ),
-      ),
-    );
-  }
-}
-
-class FlightSearchSummaryCard extends StatelessWidget {
-  final String from;
-  final String to;
-  final String dateRange;
-  final int passengerCount;
-  final String cabinClass;
-
-  const FlightSearchSummaryCard({
-    super.key,
-    required this.from,
-    required this.to,
-    required this.dateRange,
-    required this.passengerCount,
-    required this.cabinClass,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(15),
-      color: Theme.of(context).colorScheme.secondary,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Text(
-                from,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(width: 8),
-              const Icon(Icons.compare_arrows, color: Colors.white, size: 16),
-              const SizedBox(width: 8),
-              Text(
-                to,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              Text(dateRange, style: const TextStyle(color: Colors.white)),
-              const SizedBox(width: 12),
-              const Icon(Icons.person, color: Colors.white, size: 16),
-              const SizedBox(width: 4),
-              Text(
-                passengerCount.toString(),
-                style: const TextStyle(color: Colors.white),
-              ),
-              const SizedBox(width: 12),
-              const Icon(
-                Icons.airline_seat_recline_normal,
-                color: Colors.white,
-                size: 16,
-              ),
-              const SizedBox(width: 4),
-              Text(cabinClass, style: const TextStyle(color: Colors.white)),
             ],
           ),
         ],

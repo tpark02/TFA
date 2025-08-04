@@ -2,25 +2,37 @@ import 'package:TFA/providers/flight/flight_search_controller.dart';
 import 'package:TFA/screens/car/car_search_panel.dart';
 import 'package:TFA/screens/flight/flight_search_panel.dart';
 import 'package:TFA/screens/hotel/hotel_search_panel.dart';
-import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class SearchScreen extends ConsumerStatefulWidget {
+/// This is the wrapper with nested navigator
+class SearchScreen extends StatelessWidget {
   const SearchScreen({super.key});
 
   @override
-  ConsumerState<SearchScreen> createState() => _SearchScreenState();
+  Widget build(BuildContext context) {
+    return Navigator(
+      onGenerateRoute: (settings) =>
+          MaterialPageRoute(builder: (_) => const _SearchContent()),
+    );
+  }
 }
 
-class _SearchScreenState extends ConsumerState<SearchScreen> {
+class _SearchContent extends ConsumerStatefulWidget {
+  const _SearchContent({super.key});
+
+  @override
+  ConsumerState<_SearchContent> createState() => _SearchContentState();
+}
+
+class _SearchContentState extends ConsumerState<_SearchContent> {
   static const double _padding = 20.0;
   int _selectedIndex = 0;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.primary,
         foregroundColor: Colors.white,
@@ -32,124 +44,35 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
               ref.read(flightSearchProvider.notifier).clearRecentSearches();
               FirebaseAuth.instance.signOut();
             },
-            icon: Icon(Icons.exit_to_app, color: Colors.white),
+            icon: const Icon(Icons.exit_to_app, color: Colors.white),
           ),
         ],
       ),
       body: Column(
         children: [
           const SizedBox(height: _padding),
-          Container(
-            decoration: BoxDecoration(
-              // color: Theme.of(context).colorScheme.primary,
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Column(
-                  children: [
-                    IconButton(
-                      onPressed: () {
-                        setState(() {
-                          _selectedIndex = 0;
-                        });
-                      },
-                      icon: const Icon(Icons.flight_takeoff),
-                      iconSize: 50,
-                      style: IconButton.styleFrom(
-                        shape: const CircleBorder(),
-                        backgroundColor: Colors.grey[200],
-                        foregroundColor: _selectedIndex == 0
-                            ? Theme.of(context).colorScheme.primary
-                            : Colors.grey[500]!,
-                      ),
-                    ),
-                    SizedBox(height: 8),
-                    const Text(
-                      "Flight",
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-                Column(
-                  children: [
-                    IconButton(
-                      onPressed: () {
-                        setState(() {
-                          _selectedIndex = 1;
-                        });
-                      },
-                      icon: const Icon(Icons.hotel),
-                      iconSize: 50,
-                      style: IconButton.styleFrom(
-                        shape: const CircleBorder(),
-                        backgroundColor: Colors.grey[200],
-                        foregroundColor: _selectedIndex == 1
-                            ? Theme.of(context).colorScheme.primary
-                            : Colors.grey[500]!,
-                      ),
-                    ),
-                    SizedBox(height: 8),
-                    const Text(
-                      "Hotel",
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-                Column(
-                  children: [
-                    IconButton(
-                      onPressed: () {
-                        setState(() {
-                          _selectedIndex = 2;
-                        });
-                      },
-                      icon: const Icon(Icons.directions_car_filled),
-                      iconSize: 50,
-                      style: IconButton.styleFrom(
-                        shape: const CircleBorder(),
-                        backgroundColor: Colors.grey[200],
-                        foregroundColor: _selectedIndex == 2
-                            ? Theme.of(context).colorScheme.primary
-                            : Colors.grey[500]!,
-                      ),
-                    ),
-                    SizedBox(height: 8),
-                    const Text(
-                      "Cars",
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _buildTabIcon(context, 0, Icons.flight_takeoff, "Flight"),
+              _buildTabIcon(context, 1, Icons.hotel, "Hotel"),
+              _buildTabIcon(context, 2, Icons.directions_car_filled, "Cars"),
+            ],
           ),
           SizedBox(height: _selectedIndex != 2 ? _padding * 2 : _padding),
-          // Search area + button
           Expanded(
             child: AnimatedSwitcher(
               duration: const Duration(milliseconds: 300),
-              transitionBuilder: (Widget child, Animation<double> animation) {
-                return FadeTransition(
-                  opacity: animation,
-                  child: SlideTransition(
-                    position: Tween<Offset>(
-                      begin: const Offset(0.0, 0.1), // slight vertical offset
-                      end: Offset.zero,
-                    ).animate(animation),
-                    child: child,
-                  ),
-                );
-              },
+              transitionBuilder: (child, animation) => FadeTransition(
+                opacity: animation,
+                child: SlideTransition(
+                  position: Tween<Offset>(
+                    begin: const Offset(0.0, 0.1),
+                    end: Offset.zero,
+                  ).animate(animation),
+                  child: child,
+                ),
+              ),
               child: _selectedIndex == 0
                   ? const FlightSearchPanel(key: ValueKey(0))
                   : _selectedIndex == 1
@@ -157,16 +80,40 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                   : const CarSearchPanel(key: ValueKey(2)),
             ),
           ),
-          // Bottom box
-          Container(
-            decoration: const BoxDecoration(
-              // border: Border.all(color: Colors.green, width: 2),
-            ),
-            height: 50,
-            child: const Row(),
-          ),
+          const SizedBox(height: 50), // dummy bottom spacing
         ],
       ),
+    );
+  }
+
+  Widget _buildTabIcon(
+    BuildContext context,
+    int index,
+    IconData icon,
+    String label,
+  ) {
+    final isSelected = _selectedIndex == index;
+
+    return Column(
+      children: [
+        IconButton(
+          onPressed: () => setState(() => _selectedIndex = index),
+          icon: Icon(icon),
+          iconSize: 50,
+          style: IconButton.styleFrom(
+            shape: const CircleBorder(),
+            backgroundColor: Colors.grey[200],
+            foregroundColor: isSelected
+                ? Theme.of(context).colorScheme.primary
+                : Colors.grey[500]!,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          label,
+          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+      ],
     );
   }
 }

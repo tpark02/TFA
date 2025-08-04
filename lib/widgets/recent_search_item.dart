@@ -1,17 +1,22 @@
 import 'package:TFA/constants/font_size.dart';
+import 'package:TFA/providers/menu_tab_provider.dart';
+import 'package:TFA/screens/flight/flight_list_page.dart';
 import 'package:flutter/material.dart';
 import 'package:TFA/providers/recent_search.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class RecentSearchItem extends StatelessWidget {
+class RecentSearchItem extends ConsumerWidget {
   const RecentSearchItem({super.key, required this.search});
 
   final RecentSearch search;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return InkWell(
       onTap: () {
-        // TODO: handle tap
+        Navigator.of(
+          context,
+        ).push(MaterialPageRoute(builder: (_) => const FlightListPage()));
       },
       child: Row(
         children: [
