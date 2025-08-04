@@ -1,5 +1,4 @@
 import 'package:TFA/constants/font_size.dart';
-import 'package:TFA/providers/menu_tab_provider.dart';
 import 'package:TFA/screens/flight/flight_list_page.dart';
 import 'package:flutter/material.dart';
 import 'package:TFA/providers/recent_search.dart';

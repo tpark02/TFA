@@ -20,7 +20,7 @@ class SearchScreen extends StatelessWidget {
 }
 
 class _SearchContent extends ConsumerStatefulWidget {
-  const _SearchContent({super.key});
+  const _SearchContent();
 
   @override
   ConsumerState<_SearchContent> createState() => _SearchContentState();

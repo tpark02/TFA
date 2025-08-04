@@ -18,9 +18,6 @@ const lightColorScheme = ColorScheme(
   errorContainer: Color(0xFFF9DEDC),
   onErrorContainer: Color(0xFF410E0B),
 
-  background: Color(0xFFF8FAF7), // Almost white with green hue
-  onBackground: Color(0xFF1D1F1E),
-
   surface: Color(0xFFFFFFFF),
   onSurface: Color(0xFF1D1F1E),
 );
@@ -42,9 +39,6 @@ const darkColorScheme = ColorScheme(
   onError: Color(0xFF601410),
   errorContainer: Color(0xFF8C1D18),
   onErrorContainer: Color(0xFFF9DEDC),
-
-  background: Color(0xFF141917), // Near-black green tone
-  onBackground: Color(0xFFE3E6E4),
 
   surface: Color(0xFF1D1F1E),
   onSurface: Color(0xFFE3E6E4),
