@@ -1,4 +1,3 @@
-import 'package:TFA/constants/font_size.dart';
 import 'package:TFA/providers/car/car_search_controller.dart';
 import 'package:TFA/providers/recent_search.dart';
 import 'package:TFA/screens/shared/calendar_sheet.dart';
@@ -111,7 +110,9 @@ class _CarSearchPanelState extends ConsumerState<CarSearchPanel> {
                     Text(
                       'Different drop-off',
                       style: TextStyle(
-                        fontSize: kFontSize14,
+                        fontSize: Theme.of(
+                          context,
+                        ).textTheme.bodyMedium?.fontSize,
                         fontWeight: FontWeight.bold,
                         color: Colors.grey.shade700,
                       ),
@@ -193,7 +194,9 @@ class _CarSearchPanelState extends ConsumerState<CarSearchPanel> {
                                       ? 'Pick-up Location'
                                       : carState.selectedCity,
                                   style: TextStyle(
-                                    fontSize: kFontSize14,
+                                    fontSize: Theme.of(
+                                      context,
+                                    ).textTheme.bodyMedium?.fontSize,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
@@ -251,7 +254,9 @@ class _CarSearchPanelState extends ConsumerState<CarSearchPanel> {
                                       ? 'Drop-off Location'
                                       : _dropOffCity,
                                   style: TextStyle(
-                                    fontSize: kFontSize14,
+                                    fontSize: Theme.of(
+                                      context,
+                                    ).textTheme.bodyMedium?.fontSize,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
@@ -313,7 +318,9 @@ class _CarSearchPanelState extends ConsumerState<CarSearchPanel> {
                         Text(
                           carState.beginDate,
                           style: TextStyle(
-                            fontSize: kFontSize14,
+                            fontSize: Theme.of(
+                              context,
+                            ).textTheme.bodyMedium?.fontSize,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -351,7 +358,9 @@ class _CarSearchPanelState extends ConsumerState<CarSearchPanel> {
                     child: Text(
                       carState.beginTime,
                       style: TextStyle(
-                        fontSize: kFontSize14,
+                        fontSize: Theme.of(
+                          context,
+                        ).textTheme.bodyMedium?.fontSize,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -408,7 +417,9 @@ class _CarSearchPanelState extends ConsumerState<CarSearchPanel> {
                         Text(
                           carState.endDate,
                           style: TextStyle(
-                            fontSize: kFontSize14,
+                            fontSize: Theme.of(
+                              context,
+                            ).textTheme.bodyMedium?.fontSize,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -448,7 +459,9 @@ class _CarSearchPanelState extends ConsumerState<CarSearchPanel> {
                     child: Text(
                       carState.endTime,
                       style: TextStyle(
-                        fontSize: kFontSize14,
+                        fontSize: Theme.of(
+                          context,
+                        ).textTheme.bodyMedium?.fontSize,
                         fontWeight: FontWeight.bold,
                       ),
                     ),

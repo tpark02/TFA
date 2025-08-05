@@ -1,4 +1,3 @@
-import 'package:TFA/constants/font_size.dart';
 import 'package:TFA/providers/airport/airport_selection.dart';
 import 'package:TFA/providers/airport/airport_provider.dart';
 import 'package:flutter/material.dart';
@@ -56,8 +55,10 @@ class _AirportSheetState extends ConsumerState<SearchAirportSheet> {
             children: [
               Text(
                 widget.title,
-                style: const TextStyle(
-                  fontSize: 18,
+                style: TextStyle(
+                  fontSize: Theme.of(
+                    context,
+                  ).textTheme.headlineMedium?.fontSize,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -137,8 +138,11 @@ class _AirportSheetState extends ConsumerState<SearchAirportSheet> {
                                         Text(
                                           airport.airportName,
                                           overflow: TextOverflow.ellipsis,
-                                          style: const TextStyle(
-                                            fontSize: 18,
+                                          style: TextStyle(
+                                            fontSize: Theme.of(context)
+                                                .textTheme
+                                                .headlineMedium
+                                                ?.fontSize,
                                             fontWeight: FontWeight.bold,
                                           ),
                                         ),
@@ -152,8 +156,10 @@ class _AirportSheetState extends ConsumerState<SearchAirportSheet> {
                                   Text(
                                     airport.iataCode,
                                     overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(
-                                      fontSize: kFontSize14,
+                                    style: TextStyle(
+                                      fontSize: Theme.of(
+                                        context,
+                                      ).textTheme.bodyMedium?.fontSize,
                                       color: Color.fromRGBO(48, 48, 48, 1),
                                     ),
                                   ),

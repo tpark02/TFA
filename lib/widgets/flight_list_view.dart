@@ -92,7 +92,9 @@ class _FlightListViewState extends State<FlightListView>
                 child: RichText(
                   text: TextSpan(
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: Theme.of(
+                        context,
+                      ).textTheme.headlineMedium?.fontSize,
                       color: Theme.of(context).colorScheme.primary,
                     ),
                     children: const [
@@ -164,13 +166,15 @@ class _FlightListViewState extends State<FlightListView>
                         top: BorderSide(color: Colors.grey[400]!, width: 1.0),
                       ),
                     ),
-                    child: const Row(
+                    child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
                           "Choose returning flight",
                           style: TextStyle(
-                            fontSize: 14,
+                            fontSize: Theme.of(
+                              context,
+                            ).textTheme.bodyMedium?.fontSize,
                             fontWeight: FontWeight.bold,
                           ),
                         ),

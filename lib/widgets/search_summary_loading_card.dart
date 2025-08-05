@@ -21,8 +21,8 @@ class SearchSummaryLoadingCard extends StatelessWidget {
           const SizedBox(height: 10),
           Text(
             routeText,
-            style: const TextStyle(
-              fontSize: 24,
+            style: TextStyle(
+              fontSize: Theme.of(context).textTheme.headlineMedium?.fontSize,
               fontWeight: FontWeight.bold,
               color: Colors.black87,
             ),
@@ -30,7 +30,10 @@ class SearchSummaryLoadingCard extends StatelessWidget {
           const SizedBox(height: 10),
           Text(
             dateText,
-            style: const TextStyle(fontSize: 20, color: Colors.grey),
+            style: TextStyle(
+              fontSize: Theme.of(context).textTheme.headlineMedium?.fontSize,
+              color: Colors.grey,
+            ),
           ),
         ],
       ),

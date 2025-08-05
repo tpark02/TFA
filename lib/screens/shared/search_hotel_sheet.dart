@@ -1,4 +1,3 @@
-import 'package:TFA/constants/font_size.dart';
 import 'package:TFA/providers/hotel/hotel_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -33,8 +32,10 @@ class _SearchHotelSheetState extends ConsumerState<SearchHotelSheet> {
             children: [
               Text(
                 widget.title,
-                style: const TextStyle(
-                  fontSize: 18,
+                style: TextStyle(
+                  fontSize: Theme.of(
+                    context,
+                  ).textTheme.headlineMedium?.fontSize,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -104,15 +105,19 @@ class _SearchHotelSheetState extends ConsumerState<SearchHotelSheet> {
                                     children: [
                                       Text(
                                         city,
-                                        style: const TextStyle(
-                                          fontSize: kFontSize14,
+                                        style: TextStyle(
+                                          fontSize: Theme.of(
+                                            context,
+                                          ).textTheme.bodyMedium?.fontSize,
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
                                       Text(
                                         hotels[0].country,
-                                        style: const TextStyle(
-                                          fontSize: 12,
+                                        style:  TextStyle(
+                                          fontSize: Theme.of(
+                                            context,
+                                          ).textTheme.bodySmall?.fontSize,
                                           // fontWeight: FontWeight.bold,
                                         ),
                                       ),
@@ -120,8 +125,10 @@ class _SearchHotelSheetState extends ConsumerState<SearchHotelSheet> {
                                   ),
                                   Text(
                                     '${hotels.length} hotels',
-                                    style: const TextStyle(
-                                      fontSize: kFontSize14,
+                                    style: TextStyle(
+                                      fontSize: Theme.of(
+                                        context,
+                                      ).textTheme.bodyMedium?.fontSize,
                                       // fontWeight: FontWeight.bold,
                                     ),
                                   ),

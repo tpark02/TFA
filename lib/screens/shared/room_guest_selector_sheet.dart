@@ -1,4 +1,3 @@
-import 'package:TFA/constants/font_size.dart';
 import 'package:TFA/widgets/counter_control.dart';
 import 'package:flutter/material.dart';
 
@@ -60,11 +59,13 @@ class _RoomGuestSelectorSheet extends State<RoomGuestSelectorSheet> {
                   children: [
                     Row(
                       children: [
-                        const Expanded(
+                        Expanded(
                           child: Text(
                             "Number of Rooms",
                             style: TextStyle(
-                              fontSize: kFontSize14,
+                              fontSize: Theme.of(
+                                context,
+                              ).textTheme.bodyMedium?.fontSize,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -82,13 +83,15 @@ class _RoomGuestSelectorSheet extends State<RoomGuestSelectorSheet> {
                     ),
                     Row(
                       children: [
-                        const Expanded(
+                        Expanded(
                           child: Align(
                             alignment: Alignment.centerLeft,
                             child: Text(
                               "Number of Adults",
                               style: TextStyle(
-                                fontSize: kFontSize14,
+                                fontSize: Theme.of(
+                                  context,
+                                ).textTheme.bodyMedium?.fontSize,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -108,13 +111,15 @@ class _RoomGuestSelectorSheet extends State<RoomGuestSelectorSheet> {
                     ),
                     Row(
                       children: [
-                        const Expanded(
+                        Expanded(
                           child: Align(
                             alignment: Alignment.centerLeft,
                             child: Text(
                               "Number of Children",
                               style: TextStyle(
-                                fontSize: kFontSize14,
+                                fontSize: Theme.of(
+                                  context,
+                                ).textTheme.bodyMedium?.fontSize,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -155,10 +160,17 @@ class _RoomGuestSelectorSheet extends State<RoomGuestSelectorSheet> {
                       borderRadius: BorderRadius.zero,
                     ),
                   ),
-                  child: const Row(
+                  child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text('Done', style: TextStyle(fontSize: kFontSize14)),
+                      Text(
+                        'Done',
+                        style: TextStyle(
+                          fontSize: Theme.of(
+                            context,
+                          ).textTheme.bodyMedium?.fontSize,
+                        ),
+                      ),
                     ],
                   ),
                 ),

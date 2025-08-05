@@ -1,4 +1,3 @@
-import 'package:TFA/constants/font_size.dart';
 import 'package:TFA/providers/airport/airport_provider.dart';
 import 'package:TFA/providers/airport/airport_selection.dart';
 import 'package:TFA/providers/recent_search.dart';
@@ -174,7 +173,9 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
                                         ? 'Departure'
                                         : flightState.departureAirportCode,
                                     style: TextStyle(
-                                      fontSize: kFontSize14,
+                                      fontSize: Theme.of(
+                                        context,
+                                      ).textTheme.bodyMedium?.fontSize,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
@@ -225,7 +226,9 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
                                 ? 'Arrival'
                                 : flightState.arrivalAirportCode,
                             style: TextStyle(
-                              fontSize: kFontSize14,
+                              fontSize: Theme.of(
+                                context,
+                              ).textTheme.bodyMedium?.fontSize,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -284,7 +287,9 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
                         Text(
                           flightState.displayDate ?? 'Select',
                           style: TextStyle(
-                            fontSize: kFontSize14,
+                            fontSize: Theme.of(
+                              context,
+                            ).textTheme.bodyMedium?.fontSize,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -338,7 +343,9 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
                         Text(
                           flightState.passengerCount.toString(),
                           style: TextStyle(
-                            fontSize: kFontSize14,
+                            fontSize: Theme.of(
+                              context,
+                            ).textTheme.bodyMedium?.fontSize,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -352,7 +359,9 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
                             overflow: TextOverflow.ellipsis,
                             maxLines: 1,
                             style: TextStyle(
-                              fontSize: kFontSize14,
+                              fontSize: Theme.of(
+                                context,
+                              ).textTheme.bodyMedium?.fontSize,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -434,13 +443,15 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
                           ),
                         ),
 
-                        child: const Row(
+                        child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
                               'Search Flight',
                               style: TextStyle(
-                                fontSize: 18,
+                                fontSize: Theme.of(
+                                  context,
+                                ).textTheme.headlineMedium?.fontSize,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),

@@ -34,7 +34,9 @@ class FlightListViewItem extends StatelessWidget {
                         "${index} 5:25p",
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          fontSize: 16,
+                          fontSize: Theme.of(
+                            context,
+                          ).textTheme.bodyLarge?.fontSize,
                         ),
                       ),
                       Text("ICN", style: TextStyle(color: Colors.grey[700])),
@@ -75,7 +77,9 @@ class FlightListViewItem extends StatelessWidget {
                                 "DFW",
                                 style: TextStyle(
                                   color: Colors.grey[500],
-                                  fontSize: 14,
+                                  fontSize: Theme.of(
+                                    context,
+                                  ).textTheme.bodyMedium?.fontSize,
                                 ),
                               ),
                               SizedBox(
@@ -86,7 +90,9 @@ class FlightListViewItem extends StatelessWidget {
                                 "PIT",
                                 style: TextStyle(
                                   color: Colors.grey[500],
-                                  fontSize: 14,
+                                  fontSize: Theme.of(
+                                    context,
+                                  ).textTheme.bodyMedium?.fontSize,
                                 ),
                               ),
                               Expanded(
@@ -106,10 +112,12 @@ class FlightListViewItem extends StatelessWidget {
                           RichText(
                             text: TextSpan(
                               children: [
-                                const TextSpan(
+                                TextSpan(
                                   text: '8:29a',
                                   style: TextStyle(
-                                    fontSize: 18,
+                                    fontSize: Theme.of(
+                                      context,
+                                    ).textTheme.headlineMedium?.fontSize,
                                     color: Colors.black,
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -121,7 +129,9 @@ class FlightListViewItem extends StatelessWidget {
                                     child: Text(
                                       '+1',
                                       style: TextStyle(
-                                        fontSize: 12,
+                                        fontSize: Theme.of(
+                                          context,
+                                        ).textTheme.bodySmall?.fontSize,
                                         color: Colors.red[800],
                                       ),
                                     ),
@@ -148,11 +158,13 @@ class FlightListViewItem extends StatelessWidget {
                   Expanded(
                     child: Align(
                       alignment: Alignment.centerRight,
-                      child: const Text(
+                      child: Text(
                         "₩916,759",
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          fontSize: 16,
+                          fontSize: Theme.of(
+                            context,
+                          ).textTheme.bodyLarge?.fontSize,
                         ),
                       ),
                     ),

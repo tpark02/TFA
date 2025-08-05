@@ -1,3 +1,4 @@
+import 'package:TFA/screens/flight/flight_filter_page.dart';
 import 'package:TFA/widgets/filter_button.dart';
 // import 'package:TFA/widgets/flight_info.dart';
 import 'package:TFA/widgets/flight_list_view.dart';
@@ -111,7 +112,34 @@ class _FlightListPageState extends State<FlightListPage> {
                         ),
                         side: BorderSide(color: Colors.grey[400]!, width: 1),
                       ),
-                      onPressed: () {},
+                      onPressed: () {
+                        showModalBottomSheet(
+                          context: context,
+                          isScrollControlled: true,
+                          backgroundColor: Colors.transparent,
+                          builder: (context) {
+                            return DraggableScrollableSheet(
+                              expand: true,
+                              initialChildSize: 1.0,
+                              minChildSize: 1.0,
+                              maxChildSize: 1.0,
+                              builder: (context, scrollController) {
+                                return Container(
+                                  decoration: const BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.vertical(
+                                      top: Radius.circular(16),
+                                    ),
+                                  ),
+                                  child: FlightFilterPage(
+                                    scrollController: scrollController,
+                                  ),
+                                );
+                              },
+                            );
+                          },
+                        );
+                      },
                       child: Icon(Icons.tune, size: 23),
                     ),
                   ),
@@ -137,7 +165,7 @@ class _FlightListPageState extends State<FlightListPage> {
                       dateText: 'Aug 16 - Aug 18',
                     ),
                   )
-                : DepartureFlightListView(showModal: showModal),
+                : FlightListView(showModal: showModal),
           ),
         ],
       ),

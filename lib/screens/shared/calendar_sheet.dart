@@ -94,9 +94,14 @@ class _CalendarSheetState extends State<CalendarSheet>
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text(
+              Text(
                 "Calendar",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontSize: Theme.of(
+                    context,
+                  ).textTheme.headlineMedium?.fontSize,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 8),
               !widget.isOnlyTab
@@ -126,7 +131,9 @@ class _CalendarSheetState extends State<CalendarSheet>
                           ).colorScheme.primary,
                           textStyle: TextStyle(
                             color: Theme.of(context).colorScheme.onPrimary,
-                            fontSize: 18,
+                            fontSize: Theme.of(
+                              context,
+                            ).textTheme.headlineMedium?.fontSize,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -144,7 +151,9 @@ class _CalendarSheetState extends State<CalendarSheet>
                               ).colorScheme.primary,
                               textStyle: TextStyle(
                                 color: Theme.of(context).colorScheme.onPrimary,
-                                fontSize: 18,
+                                fontSize: Theme.of(
+                                  context,
+                                ).textTheme.headlineMedium?.fontSize,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -159,7 +168,9 @@ class _CalendarSheetState extends State<CalendarSheet>
                               ).colorScheme.primary,
                               textStyle: TextStyle(
                                 color: Theme.of(context).colorScheme.onPrimary,
-                                fontSize: 18,
+                                fontSize: Theme.of(
+                                  context,
+                                ).textTheme.headlineMedium?.fontSize,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),

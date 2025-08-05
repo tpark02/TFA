@@ -1,4 +1,3 @@
-import 'package:TFA/constants/font_size.dart';
 import 'package:TFA/screens/flight/flight_list_page.dart';
 import 'package:flutter/material.dart';
 import 'package:TFA/providers/recent_search.dart';
@@ -27,7 +26,7 @@ class RecentSearchItem extends ConsumerWidget {
                 search.destination,
                 style: TextStyle(
                   overflow: TextOverflow.ellipsis,
-                  fontSize: kFontSize14,
+                  fontSize: Theme.of(context).textTheme.bodyMedium?.fontSize,
                   fontWeight: FontWeight.bold,
                   color: Colors.grey[800],
                 ),
@@ -37,7 +36,7 @@ class RecentSearchItem extends ConsumerWidget {
                   Text(
                     search.tripDateRange,
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: Theme.of(context).textTheme.bodySmall?.fontSize,
                       fontWeight: FontWeight.bold,
                       color: Colors.grey[500],
                     ),
@@ -55,8 +54,10 @@ class RecentSearchItem extends ConsumerWidget {
                 children: [
                   Text(
                     search.destinationCode,
-                    style: const TextStyle(
-                      fontSize: kFontSize14,
+                    style: TextStyle(
+                      fontSize: Theme.of(
+                        context,
+                      ).textTheme.bodyMedium?.fontSize,
                       fontWeight: FontWeight.bold,
                     ),
                   ),

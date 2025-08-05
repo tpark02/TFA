@@ -1,4 +1,3 @@
-import 'package:TFA/constants/font_size.dart';
 import 'package:TFA/providers/hotel/hotel_search_controller.dart';
 import 'package:TFA/providers/recent_search.dart';
 import 'package:TFA/screens/shared/calendar_sheet.dart';
@@ -146,7 +145,9 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
                               : Text(
                                   hotelState.city,
                                   style: TextStyle(
-                                    fontSize: kFontSize14,
+                                    fontSize: Theme.of(
+                                      context,
+                                    ).textTheme.bodyMedium?.fontSize,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
@@ -202,7 +203,9 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
                         Text(
                           hotelState.displayDate ?? 'Select',
                           style: TextStyle(
-                            fontSize: kFontSize14,
+                            fontSize: Theme.of(
+                              context,
+                            ).textTheme.bodyMedium?.fontSize,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -262,7 +265,9 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
                         Text(
                           hotelState.roomCnt,
                           style: TextStyle(
-                            fontSize: kFontSize14,
+                            fontSize: Theme.of(
+                              context,
+                            ).textTheme.bodyMedium?.fontSize,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -275,7 +280,9 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
                                   (int.tryParse(hotelState.childCnt) ?? 0))
                               .toString(),
                           style: TextStyle(
-                            fontSize: kFontSize14,
+                            fontSize: Theme.of(
+                              context,
+                            ).textTheme.bodyMedium?.fontSize,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -371,12 +378,14 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
             padding: const EdgeInsets.all(_padding),
             child: Column(
               children: [
-                const Row(
+                Row(
                   children: [
                     Text(
                       "Suggestions",
                       style: TextStyle(
-                        fontSize: 18,
+                        fontSize: Theme.of(
+                          context,
+                        ).textTheme.headlineMedium?.fontSize,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -412,14 +421,18 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
                                     Text(
                                       hotelState.city,
                                       style: TextStyle(
-                                        fontSize: kFontSize14,
+                                        fontSize: Theme.of(
+                                          context,
+                                        ).textTheme.bodyMedium?.fontSize,
                                         color: Color.fromRGBO(99, 99, 99, 1),
                                       ),
                                     ),
                                     Text(
                                       "Tonight",
                                       style: TextStyle(
-                                        fontSize: 12,
+                                        fontSize: Theme.of(
+                                          context,
+                                        ).textTheme.bodySmall?.fontSize,
                                         color: Color.fromRGBO(99, 99, 99, 1),
                                       ),
                                     ),

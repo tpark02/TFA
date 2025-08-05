@@ -27,11 +27,11 @@ class HomeScreen extends StatelessWidget {
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 children: [
-                  categoryChip("Spotlight"),
-                  categoryChip("Seoul"),
-                  categoryChip("Porto Dale"),
-                  categoryChip("New York"),
-                  categoryChip("Ulsan"),
+                  categoryChip(context, "Spotlight"),
+                  categoryChip(context, "Seoul"),
+                  categoryChip(context, "Porto Dale"),
+                  categoryChip(context, "New York"),
+                  categoryChip(context, "Ulsan"),
                 ],
               ),
             ),
@@ -45,23 +45,36 @@ class HomeScreen extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  const Expanded(
+                  Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Introducing', style: TextStyle(fontSize: 12)),
+                        Text(
+                          'Introducing',
+                          style: TextStyle(
+                            fontSize: Theme.of(
+                              context,
+                            ).textTheme.bodySmall?.fontSize,
+                          ),
+                        ),
                         SizedBox(height: 4),
                         Text(
                           'Skiplagged Guarantee',
                           style: TextStyle(
-                            fontSize: 18,
+                            fontSize: Theme.of(
+                              context,
+                            ).textTheme.headlineMedium?.fontSize,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         SizedBox(height: 8),
                         Text(
                           'Automatic protection included with every ticket at no extra cost.',
-                          style: TextStyle(fontSize: 12),
+                          style: TextStyle(
+                            fontSize: Theme.of(
+                              context,
+                            ).textTheme.bodySmall?.fontSize,
+                          ),
                         ),
                         SizedBox(height: 8),
                         ElevatedButton(
@@ -86,11 +99,16 @@ class HomeScreen extends StatelessWidget {
             ),
 
             // 🟦 Deals Section
-            const Padding(
+            Padding(
               padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Text(
                 'Great Deals',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontSize: Theme.of(
+                    context,
+                  ).textTheme.headlineMedium?.fontSize,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
             SizedBox(
@@ -100,6 +118,7 @@ class HomeScreen extends StatelessWidget {
                 padding: const EdgeInsets.only(left: 16),
                 children: [
                   dealCard(
+                    context: context,
                     title: 'From Montreal to Bogota',
                     date: 'Mon, Sep 22',
                     imageUrl: '',
@@ -107,6 +126,7 @@ class HomeScreen extends StatelessWidget {
                     discountPrice: '₩255,101',
                   ),
                   dealCard(
+                    context: context,
                     title: 'From Manaus to Lima',
                     date: 'Tue, Oct 16',
                     imageUrl: '',
@@ -122,7 +142,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget categoryChip(String label) {
+  Widget categoryChip(BuildContext context, String label) {
     return Container(
       margin: const EdgeInsets.only(right: 12),
       width: 72,
@@ -135,7 +155,9 @@ class HomeScreen extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             label,
-            style: const TextStyle(fontSize: 12),
+            style: TextStyle(
+              fontSize: Theme.of(context).textTheme.bodySmall?.fontSize,
+            ),
             overflow: TextOverflow.ellipsis,
           ),
         ],
@@ -144,6 +166,7 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget dealCard({
+    required BuildContext context,
     required String title,
     required String date,
     required String imageUrl,
@@ -188,8 +211,8 @@ class HomeScreen extends StatelessWidget {
                   ),
                   child: Text(
                     '$originalPrice → $discountPrice',
-                    style: const TextStyle(
-                      fontSize: 12,
+                    style: TextStyle(
+                      fontSize: Theme.of(context).textTheme.bodySmall?.fontSize,
                       fontWeight: FontWeight.bold,
                     ),
                   ),

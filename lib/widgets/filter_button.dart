@@ -21,7 +21,10 @@ class FilterButton extends StatelessWidget {
         onPressed: () {},
         child: Text(
           label,
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontSize: Theme.of(context).textTheme.bodyMedium?.fontSize,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
     );
