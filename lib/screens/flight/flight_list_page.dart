@@ -1,4 +1,6 @@
 import 'package:TFA/widgets/filter_button.dart';
+// import 'package:TFA/widgets/flight_info.dart';
+import 'package:TFA/widgets/flight_list_view.dart';
 import 'package:TFA/widgets/search_summary_card.dart';
 import 'package:TFA/widgets/search_summary_loading_card.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +14,10 @@ class FlightListPage extends StatefulWidget {
 
 class _FlightListPageState extends State<FlightListPage> {
   bool isLoading = true;
+
+  void showModal() {
+    debugPrint("show modal");
+  }
 
   @override
   void initState() {
@@ -27,7 +33,7 @@ class _FlightListPageState extends State<FlightListPage> {
 
   @override
   Widget build(BuildContext context) {
-    final flights = List.generate(10, (index) => const FlightInfo());
+    // final flights = List.generate(10, (index) => const FlightInfo());
 
     return Scaffold(
       appBar: PreferredSize(
@@ -85,9 +91,8 @@ class _FlightListPageState extends State<FlightListPage> {
               ],
             ),
           ),
-          Divider(height: 1, color: Colors.grey),
           Container(
-            color: Colors.grey[100],
+            color: Colors.grey[200],
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
@@ -132,249 +137,7 @@ class _FlightListPageState extends State<FlightListPage> {
                       dateText: 'Aug 16 - Aug 18',
                     ),
                   )
-                : Column(
-                    children: [
-                      Container(
-                        padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
-                        decoration: BoxDecoration(
-                          border: Border(
-                            top: BorderSide(
-                              color: Colors.grey[400]!, // or any color you want
-                              width: 1.0, // thickness of the top border
-                            ),
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              "Choose Departing flight",
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Align(
-                              alignment: Alignment.centerRight,
-                              child: Text(
-                                "Total Cost",
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.grey[700],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Expanded(
-                        child: ListView(
-                          children: [
-                            Container(
-                              color: Colors.amber[50],
-                              padding: const EdgeInsets.all(20),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Expanded(
-                                    child: RichText(
-                                      text: TextSpan(
-                                        style: TextStyle(
-                                          fontSize: 18,
-                                          color: Theme.of(
-                                            context,
-                                          ).colorScheme.primary,
-                                        ),
-                                        children: [
-                                          const TextSpan(
-                                            text:
-                                                'Automatic protection on every flight. ',
-                                          ),
-                                          TextSpan(
-                                            text: 'The Skiplagged Guarantee.',
-                                            style: const TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                  ElevatedButton(
-                                    onPressed: () {},
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Theme.of(
-                                        context,
-                                      ).colorScheme.primary,
-                                      foregroundColor: Colors.white,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(
-                                          4.0,
-                                        ),
-                                      ),
-                                      padding: const EdgeInsets.all(10.0),
-                                    ),
-                                    child: const Text("Learn More"),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            ...List.generate(
-                              flights.length,
-                              (index) => flights[index],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class FlightInfo extends StatelessWidget {
-  const FlightInfo({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      decoration: BoxDecoration(
-        border: Border(bottom: BorderSide(color: Colors.grey.shade300)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "5:25p",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                  ),
-                  Text("ICN", style: TextStyle(color: Colors.grey[700])),
-                ],
-              ),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Expanded(child: Divider(color: Colors.grey)),
-                          Icon(
-                            Icons.circle_outlined,
-                            size: 12,
-                            color: Colors.grey,
-                          ),
-                          SizedBox(
-                            width: 90,
-                            child: Divider(color: Colors.grey),
-                          ),
-                          Icon(
-                            Icons.circle_outlined,
-                            size: 12,
-                            color: Colors.grey,
-                          ),
-                          Expanded(child: Divider(color: Colors.grey)),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          Expanded(child: Divider(color: Colors.transparent)),
-                          Text(
-                            "DFW",
-                            style: TextStyle(
-                              color: Colors.grey[500],
-                              fontSize: 14,
-                            ),
-                          ),
-                          SizedBox(
-                            width: 70,
-                            child: Divider(color: Colors.transparent),
-                          ),
-                          Text(
-                            "PIT",
-                            style: TextStyle(
-                              color: Colors.grey[500],
-                              fontSize: 14,
-                            ),
-                          ),
-                          Expanded(child: Divider(color: Colors.transparent)),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      RichText(
-                        text: TextSpan(
-                          children: [
-                            const TextSpan(
-                              text: '8:29a',
-                              style: TextStyle(
-                                fontSize: 18,
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            WidgetSpan(
-                              alignment: PlaceholderAlignment.top,
-                              child: Transform.translate(
-                                offset: const Offset(-8, -13),
-                                child: Text(
-                                  '+1',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.red[800],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  Text("LGA", style: TextStyle(color: Colors.grey[700])),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              Text(
-                "28h4m | 2 stops | American",
-                style: TextStyle(color: Colors.grey[700]),
-              ),
-              const SizedBox(height: 4),
-              Expanded(
-                child: Align(
-                  alignment: Alignment.centerRight,
-                  child: const Text(
-                    "₩916,759",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                  ),
-                ),
-              ),
-            ],
+                : DepartureFlightListView(showModal: showModal),
           ),
         ],
       ),
