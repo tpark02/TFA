@@ -16,7 +16,7 @@ class FlightListViewItem extends StatelessWidget {
       child: InkWell(
         onTap: () => onClick(),
         child: Container(
-          padding: const EdgeInsets.fromLTRB(10, 15, 10, 10),
+          padding: const EdgeInsets.fromLTRB(20, 15, 10, 10),
           // margin: const EdgeInsets.symmetric(vertical: 8),
           decoration: BoxDecoration(
             border: Border(bottom: BorderSide(color: Colors.grey.shade300)),

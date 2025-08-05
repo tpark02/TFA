@@ -159,11 +159,9 @@ class _FlightListPageState extends State<FlightListPage> {
           ),
           Expanded(
             child: isLoading
-                ? const Center(
-                    child: SearchSummaryLoadingCard(
-                      routeText: 'ICN - New York',
-                      dateText: 'Aug 16 - Aug 18',
-                    ),
+                ? SearchSummaryLoadingCard(
+                    routeText: 'ICN - New York',
+                    dateText: 'Aug 16 - Aug 18',
                   )
                 : FlightListView(showModal: showModal),
           ),

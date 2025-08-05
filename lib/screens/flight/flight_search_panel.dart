@@ -272,6 +272,7 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
                       }
                     },
                     style: OutlinedButton.styleFrom(
+                      padding: EdgeInsets.symmetric(horizontal: 3),
                       side: BorderSide(
                         color: Theme.of(context).colorScheme.primary,
                         width: 1,
@@ -281,9 +282,9 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
                       ),
                     ),
                     child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         const Icon(Icons.calendar_month),
-                        const SizedBox(width: _padding),
                         Text(
                           flightState.displayDate ?? 'Select',
                           style: TextStyle(

@@ -188,6 +188,7 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
                       }
                     },
                     style: OutlinedButton.styleFrom(
+                      padding: EdgeInsets.symmetric(horizontal: 3),
                       side: BorderSide(
                         color: Theme.of(context).colorScheme.primary,
                         width: 1,
@@ -197,9 +198,9 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
                       ),
                     ),
                     child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         Icon(Icons.calendar_month),
-                        SizedBox(width: _padding),
                         Text(
                           hotelState.displayDate ?? 'Select',
                           style: TextStyle(
