@@ -31,7 +31,7 @@ class FlightListViewItem extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "${index} 5:25p",
+                        "$index 5:25p",
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: Theme.of(

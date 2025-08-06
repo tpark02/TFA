@@ -3,9 +3,39 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'flight_search_state.dart';
 import 'package:TFA/services/recent_search_service.dart';
+import 'package:TFA/services/flight_api_service.dart';
+import 'package:TFA/types/typedefs.dart';
 
 class FlightSearchController extends StateNotifier<FlightSearchState> {
   FlightSearchController() : super(const FlightSearchState());
+
+  Future<FlightSearchResult> searchFlights({
+    required String origin,
+    required String destination,
+    required String departureDate,
+    String? returnDate,
+    int adults = 1,
+    int maxResults = 5,
+  }) async {
+    state = state.copyWith(flightResults: const AsyncValue.loading());
+
+    try {
+      final result = await FlightApiService.fetchFlights(
+        origin: origin,
+        destination: destination,
+        departureDate: departureDate,
+        returnDate: returnDate,
+        adults: adults,
+        maxResults: maxResults,
+      );
+
+      state = state.copyWith(flightResults: AsyncValue.data(result));
+      return (true, '✅ Flight search completed');
+    } catch (e, st) {
+      state = state.copyWith(flightResults: AsyncValue.error(e, st));
+      return (false, '❌ Flight search failed: $e');
+    }
+  }
 
   Future<void> initRecentSearch(RecentSearch search) async {
     final updated = [search, ...state.recentSearches];

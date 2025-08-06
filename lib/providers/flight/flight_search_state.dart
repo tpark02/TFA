@@ -1,6 +1,9 @@
 import 'package:TFA/providers/recent_search.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class FlightSearchState {
+  final AsyncValue<List<dynamic>> flightResults;
+
   final List<RecentSearch> recentSearches;
 
   final String departureAirportName;
@@ -74,9 +77,11 @@ class FlightSearchState {
     this.displayDate,
     this.cabinClass = 'Economy',
     this.passengerCount = 0,
+    this.flightResults = const AsyncValue.data([]), // ✅ default value here
   });
 
   FlightSearchState copyWith({
+    AsyncValue<List<dynamic>>? flightResults,
     List<RecentSearch>? recentSearches,
     String? departureAirportName,
     String? departureAirportCode,
@@ -99,6 +104,7 @@ class FlightSearchState {
       displayDate: displayDate ?? this.displayDate,
       cabinClass: cabinClass ?? this.cabinClass,
       passengerCount: passengerCount ?? this.passengerCount,
+      flightResults: flightResults ?? this.flightResults,
     );
   }
 

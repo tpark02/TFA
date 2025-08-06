@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:TFA/providers/airport/airport_provider.dart';
 import 'package:TFA/providers/airport/airport_selection.dart';
 import 'package:TFA/providers/recent_search.dart';
@@ -105,6 +107,11 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
   Widget build(BuildContext context) {
     final flightState = ref.watch(flightSearchProvider);
     final controller = ref.read(flightSearchProvider.notifier);
+
+    final flights = flightState.flightResults.maybeWhen(
+      data: (value) => value,
+      orElse: () => [],
+    );
 
     return SingleChildScrollView(
       child: Column(
@@ -385,7 +392,36 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
                     Expanded(
                       child: ElevatedButton(
                         onPressed: () async {
+                          debugPrint('===Search Flight===');
                           debugPrint(flightState.toString());
+
+                          final (
+                            searchSuccess,
+                            searchMessage,
+                          ) = await controller.searchFlights(
+                            origin: flightState.departureAirportCode,
+                            destination: flightState.arrivalAirportCode,
+                            departureDate: flightState.displayDate ?? '',
+                            returnDate: null, // or insert returnDate logic here
+                            adults: flightState.passengerCount,
+                          );
+
+                          if (!searchSuccess) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text(searchMessage)),
+                            );
+                            return;
+                          }
+                          debugPrint('search flight successful');
+
+                          // 🔍 Debug print each flight (pretty JSON)
+                          for (var i = 0; i < flights.length; i++) {
+                            final pretty = const JsonEncoder.withIndent(
+                              '  ',
+                            ).convert(flights[i]);
+                            debugPrint('✈️ Flight #$i:\n$pretty');
+                          }
+
                           final hasPassengers = flightState.passengerCount > 0;
                           final hasAirports =
                               flightState.departureAirportCode.isNotEmpty &&
