@@ -1,5 +1,6 @@
 import 'package:TFA/providers/recent_search.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'dart:collection';
 
 class FlightSearchState {
   final AsyncValue<List<dynamic>> flightResults;
@@ -17,6 +18,9 @@ class FlightSearchState {
   final String? displayDate;
   final String cabinClass;
   final int passengerCount;
+
+  final String departDate;
+  final String? returnDate;
 
   static const List<RecentSearch> _defaultRecentSearches = [
     RecentSearch(
@@ -66,7 +70,7 @@ class FlightSearchState {
     ),
   ];
 
-  const FlightSearchState({
+  FlightSearchState({
     this.recentSearches = _defaultRecentSearches,
     this.departureAirportName = '',
     this.departureAirportCode = '',
@@ -74,10 +78,12 @@ class FlightSearchState {
     this.arrivalAirportName = '',
     this.arrivalAirportCode = '',
     this.arrivalCity = '',
-    this.displayDate,
+    this.displayDate = '',
+    this.departDate = '',
+    this.returnDate = '',
     this.cabinClass = 'Economy',
     this.passengerCount = 0,
-    this.flightResults = const AsyncValue.data([]), // ✅ default value here
+    this.flightResults = const AsyncValue.data([]),
   });
 
   FlightSearchState copyWith({
@@ -92,6 +98,8 @@ class FlightSearchState {
     String? displayDate,
     String? cabinClass,
     int? passengerCount,
+    String? departDate,
+    String? returnDate,
   }) {
     return FlightSearchState(
       recentSearches: recentSearches ?? this.recentSearches,
@@ -105,6 +113,8 @@ class FlightSearchState {
       cabinClass: cabinClass ?? this.cabinClass,
       passengerCount: passengerCount ?? this.passengerCount,
       flightResults: flightResults ?? this.flightResults,
+      departDate: departDate ?? this.departDate,
+      returnDate: returnDate ?? this.returnDate,
     );
   }
 
@@ -113,7 +123,11 @@ class FlightSearchState {
     return 'FlightSearchState(recent: $recentSearches, '
         'dep: $departureCity-$departureAirportCode, '
         'arr: $arrivalCity-$arrivalAirportCode, '
-        'date: $displayDate, class: $cabinClass, pax: $passengerCount)';
+        'date: $displayDate,'
+        'class: $cabinClass,'
+        'pax: $passengerCount,'
+        'departDate: $departDate,'
+        'returnDate: $returnDate)';
   }
 
   @override
@@ -127,6 +141,8 @@ class FlightSearchState {
           arrivalAirportCode == other.arrivalAirportCode &&
           arrivalCity == other.arrivalCity &&
           displayDate == other.displayDate &&
+          departDate == other.departDate &&
+          returnDate == other.returnDate &&
           cabinClass == other.cabinClass &&
           passengerCount == other.passengerCount;
 
@@ -138,6 +154,8 @@ class FlightSearchState {
       arrivalAirportCode.hashCode ^
       arrivalCity.hashCode ^
       displayDate.hashCode ^
+      departDate.hashCode ^
+      returnDate.hashCode ^
       cabinClass.hashCode ^
       passengerCount.hashCode;
 }

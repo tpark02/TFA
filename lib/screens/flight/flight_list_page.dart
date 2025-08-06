@@ -1,3 +1,4 @@
+import 'package:TFA/providers/flight/flight_search_controller.dart';
 import 'package:TFA/screens/flight/flight_filter_page.dart';
 import 'package:TFA/widgets/filter_button.dart';
 // import 'package:TFA/widgets/flight_info.dart';
@@ -5,15 +6,16 @@ import 'package:TFA/widgets/flight_list_view.dart';
 import 'package:TFA/widgets/search_summary_card.dart';
 import 'package:TFA/widgets/search_summary_loading_card.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class FlightListPage extends StatefulWidget {
+class FlightListPage extends ConsumerStatefulWidget {
   const FlightListPage({super.key});
 
   @override
-  State<FlightListPage> createState() => _FlightListPageState();
+  ConsumerState<FlightListPage> createState() => _FlightListPageState();
 }
 
-class _FlightListPageState extends State<FlightListPage> {
+class _FlightListPageState extends ConsumerState<FlightListPage> {
   bool isLoading = true;
 
   void showModal() {
@@ -34,7 +36,7 @@ class _FlightListPageState extends State<FlightListPage> {
 
   @override
   Widget build(BuildContext context) {
-    // final flights = List.generate(10, (index) => const FlightInfo());
+    final flightState = ref.watch(flightSearchProvider);
 
     return Scaffold(
       appBar: PreferredSize(
@@ -67,10 +69,10 @@ class _FlightListPageState extends State<FlightListPage> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: SearchSummaryCard(
-                    from: 'ICN',
-                    to: 'New York',
-                    dateRange: 'Aug 18 - Aug 20',
-                    passengerCount: 1,
+                    from: flightState.departureAirportCode,
+                    to: flightState.arrivalAirportCode,
+                    dateRange: flightState.displayDate ?? '',
+                    passengerCount: flightState.passengerCount,
                     cabinClass: 'Economy',
                   ),
                 ),

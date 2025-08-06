@@ -4,6 +4,7 @@ import 'package:TFA/providers/airport/airport_provider.dart';
 import 'package:TFA/providers/airport/airport_selection.dart';
 import 'package:TFA/providers/recent_search.dart';
 import 'package:TFA/providers/flight/flight_search_controller.dart';
+import 'package:TFA/screens/flight/flight_list_page.dart';
 import 'package:TFA/screens/shared/recent_search_panel.dart';
 import 'package:TFA/screens/shared/search_airport_sheet.dart';
 import 'package:TFA/services/location_service.dart';
@@ -13,6 +14,7 @@ import 'package:TFA/screens/shared/traveler_selector_sheet.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:intl/intl.dart';
 
 class FlightSearchPanel extends ConsumerStatefulWidget {
   const FlightSearchPanel({super.key});
@@ -25,6 +27,7 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
   bool _isLoadingCity = true;
   bool _initialized = false;
   final user = FirebaseAuth.instance.currentUser;
+  late final FlightSearchController controller;
 
   void _setDefaultDateTime() {
     final now = DateTime.now();
@@ -84,8 +87,18 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
   @override
   void initState() {
     super.initState();
+    controller = ref.read(flightSearchProvider.notifier);
+
+    final now = DateTime.now();
+    final String formatted = DateFormat('yyyy-MM-dd').format(now);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      controller.setDepartDate(formatted);
+      controller.setReturnDate(formatted);
+    });
+
     Future.microtask(() {
-      ref.read(flightSearchProvider.notifier).loadRecentSearchesFromApi();
+      controller.loadRecentSearchesFromApi();
     });
   }
 
@@ -106,7 +119,6 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
   @override
   Widget build(BuildContext context) {
     final flightState = ref.watch(flightSearchProvider);
-    final controller = ref.read(flightSearchProvider.notifier);
 
     final flights = flightState.flightResults.maybeWhen(
       data: (value) => value,
@@ -401,8 +413,8 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
                           ) = await controller.searchFlights(
                             origin: flightState.departureAirportCode,
                             destination: flightState.arrivalAirportCode,
-                            departureDate: flightState.displayDate ?? '',
-                            returnDate: null, // or insert returnDate logic here
+                            departureDate: flightState.departDate,
+                            returnDate: flightState.returnDate,
                             adults: flightState.passengerCount,
                           );
 
@@ -412,7 +424,7 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
                             );
                             return;
                           }
-                          debugPrint('search flight successful');
+                          debugPrint('flight search successful');
 
                           // 🔍 Debug print each flight (pretty JSON)
                           for (var i = 0; i < flights.length; i++) {
@@ -467,7 +479,13 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
                               ),
                             );
                           }
-                        },
+
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => const FlightListPage(),
+                            ),
+                          );
+                        }, // onpressed end
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Theme.of(
                             context,

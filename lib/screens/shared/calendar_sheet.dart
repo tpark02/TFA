@@ -1,8 +1,10 @@
+import 'package:TFA/providers/flight/flight_search_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
-class CalendarSheet extends StatefulWidget {
+class CalendarSheet extends ConsumerStatefulWidget {
   const CalendarSheet({
     super.key,
     required this.firstTitle,
@@ -16,20 +18,22 @@ class CalendarSheet extends StatefulWidget {
   final bool isOnlyTab;
   final bool isRange;
   @override
-  State<CalendarSheet> createState() => _CalendarSheetState();
+  ConsumerState<CalendarSheet> createState() => _CalendarSheetState();
 }
 
-class _CalendarSheetState extends State<CalendarSheet>
+class _CalendarSheetState extends ConsumerState<CalendarSheet>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   String? displayDate;
   PickerDateRange? selectedRange;
   DateTime? selectedDate;
+  late FlightSearchController controller;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    controller = ref.read(flightSearchProvider.notifier); // ✅ Proper place
   }
 
   @override
@@ -43,13 +47,17 @@ class _CalendarSheetState extends State<CalendarSheet>
 
     if (args.value is PickerDateRange) {
       final range = args.value as PickerDateRange;
-      final DateTime? start = range.startDate;
-      final DateTime? end = range.endDate;
 
-      if (start != null && end != null) {
+      if (range.startDate != null && range.endDate != null) {
+        final String start = DateFormat('yyyy-MM-dd').format(range.startDate!);
+        final String end = DateFormat('yyyy-MM-dd').format(range.endDate!);
+
         selectedRange = range; // ✅ store it
+        controller.setDepartDate(start);
+        controller.setReturnDate(end);
+
         displayDate =
-            '${DateFormat('MMM d').format(start)} – ${DateFormat('MMM d').format(end)}';
+            '${DateFormat('MMM d').format(range.startDate!)} – ${DateFormat('MMM d').format(range.endDate!)}';
         debugPrint('selected range: $displayDate');
       } else {
         debugPrint('selected range: start or end is null');
@@ -61,9 +69,12 @@ class _CalendarSheetState extends State<CalendarSheet>
 
   void _onSelectionChanged(DateRangePickerSelectionChangedArgs args) {
     debugPrint('_onSelectionChanged');
+    selectedDate = args.value;
 
-    if (args.value is DateTime) {
-      selectedDate = args.value;
+    if (args.value is DateTime && selectedDate != null) {
+      final String start = DateFormat('yyyy-MM-dd').format(selectedDate!);
+      controller.setDepartDate(start);
+
       displayDate = DateFormat('MMMM d').format(selectedDate!);
       debugPrint('Selected: $displayDate');
     } else {

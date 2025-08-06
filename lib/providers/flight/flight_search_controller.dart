@@ -7,17 +7,20 @@ import 'package:TFA/services/flight_api_service.dart';
 import 'package:TFA/types/typedefs.dart';
 
 class FlightSearchController extends StateNotifier<FlightSearchState> {
-  FlightSearchController() : super(const FlightSearchState());
+  FlightSearchController() : super(FlightSearchState());
 
   Future<FlightSearchResult> searchFlights({
     required String origin,
     required String destination,
     required String departureDate,
-    String? returnDate,
-    int adults = 1,
+    required String? returnDate,
+    required int adults,
     int maxResults = 5,
   }) async {
     state = state.copyWith(flightResults: const AsyncValue.loading());
+
+    debugPrint("depart date : $departureDate");
+    debugPrint("return date : $returnDate");
 
     try {
       final result = await FlightApiService.fetchFlights(
@@ -68,6 +71,14 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
       kind: search.kind,
       jwtToken: jwtToken,
     );
+  }
+
+  void setDepartDate(String d) {
+    state = state.copyWith(departDate: d);
+  }
+
+  void setReturnDate(String d) {
+    state = state.copyWith(returnDate: d);
   }
 
   void setDepartureCity(String city) {
