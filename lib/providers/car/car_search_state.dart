@@ -8,6 +8,8 @@ class CarSearchState {
   final String endDate;
   final String beginTime;
   final String endTime;
+  final String displayBeginDate;
+  final String displayEndDate;
   final List<RecentSearch> recentSearches;
 
   const CarSearchState({
@@ -19,6 +21,8 @@ class CarSearchState {
     this.query = '',
     this.selectedCountry = '',
     this.selectedCity = '',
+    this.displayBeginDate = '',
+    this.displayEndDate = '',
   });
 
   static const List<RecentSearch> _defaultRecentSearches = [
@@ -77,6 +81,8 @@ class CarSearchState {
     String? endDate,
     String? beginTime,
     String? endTime,
+    String? displayBeginDate,
+    String? displayEndDate,
     List<RecentSearch>? recentSearches,
   }) {
     return CarSearchState(
@@ -88,6 +94,8 @@ class CarSearchState {
       endDate: endDate ?? this.endDate,
       beginTime: beginTime ?? this.beginTime,
       endTime: endTime ?? this.endTime,
+      displayEndDate: displayEndDate ?? this.displayEndDate,
+      displayBeginDate: displayBeginDate ?? this.displayBeginDate,
     );
   }
 }

@@ -2,6 +2,7 @@ import 'package:TFA/providers/recent_search.dart';
 import 'package:TFA/services/recent_search_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'car_search_state.dart';
 
 class CarSearchController extends StateNotifier<CarSearchState> {
@@ -54,12 +55,26 @@ class CarSearchController extends StateNotifier<CarSearchState> {
     state = const CarSearchState();
   }
 
-  void setBeginDate(String selectedDate) {
-    state = state.copyWith(beginDate: selectedDate);
+  void setBeginDate(DateTime? selectedDate) {
+    if (selectedDate == null) {
+      state = state.copyWith(beginDate: null);
+      return;
+    }
+    final String formatted = DateFormat('yyyy-MM-dd').format(selectedDate);
+    final display = DateFormat('EEE MMM d').format(selectedDate);
+
+    state = state.copyWith(beginDate: formatted, displayBeginDate: display);
   }
 
-  void setEndDate(String selectedDate) {
-    state = state.copyWith(endDate: selectedDate);
+  void setEndDate(DateTime? selectedDate) {
+    if (selectedDate == null) {
+      state = state.copyWith(endDate: null);
+      return;
+    }
+    final String formatted = DateFormat('yyyy-MM-dd').format(selectedDate);
+    final display = DateFormat('EEE MMM d').format(selectedDate);
+
+    state = state.copyWith(endDate: formatted, displayEndDate: display);
   }
 
   void setBeginTime(String selectedTime) {

@@ -22,16 +22,16 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
   @override
   void initState() {
     super.initState();
-    final FlightSearchController controller = ref.read(
-      flightSearchProvider.notifier,
-    );
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final flightState = ref.watch(flightSearchProvider);
-
       setState(() {
         isLoading = true; // ✅ show loading before search
       });
+
+      final controller = ref.read(flightSearchProvider.notifier);
+      final flightState = ref.read(
+        flightSearchProvider,
+      ); // ✅ read only, no watch
 
       final (searchSuccess, searchMessage) = await controller.searchFlights(
         origin: flightState.departureAirportCode,
@@ -47,23 +47,22 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
         ).showSnackBar(SnackBar(content: Text(searchMessage)));
       }
 
-      // ✅ loading done
       if (mounted) {
         setState(() {
           isLoading = false;
+          // ✅ Always grab the *latest* result
+          final latestFlights = ref
+              .read(flightSearchProvider)
+              .flightResults
+              .maybeWhen(data: (v) => v, orElse: () => []);
+
+          for (var i = 0; i < latestFlights.length; i++) {
+            final pretty = const JsonEncoder.withIndent(
+              '  ',
+            ).convert(latestFlights[i]);
+            debugPrint('✈️ Flight #$i:\n$pretty');
+          }
         });
-      }
-
-      // Debug flight output
-      final updatedState = ref.read(flightSearchProvider);
-      final flights = updatedState.flightResults.maybeWhen(
-        data: (value) => value,
-        orElse: () => [],
-      );
-
-      for (var i = 0; i < flights.length; i++) {
-        final pretty = const JsonEncoder.withIndent('  ').convert(flights[i]);
-        debugPrint('✈️ Flight #$i:\n$pretty');
       }
     });
   }

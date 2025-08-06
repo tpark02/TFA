@@ -27,22 +27,6 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
   final user = FirebaseAuth.instance.currentUser;
   late final FlightSearchController controller;
 
-  void _setDefaultDateTime() {
-    final now = DateTime.now();
-    final today = "${_monthName(now.month)} ${now.day}";
-    // final controller = ref.read(flightSearchProvider.notifier);
-    controller.setDisplayDate('$today - $today');
-  }
-
-  String _monthName(int month) {
-    const months = [
-      '', // dummy for 0 index
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December',
-    ];
-    return months[month];
-  }
-
   Future<void> fetchCurrentCountry() async {
     setState(() => _isLoadingCity = true);
 
@@ -87,11 +71,11 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
     super.initState();
     controller = ref.read(flightSearchProvider.notifier);
 
-    final now = DateTime.now();
-    final String formatted = DateFormat('yyyy-MM-dd').format(now);
+    final startDate = DateTime.now();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      controller.setDepartDate(formatted);
+      controller.setDepartDate(startDate);
+      controller.setDisplayDate(startDate: startDate);
     });
 
     Future.microtask(() {
@@ -107,7 +91,6 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
       _initialized = true;
 
       Future.microtask(() async {
-        _setDefaultDateTime();
         await fetchCurrentCountry();
       });
     }
@@ -276,15 +259,23 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
                           ),
                         ),
                         builder: (ctx) => CalendarSheet(
+                          key: UniqueKey(),
                           firstTitle: "One Way",
                           secondTitle: "Round Trip",
                           isOnlyTab: false,
                           isRange: false,
+                          startDays: 0,
+                          endDays: 0,
                         ),
                       );
 
-                      if (result != null && result['displayDate'] != null) {
-                        controller.setDisplayDate(result['displayDate']);
+                      if (result != null) {
+                        controller.setDepartDate(result['startDate']);
+                        controller.setReturnDate(result['endDate']);
+                        controller.setDisplayDate(
+                          startDate: result['startDate'],
+                          endDate: result['endDate'],
+                        );
                       }
                     },
                     style: OutlinedButton.styleFrom(

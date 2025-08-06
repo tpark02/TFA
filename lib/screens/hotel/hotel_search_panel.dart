@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:TFA/services/location_service.dart'; // ✅ your service
 import 'package:geocoding/geocoding.dart';
+import 'package:intl/intl.dart';
 
 class HotelSearchPanel extends ConsumerStatefulWidget {
   const HotelSearchPanel({super.key});
@@ -21,22 +22,8 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
   bool _isLoadingCity = true;
   bool _initialized = false;
   final user = FirebaseAuth.instance.currentUser;
-
-  void _setDefaultDateTime() {
-    final now = DateTime.now();
-    final today = "${_monthName(now.month)} ${now.day}";
-    final controller = ref.read(hotelSearchProvider.notifier);
-    controller.setDisplayDate('$today - $today');
-  }
-
-  String _monthName(int month) {
-    const months = [
-      '', // dummy for 0 index
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December',
-    ];
-    return months[month];
-  }
+  static const int startDays = 0;
+  static const int endDays = 2;
 
   Future<void> fetchCurrentCountry() async {
     setState(() => _isLoadingCity = true);
@@ -63,6 +50,15 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
   @override
   void initState() {
     super.initState();
+
+    final controller = ref.read(hotelSearchProvider.notifier);
+    final startDate = DateTime.now();
+    final endDate = DateTime.now().add(const Duration(days: endDays));
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      controller.setDisplayDate(startDate: startDate, endDate: endDate);
+    });
+
     Future.microtask(() {
       ref.read(hotelSearchProvider.notifier).loadRecentSearchesFromApi();
     });
@@ -76,7 +72,6 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
       _initialized = true;
 
       Future.microtask(() async {
-        _setDefaultDateTime();
         await fetchCurrentCountry();
       });
     }
@@ -176,15 +171,21 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
                           ),
                         ),
                         builder: (ctx) => CalendarSheet(
+                          key: UniqueKey(),
                           firstTitle: "",
                           secondTitle: "",
                           isOnlyTab: true,
                           isRange: true,
+                          startDays: startDays,
+                          endDays: endDays,
                         ),
                       );
 
-                      if (result != null && result['displayDate'] != null) {
-                        controller.setDisplayDate(result['displayDate']);
+                      if (result != null) {
+                        controller.setDisplayDate(
+                          startDate: result['startDate'],
+                          endDate: result['endDate'],
+                        );
                       }
                     },
                     style: OutlinedButton.styleFrom(

@@ -19,33 +19,15 @@ class CarSearchPanel extends ConsumerStatefulWidget {
 }
 
 class _CarSearchPanelState extends ConsumerState<CarSearchPanel> {
+  static const int startDays = 0;
+  static const int endDays = 2;
+
   static const double _padding = 20.0;
   bool _initialized = false;
   bool _isLoadingCity = true;
   bool _isDifferentDropOff = false;
   String _dropOffCity = '';
   final user = FirebaseAuth.instance.currentUser;
-
-  void _setDefaultDateTime() {
-    final now = DateTime.now();
-    final today = "${_monthName(now.month)} ${now.day}";
-    final time = TimeOfDay.fromDateTime(now).format(context).toLowerCase();
-
-    final controller = ref.read(carSearchProvider.notifier);
-    controller.setBeginDate(today);
-    controller.setEndDate(today);
-    controller.setBeginTime(time);
-    controller.setEndTime(time);
-  }
-
-  String _monthName(int month) {
-    const months = [
-      '', // dummy for 0 index
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December',
-    ];
-    return months[month];
-  }
 
   Future<void> fetchCurrentCountry() async {
     setState(() => _isLoadingCity = true);
@@ -72,6 +54,29 @@ class _CarSearchPanelState extends ConsumerState<CarSearchPanel> {
   @override
   void initState() {
     super.initState();
+
+    final controller = ref.read(carSearchProvider.notifier);
+    final startDate = DateTime.now();
+    final endDate = DateTime.now().add(const Duration(days: endDays));
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      controller.setBeginDate(startDate);
+      controller.setEndDate(endDate);
+
+      final stTime = TimeOfDay(hour: 12, minute: 0);
+      if (stTime != null) {
+        String formatted = stTime.format(context).toLowerCase(); // → "12:00 PM"
+        controller.setBeginTime(formatted.toString());
+      }
+      final endTime = TimeOfDay(hour: 12, minute: 0);
+      if (endTime != null) {
+        String formatted = endTime
+            .format(context)
+            .toLowerCase(); // → "12:00 PM"
+        controller.setEndTime(formatted.toString());
+      }
+    });
+
     Future.microtask(() {
       ref.read(carSearchProvider.notifier).loadRecentSearchesFromApi();
     });
@@ -85,7 +90,6 @@ class _CarSearchPanelState extends ConsumerState<CarSearchPanel> {
       _initialized = true;
 
       Future.microtask(() async {
-        _setDefaultDateTime();
         await fetchCurrentCountry();
       });
     }
@@ -291,15 +295,13 @@ class _CarSearchPanelState extends ConsumerState<CarSearchPanel> {
                           secondTitle: "",
                           isOnlyTab: true,
                           isRange: false,
+                          startDays: startDays,
+                          endDays: endDays,
                         ),
                       );
 
                       if (result != null) {
-                        debugPrint('SET BEGIN: ${result['displayDate']}');
-                        controller.setBeginDate(result['displayDate']);
-                        debugPrint(
-                          'AFTER BEGIN STATE: ${ref.read(carSearchProvider).beginDate}',
-                        );
+                        controller.setBeginDate(result['startDate']);
                       }
                     },
                     style: OutlinedButton.styleFrom(
@@ -316,7 +318,7 @@ class _CarSearchPanelState extends ConsumerState<CarSearchPanel> {
                         Icon(Icons.calendar_month),
                         SizedBox(width: _padding),
                         Text(
-                          carState.beginDate,
+                          carState.displayBeginDate,
                           style: TextStyle(
                             fontSize: Theme.of(
                               context,
@@ -391,14 +393,13 @@ class _CarSearchPanelState extends ConsumerState<CarSearchPanel> {
                           secondTitle: "",
                           isOnlyTab: true,
                           isRange: false,
+                          startDays: startDays + 2,
+                          endDays: endDays,
                         ),
                       );
+
                       if (result != null) {
-                        debugPrint('SET END: ${result['displayDate']}');
-                        controller.setEndDate(result['displayDate']);
-                        debugPrint(
-                          'AFTER END STATE: ${ref.read(carSearchProvider).endDate}',
-                        );
+                        controller.setBeginDate(result['endDate']);
                       }
                     },
                     style: OutlinedButton.styleFrom(
@@ -415,7 +416,7 @@ class _CarSearchPanelState extends ConsumerState<CarSearchPanel> {
                         Icon(Icons.calendar_month),
                         SizedBox(width: _padding),
                         Text(
-                          carState.endDate,
+                          carState.displayEndDate,
                           style: TextStyle(
                             fontSize: Theme.of(
                               context,

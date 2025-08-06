@@ -1,6 +1,7 @@
 import 'package:TFA/providers/recent_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'flight_search_state.dart';
 import 'package:TFA/services/recent_search_service.dart';
 import 'package:TFA/services/flight_api_service.dart';
@@ -73,12 +74,22 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
     );
   }
 
-  void setDepartDate(String? d) {
-    state = state.copyWith(departDate: d);
+  void setDepartDate(DateTime? d) {
+    if (d == null) {
+      state = state.copyWith(departDate: null);
+      return;
+    }
+    final String formatted = DateFormat('yyyy-MM-dd').format(d);
+    state = state.copyWith(departDate: formatted);
   }
 
-  void setReturnDate(String? d) {
-    state = state.copyWith(returnDate: d);
+  void setReturnDate(DateTime? d) {
+    if (d == null) {
+      state = state.copyWith(returnDate: null);
+      return;
+    }
+    final String formatted = DateFormat('yyyy-MM-dd').format(d);
+    state = state.copyWith(returnDate: formatted);
   }
 
   void setDepartureCity(String city) {
@@ -105,7 +116,10 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
     state = state.copyWith(arrivalAirportName: name);
   }
 
-  void setDisplayDate(String displayDate) {
+  void setDisplayDate({required DateTime? startDate, DateTime? endDate}) {
+    final displayDate = endDate != null
+        ? '${DateFormat('MMM d').format(startDate!)} - ${DateFormat('MMM d').format(endDate!)}'
+        : '${DateFormat('MMM d').format(startDate!)}';
     state = state.copyWith(displayDate: displayDate);
   }
 

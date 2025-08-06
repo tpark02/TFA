@@ -81,7 +81,7 @@ class FlightSearchState {
     this.departDate = '',
     this.returnDate = '',
     this.cabinClass = 'Economy',
-    this.passengerCount = 0,
+    this.passengerCount = 1,
     this.flightResults = const AsyncValue.data([]),
   });
 

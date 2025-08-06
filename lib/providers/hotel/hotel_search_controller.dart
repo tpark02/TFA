@@ -3,6 +3,7 @@ import 'package:TFA/providers/recent_search.dart';
 import 'package:TFA/services/recent_search_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'hotel_search_state.dart';
 
 class HotelSearchController extends StateNotifier<HotelSearchState> {
@@ -83,8 +84,20 @@ class HotelSearchController extends StateNotifier<HotelSearchState> {
     state = state.copyWith(country: country);
   }
 
-  void setDisplayDate(String displayDate) {
-    state = state.copyWith(displayDate: displayDate);
+  void setDisplayDate({
+    required DateTime startDate,
+    required DateTime endDate,
+  }) {
+    final displayDate =
+        '${DateFormat('MMM d').format(startDate!)} - ${DateFormat('MMM d').format(endDate!)}';
+    final String st = DateFormat('yyyy-MM-dd').format(startDate);
+    final String end = DateFormat('yyyy-MM-dd').format(endDate);
+
+    state = state.copyWith(
+      displayDate: displayDate,
+      startDate: st,
+      endDate: end,
+    );
   }
 
   void setFromHotelModel(Hotel hotel) {

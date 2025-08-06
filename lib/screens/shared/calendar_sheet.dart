@@ -1,7 +1,5 @@
-import 'package:TFA/providers/flight/flight_search_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
 class CalendarSheet extends ConsumerStatefulWidget {
@@ -11,12 +9,17 @@ class CalendarSheet extends ConsumerStatefulWidget {
     required this.secondTitle,
     required this.isOnlyTab,
     required this.isRange,
+    required this.startDays,
+    required this.endDays,
   });
 
   final String firstTitle;
   final String secondTitle;
   final bool isOnlyTab;
   final bool isRange;
+  final int startDays;
+  final int endDays;
+
   @override
   ConsumerState<CalendarSheet> createState() => _CalendarSheetState();
 }
@@ -24,16 +27,17 @@ class CalendarSheet extends ConsumerStatefulWidget {
 class _CalendarSheetState extends ConsumerState<CalendarSheet>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  String? displayDate;
-  PickerDateRange? selectedRange;
-  DateTime? selectedDate;
-  late FlightSearchController controller;
+  DateTime? startDate;
+  DateTime? endDate;
 
   @override
   void initState() {
     super.initState();
+
+    startDate = DateTime.now().add(Duration(days: widget.startDays));
+    endDate = null;
+
     _tabController = TabController(length: 2, vsync: this);
-    controller = ref.read(flightSearchProvider.notifier); // ✅ Proper place
   }
 
   @override
@@ -49,16 +53,8 @@ class _CalendarSheetState extends ConsumerState<CalendarSheet>
       final range = args.value as PickerDateRange;
 
       if (range.startDate != null && range.endDate != null) {
-        final String start = DateFormat('yyyy-MM-dd').format(range.startDate!);
-        final String end = DateFormat('yyyy-MM-dd').format(range.endDate!);
-
-        selectedRange = range; // ✅ store it
-        controller.setDepartDate(start);
-        controller.setReturnDate(end);
-
-        displayDate =
-            '${DateFormat('MMM d').format(range.startDate!)} – ${DateFormat('MMM d').format(range.endDate!)}';
-        debugPrint('selected range: $displayDate');
+        startDate = range.startDate;
+        endDate = range.endDate;
       } else {
         debugPrint('selected range: start or end is null');
       }
@@ -69,27 +65,27 @@ class _CalendarSheetState extends ConsumerState<CalendarSheet>
 
   void _onSelectionChanged(DateRangePickerSelectionChangedArgs args) {
     debugPrint('_onSelectionChanged');
-    selectedDate = args.value;
 
-    if (args.value is DateTime && selectedDate != null) {
-      final String start = DateFormat('yyyy-MM-dd').format(selectedDate!);
-      controller.setDepartDate(start);
-      controller.setReturnDate(null); // ✅ correct
-
-      displayDate = DateFormat('MMMM d').format(selectedDate!);
-      debugPrint('Selected: $displayDate');
+    if (args.value is DateTime) {
+      startDate = args.value;
     } else {
       debugPrint('Selection is not a DateTime: ${args.value.runtimeType}');
-      selectedDate = null;
-      displayDate = null;
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    debugPrint(" is only : ${widget.isOnlyTab}");
     final height =
         MediaQuery.of(context).size.height * 0.7; // 95% of screen height
+
+    final bool isRange = widget.isRange;
+
+    final initialRange = PickerDateRange(
+      DateTime.now().add(Duration(days: widget.startDays)),
+      DateTime.now().add(Duration(days: widget.endDays)),
+    );
+
+    final initialDate = DateTime.now().add(Duration(days: widget.startDays));
 
     return SafeArea(
       child: Padding(
@@ -130,6 +126,9 @@ class _CalendarSheetState extends ConsumerState<CalendarSheet>
               Expanded(
                 child: widget.isOnlyTab
                     ? SfDateRangePicker(
+                        initialSelectedRange: isRange ? initialRange : null,
+                        initialSelectedDate: isRange ? null : initialDate,
+                        minDate: DateTime.now(),
                         onSelectionChanged: widget.isRange
                             ? _onSelectionRange
                             : _onSelectionChanged,
@@ -154,6 +153,10 @@ class _CalendarSheetState extends ConsumerState<CalendarSheet>
                         controller: _tabController,
                         children: [
                           SfDateRangePicker(
+                            initialSelectedDate: DateTime.now().add(
+                              Duration(days: 10),
+                            ),
+                            minDate: DateTime.now(),
                             onSelectionChanged: _onSelectionChanged,
                             selectionMode: DateRangePickerSelectionMode.single,
                             backgroundColor: Colors.transparent,
@@ -171,6 +174,8 @@ class _CalendarSheetState extends ConsumerState<CalendarSheet>
                             ),
                           ),
                           SfDateRangePicker(
+                            initialSelectedRange: initialRange,
+                            minDate: DateTime.now(),
                             onSelectionChanged: _onSelectionRange,
                             selectionMode: DateRangePickerSelectionMode.range,
                             backgroundColor: Colors.transparent,
@@ -206,16 +211,10 @@ class _CalendarSheetState extends ConsumerState<CalendarSheet>
                         ),
                       ),
                       onPressed: () {
-                        if (displayDate != null) {
-                          Navigator.pop(context, {
-                            'displayDate': displayDate,
-                            'selectedDate': selectedDate,
-                            'selectedRange': selectedRange,
-                          }); // 🔥 returns it to caller
-                        } else {
-                          // optional: show a message or prevent closing
-                          debugPrint('No date selected yet.');
-                        }
+                        Navigator.pop(context, {
+                          'startDate': startDate,
+                          'endDate': endDate,
+                        });
                       },
                       child: const Text("Confirm"),
                     ),

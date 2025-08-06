@@ -15,6 +15,8 @@ class HotelSearchState {
   final String roomCnt;
   final String adultCnt;
   final String childCnt;
+  final String? startDate;
+  final String? endDate;
 
   const HotelSearchState({
     this.recentSearches = _defaultRecentSearches,
@@ -31,6 +33,8 @@ class HotelSearchState {
     this.roomCnt = '',
     this.adultCnt = '',
     this.childCnt = '',
+    this.startDate = '',
+    this.endDate = '',
   });
 
   static const List<RecentSearch> _defaultRecentSearches = [
@@ -95,6 +99,8 @@ class HotelSearchState {
     String? roomCnt,
     String? adultCnt,
     String? childCnt,
+    String? startDate,
+    String? endDate,
   }) {
     return HotelSearchState(
       recentSearches: recentSearches ?? this.recentSearches,
@@ -110,6 +116,8 @@ class HotelSearchState {
       roomCnt: roomCnt ?? this.roomCnt,
       adultCnt: adultCnt ?? this.adultCnt,
       childCnt: childCnt ?? this.childCnt,
+      startDate: startDate ?? this.startDate,
+      endDate: endDate ?? this.endDate,
     );
   }
 }
