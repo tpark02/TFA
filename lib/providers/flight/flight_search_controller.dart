@@ -73,11 +73,11 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
     );
   }
 
-  void setDepartDate(String d) {
+  void setDepartDate(String? d) {
     state = state.copyWith(departDate: d);
   }
 
-  void setReturnDate(String d) {
+  void setReturnDate(String? d) {
     state = state.copyWith(returnDate: d);
   }
 

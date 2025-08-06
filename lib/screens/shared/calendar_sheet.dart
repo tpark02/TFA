@@ -74,6 +74,7 @@ class _CalendarSheetState extends ConsumerState<CalendarSheet>
     if (args.value is DateTime && selectedDate != null) {
       final String start = DateFormat('yyyy-MM-dd').format(selectedDate!);
       controller.setDepartDate(start);
+      controller.setReturnDate(null); // ✅ correct
 
       displayDate = DateFormat('MMMM d').format(selectedDate!);
       debugPrint('Selected: $displayDate');

@@ -3,8 +3,7 @@ import 'package:TFA/widgets/search_summary_loading_card.dart';
 import 'package:flutter/material.dart';
 
 class FlightListView extends StatefulWidget {
-  const FlightListView({super.key, required this.showModal});
-  final void Function() showModal;
+  const FlightListView({super.key});
 
   @override
   State<FlightListView> createState() => _FlightListViewState();

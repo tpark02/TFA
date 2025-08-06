@@ -1,7 +1,8 @@
+import 'dart:convert';
+
 import 'package:TFA/providers/flight/flight_search_controller.dart';
 import 'package:TFA/screens/flight/flight_filter_page.dart';
 import 'package:TFA/widgets/filter_button.dart';
-// import 'package:TFA/widgets/flight_info.dart';
 import 'package:TFA/widgets/flight_list_view.dart';
 import 'package:TFA/widgets/search_summary_card.dart';
 import 'package:TFA/widgets/search_summary_loading_card.dart';
@@ -18,18 +19,51 @@ class FlightListPage extends ConsumerStatefulWidget {
 class _FlightListPageState extends ConsumerState<FlightListPage> {
   bool isLoading = true;
 
-  void showModal() {
-    debugPrint("show modal");
-  }
-
   @override
   void initState() {
     super.initState();
-    Future.delayed(const Duration(seconds: 2), () {
+    final FlightSearchController controller = ref.read(
+      flightSearchProvider.notifier,
+    );
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final flightState = ref.watch(flightSearchProvider);
+
+      setState(() {
+        isLoading = true; // ✅ show loading before search
+      });
+
+      final (searchSuccess, searchMessage) = await controller.searchFlights(
+        origin: flightState.departureAirportCode,
+        destination: flightState.arrivalAirportCode,
+        departureDate: flightState.departDate,
+        returnDate: flightState.returnDate,
+        adults: flightState.passengerCount,
+      );
+
+      if (!searchSuccess && mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(searchMessage)));
+      }
+
+      // ✅ loading done
       if (mounted) {
         setState(() {
           isLoading = false;
         });
+      }
+
+      // Debug flight output
+      final updatedState = ref.read(flightSearchProvider);
+      final flights = updatedState.flightResults.maybeWhen(
+        data: (value) => value,
+        orElse: () => [],
+      );
+
+      for (var i = 0; i < flights.length; i++) {
+        final pretty = const JsonEncoder.withIndent('  ').convert(flights[i]);
+        debugPrint('✈️ Flight #$i:\n$pretty');
       }
     });
   }
@@ -37,7 +71,6 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
   @override
   Widget build(BuildContext context) {
     final flightState = ref.watch(flightSearchProvider);
-
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(90), // required!
@@ -162,10 +195,11 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
           Expanded(
             child: isLoading
                 ? SearchSummaryLoadingCard(
-                    routeText: 'ICN - New York',
-                    dateText: 'Aug 16 - Aug 18',
+                    routeText:
+                        '${flightState.departureAirportCode} - ${flightState.arrivalAirportCode}',
+                    dateText: flightState.displayDate!,
                   )
-                : FlightListView(showModal: showModal),
+                : FlightListView(),
           ),
         ],
       ),

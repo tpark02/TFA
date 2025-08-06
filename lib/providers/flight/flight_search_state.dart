@@ -1,6 +1,5 @@
 import 'package:TFA/providers/recent_search.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'dart:collection';
 
 class FlightSearchState {
   final AsyncValue<List<dynamic>> flightResults;
