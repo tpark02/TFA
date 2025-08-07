@@ -5,33 +5,54 @@ class FlightListViewItem extends StatelessWidget {
     super.key,
     required this.onClick,
     required this.index,
+    required this.flight,
   });
+
   final void Function() onClick;
   final int index;
+  final Map<String, dynamic> flight;
 
   @override
   Widget build(BuildContext context) {
+    final depTime = flight['depTime'] ?? '';
+    final arrTime = flight['arrTime'] ?? '';
+    final plusDay = flight['plusDay'] ?? '';
+    final depAirport = flight['depAirport'] ?? '';
+    final arrAirport = flight['arrAirport'] ?? '';
+    final airportPath = flight['airportPath'] ?? '';
+    final duration = flight['duration'] ?? '';
+    final stops = flight['stops'] ?? '';
+    final airline = flight['airline'] ?? '';
+    final price = flight['price'] ?? '';
+
+    // Extract intermediate airport codes if needed
+    final pathParts = airportPath.split('→').map((s) => s.trim()).toList();
+
+    final middle1 = pathParts.length > 2 ? pathParts[1] : '';
+    final middle2 = pathParts.length > 3 ? pathParts[2] : '';
+
     return Material(
-      color: Colors.transparent, // Important!
+      color: Colors.transparent,
       child: InkWell(
-        onTap: () => onClick(),
+        onTap: onClick,
         child: Container(
           padding: const EdgeInsets.fromLTRB(20, 15, 10, 10),
-          // margin: const EdgeInsets.symmetric(vertical: 8),
           decoration: BoxDecoration(
             border: Border(bottom: BorderSide(color: Colors.grey.shade300)),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              /// Top Row — Departure & Arrival Times and Airports
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
+                  /// Departure
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "$index 5:25p",
+                        "$index  $depTime",
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: Theme.of(
@@ -39,9 +60,14 @@ class FlightListViewItem extends StatelessWidget {
                           ).textTheme.bodyLarge?.fontSize,
                         ),
                       ),
-                      Text("ICN", style: TextStyle(color: Colors.grey[700])),
+                      Text(
+                        depAirport,
+                        style: TextStyle(color: Colors.grey[700]),
+                      ),
                     ],
                   ),
+
+                  /// Middle Path
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -74,7 +100,7 @@ class FlightListViewItem extends StatelessWidget {
                                 child: Divider(color: Colors.transparent),
                               ),
                               Text(
-                                "DFW",
+                                middle1,
                                 style: TextStyle(
                                   color: Colors.grey[500],
                                   fontSize: Theme.of(
@@ -82,12 +108,12 @@ class FlightListViewItem extends StatelessWidget {
                                   ).textTheme.bodyMedium?.fontSize,
                                 ),
                               ),
-                              SizedBox(
+                              const SizedBox(
                                 width: 70,
                                 child: Divider(color: Colors.transparent),
                               ),
                               Text(
-                                "PIT",
+                                middle2,
                                 style: TextStyle(
                                   color: Colors.grey[500],
                                   fontSize: Theme.of(
@@ -104,6 +130,8 @@ class FlightListViewItem extends StatelessWidget {
                       ),
                     ),
                   ),
+
+                  /// Arrival
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -113,7 +141,7 @@ class FlightListViewItem extends StatelessWidget {
                             text: TextSpan(
                               children: [
                                 TextSpan(
-                                  text: '8:29a',
+                                  text: arrTime,
                                   style: TextStyle(
                                     fontSize: Theme.of(
                                       context,
@@ -122,44 +150,51 @@ class FlightListViewItem extends StatelessWidget {
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
-                                WidgetSpan(
-                                  alignment: PlaceholderAlignment.top,
-                                  child: Transform.translate(
-                                    offset: const Offset(-8, -13),
-                                    child: Text(
-                                      '+1',
-                                      style: TextStyle(
-                                        fontSize: Theme.of(
-                                          context,
-                                        ).textTheme.bodySmall?.fontSize,
-                                        color: Colors.red[800],
+                                if (plusDay.isNotEmpty)
+                                  WidgetSpan(
+                                    alignment: PlaceholderAlignment.top,
+                                    child: Transform.translate(
+                                      offset: const Offset(-8, -13),
+                                      child: Text(
+                                        plusDay,
+                                        style: TextStyle(
+                                          fontSize: Theme.of(
+                                            context,
+                                          ).textTheme.bodySmall?.fontSize,
+                                          color: Colors.red[800],
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
                               ],
                             ),
                           ),
                         ],
                       ),
-                      Text("LGA", style: TextStyle(color: Colors.grey[700])),
+                      Text(
+                        arrAirport,
+                        style: TextStyle(color: Colors.grey[700]),
+                      ),
                     ],
                   ),
                 ],
               ),
+
               const SizedBox(height: 8),
+
+              /// Duration, stops, airline, price
               Row(
                 children: [
                   Text(
-                    "28h4m | 2 stops | American",
+                    "$duration | $stops | $airline",
                     style: TextStyle(color: Colors.grey[700]),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(width: 4),
                   Expanded(
                     child: Align(
                       alignment: Alignment.centerRight,
                       child: Text(
-                        "₩916,759",
+                        price,
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: Theme.of(

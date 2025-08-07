@@ -1,15 +1,17 @@
+import 'package:TFA/providers/flight/flight_search_controller.dart';
 import 'package:TFA/widgets/flight_list_view_item.dart';
 import 'package:TFA/widgets/search_summary_loading_card.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class FlightListView extends StatefulWidget {
+class FlightListView extends ConsumerStatefulWidget {
   const FlightListView({super.key});
 
   @override
-  State<FlightListView> createState() => _FlightListViewState();
+  ConsumerState<FlightListView> createState() => _FlightListViewState();
 }
 
-class _FlightListViewState extends State<FlightListView>
+class _FlightListViewState extends ConsumerState<FlightListView>
     with TickerProviderStateMixin {
   final ScrollController _returnScrollController = ScrollController();
   int? selectedDepartureIndex;
@@ -84,72 +86,26 @@ class _FlightListViewState extends State<FlightListView>
 
   @override
   Widget build(BuildContext context) {
+    final processedFlights = ref.watch(flightSearchProvider).processedFlights;
+
     final departureFlightWidgets = List.generate(
-      10,
-      (i) => FlightListViewItem(onClick: () => onDepartureClicked(i), index: i),
+      processedFlights.length,
+      (i) => FlightListViewItem(
+        onClick: () => onDepartureClicked(i),
+        index: i,
+        flight: processedFlights[i],
+      ),
     );
     final returnFlights = List.generate(
-      10,
-      (index) => FlightListViewItem(onClick: () {}, index: index),
+      processedFlights.length,
+      (i) => FlightListViewItem(
+        onClick: () {},
+        index: i,
+        flight: processedFlights[i],
+      ),
     );
     return Column(
       children: [
-        // Container(
-        //   color: Colors.amber[50],
-        //   padding: const EdgeInsets.all(20),
-        //   child: Row(
-        //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        //     children: [
-        //       Expanded(
-        //         child: RichText(
-        //           text: TextSpan(
-        //             style: TextStyle(
-        //               fontSize: Theme.of(
-        //                 context,
-        //               ).textTheme.headlineMedium?.fontSize,
-        //               color: Theme.of(context).colorScheme.primary,
-        //             ),
-        //             children: const [
-        //               TextSpan(text: 'Automatic protection on every flight. '),
-        //               TextSpan(
-        //                 text: 'The Skiplagged Guarantee.',
-        //                 style: TextStyle(fontWeight: FontWeight.bold),
-        //               ),
-        //             ],
-        //           ),
-        //         ),
-        //       ),
-        //       ElevatedButton(
-        //         onPressed: () {},
-        //         style: ElevatedButton.styleFrom(
-        //           backgroundColor: Theme.of(context).colorScheme.primary,
-        //           foregroundColor: Colors.white,
-        //           shape: RoundedRectangleBorder(
-        //             borderRadius: BorderRadius.circular(4.0),
-        //           ),
-        //           padding: const EdgeInsets.all(10.0),
-        //         ),
-        //         child: const Text("Learn More"),
-        //       ),
-        //     ],
-        //   ),
-        // ),
-        // // Header
-        // Container(
-        //   padding: const EdgeInsets.all(16),
-        //   color: Colors.grey[100],
-        //   child: Row(
-        //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        //     children: const [
-        //       Text(
-        //         "Choose Departing flight",
-        //         style: TextStyle(fontWeight: FontWeight.bold),
-        //       ),
-        //       Text("Total Cost", style: TextStyle(fontWeight: FontWeight.bold)),
-        //     ],
-        //   ),
-        // ),
-
         // Departure flight row (static)
         if (selectedDepartureIndex != null)
           departureFlightWidgets[selectedDepartureIndex!]

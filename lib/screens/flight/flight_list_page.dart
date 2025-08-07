@@ -8,6 +8,7 @@ import 'package:TFA/widgets/search_summary_card.dart';
 import 'package:TFA/widgets/search_summary_loading_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 
 class FlightListPage extends ConsumerStatefulWidget {
   const FlightListPage({super.key});
@@ -50,18 +51,11 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
       if (mounted) {
         setState(() {
           isLoading = false;
-          // ✅ Always grab the *latest* result
-          final latestFlights = ref
+
+          final Map<String, dynamic> latestFlights = ref
               .read(flightSearchProvider)
               .flightResults
-              .maybeWhen(data: (v) => v, orElse: () => []);
-
-          for (var i = 0; i < latestFlights.length; i++) {
-            final pretty = const JsonEncoder.withIndent(
-              '  ',
-            ).convert(latestFlights[i]);
-            debugPrint('✈️ Flight #$i:\n$pretty');
-          }
+              .maybeWhen(data: (v) => v, orElse: () => {});
         });
       }
     });

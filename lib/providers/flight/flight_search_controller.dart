@@ -33,12 +33,118 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
         maxResults: maxResults,
       );
 
-      state = state.copyWith(flightResults: AsyncValue.data(result));
+      // ✅ Process flights before updating state
+      final processed = processFlights(result);
+
+      state = state.copyWith(
+        flightResults: AsyncValue.data(result),
+        processedFlights: processed,
+      );
       return (true, '✅ Flight search completed');
     } catch (e, st) {
       state = state.copyWith(flightResults: AsyncValue.error(e, st));
       return (false, '❌ Flight search failed: $e');
     }
+  }
+
+  List<Map<String, dynamic>> processFlights(
+    Map<String, dynamic> latestFlights,
+  ) {
+    final results = <Map<String, dynamic>>[];
+
+    final data = latestFlights['data'] as List<dynamic>? ?? [];
+    final dictionaries =
+        latestFlights['dictionaries'] as Map<String, dynamic>? ?? {};
+    final carriers = dictionaries['carriers'] as Map<String, dynamic>? ?? {};
+
+    for (final offer in data) {
+      if (offer == null) continue;
+
+      final itineraries = offer['itineraries'] as List;
+      final firstSegment = itineraries.first['segments'].first;
+      final lastSegment = itineraries.last['segments'].last;
+
+      final depRaw = firstSegment['departure']['at'];
+      final arrRaw = lastSegment['arrival']['at'];
+      final depTime = formatTime(depRaw);
+      final arrTime = formatTime(arrRaw);
+      final dayDiff = DateTime.parse(
+        arrRaw,
+      ).difference(DateTime.parse(depRaw)).inDays;
+      final plusDay = dayDiff > 0 ? '+$dayDiff' : '';
+
+      final stops = <String>[];
+      for (final itinerary in itineraries) {
+        final segs = itinerary['segments'] as List;
+        for (int i = 0; i < segs.length - 1; i++) {
+          stops.add(segs[i]['arrival']['iataCode']);
+        }
+      }
+      final depAirport = firstSegment['departure']['iataCode'];
+      final arrAirport = lastSegment['arrival']['iataCode'];
+      final airportPath = '$depAirport → ${stops.join(" → ")} → $arrAirport';
+
+      int totalMinutes = 0;
+      for (final itinerary in itineraries) {
+        final duration = itinerary['duration'] as String;
+        final match = RegExp(r'PT(?:(\d+)H)?(?:(\d+)M)?').firstMatch(duration);
+        if (match != null) {
+          final h = int.tryParse(match.group(1) ?? '0') ?? 0;
+          final m = int.tryParse(match.group(2) ?? '0') ?? 0;
+          totalMinutes += h * 60 + m;
+        }
+      }
+      final totalH = totalMinutes ~/ 60;
+      final totalM = totalMinutes % 60;
+
+      final stopCount = stops.length;
+      final stopLabel = '$stopCount ${stopCount == 1 ? "stop" : "stops"}';
+
+      final airlineCodes = offer['validatingAirlineCodes'] as List;
+      final airline = carriers[airlineCodes.first] ?? airlineCodes.first;
+
+      final price = offer['price']['grandTotal'];
+      final currency = offer['price']['currency'];
+
+      final formattedPrice = NumberFormat.currency(
+        locale: 'ko_KR',
+        symbol: '₩',
+        decimalDigits: 0,
+      ).format(double.tryParse(price) ?? 0);
+
+      results.add({
+        'depTime': depTime,
+        'arrTime': arrTime,
+        'plusDay': plusDay,
+        'airportPath': airportPath,
+        'duration': '${totalH}h ${totalM}m',
+        'stops': stopLabel,
+        'airline': airline,
+        'price': formattedPrice,
+        'currency': currency,
+      });
+    }
+
+    return results;
+  }
+
+  String formatTime(String iso) {
+    final dt = DateTime.parse(iso).toLocal();
+    final hour = dt.hour % 12 == 0 ? 12 : dt.hour % 12;
+    final minute = dt.minute.toString().padLeft(2, '0');
+    final suffix = dt.hour < 12 ? 'a' : 'p';
+    return '$hour:$minute$suffix';
+  }
+
+  String formatDuration(String isoDuration) {
+    final regex = RegExp(r'PT(?:(\d+)H)?(?:(\d+)M)?');
+    final match = regex.firstMatch(isoDuration);
+    if (match != null) {
+      final hours = int.tryParse(match.group(1) ?? '0') ?? 0;
+      final minutes = int.tryParse(match.group(2) ?? '0') ?? 0;
+      return '${hours}h ${minutes}m';
+    }
+    return '';
   }
 
   Future<void> initRecentSearch(RecentSearch search) async {

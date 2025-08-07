@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:TFA/utils/api_config.dart';
 
 class FlightApiService {
-  static Future<List<dynamic>> fetchFlights({
+  static Future<Map<String, dynamic>> fetchFlights({
     required String origin,
     required String destination,
     required String departureDate,
@@ -25,7 +25,7 @@ class FlightApiService {
       },
     );
 
-    debugPrint("📤 Flight API Request URI: $uri"); // ✅ Print full URI
+    debugPrint("📤 Flight API Request URI: $uri");
     debugPrint(
       "🔍 Params: origin=$origin, destination=$destination, departure=$departureDate, return=$returnDate, adults=$adults, max=$maxResults",
     );
@@ -33,7 +33,12 @@ class FlightApiService {
     final response = await http.get(uri);
 
     if (response.statusCode == 200) {
-      return jsonDecode(response.body);
+      final decoded = jsonDecode(response.body);
+      return decoded
+          as Map<
+            String,
+            dynamic
+          >; // ✅ Return full object (data + dictionaries + meta)
     } else {
       throw Exception('Failed to fetch flights: ${response.body}');
     }
