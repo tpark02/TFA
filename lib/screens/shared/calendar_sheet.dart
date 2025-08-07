@@ -1,3 +1,4 @@
+import 'package:TFA/providers/flight/flight_search_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
@@ -47,6 +48,10 @@ class _CalendarSheetState extends ConsumerState<CalendarSheet>
   }
 
   void _onSelectionRange(DateRangePickerSelectionChangedArgs args) {
+    final FlightSearchController controller = ref.read(
+      flightSearchProvider.notifier,
+    );
+
     debugPrint('_onSelectionRange');
 
     if (args.value is PickerDateRange) {
@@ -55,6 +60,7 @@ class _CalendarSheetState extends ConsumerState<CalendarSheet>
       if (range.startDate != null && range.endDate != null) {
         startDate = range.startDate;
         endDate = range.endDate;
+        controller.setClearReturnDate(false);
       } else {
         debugPrint('selected range: start or end is null');
       }
@@ -65,9 +71,12 @@ class _CalendarSheetState extends ConsumerState<CalendarSheet>
 
   void _onSelectionChanged(DateRangePickerSelectionChangedArgs args) {
     debugPrint('_onSelectionChanged');
-
+    final FlightSearchController controller = ref.read(
+      flightSearchProvider.notifier,
+    );
     if (args.value is DateTime) {
       startDate = args.value;
+      controller.setClearReturnDate(true);
     } else {
       debugPrint('Selection is not a DateTime: ${args.value.runtimeType}');
     }

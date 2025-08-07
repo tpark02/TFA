@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class FlightSearchState {
   final AsyncValue<Map<String, dynamic>> flightResults;
-
   final List<RecentSearch> recentSearches;
   final List<Map<String, dynamic>> processedFlights;
 
@@ -19,7 +18,7 @@ class FlightSearchState {
   final String cabinClass;
   final int passengerCount;
 
-  final String departDate;
+  final String? departDate;
   final String? returnDate;
 
   static const List<RecentSearch> _defaultRecentSearches = [
@@ -87,9 +86,11 @@ class FlightSearchState {
     this.processedFlights = const [],
   });
 
+  // 👇 Full and correct copyWith
   FlightSearchState copyWith({
     AsyncValue<Map<String, dynamic>>? flightResults,
     List<RecentSearch>? recentSearches,
+    List<Map<String, dynamic>>? processedFlights,
     String? departureAirportName,
     String? departureAirportCode,
     String? departureCity,
@@ -101,10 +102,12 @@ class FlightSearchState {
     int? passengerCount,
     String? departDate,
     String? returnDate,
-    List<Map<String, dynamic>>? processedFlights,
+    bool clearReturnDate = false,
   }) {
     return FlightSearchState(
+      flightResults: flightResults ?? this.flightResults,
       recentSearches: recentSearches ?? this.recentSearches,
+      processedFlights: processedFlights ?? this.processedFlights,
       departureAirportName: departureAirportName ?? this.departureAirportName,
       departureAirportCode: departureAirportCode ?? this.departureAirportCode,
       departureCity: departureCity ?? this.departureCity,
@@ -114,11 +117,28 @@ class FlightSearchState {
       displayDate: displayDate ?? this.displayDate,
       cabinClass: cabinClass ?? this.cabinClass,
       passengerCount: passengerCount ?? this.passengerCount,
-      flightResults: flightResults ?? this.flightResults,
       departDate: departDate ?? this.departDate,
-      returnDate: returnDate ?? this.returnDate,
-      processedFlights: processedFlights ?? this.processedFlights,
+      returnDate: clearReturnDate ? null : returnDate ?? this.returnDate,
     );
+  }
+
+  // 🔹 Specific mutators
+  FlightSearchState copyWithRecentSearches(
+    List<RecentSearch> updatedRecentSearches,
+  ) {
+    return copyWith(recentSearches: updatedRecentSearches);
+  }
+
+  FlightSearchState copyWithFlightResults(
+    AsyncValue<Map<String, dynamic>> newResults,
+  ) {
+    return copyWith(flightResults: newResults);
+  }
+
+  FlightSearchState copyWithProcessedFlights(
+    List<Map<String, dynamic>> flights,
+  ) {
+    return copyWith(processedFlights: flights);
   }
 
   @override
@@ -126,11 +146,8 @@ class FlightSearchState {
     return 'FlightSearchState(recent: $recentSearches, '
         'dep: $departureCity-$departureAirportCode, '
         'arr: $arrivalCity-$arrivalAirportCode, '
-        'date: $displayDate,'
-        'class: $cabinClass,'
-        'pax: $passengerCount,'
-        'departDate: $departDate,'
-        'returnDate: $returnDate)';
+        'date: $displayDate, class: $cabinClass, pax: $passengerCount, '
+        'departDate: $departDate, returnDate: $returnDate)';
   }
 
   @override

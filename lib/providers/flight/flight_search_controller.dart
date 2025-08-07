@@ -18,7 +18,7 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
     required int adults,
     int maxResults = 5,
   }) async {
-    state = state.copyWith(flightResults: const AsyncValue.loading());
+    state = state.copyWithFlightResults(const AsyncValue.loading());
 
     debugPrint("depart date : $departureDate");
     debugPrint("return date : $returnDate");
@@ -36,13 +36,12 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
       // ✅ Process flights before updating state
       final processed = processFlights(result);
 
-      state = state.copyWith(
-        flightResults: AsyncValue.data(result),
-        processedFlights: processed,
-      );
+      state = state.copyWithFlightResults(AsyncValue.data(result));
+      state = state.copyWithProcessedFlights(processed);
+
       return (true, '✅ Flight search completed');
     } catch (e, st) {
-      state = state.copyWith(flightResults: AsyncValue.error(e, st));
+      state = state.copyWithFlightResults(AsyncValue.error(e, st));
       return (false, '❌ Flight search failed: $e');
     }
   }
@@ -153,14 +152,14 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
   Future<void> initRecentSearch(RecentSearch search) async {
     final updated = [search, ...state.recentSearches];
     if (updated.length > 5) updated.removeLast();
-    state = state.copyWith(recentSearches: updated);
+    state = state.copyWithRecentSearches(updated);
   }
 
   Future<bool> addRecentSearch(RecentSearch search, String jwtToken) async {
     // ✅ Always update state, even for empty ones (to preserve visual 5-item layout)
     final updated = [search, ...state.recentSearches];
     if (updated.length > 5) updated.removeLast();
-    state = state.copyWith(recentSearches: updated);
+    state = state.copyWithRecentSearches(updated);
 
     // ❌ Only send to backend if not placeholder
     if (search.destination.trim().isEmpty ||
@@ -181,6 +180,10 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
       kind: search.kind,
       jwtToken: jwtToken,
     );
+  }
+
+  void setClearReturnDate(bool b) {
+    state = state.copyWith(clearReturnDate: b);
   }
 
   void setDepartDate(DateTime? d) {
@@ -255,7 +258,7 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
   }
 
   void clearRecentSearches() {
-    state = state.copyWith(recentSearches: []);
+    state = state.copyWithRecentSearches([]);
   }
 
   Future<void> loadRecentSearchesFromApi() async {
@@ -263,7 +266,7 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
       final results = await RecentSearchApiService.fetchRecentSearches(
         'flight',
       );
-      state = state.copyWith(recentSearches: []);
+      state = state.copyWithRecentSearches([]);
 
       for (final r in results) {
         final guestsValue = r['guests'];
@@ -293,6 +296,8 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
       debugPrint("❌ Failed loading recent searches: $e");
     }
   }
+
+  String? get departDate => state.departDate;
 }
 
 final flightSearchProvider =

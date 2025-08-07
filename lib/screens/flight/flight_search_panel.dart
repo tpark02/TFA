@@ -70,13 +70,6 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
     super.initState();
     controller = ref.read(flightSearchProvider.notifier);
 
-    final startDate = DateTime.now();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      controller.setDepartDate(startDate);
-      controller.setDisplayDate(startDate: startDate);
-    });
-
     Future.microtask(() {
       controller.loadRecentSearchesFromApi();
     });
@@ -88,6 +81,15 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
 
     if (!_initialized) {
       _initialized = true;
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (controller.departDate == null || controller.departDate!.isEmpty) {
+          final departDate = DateTime.now();
+
+          controller.setDepartDate(departDate);
+          controller.setDisplayDate(startDate: departDate);
+        }
+      });
 
       Future.microtask(() async {
         await fetchCurrentCountry();

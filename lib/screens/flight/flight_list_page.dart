@@ -34,7 +34,7 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
       final (searchSuccess, searchMessage) = await controller.searchFlights(
         origin: flightState.departureAirportCode,
         destination: flightState.arrivalAirportCode,
-        departureDate: flightState.departDate,
+        departureDate: flightState.departDate!,
         returnDate: flightState.returnDate,
         adults: flightState.passengerCount,
       );
