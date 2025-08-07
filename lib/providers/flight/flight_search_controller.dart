@@ -227,8 +227,8 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
 
   void setDisplayDate({required DateTime? startDate, DateTime? endDate}) {
     final displayDate = endDate != null
-        ? '${DateFormat('MMM d').format(startDate!)} - ${DateFormat('MMM d').format(endDate!)}'
-        : '${DateFormat('MMM d').format(startDate!)}';
+        ? '${DateFormat('MMM d').format(startDate!)} - ${DateFormat('MMM d').format(endDate)}'
+        : DateFormat('MMM d').format(startDate!);
     state = state.copyWith(displayDate: displayDate);
   }
 

@@ -198,7 +198,7 @@ class _FlightListViewState extends ConsumerState<FlightListView>
 
         // Return flight list below
         if (selectedDepartureIndex != null &&
-            returnFlightWidgets.length > 0) ...[
+            returnFlightWidgets.isNotEmpty) ...[
           Flexible(
             child: SizedBox.expand(
               child: SlideTransition(

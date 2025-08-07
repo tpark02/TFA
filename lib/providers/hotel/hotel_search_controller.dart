@@ -89,7 +89,7 @@ class HotelSearchController extends StateNotifier<HotelSearchState> {
     required DateTime endDate,
   }) {
     final displayDate =
-        '${DateFormat('MMM d').format(startDate!)} - ${DateFormat('MMM d').format(endDate!)}';
+        '${DateFormat('MMM d').format(startDate)} - ${DateFormat('MMM d').format(endDate)}';
     final String st = DateFormat('yyyy-MM-dd').format(startDate);
     final String end = DateFormat('yyyy-MM-dd').format(endDate);
 

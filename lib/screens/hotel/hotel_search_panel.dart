@@ -9,7 +9,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:TFA/services/location_service.dart'; // ✅ your service
 import 'package:geocoding/geocoding.dart';
-import 'package:intl/intl.dart';
 
 class HotelSearchPanel extends ConsumerStatefulWidget {
   const HotelSearchPanel({super.key});

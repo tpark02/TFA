@@ -1,34 +1,46 @@
-// lib/theme/app_theme.dart
+import 'dart:io';
 import 'package:TFA/constants/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
-  static ThemeData lightTheme = ThemeData(
-    useMaterial3: true,
-    colorScheme: lightColorScheme,
-    textTheme: GoogleFonts.poppinsTextTheme().copyWith(
-      displayLarge: TextStyle(fontSize: 32),
-      displayMedium: TextStyle(fontSize: 28),
-      displaySmall: TextStyle(fontSize: 24),
-      headlineMedium: TextStyle(fontSize: 20),
-      bodyLarge: TextStyle(fontSize: 16),
-      bodyMedium: TextStyle(fontSize: 14),
-      bodySmall: TextStyle(fontSize: 12),
-    ),
-  );
+  static ThemeData get lightTheme {
+    final baseTextTheme = Platform.isAndroid
+        ? GoogleFonts.poppinsTextTheme()
+        : Typography.material2021().black; // system font fallback
 
-  static ThemeData darkTheme = ThemeData(
-    useMaterial3: true,
-    colorScheme: darkColorScheme,
-    textTheme: GoogleFonts.poppinsTextTheme().copyWith(
-      displayLarge: TextStyle(fontSize: 32),
-      displayMedium: TextStyle(fontSize: 28),
-      displaySmall: TextStyle(fontSize: 24),
-      headlineMedium: TextStyle(fontSize: 20),
-      bodyLarge: TextStyle(fontSize: 16),
-      bodyMedium: TextStyle(fontSize: 14),
-      bodySmall: TextStyle(fontSize: 12),
-    ),
-  );
+    return ThemeData(
+      useMaterial3: true,
+      colorScheme: lightColorScheme,
+      textTheme: baseTextTheme.copyWith(
+        displayLarge: baseTextTheme.displayLarge?.copyWith(fontSize: 32),
+        displayMedium: baseTextTheme.displayMedium?.copyWith(fontSize: 28),
+        displaySmall: baseTextTheme.displaySmall?.copyWith(fontSize: 24),
+        headlineMedium: baseTextTheme.headlineMedium?.copyWith(fontSize: 20),
+        bodyLarge: baseTextTheme.bodyLarge?.copyWith(fontSize: 16),
+        bodyMedium: baseTextTheme.bodyMedium?.copyWith(fontSize: 14),
+        bodySmall: baseTextTheme.bodySmall?.copyWith(fontSize: 12),
+      ),
+    );
+  }
+
+  static ThemeData get darkTheme {
+    final baseTextTheme = Platform.isAndroid
+        ? GoogleFonts.poppinsTextTheme()
+        : Typography.material2021().white;
+
+    return ThemeData(
+      useMaterial3: true,
+      colorScheme: darkColorScheme,
+      textTheme: baseTextTheme.copyWith(
+        displayLarge: baseTextTheme.displayLarge?.copyWith(fontSize: 32),
+        displayMedium: baseTextTheme.displayMedium?.copyWith(fontSize: 28),
+        displaySmall: baseTextTheme.displaySmall?.copyWith(fontSize: 24),
+        headlineMedium: baseTextTheme.headlineMedium?.copyWith(fontSize: 20),
+        bodyLarge: baseTextTheme.bodyLarge?.copyWith(fontSize: 16),
+        bodyMedium: baseTextTheme.bodyMedium?.copyWith(fontSize: 14),
+        bodySmall: baseTextTheme.bodySmall?.copyWith(fontSize: 12),
+      ),
+    );
+  }
 }
