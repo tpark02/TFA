@@ -63,18 +63,11 @@ class _CarSearchPanelState extends ConsumerState<CarSearchPanel> {
       controller.setBeginDate(startDate);
       controller.setEndDate(endDate);
 
-      final stTime = TimeOfDay(hour: 12, minute: 0);
-      if (stTime != null) {
-        String formatted = stTime.format(context).toLowerCase(); // → "12:00 PM"
-        controller.setBeginTime(formatted.toString());
-      }
-      final endTime = TimeOfDay(hour: 12, minute: 0);
-      if (endTime != null) {
-        String formatted = endTime
-            .format(context)
-            .toLowerCase(); // → "12:00 PM"
-        controller.setEndTime(formatted.toString());
-      }
+      final defaultTime = TimeOfDay(hour: 12, minute: 0);
+      final formatted = defaultTime.format(context).toLowerCase();
+
+      controller.setBeginTime(formatted);
+      controller.setEndTime(formatted);
     });
 
     Future.microtask(() {
