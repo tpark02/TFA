@@ -86,24 +86,34 @@ class _FlightListViewState extends ConsumerState<FlightListView>
 
   @override
   Widget build(BuildContext context) {
-    final processedFlights = ref.watch(flightSearchProvider).processedFlights;
+    final flightState = ref.watch(flightSearchProvider);
+
+    final allFlights = ref.watch(flightSearchProvider).processedFlights;
+    final departureFlights = allFlights
+        .where((f) => f['isReturn'] == false)
+        .toList();
+    final returnFlights = allFlights
+        .where((f) => f['isReturn'] == true)
+        .toList();
 
     final departureFlightWidgets = List.generate(
-      processedFlights.length,
+      departureFlights.length,
       (i) => FlightListViewItem(
         onClick: () => onDepartureClicked(i),
         index: i,
-        flight: processedFlights[i],
+        flight: departureFlights[i],
       ),
     );
-    final returnFlights = List.generate(
-      processedFlights.length,
+
+    List<Widget> returnFlightWidgets = List.generate(
+      returnFlights.length,
       (i) => FlightListViewItem(
         onClick: () {},
         index: i,
-        flight: processedFlights[i],
+        flight: returnFlights[i],
       ),
     );
+
     return Column(
       children: [
         // Departure flight row (static)
@@ -187,7 +197,8 @@ class _FlightListViewState extends ConsumerState<FlightListView>
           ),
 
         // Return flight list below
-        if (selectedDepartureIndex != null) ...[
+        if (selectedDepartureIndex != null &&
+            returnFlightWidgets.length > 0) ...[
           Flexible(
             child: SizedBox.expand(
               child: SlideTransition(
@@ -225,13 +236,14 @@ class _FlightListViewState extends ConsumerState<FlightListView>
                         child: isLoading
                             ? SearchSummaryLoadingCard(
                                 key: const ValueKey('shimmer'),
-                                routeText: 'ICN - New York',
-                                dateText: 'Aug 16 - Aug 18',
+                                routeText:
+                                    returnFlights[selectedDepartureIndex!]['airportPath'],
+                                dateText: flightState.displayDate!,
                               )
                             : ListView(
                                 key: const ValueKey('return-list'),
                                 controller: _returnScrollController,
-                                children: returnFlights,
+                                children: returnFlightWidgets,
                               ),
                       ),
                     ),

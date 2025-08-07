@@ -61,68 +61,69 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
       if (offer == null) continue;
 
       final itineraries = offer['itineraries'] as List;
-      final firstSegment = itineraries.first['segments'].first;
-      final lastSegment = itineraries.last['segments'].last;
-
-      final depRaw = firstSegment['departure']['at'];
-      final arrRaw = lastSegment['arrival']['at'];
-      final depTime = formatTime(depRaw);
-      final arrTime = formatTime(arrRaw);
-      final dayDiff = DateTime.parse(
-        arrRaw,
-      ).difference(DateTime.parse(depRaw)).inDays;
-      final plusDay = dayDiff > 0 ? '+$dayDiff' : '';
-
-      final stops = <String>[];
-      for (final itinerary in itineraries) {
-        final segs = itinerary['segments'] as List;
-        for (int i = 0; i < segs.length - 1; i++) {
-          stops.add(segs[i]['arrival']['iataCode']);
-        }
-      }
-      final depAirport = firstSegment['departure']['iataCode'];
-      final arrAirport = lastSegment['arrival']['iataCode'];
-      final airportPath = '$depAirport → ${stops.join(" → ")} → $arrAirport';
-
-      int totalMinutes = 0;
-      for (final itinerary in itineraries) {
-        final duration = itinerary['duration'] as String;
-        final match = RegExp(r'PT(?:(\d+)H)?(?:(\d+)M)?').firstMatch(duration);
-        if (match != null) {
-          final h = int.tryParse(match.group(1) ?? '0') ?? 0;
-          final m = int.tryParse(match.group(2) ?? '0') ?? 0;
-          totalMinutes += h * 60 + m;
-        }
-      }
-      final totalH = totalMinutes ~/ 60;
-      final totalM = totalMinutes % 60;
-
-      final stopCount = stops.length;
-      final stopLabel = '$stopCount ${stopCount == 1 ? "stop" : "stops"}';
 
       final airlineCodes = offer['validatingAirlineCodes'] as List;
       final airline = carriers[airlineCodes.first] ?? airlineCodes.first;
 
       final price = offer['price']['grandTotal'];
       final currency = offer['price']['currency'];
-
       final formattedPrice = NumberFormat.currency(
         locale: 'ko_KR',
         symbol: '₩',
         decimalDigits: 0,
       ).format(double.tryParse(price) ?? 0);
 
-      results.add({
-        'depTime': depTime,
-        'arrTime': arrTime,
-        'plusDay': plusDay,
-        'airportPath': airportPath,
-        'duration': '${totalH}h ${totalM}m',
-        'stops': stopLabel,
-        'airline': airline,
-        'price': formattedPrice,
-        'currency': currency,
-      });
+      for (int i = 0; i < itineraries.length; i++) {
+        final itinerary = itineraries[i];
+        final segments = itinerary['segments'] as List;
+
+        final firstSegment = segments.first;
+        final lastSegment = segments.last;
+
+        final depRaw = firstSegment['departure']['at'];
+        final arrRaw = lastSegment['arrival']['at'];
+        final depTime = formatTime(depRaw);
+        final arrTime = formatTime(arrRaw);
+        final dayDiff = DateTime.parse(
+          arrRaw,
+        ).difference(DateTime.parse(depRaw)).inDays;
+        final plusDay = dayDiff > 0 ? '+$dayDiff' : '';
+
+        final stops = <String>[];
+        for (int j = 0; j < segments.length - 1; j++) {
+          stops.add(segments[j]['arrival']['iataCode']);
+        }
+
+        final depAirport = firstSegment['departure']['iataCode'];
+        final arrAirport = lastSegment['arrival']['iataCode'];
+        final airportPath = '$depAirport → ${stops.join(" → ")} → $arrAirport';
+
+        final durationStr = itinerary['duration'] as String;
+        final match = RegExp(
+          r'PT(?:(\d+)H)?(?:(\d+)M)?',
+        ).firstMatch(durationStr);
+        int h = 0, m = 0;
+        if (match != null) {
+          h = int.tryParse(match.group(1) ?? '0') ?? 0;
+          m = int.tryParse(match.group(2) ?? '0') ?? 0;
+        }
+
+        final stopCount = stops.length;
+        final stopLabel = '$stopCount ${stopCount == 1 ? "stop" : "stops"}';
+
+        results.add({
+          'depTime': depTime,
+          'arrTime': arrTime,
+          'plusDay': plusDay,
+          'airportPath': airportPath,
+          'duration': '${h}h ${m}m',
+          'stops': stopLabel,
+          'airline': airline,
+          'price': formattedPrice,
+          'currency': currency,
+          'isReturn': i == 1, // ✅ flag: false = outbound, true = return
+        });
+      }
     }
 
     return results;

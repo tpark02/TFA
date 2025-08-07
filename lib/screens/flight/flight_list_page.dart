@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:TFA/providers/flight/flight_search_controller.dart';
 import 'package:TFA/screens/flight/flight_filter_page.dart';
 import 'package:TFA/widgets/filter_button.dart';
@@ -8,7 +6,6 @@ import 'package:TFA/widgets/search_summary_card.dart';
 import 'package:TFA/widgets/search_summary_loading_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 
 class FlightListPage extends ConsumerStatefulWidget {
   const FlightListPage({super.key});
