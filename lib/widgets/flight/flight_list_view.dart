@@ -1,5 +1,5 @@
 import 'package:TFA/providers/flight/flight_search_controller.dart';
-import 'package:TFA/widgets/flight_list_view_item.dart';
+import 'package:TFA/widgets/flight/flight_list_view_item.dart';
 import 'package:TFA/widgets/search_summary_loading_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

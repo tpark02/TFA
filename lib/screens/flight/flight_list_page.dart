@@ -1,7 +1,7 @@
 import 'package:TFA/providers/flight/flight_search_controller.dart';
 import 'package:TFA/screens/flight/flight_filter_page.dart';
 import 'package:TFA/widgets/filter_button.dart';
-import 'package:TFA/widgets/flight_list_view.dart';
+import 'package:TFA/widgets/flight/flight_list_view.dart';
 import 'package:TFA/widgets/search_summary_card.dart';
 import 'package:TFA/widgets/search_summary_loading_card.dart';
 import 'package:flutter/material.dart';

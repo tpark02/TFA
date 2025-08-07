@@ -1,0 +1,251 @@
+// lib/screens/flight/widgets/search_inputs.dart
+
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:TFA/providers/airport/airport_selection.dart';
+import 'package:TFA/providers/flight/flight_search_controller.dart';
+import 'package:TFA/screens/shared/search_airport_sheet.dart';
+import 'package:TFA/screens/shared/calendar_sheet.dart';
+import 'package:TFA/screens/shared/traveler_selector_sheet.dart';
+
+class FlightSearchInputs extends ConsumerWidget {
+  const FlightSearchInputs({
+    super.key,
+    required this.isLoadingCity,
+    required this.padding,
+  });
+
+  final bool isLoadingCity;
+  final double padding;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final controller = ref.read(flightSearchProvider.notifier);
+    final flightState = ref.watch(flightSearchProvider);
+
+    return Column(
+      children: [
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: padding),
+          child: Container(
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: Theme.of(context).colorScheme.primary,
+                width: 1,
+              ),
+            ),
+            child: Row(
+              children: [
+                // Departure
+                Expanded(
+                  child: OutlinedButton(
+                    style: _btnStyle(context),
+                    onPressed: () async {
+                      final result =
+                          await showModalBottomSheet<AirportSelection>(
+                            context: context,
+                            isScrollControlled: true,
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.vertical(
+                                top: Radius.circular(20),
+                              ),
+                            ),
+                            builder: (ctx) => const SearchAirportSheet(
+                              title: 'Airport',
+                              isDeparture: true,
+                            ),
+                          );
+
+                      if (result != null) {
+                        controller.setDepartureCode(result.code);
+                        controller.setDepartureName(result.name);
+                        controller.setDepartureCity(result.city);
+                      }
+                    },
+                    child: Row(
+                      children: [
+                        const Icon(Icons.near_me),
+                        const SizedBox(width: 8),
+                        isLoadingCity
+                            ? const SizedBox(
+                                width: 16,
+                                height: 16,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2.0,
+                                ),
+                              )
+                            : Text(
+                                flightState.departureAirportCode.isEmpty
+                                    ? 'Departure'
+                                    : flightState.departureAirportCode,
+                                style: _textStyle(context),
+                              ),
+                      ],
+                    ),
+                  ),
+                ),
+                // Arrival
+                Expanded(
+                  child: OutlinedButton(
+                    style: _btnStyle(context),
+                    onPressed: () async {
+                      final result =
+                          await showModalBottomSheet<AirportSelection>(
+                            context: context,
+                            isScrollControlled: true,
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.vertical(
+                                top: Radius.circular(20),
+                              ),
+                            ),
+                            builder: (ctx) => const SearchAirportSheet(
+                              title: 'Arrival Airport',
+                              isDeparture: false,
+                            ),
+                          );
+
+                      if (result != null) {
+                        controller.setArrivalCode(result.code);
+                        controller.setArrivalName(result.name);
+                        controller.setArrivalCity(result.city);
+                      }
+                    },
+                    child: Row(
+                      children: [
+                        const Icon(Icons.swap_calls),
+                        const SizedBox(width: 8),
+                        Text(
+                          flightState.arrivalAirportName.isEmpty
+                              ? 'Arrival'
+                              : flightState.arrivalAirportCode,
+                          style: _textStyle(context),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: padding),
+          child: Row(
+            children: [
+              // Date picker
+              Expanded(
+                flex: 6,
+                child: OutlinedButton(
+                  onPressed: () async {
+                    final result = await showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.vertical(
+                          top: Radius.circular(20),
+                        ),
+                      ),
+                      builder: (ctx) => CalendarSheet(
+                        key: UniqueKey(),
+                        firstTitle: 'One Way',
+                        secondTitle: 'Round Trip',
+                        isOnlyTab: false,
+                        isRange: false,
+                        startDays: 0,
+                        endDays: 0,
+                      ),
+                    );
+
+                    if (result != null) {
+                      controller.setDepartDate(result['startDate']);
+                      controller.setReturnDate(result['endDate']);
+                      controller.setDisplayDate(
+                        startDate: result['startDate'],
+                        endDate: result['endDate'],
+                      );
+                    }
+                  },
+                  style: _outlined(context),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      const Icon(Icons.calendar_month),
+                      Text(
+                        flightState.displayDate ?? 'Select',
+                        style: _textStyle(context),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              // Travelers
+              Expanded(
+                flex: 4,
+                child: OutlinedButton(
+                  onPressed: () async {
+                    final result = await showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.vertical(
+                          top: Radius.circular(20),
+                        ),
+                      ),
+                      builder: (ctx) => const TravelerSelectorSheet(),
+                    );
+
+                    if (result != null) {
+                      final pax = result['passengerCount'] ?? 1;
+                      final cabin = result['cabinClass'] ?? 0;
+                      controller.setPassengers(count: pax, cabinIndex: cabin);
+                    }
+                  },
+                  style: _outlined(context),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.person),
+                      Text(
+                        flightState.passengerCount.toString(),
+                        style: _textStyle(context),
+                      ),
+                      const SizedBox(width: 5),
+                      const Text('|'),
+                      const SizedBox(width: 5),
+                      const Icon(Icons.airline_seat_recline_normal),
+                      Flexible(
+                        child: Text(
+                          flightState.cabinClass,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                          style: _textStyle(context),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  ButtonStyle _btnStyle(BuildContext context) => OutlinedButton.styleFrom(
+    side: BorderSide.none,
+    foregroundColor: Theme.of(context).colorScheme.primary,
+    shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+  );
+
+  ButtonStyle _outlined(BuildContext context) => OutlinedButton.styleFrom(
+    side: BorderSide(color: Theme.of(context).colorScheme.primary, width: 1),
+    shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+  );
+
+  TextStyle _textStyle(BuildContext context) => TextStyle(
+    fontSize: Theme.of(context).textTheme.bodyMedium?.fontSize,
+    fontWeight: FontWeight.bold,
+  );
+}
