@@ -112,6 +112,8 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
         final stopLabel = '$stopCount ${stopCount == 1 ? "stop" : "stops"}';
 
         results.add({
+          'depAirport': depAirport,
+          'arrAirport': arrAirport,
           'depTime': depTime,
           'arrTime': arrTime,
           'plusDay': plusDay,

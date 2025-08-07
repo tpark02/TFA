@@ -28,8 +28,9 @@ class FlightListViewItem extends StatelessWidget {
     // Extract intermediate airport codes if needed
     final pathParts = airportPath.split('→').map((s) => s.trim()).toList();
 
-    final middle1 = pathParts.length > 2 ? pathParts[1] : '';
-    final middle2 = pathParts.length > 3 ? pathParts[2] : '';
+    final middleAirports = pathParts.length > 2
+        ? pathParts.sublist(1, pathParts.length - 1)
+        : [];
 
     return Material(
       color: Colors.transparent,
@@ -52,7 +53,8 @@ class FlightListViewItem extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "$index  $depTime",
+                        // "$index  $depTime",
+                        "$depTime",
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: Theme.of(
@@ -73,58 +75,54 @@ class FlightListViewItem extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 8),
                       child: Column(
                         children: [
+                          /// Connector line: dots and dividers
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Expanded(child: Divider(color: Colors.grey)),
-                              Icon(
-                                Icons.circle_outlined,
-                                size: 12,
-                                color: Colors.grey,
-                              ),
-                              SizedBox(
-                                width: 90,
-                                child: Divider(color: Colors.grey),
-                              ),
-                              Icon(
-                                Icons.circle_outlined,
-                                size: 12,
-                                color: Colors.grey,
-                              ),
-                              Expanded(child: Divider(color: Colors.grey)),
+                              if (middleAirports.isNotEmpty)
+                                Expanded(child: Divider(color: Colors.grey)),
+
+                              ...List.generate(middleAirports.length, (i) {
+                                return Row(
+                                  children: [
+                                    Icon(
+                                      Icons.circle_outlined,
+                                      size: 12,
+                                      color: Colors.grey,
+                                    ),
+                                    if (i != middleAirports.length - 1)
+                                      SizedBox(
+                                        width: 40,
+                                        child: Divider(color: Colors.grey),
+                                      ),
+                                  ],
+                                );
+                              }),
+
+                              if (middleAirports.isNotEmpty)
+                                Expanded(child: Divider(color: Colors.grey)),
                             ],
                           ),
+
+                          /// Airport codes
                           Row(
-                            children: [
-                              Expanded(
-                                child: Divider(color: Colors.transparent),
-                              ),
-                              Text(
-                                middle1,
-                                style: TextStyle(
-                                  color: Colors.grey[500],
-                                  fontSize: Theme.of(
-                                    context,
-                                  ).textTheme.bodyMedium?.fontSize,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: middleAirports.map<Widget>((airport) {
+                              return Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
                                 ),
-                              ),
-                              const SizedBox(
-                                width: 70,
-                                child: Divider(color: Colors.transparent),
-                              ),
-                              Text(
-                                middle2,
-                                style: TextStyle(
-                                  color: Colors.grey[500],
-                                  fontSize: Theme.of(
-                                    context,
-                                  ).textTheme.bodyMedium?.fontSize,
+                                child: Text(
+                                  airport,
+                                  style: TextStyle(
+                                    color: Colors.grey[500],
+                                    fontSize: Theme.of(
+                                      context,
+                                    ).textTheme.bodyMedium?.fontSize,
+                                  ),
                                 ),
-                              ),
-                              Expanded(
-                                child: Divider(color: Colors.transparent),
-                              ),
-                            ],
+                              );
+                            }).toList(),
                           ),
                         ],
                       ),
