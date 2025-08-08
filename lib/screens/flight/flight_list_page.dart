@@ -1,3 +1,4 @@
+import 'package:TFA/constants/ilter_data.dart';
 import 'package:TFA/providers/flight/flight_search_controller.dart';
 import 'package:TFA/providers/sort_tab_provider.dart';
 import 'package:TFA/screens/flight/flight_filter_page.dart';
@@ -5,10 +6,11 @@ import 'package:TFA/utils/time_utils.dart';
 import 'package:TFA/widgets/filter_button.dart';
 import 'package:TFA/widgets/flight/flight_list_view.dart';
 import 'package:TFA/widgets/sort_sheets/range_picker_sheet.dart';
+import 'package:TFA/widgets/sort_sheets/selection_bottom_sheet.dart';
 import 'package:TFA/widgets/sort_sheets/sort_bottom_sheet.dart';
 import 'package:TFA/widgets/search_summary_card.dart';
 import 'package:TFA/widgets/search_summary_loading_card.dart';
-import 'package:TFA/widgets/sort_sheets/travel_hack_modal.dart';
+import 'package:TFA/widgets/sort_sheets/travel_hack_bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -54,7 +56,7 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
         setState(() {
           isLoading = false;
 
-          final Map<String, dynamic> latestFlights = ref
+          final Map<String, dynamic> _ = ref
               .read(flightSearchProvider)
               .flightResults
               .maybeWhen(data: (v) => v, orElse: () => {});
@@ -66,6 +68,9 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
   @override
   Widget build(BuildContext context) {
     final flightState = ref.watch(flightSearchProvider);
+    Set<String> selectedAirlines = cloneSet(kAirlines);
+    Set<String> selectedLayovers = cloneSet(kLayoverCities);
+
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(90), // required!
@@ -200,7 +205,7 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
                             top: Radius.circular(16),
                           ),
                         ),
-                        builder: (context) => const TravelHackModal(),
+                        builder: (context) => const TravelHackBottomSheet(),
                       );
                     },
                   ),
@@ -294,9 +299,32 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
                       );
                     },
                   ),
-                  FilterButton(label: "Airlines", func: () {}),
-                  FilterButton(label: "Arrival Airport", func: () {}),
-                  FilterButton(label: "Layover Cities", func: () {}),
+                  FilterButton(
+                    label: "Airlines",
+                    func: () {
+                      showSelectionBottomSheet<String>(
+                        context: context,
+                        title: 'Airlines',
+                        items: kAirlines,
+                        selected: selectedAirlines,
+                        labelOf: (s) => s,
+                        onDone: (s) => setState(() => selectedAirlines = s),
+                      );
+                    },
+                  ),
+                  FilterButton(
+                    label: "Layover Cities",
+                    func: () {
+                      showSelectionBottomSheet<String>(
+                        context: context,
+                        title: 'Layover Cities',
+                        items: kLayoverCities,
+                        selected: selectedLayovers,
+                        labelOf: (s) => s,
+                        onDone: (s) => setState(() => selectedLayovers = s),
+                      );
+                    },
+                  ),
                 ],
               ),
             ),

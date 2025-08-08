@@ -1,3 +1,4 @@
+import 'package:TFA/constants/ilter_data.dart';
 import 'package:TFA/utils/time_utils.dart';
 import 'package:flutter/material.dart';
 
@@ -18,48 +19,8 @@ class _FlightFilterPageState extends State<FlightFilterPage> {
   RangeValues flightDuration = const RangeValues(0, 1395); // 8h40m to 23h15m
   RangeValues layoverDuration = const RangeValues(0, 1470); // 0 to 24h30m
   // --- Airlines state ---
-  final List<String> airlines = [
-    "Aero Lloyd (YP)",
-    "Air Busan",
-    "Air Canada",
-    "Air China",
-    "Air France",
-    "Alaska Airlines",
-    "American Airlines",
-    // extras so Show More is meaningful
-    "ANA", "Asiana Airlines", "British Airways", "Cathay Pacific",
-    "Delta", "Emirates", "Etihad", "Qatar Airways",
-  ];
-  final Set<String> selectedAirlines = {
-    "Aero Lloyd (YP)",
-    "Air Busan",
-    "Air Canada",
-    "Air China",
-    "Air France",
-    "Alaska Airlines",
-    "American Airlines",
-  };
-
-  final List<String> layoverCities = [
-    "AUH - Abu Dhabi",
-    "AMS - Amsterdam",
-    "IST - Arnavutköy, Istanbul",
-    "ATL - Atlanta",
-    "PEK - Beijing",
-    "BOS - Boston",
-    "ORD - Chicago",
-    "ICN - Incheon",
-    "DXB - Dubai",
-  ];
-  final Set<String> selectedLayovers = {
-    "AUH - Abu Dhabi",
-    "AMS - Amsterdam",
-    "IST - Arnavutköy, Istanbul",
-    "ATL - Atlanta",
-    "PEK - Beijing",
-    "BOS - Boston",
-    "ORD - Chicago",
-  };
+  Set<String> selectedAirlines = cloneSet(kDefaultSelectedAirlines);
+  Set<String> selectedLayovers = cloneSet(kDefaultSelectedLayovers);
 
   static const int _visibleItemsCount = 7;
   bool _showAllAirlines = false;
@@ -293,11 +254,11 @@ class _FlightFilterPageState extends State<FlightFilterPage> {
       _buildSectionTitle("Airlines", context),
       ...(() {
         final list = _showAllAirlines
-            ? airlines
-            : airlines.take(_visibleItemsCount).toList();
+            ? kAirlines
+            : kAirlines.take(_visibleItemsCount).toList();
         return [
           ...list.map((a) => _padded(_airlineTile(a))),
-          if (airlines.length > _visibleItemsCount)
+          if (kAirlines.length > _visibleItemsCount)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 4),
               child: Center(
@@ -314,11 +275,11 @@ class _FlightFilterPageState extends State<FlightFilterPage> {
       _buildSectionTitle("Layover Cities", context),
       ...(() {
         final list = _showAllCities
-            ? layoverCities
-            : layoverCities.take(_visibleItemsCount).toList();
+            ? kLayoverCities
+            : kLayoverCities.take(_visibleItemsCount).toList();
         return [
           ...list.map((a) => _padded(_cityTiles(a))),
-          if (layoverCities.length > _visibleItemsCount)
+          if (kLayoverCities.length > _visibleItemsCount)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 4),
               child: Center(

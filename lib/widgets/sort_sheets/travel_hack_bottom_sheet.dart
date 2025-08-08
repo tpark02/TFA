@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class TravelHackModal extends StatelessWidget {
-  const TravelHackModal({super.key});
+class TravelHackBottomSheet extends StatelessWidget {
+  const TravelHackBottomSheet({super.key});
 
   @override
   Widget build(BuildContext context) {
