@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 class FilterButton extends StatelessWidget {
   final String label;
-  const FilterButton({super.key, required this.label});
-
+  const FilterButton({super.key, required this.label, required this.func});
+  final VoidCallback func;
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -18,7 +18,9 @@ class FilterButton extends StatelessWidget {
           ),
           side: BorderSide(color: Colors.grey[400]!, width: 1),
         ),
-        onPressed: () {},
+        onPressed: () {
+          func();
+        },
         child: Text(
           label,
           style: TextStyle(

@@ -1,9 +1,14 @@
 import 'package:TFA/providers/flight/flight_search_controller.dart';
+import 'package:TFA/providers/sort_tab_provider.dart';
 import 'package:TFA/screens/flight/flight_filter_page.dart';
+import 'package:TFA/utils/time_utils.dart';
 import 'package:TFA/widgets/filter_button.dart';
 import 'package:TFA/widgets/flight/flight_list_view.dart';
+import 'package:TFA/widgets/sort_sheets/range_picker_sheet.dart';
+import 'package:TFA/widgets/sort_sheets/sort_bottom_sheet.dart';
 import 'package:TFA/widgets/search_summary_card.dart';
 import 'package:TFA/widgets/search_summary_loading_card.dart';
+import 'package:TFA/widgets/sort_sheets/travel_hack_modal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -169,16 +174,129 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
                       child: Icon(Icons.tune, size: 23),
                     ),
                   ),
-                  FilterButton(label: "Sort: Cost"),
-                  FilterButton(label: "Travel Hacks"),
-                  FilterButton(label: "Stops"),
-                  FilterButton(label: "Take Off"),
-                  FilterButton(label: "Landing"),
-                  FilterButton(label: "Flight Duration"),
-                  FilterButton(label: "Layover Duration"),
-                  FilterButton(label: "Airlines"),
-                  FilterButton(label: "Arrival Airport"),
-                  FilterButton(label: "Layover Cities"),
+                  FilterButton(
+                    label: "Sort: Cost",
+                    func: () {
+                      showSortBottomSheet(
+                        title: "Sort",
+                        context: context,
+                        selectedSort: 'Cost',
+                        sortType: SortTab.sort,
+                        onSortSelected: (value) {
+                          print('Selected sort: $value');
+                        },
+                      );
+                    },
+                  ),
+                  FilterButton(
+                    label: "Travel Hacks",
+                    func: () {
+                      showModalBottomSheet(
+                        context: context,
+                        useRootNavigator: true,
+                        isScrollControlled: true,
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.vertical(
+                            top: Radius.circular(16),
+                          ),
+                        ),
+                        builder: (context) => const TravelHackModal(),
+                      );
+                    },
+                  ),
+                  FilterButton(
+                    label: "Stops",
+                    func: () {
+                      showSortBottomSheet(
+                        title: "Stops",
+                        context: context,
+                        selectedSort: 'Up to 2 stops',
+                        sortType: SortTab.stops,
+                        onSortSelected: (value) {
+                          print('Selected sort: $value');
+                        },
+                      );
+                    },
+                  ),
+                  FilterButton(
+                    label: "Take Off",
+                    func: () async {
+                      await showRangePickerSheet(
+                        context: context,
+                        sheet: RangePickerSheet(
+                          title: 'Take Off',
+                          min: 0,
+                          max: 1439,
+                          divisions: 1439,
+                          initial: const RangeValues(0, 1439),
+                          label: formatTime,
+                          onConfirmed: (range) {
+                            // use range.start/end (minutes)
+                          },
+                        ),
+                      );
+                    },
+                  ),
+                  FilterButton(
+                    label: "Landing",
+                    func: () async {
+                      await showRangePickerSheet(
+                        context: context,
+                        sheet: RangePickerSheet(
+                          title: 'Landing',
+                          min: 0,
+                          max: 1439,
+                          divisions: 1439,
+                          initial: const RangeValues(0, 1439),
+                          label: formatTime,
+                          onConfirmed: (range) {
+                            // use range.start/end (minutes)
+                          },
+                        ),
+                      );
+                    },
+                  ),
+                  FilterButton(
+                    label: "Flight Duration",
+                    func: () async {
+                      await showRangePickerSheet(
+                        context: context,
+                        sheet: RangePickerSheet(
+                          title: 'Flight Duration',
+                          min: 0,
+                          max: 1440,
+                          divisions: 1440,
+                          initial: const RangeValues(0, 1440),
+                          label: formatDuration,
+                          onConfirmed: (range) {
+                            // use range.start/end (minutes)
+                          },
+                        ),
+                      );
+                    },
+                  ),
+                  FilterButton(
+                    label: "Layover Duration",
+                    func: () async {
+                      await showRangePickerSheet(
+                        context: context,
+                        sheet: RangePickerSheet(
+                          title: 'Layover Duration',
+                          min: 0,
+                          max: 1470,
+                          divisions: 1470,
+                          initial: const RangeValues(0, 1470),
+                          label: formatDuration,
+                          onConfirmed: (range) {
+                            // use range.start/end (minutes)
+                          },
+                        ),
+                      );
+                    },
+                  ),
+                  FilterButton(label: "Airlines", func: () {}),
+                  FilterButton(label: "Arrival Airport", func: () {}),
+                  FilterButton(label: "Layover Cities", func: () {}),
                 ],
               ),
             ),

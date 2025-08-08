@@ -1,3 +1,4 @@
+import 'package:TFA/utils/time_utils.dart';
 import 'package:flutter/material.dart';
 
 class FlightFilterPage extends StatefulWidget {
@@ -63,21 +64,6 @@ class _FlightFilterPageState extends State<FlightFilterPage> {
   static const int _visibleItemsCount = 7;
   bool _showAllAirlines = false;
   bool _showAllCities = false;
-
-  String formatTime(int minutes) {
-    final hours = minutes ~/ 60;
-    final mins = minutes % 60;
-    final period = hours < 12 ? 'a' : 'p';
-    final displayHour = hours % 12 == 0 ? 12 : hours % 12;
-    final displayMin = mins.toString().padLeft(2, '0');
-    return '$displayHour:$displayMin$period';
-  }
-
-  String formatDuration(int minutes) {
-    final hours = minutes ~/ 60;
-    final mins = minutes % 60;
-    return '${hours}h ${mins}m';
-  }
 
   final List<Widget> _sections = [];
 
