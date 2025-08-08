@@ -14,14 +14,69 @@ class _FlightFilterPageState extends State<FlightFilterPage> {
   int selectedStops = 2;
   RangeValues takeoffRange = const RangeValues(0, 1439);
   RangeValues landingRange = const RangeValues(0, 1439);
+  RangeValues flightDuration = const RangeValues(0, 1395); // 8h40m to 23h15m
+  RangeValues layoverDuration = const RangeValues(0, 1470); // 0 to 24h30m
+  // --- Airlines state ---
+  final List<String> airlines = [
+    "Aero Lloyd (YP)",
+    "Air Busan",
+    "Air Canada",
+    "Air China",
+    "Air France",
+    "Alaska Airlines",
+    "American Airlines",
+    // extras so Show More is meaningful
+    "ANA", "Asiana Airlines", "British Airways", "Cathay Pacific",
+    "Delta", "Emirates", "Etihad", "Qatar Airways",
+  ];
+  final Set<String> selectedAirlines = {
+    "Aero Lloyd (YP)",
+    "Air Busan",
+    "Air Canada",
+    "Air China",
+    "Air France",
+    "Alaska Airlines",
+    "American Airlines",
+  };
 
-  String formatTime(double minutes) {
+  final List<String> layoverCities = [
+    "AUH - Abu Dhabi",
+    "AMS - Amsterdam",
+    "IST - Arnavutköy, Istanbul",
+    "ATL - Atlanta",
+    "PEK - Beijing",
+    "BOS - Boston",
+    "ORD - Chicago",
+    "ICN - Incheon",
+    "DXB - Dubai",
+  ];
+  final Set<String> selectedLayovers = {
+    "AUH - Abu Dhabi",
+    "AMS - Amsterdam",
+    "IST - Arnavutköy, Istanbul",
+    "ATL - Atlanta",
+    "PEK - Beijing",
+    "BOS - Boston",
+    "ORD - Chicago",
+  };
+
+  static const int _visibleItemsCount = 7;
+  bool _showAllAirlines = false;
+  bool _showAllCities = false;
+
+  String formatTime(int minutes) {
     final hours = minutes ~/ 60;
     final mins = minutes % 60;
-    final isAm = hours < 12;
-    final displayHour = (hours % 12 == 0) ? 12 : (hours % 12);
-    final displayMins = mins.toInt().toString().padLeft(2, '0');
-    return "$displayHour:$displayMins ${isAm ? 'a' : 'p'}";
+    final period = hours < 12 ? 'a' : 'p';
+    final displayHour = hours % 12 == 0 ? 12 : hours % 12;
+    final displayMin = mins.toString().padLeft(2, '0');
+    return '$displayHour:$displayMin$period';
+  }
+
+  String formatDuration(int minutes) {
+    final hours = minutes ~/ 60;
+    final mins = minutes % 60;
+    return '${hours}h ${mins}m';
   }
 
   final List<Widget> _sections = [];
@@ -35,9 +90,7 @@ class _FlightFilterPageState extends State<FlightFilterPage> {
 
   Widget _buildSectionTitle(String title, BuildContext context) {
     return Container(
-      color: Theme.of(
-        context,
-      ).colorScheme.secondaryContainer, // Light gray background
+      color: Colors.grey[100],
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       child: Text(
@@ -87,18 +140,101 @@ class _FlightFilterPageState extends State<FlightFilterPage> {
     );
   }
 
-  Widget _rangeSlider(
-    RangeValues values,
-    void Function(RangeValues) onChanged,
-  ) {
-    return RangeSlider(
-      values: values,
-      onChanged: onChanged,
-      min: 0,
-      max: 1439,
-      divisions: 1439,
-      labels: RangeLabels(formatTime(values.start), formatTime(values.end)),
-      activeColor: Colors.lightBlue,
+  Widget _buildSlider({
+    // required String title,
+    required String leftLabel,
+    required String rightLabel,
+    required RangeValues values,
+    required double min,
+    required double max,
+    required ValueChanged<RangeValues> onChanged,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // const SizedBox(height: 20),
+        // Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [Text(leftLabel), Text(rightLabel)],
+        ),
+        RangeSlider(
+          min: min,
+          max: max,
+          values: values,
+          onChanged: (v) => onChanged(
+            RangeValues(v.start.clamp(min, max), v.end.clamp(min, max)),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _airlineTile(String airline) {
+    final isSelected = selectedAirlines.contains(airline);
+    return Container(
+      color: Colors.white,
+      child: ListTile(
+        dense: true,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+        leading: Checkbox(
+          value: isSelected,
+          onChanged: (v) {
+            setState(() {
+              if (v == true) {
+                selectedAirlines.add(airline);
+              } else {
+                selectedAirlines.remove(airline);
+              }
+            });
+          },
+        ),
+        title: Text(airline),
+        trailing: GestureDetector(
+          onTap: () {
+            setState(() {
+              selectedAirlines
+                ..clear()
+                ..add(airline);
+            });
+          },
+          child: const Text("only", style: TextStyle(color: Colors.lightBlue)),
+        ),
+      ),
+    );
+  }
+
+  Widget _cityTiles(String city) {
+    final isSelected = selectedLayovers.contains(city);
+    return Container(
+      color: Colors.white,
+      child: ListTile(
+        dense: true,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+        leading: Checkbox(
+          value: isSelected,
+          onChanged: (v) {
+            setState(() {
+              if (v == true) {
+                selectedLayovers.add(city);
+              } else {
+                selectedLayovers.remove(city);
+              }
+            });
+          },
+        ),
+        title: Text(city),
+        trailing: GestureDetector(
+          onTap: () {
+            setState(() {
+              selectedLayovers
+                ..clear()
+                ..add(city);
+            });
+          },
+          child: const Text("only", style: TextStyle(color: Colors.lightBlue)),
+        ),
+      ),
     );
   }
 
@@ -123,16 +259,100 @@ class _FlightFilterPageState extends State<FlightFilterPage> {
 
       _buildSectionTitle("Take Off", context),
       _padded(
-        _rangeSlider(takeoffRange, (r) => setState(() => takeoffRange = r)),
+        _buildSlider(
+          leftLabel: formatTime(takeoffRange.start.toInt()),
+          rightLabel: formatTime(takeoffRange.end.toInt()),
+          values: takeoffRange,
+          min: 0,
+          max: 1439,
+          onChanged: (r) => setState(() => takeoffRange = r),
+        ),
       ),
 
       _buildSectionTitle("Landing", context),
       _padded(
-        _rangeSlider(landingRange, (r) => setState(() => landingRange = r)),
+        _buildSlider(
+          leftLabel: formatTime(landingRange.start.toInt()),
+          rightLabel: formatTime(landingRange.end.toInt()),
+          values: landingRange,
+          min: 0,
+          max: 1439,
+          onChanged: (r) => setState(() => landingRange = r),
+        ),
       ),
+      _buildSectionTitle("Flight Duration", context),
+      _padded(
+        _buildSlider(
+          leftLabel: formatDuration(flightDuration.start.toInt()),
+          rightLabel: formatDuration(flightDuration.end.toInt()),
+          values: flightDuration,
+          min: 0,
+          max: 1440,
+          onChanged: (r) => setState(() => flightDuration = r),
+        ),
+      ),
+      _buildSectionTitle("Layover Duration", context),
+      _padded(
+        _buildSlider(
+          leftLabel: formatDuration(layoverDuration.start.toInt()),
+          rightLabel: formatDuration(layoverDuration.end.toInt()),
+          values: layoverDuration,
+          min: 0,
+          max: 1470,
+          onChanged: (r) => setState(() => layoverDuration = r),
+        ),
+      ),
+
+      // --- Airlines with Show More ---
+      _buildSectionTitle("Airlines", context),
+      ...(() {
+        final list = _showAllAirlines
+            ? airlines
+            : airlines.take(_visibleItemsCount).toList();
+        return [
+          ...list.map((a) => _padded(_airlineTile(a))),
+          if (airlines.length > _visibleItemsCount)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              child: Center(
+                child: TextButton(
+                  onPressed: () => setState(() {
+                    _showAllAirlines = !_showAllAirlines;
+                  }),
+                  child: Text(_showAllAirlines ? "Show Less" : "Show More"),
+                ),
+              ),
+            ),
+        ];
+      }()),
+      _buildSectionTitle("Layover Cities", context),
+      ...(() {
+        final list = _showAllCities
+            ? layoverCities
+            : layoverCities.take(_visibleItemsCount).toList();
+        return [
+          ...list.map((a) => _padded(_cityTiles(a))),
+          if (layoverCities.length > _visibleItemsCount)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              child: Center(
+                child: TextButton(
+                  onPressed: () => setState(() {
+                    _showAllCities = !_showAllCities;
+                  }),
+                  child: Text(_showAllCities ? "Show Less" : "Show More"),
+                ),
+              ),
+            ),
+        ];
+      }()),
     ];
 
-    return SafeArea(
+    return Container(
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
       child: Scaffold(
         body: Column(
           children: [
@@ -146,10 +366,10 @@ class _FlightFilterPageState extends State<FlightFilterPage> {
                     "Filters",
                     style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () => Navigator.pop(context),
-                  ),
+                  // IconButton(
+                  //   icon: const Icon(Icons.close),
+                  //   onPressed: () => Navigator.pop(context),
+                  // ),
                 ],
               ),
             ),

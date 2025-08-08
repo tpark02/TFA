@@ -141,6 +141,7 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
                         showModalBottomSheet(
                           context: context,
                           isScrollControlled: true,
+                          useSafeArea: true,
                           backgroundColor: Colors.transparent,
                           builder: (context) {
                             return DraggableScrollableSheet(
