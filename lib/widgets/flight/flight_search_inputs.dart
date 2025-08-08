@@ -1,5 +1,7 @@
 // lib/screens/flight/widgets/search_inputs.dart
 
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:TFA/providers/airport/airport_selection.dart';
@@ -84,6 +86,11 @@ class FlightSearchInputs extends ConsumerWidget {
                     ),
                   ),
                 ),
+                Transform.rotate(
+                  angle: math.pi / 2, // 180 degrees
+                  child: const Icon(Icons.swap_calls),
+                ),
+                const SizedBox(width: 8),
                 // Arrival
                 Expanded(
                   child: OutlinedButton(
@@ -110,17 +117,14 @@ class FlightSearchInputs extends ConsumerWidget {
                         controller.setArrivalCity(result.city);
                       }
                     },
-                    child: Row(
-                      children: [
-                        const Icon(Icons.swap_calls),
-                        const SizedBox(width: 8),
-                        Text(
-                          flightState.arrivalAirportName.isEmpty
-                              ? 'Arrival'
-                              : flightState.arrivalAirportCode,
-                          style: _textStyle(context),
-                        ),
-                      ],
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        flightState.arrivalAirportName.isEmpty
+                            ? 'Arrival'
+                            : flightState.arrivalAirportCode,
+                        style: _textStyle(context),
+                      ),
                     ),
                   ),
                 ),
@@ -168,9 +172,10 @@ class FlightSearchInputs extends ConsumerWidget {
                   },
                   style: _outlined(context),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       const Icon(Icons.calendar_month),
+                      const SizedBox(width: 8),
                       Text(
                         flightState.displayDate ?? 'Select',
                         style: _textStyle(context),
