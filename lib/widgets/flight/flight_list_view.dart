@@ -12,9 +12,10 @@ class FlightListView extends ConsumerStatefulWidget {
     required this.takeoff,
     required this.landing,
     required this.flightDuration,
+    required this.layOverDuration,
   });
 
-  final RangeValues takeoff, landing, flightDuration;
+  final RangeValues takeoff, landing, flightDuration, layOverDuration;
   final String sortType;
   final String stopType;
 
@@ -195,11 +196,21 @@ class _FlightListViewState extends ConsumerState<FlightListView>
       final stops = int.tryParse(f['stops'].toString().split(' ').first) ?? 0;
       if (stops > maxStops) return false;
 
-      // --- duration ---
+      // --- flight duration ---
       final durMin = f['durationMin'] ?? 0;
       final dStart = widget.flightDuration.start.round();
       final dEnd = widget.flightDuration.end.round();
-      if (durMin < dStart || durMin > dEnd) return false;
+      if (durMin < dStart || durMin > dEnd) {
+        return false;
+      }
+
+      // layover duration
+      final layOverMin = f['layoverMin'] ?? 0;
+      final lStart = widget.layOverDuration.start.round();
+      final lEnd = widget.layOverDuration.end.round();
+      if (layOverMin < lStart || layOverMin > lEnd) {
+        return false;
+      }
 
       if (f['isReturn'] == false) {
         final mins = _depMinutesOfDay(f['depRaw']); // uses ISO string

@@ -1,5 +1,6 @@
-import 'package:TFA/constants/ilter_data.dart';
+import 'package:TFA/constants/filter_data.dart';
 import 'package:TFA/providers/flight/flight_search_controller.dart';
+import 'package:TFA/providers/flight/flight_search_state.dart';
 import 'package:TFA/providers/sort_tab_provider.dart';
 import 'package:TFA/screens/flight/flight_filter_page.dart';
 import 'package:TFA/utils/time_utils.dart';
@@ -28,10 +29,58 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
   RangeValues takeoffRange = const RangeValues(0, 1439);
   RangeValues landingRange = const RangeValues(0, 1439);
   RangeValues flightDurationRange = const RangeValues(0, 1440);
+  RangeValues layOverDurationRange = const RangeValues(0, 1470);
+  Set<String> selectedAirlines = cloneSet(kAirlines);
+  Set<String> selectedLayovers = cloneSet(kLayoverCities);
+  int flightDurationSt = 0;
+  int flightDurationEnd = 0;
+  int layOverDurationSt = 0;
+  int layOverDurationEnd = 0;
+  late final ProviderSubscription<FlightSearchState> _sub;
+
+  RangeValues rangeFromFlights(
+    List<Map<String, dynamic>> flights,
+    String key, {
+    int emptyMin = 0,
+    int emptyMax = 1,
+  }) {
+    int minV = 1 << 30, maxV = 0;
+
+    for (final f in flights) {
+      final v = (f[key] ?? 0) as int;
+      if (v < minV) minV = v;
+      if (v > maxV) maxV = v;
+    }
+
+    if (minV == 1 << 30) {
+      return RangeValues(emptyMin.toDouble(), emptyMax.toDouble());
+    }
+    if (minV == maxV) maxV += 1; // avoid zero-width slider
+    return RangeValues(minV.toDouble(), maxV.toDouble());
+  }
 
   @override
   void initState() {
     super.initState();
+
+    _sub = ref.listenManual<FlightSearchState>(
+      flightSearchProvider,
+      (prev, next) {
+        final flights = next.processedFlights;
+        if (!mounted || flights.isEmpty) return;
+
+        setState(() {
+          flightDurationRange = rangeFromFlights(flights, 'durationMin');
+          layOverDurationRange = rangeFromFlights(flights, 'layoverMin');
+
+          flightDurationSt = flightDurationRange.start.toInt();
+          flightDurationEnd = flightDurationRange.end.toInt() + 1;
+          layOverDurationSt = layOverDurationRange.start.toInt();
+          layOverDurationEnd = layOverDurationRange.end.toInt() + 1;
+        });
+      },
+      fireImmediately: true, // run once with the current value too
+    );
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       setState(() {
@@ -71,10 +120,14 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
   }
 
   @override
+  void dispose() {
+    _sub.close();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final flightState = ref.watch(flightSearchProvider);
-    Set<String> selectedAirlines = cloneSet(kAirlines);
-    Set<String> selectedLayovers = cloneSet(kLayoverCities);
 
     return Scaffold(
       appBar: PreferredSize(
@@ -271,18 +324,24 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
                   FilterButton(
                     label: "Flight Duration",
                     func: () async {
+                      final dMin = flightDurationRange.start.floor();
+                      final dMax = flightDurationRange.end.ceil();
+                      final int divs = (dMax - dMin).clamp(1, 100000);
+
                       await showRangePickerSheet(
                         context: context,
                         sheet: RangePickerSheet(
                           title: 'Flight Duration',
-                          min: 0,
-                          max: 1440,
-                          divisions: 1440,
-                          initial: flightDurationRange,
+                          min: flightDurationSt.toDouble(),
+                          max: flightDurationEnd.toDouble(),
+                          divisions: divs,
+                          initial: RangeValues(
+                            dMin.toDouble(),
+                            dMax.toDouble(),
+                          ),
                           label: formatDuration,
-                          onConfirmed: (range) {
-                            setState(() => landingRange = range);
-                          },
+                          onConfirmed: (range) =>
+                              setState(() => flightDurationRange = range),
                         ),
                       );
                     },
@@ -290,18 +349,24 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
                   FilterButton(
                     label: "Layover Duration",
                     func: () async {
+                      final lMin = layOverDurationRange.start.floor();
+                      final lMax = layOverDurationRange.end.ceil();
+                      final int divs = (lMax - lMin).clamp(1, 100000);
+
                       await showRangePickerSheet(
                         context: context,
                         sheet: RangePickerSheet(
                           title: 'Layover Duration',
-                          min: 0,
-                          max: 1470,
-                          divisions: 1470,
-                          initial: const RangeValues(0, 1470),
+                          min: layOverDurationSt.toDouble(),
+                          max: layOverDurationEnd.toDouble(),
+                          divisions: divs,
+                          initial: RangeValues(
+                            lMin.toDouble(),
+                            lMax.toDouble(),
+                          ),
                           label: formatDuration,
-                          onConfirmed: (range) {
-                            // use range.start/end (minutes)
-                          },
+                          onConfirmed: (range) =>
+                              setState(() => layOverDurationRange = range),
                         ),
                       );
                     },
@@ -341,7 +406,7 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
                 ? SearchSummaryLoadingCard(
                     routeText:
                         '${flightState.departureAirportCode} - ${flightState.arrivalAirportCode}',
-                    dateText: flightState.displayDate!,
+                    dateText: flightState.displayDate ?? '',
                   )
                 : FlightListView(
                     sortType: selectedSort,
@@ -349,6 +414,7 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
                     takeoff: takeoffRange,
                     landing: landingRange,
                     flightDuration: flightDurationRange,
+                    layOverDuration: layOverDurationRange,
                   ),
           ),
         ],

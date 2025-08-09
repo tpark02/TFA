@@ -10,6 +10,20 @@ import 'package:TFA/types/typedefs.dart';
 class FlightSearchController extends StateNotifier<FlightSearchState> {
   FlightSearchController() : super(FlightSearchState());
 
+  int _parseIsoDurMin(String s) {
+    final m = RegExp(r'P(?:(\d+)D)?T(?:(\d+)H)?(?:(\d+)M)?').firstMatch(s);
+    final d = int.tryParse(m?.group(1) ?? '0') ?? 0;
+    final h = int.tryParse(m?.group(2) ?? '0') ?? 0;
+    final mins = int.tryParse(m?.group(3) ?? '0') ?? 0;
+    return d * 1440 + h * 60 + mins;
+  }
+
+  String _fmtHM(int mins) {
+    final h = mins ~/ 60;
+    final m = mins % 60;
+    return '${h}h ${m}m';
+  }
+
   Future<FlightSearchResult> searchFlights({
     required String origin,
     required String destination,
@@ -61,16 +75,21 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
 
       final itineraries = offer['itineraries'] as List;
 
-      final airlineCodes = offer['validatingAirlineCodes'] as List;
-      final airline = carriers[airlineCodes.first] ?? airlineCodes.first;
+      final airlineCodes =
+          (offer['validatingAirlineCodes'] as List?) ?? const [];
+      final airlineCode = airlineCodes.isNotEmpty ? airlineCodes.first : null;
+      final airline = airlineCode != null
+          ? (carriers[airlineCode] ?? airlineCode)
+          : 'Unknown';
 
       final price = offer['price']['grandTotal'];
-      final currency = offer['price']['currency'];
-      final formattedPrice = NumberFormat.currency(
-        locale: 'ko_KR',
-        symbol: '₩',
-        decimalDigits: 0,
-      ).format(double.tryParse(price) ?? 0);
+      final currency = offer['price']['currency'] ?? 'EUR';
+
+      // If you really want KRW display, convert before formatting.
+      // Otherwise show the API currency correctly:
+      final formattedPrice = NumberFormat.simpleCurrency(
+        name: currency,
+      ).format(double.tryParse(price.toString()) ?? 0);
 
       for (int i = 0; i < itineraries.length; i++) {
         final itinerary = itineraries[i];
@@ -87,33 +106,61 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
           arrRaw,
         ).difference(DateTime.parse(depRaw)).inDays;
         final plusDay = dayDiff > 0 ? '+$dayDiff' : '';
+        final stopAirports = <String>[];
+        int totalLayoverMin = 0;
 
-        final stops = <String>[];
-        for (int j = 0; j < segments.length - 1; j++) {
-          stops.add(segments[j]['arrival']['iataCode']);
+        for (int j = 0; j < segments.length; j++) {
+          final seg = (segments[j] as Map).cast<String, dynamic>();
+
+          // Intra-segment tech stops
+          final segStops = (seg['stops'] as List?) ?? const [];
+          for (final raw in segStops) {
+            final s = (raw as Map).cast<String, dynamic>();
+            final code = s['iataCode'] as String?;
+            if (code != null) stopAirports.add(code);
+
+            final d = s['duration'] as String?;
+            if (d != null && d.isNotEmpty) {
+              totalLayoverMin += _parseIsoDurMin(d);
+            } else if (s['arrivalAt'] != null && s['departureAt'] != null) {
+              final arr = DateTime.parse(s['arrivalAt']);
+              final dep = DateTime.parse(s['departureAt']);
+              final gap = dep.difference(arr).inMinutes;
+              if (gap > 0) totalLayoverMin += gap;
+            }
+          }
+
+          // Inter-segment connection (gap between segments)
+          if (j < segments.length - 1) {
+            final thisArr = DateTime.parse(seg['arrival']['at']);
+            final nextDep = DateTime.parse(
+              (segments[j + 1] as Map)['departure']['at'],
+            );
+            final gap = nextDep.difference(thisArr).inMinutes;
+            if (gap > 0) totalLayoverMin += gap;
+
+            // connection airport is the arrival of current segment
+            final connCode = seg['arrival']['iataCode'] as String?;
+            if (connCode != null) stopAirports.add(connCode);
+          }
         }
 
         final depAirport = firstSegment['departure']['iataCode'];
         final arrAirport = lastSegment['arrival']['iataCode'];
-        final airportPath = stops.isNotEmpty
-            ? '$depAirport → ${stops.join(" → ")} → $arrAirport'
-            : '$depAirport →  $arrAirport';
+        final airportPath = stopAirports.isNotEmpty
+            ? '$depAirport → ${stopAirports.join(" → ")} → $arrAirport'
+            : '$depAirport → $arrAirport';
+
+        final stopCount = stopAirports.length;
+        final stopLabel = stopCount == 0
+            ? 'nonstop'
+            : '$stopCount ${stopCount == 1 ? "stop" : "stops"}';
 
         final durationStr = itinerary['duration'] as String;
-
-        final match = RegExp(
-          r'PT(?:(\d+)H)?(?:(\d+)M)?',
-        ).firstMatch(durationStr);
-        int h = 0, m = 0;
-        if (match != null) {
-          h = int.tryParse(match.group(1) ?? '0') ?? 0;
-          m = int.tryParse(match.group(2) ?? '0') ?? 0;
-        }
-
-        final durationMin = h * 60 + m;
-
-        final stopCount = stops.length;
-        final stopLabel = '$stopCount ${stopCount == 1 ? "stop" : "stops"}';
+        final durationMin = _parseIsoDurMin(durationStr);
+        final airMin = (durationMin - totalLayoverMin)
+            .clamp(0, 1 << 31)
+            .toInt();
 
         results.add({
           'depAirport': depAirport,
@@ -122,15 +169,20 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
           'arrTime': arrTime,
           'plusDay': plusDay,
           'airportPath': airportPath,
-          'duration': '${h}h ${m}m',
+          'durationMin': durationMin,
+          'duration': _fmtHM(durationMin),
+          'airMin': airMin,
+          'air': _fmtHM(airMin),
+          'layoverMin': totalLayoverMin,
+          'layover': _fmtHM(totalLayoverMin),
           'stops': stopLabel,
+          'stopAirports': stopAirports,
           'airline': airline,
           'price': formattedPrice,
           'currency': currency,
-          'isReturn': i == 1, // ✅ flag: false = outbound, true = return
-          'depRaw': depRaw, // for filtering/sorting
-          'arrRaw': arrRaw, // optional, might use later
-          'durationMin': durationMin,
+          'isReturn': i == 1,
+          'depRaw': depRaw,
+          'arrRaw': arrRaw,
         });
       }
     }
