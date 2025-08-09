@@ -27,6 +27,7 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
   String selectedStops = 'Up to 2 stops';
   RangeValues takeoffRange = const RangeValues(0, 1439);
   RangeValues landingRange = const RangeValues(0, 1439);
+  RangeValues flightDurationRange = const RangeValues(0, 1440);
 
   @override
   void initState() {
@@ -277,10 +278,10 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
                           min: 0,
                           max: 1440,
                           divisions: 1440,
-                          initial: const RangeValues(0, 1440),
+                          initial: flightDurationRange,
                           label: formatDuration,
                           onConfirmed: (range) {
-                            // use range.start/end (minutes)
+                            setState(() => landingRange = range);
                           },
                         ),
                       );
@@ -347,6 +348,7 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
                     stopType: selectedStops,
                     takeoff: takeoffRange,
                     landing: landingRange,
+                    flightDuration: flightDurationRange,
                   ),
           ),
         ],

@@ -100,6 +100,7 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
             : '$depAirport →  $arrAirport';
 
         final durationStr = itinerary['duration'] as String;
+
         final match = RegExp(
           r'PT(?:(\d+)H)?(?:(\d+)M)?',
         ).firstMatch(durationStr);
@@ -108,6 +109,8 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
           h = int.tryParse(match.group(1) ?? '0') ?? 0;
           m = int.tryParse(match.group(2) ?? '0') ?? 0;
         }
+
+        final durationMin = h * 60 + m;
 
         final stopCount = stops.length;
         final stopLabel = '$stopCount ${stopCount == 1 ? "stop" : "stops"}';
@@ -127,6 +130,7 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
           'isReturn': i == 1, // ✅ flag: false = outbound, true = return
           'depRaw': depRaw, // for filtering/sorting
           'arrRaw': arrRaw, // optional, might use later
+          'durationMin': durationMin,
         });
       }
     }
