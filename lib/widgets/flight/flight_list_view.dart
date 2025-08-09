@@ -10,9 +10,10 @@ class FlightListView extends ConsumerStatefulWidget {
     required this.sortType,
     required this.stopType,
     required this.takeoff,
+    required this.landing,
   });
 
-  final RangeValues takeoff;
+  final RangeValues takeoff, landing;
   final String sortType;
   final String stopType;
 
@@ -200,7 +201,31 @@ class _FlightListViewState extends ConsumerState<FlightListView>
           final end = widget.takeoff.end.round();
           if (mins < start || mins > end) return false;
         }
+
+        final arrMin = _depMinutesOfDay(f['arrRaw']); // uses ISO string
+        if (arrMin >= 0) {
+          final start = widget.landing.start.round();
+          final end = widget.landing.end.round();
+          if (arrMin < start || arrMin > end) return false;
+        }
       }
+
+      if (f['isReturn'] == true) {
+        final depMin = _depMinutesOfDay(f['depRaw']); // uses ISO string
+        if (depMin >= 0) {
+          final start = widget.takeoff.start.round();
+          final end = widget.takeoff.end.round();
+          if (depMin < start || depMin > end) return false;
+        }
+
+        final arrMin = _depMinutesOfDay(f['arrRaw']); // uses ISO string
+        if (arrMin >= 0) {
+          final start = widget.landing.start.round();
+          final end = widget.landing.end.round();
+          if (arrMin < start || arrMin > end) return false;
+        }
+      }
+
       return true;
     }).toList();
 
