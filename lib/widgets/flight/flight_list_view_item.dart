@@ -79,28 +79,40 @@ class FlightListViewItem extends StatelessWidget {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              if (middleAirports.isNotEmpty)
-                                Expanded(child: Divider(color: Colors.grey)),
-
-                              ...List.generate(middleAirports.length, (i) {
-                                return Row(
-                                  children: [
-                                    Icon(
-                                      Icons.circle_outlined,
-                                      size: 12,
-                                      color: Colors.grey,
-                                    ),
-                                    if (i != middleAirports.length - 1)
-                                      SizedBox(
-                                        width: 40,
+                              ...(middleAirports.isNotEmpty
+                                  ? [
+                                      Expanded(
                                         child: Divider(color: Colors.grey),
                                       ),
-                                  ],
-                                );
-                              }),
-
-                              if (middleAirports.isNotEmpty)
-                                Expanded(child: Divider(color: Colors.grey)),
+                                      ...List.generate(middleAirports.length, (
+                                        i,
+                                      ) {
+                                        return Row(
+                                          children: [
+                                            Icon(
+                                              Icons.circle_outlined,
+                                              size: 12,
+                                              color: Colors.grey,
+                                            ),
+                                            if (i != middleAirports.length - 1)
+                                              SizedBox(
+                                                width: 40,
+                                                child: Divider(
+                                                  color: Colors.grey,
+                                                ),
+                                              ),
+                                          ],
+                                        );
+                                      }),
+                                      Expanded(
+                                        child: Divider(color: Colors.grey),
+                                      ),
+                                    ]
+                                  : [
+                                      Expanded(
+                                        child: Divider(color: Colors.grey),
+                                      ),
+                                    ]),
                             ],
                           ),
 

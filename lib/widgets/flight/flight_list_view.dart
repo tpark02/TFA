@@ -5,7 +5,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class FlightListView extends ConsumerStatefulWidget {
-  const FlightListView({super.key});
+  const FlightListView({
+    super.key,
+    required this.sortType,
+    required this.stopType,
+  });
+
+  final String sortType;
+  final String stopType;
 
   @override
   ConsumerState<FlightListView> createState() => _FlightListViewState();
@@ -89,10 +96,101 @@ class _FlightListViewState extends ConsumerState<FlightListView>
     final flightState = ref.watch(flightSearchProvider);
 
     final allFlights = ref.watch(flightSearchProvider).processedFlights;
-    final departureFlights = allFlights
+
+    // ---- helpers ----
+    double _parsePrice(dynamic v) {
+      if (v is num) return v.toDouble();
+      if (v is String) {
+        final numeric = v.replaceAll(RegExp(r'[^0-9.]'), '');
+        return double.tryParse(numeric) ?? double.infinity;
+      }
+      return double.infinity;
+    }
+
+    // Accepts "PT12H30M", "12h 30m", "12h30m", "750" (mins) etc.
+    int _parseDurationMins(dynamic v) {
+      if (v == null) return 1 << 30;
+      if (v is int) return v;
+      if (v is num) return v.toInt();
+      final s = v.toString().trim().toUpperCase();
+
+      // ISO-8601 like PT12H30M
+      final iso = RegExp(r'^PT(?:(\d+)H)?(?:(\d+)M)?$');
+      final mIso = iso.firstMatch(s);
+      if (mIso != null) {
+        final h = int.tryParse(mIso.group(1) ?? '0') ?? 0;
+        final m = int.tryParse(mIso.group(2) ?? '0') ?? 0;
+        return h * 60 + m;
+      }
+
+      // "12H 30M" or "12H30M"
+      final hm = RegExp(r'(?:(\d+)\s*H)?\s*(?:(\d+)\s*M)?');
+      final mHm = hm.firstMatch(s);
+      if (mHm != null && (mHm.group(1) != null || mHm.group(2) != null)) {
+        final h = int.tryParse(mHm.group(1) ?? '0') ?? 0;
+        final m = int.tryParse(mHm.group(2) ?? '0') ?? 0;
+        return h * 60 + m;
+      }
+
+      // plain minutes string like "750"
+      return int.tryParse(s) ?? (1 << 30);
+    }
+
+    // Lower is better: balances cheap + short (tweak weights if you want)
+    double _valueScore(Map f) {
+      final p = _parsePrice(f['price']);
+      final d = _parseDurationMins(f['duration']).toDouble();
+      // weights: 0.7 price, 0.3 duration (per hour)
+      final priceNorm = p; // already in currency units
+      final durNorm = d / 60.0; // hours
+      return 0.7 * priceNorm + 0.3 * durNorm;
+    }
+
+    // ---- sort ALL flights, then split ----
+    final sortKey = widget.sortType.toLowerCase();
+
+    int _compare(Map a, Map b) {
+      switch (sortKey) {
+        case 'duration':
+          return _parseDurationMins(
+            a['duration'],
+          ).compareTo(_parseDurationMins(b['duration']));
+        case 'value':
+          return _valueScore(a).compareTo(_valueScore(b)); // better value first
+        case 'cost':
+        default:
+          return _parsePrice(a['price']).compareTo(_parsePrice(b['price']));
+      }
+    }
+
+    // Map label to max stops allowed
+    int _maxStopsFor(String stopsLabel) {
+      switch (stopsLabel) {
+        case 'Nonstop':
+          return 0;
+        case 'Up to 1 stop':
+          return 1;
+        case 'Up to 2 stops':
+        default:
+          return 2;
+      }
+    }
+
+    final maxStops = _maxStopsFor(
+      widget.stopType,
+    ); // or pass in a separate prop
+
+    final filteredFlights = allFlights.where((f) {
+      final stops = int.tryParse(f['stops'].toString().split(' ').first) ?? 0;
+      return stops <= maxStops;
+    }).toList();
+
+    final sortedAllFlights = [...filteredFlights]..sort(_compare);
+
+    final departureFlights = sortedAllFlights
         .where((f) => f['isReturn'] == false)
         .toList();
-    final returnFlights = allFlights
+    final returnFlights = sortedAllFlights
         .where((f) => f['isReturn'] == true)
         .toList();
 

@@ -16,7 +16,7 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
     required String departureDate,
     required String? returnDate,
     required int adults,
-    int maxResults = 5,
+    int maxResults = 20,
   }) async {
     state = state.copyWithFlightResults(const AsyncValue.loading());
 
@@ -95,7 +95,9 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
 
         final depAirport = firstSegment['departure']['iataCode'];
         final arrAirport = lastSegment['arrival']['iataCode'];
-        final airportPath = '$depAirport → ${stops.join(" → ")} → $arrAirport';
+        final airportPath = stops.isNotEmpty
+            ? '$depAirport → ${stops.join(" → ")} → $arrAirport'
+            : '$depAirport →  $arrAirport';
 
         final durationStr = itinerary['duration'] as String;
         final match = RegExp(

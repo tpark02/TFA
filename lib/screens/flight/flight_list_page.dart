@@ -23,6 +23,8 @@ class FlightListPage extends ConsumerStatefulWidget {
 
 class _FlightListPageState extends ConsumerState<FlightListPage> {
   bool isLoading = true;
+  String selectedSort = 'Cost';
+  String selectedStops = 'Up to 2 stops';
 
   @override
   void initState() {
@@ -180,15 +182,15 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
                     ),
                   ),
                   FilterButton(
-                    label: "Sort: Cost",
+                    label: "Sort: $selectedSort",
                     func: () {
                       showSortBottomSheet(
                         title: "Sort",
                         context: context,
-                        selectedSort: 'Cost',
+                        selectedSort: selectedSort,
                         sortType: SortTab.sort,
                         onSortSelected: (value) {
-                          print('Selected sort: $value');
+                          setState(() => selectedSort = value);
                         },
                       );
                     },
@@ -210,15 +212,17 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
                     },
                   ),
                   FilterButton(
-                    label: "Stops",
+                    label: "Stops: $selectedStops",
                     func: () {
                       showSortBottomSheet(
                         title: "Stops",
                         context: context,
-                        selectedSort: 'Up to 2 stops',
+                        selectedSort: selectedStops,
                         sortType: SortTab.stops,
                         onSortSelected: (value) {
-                          print('Selected sort: $value');
+                          setState(
+                            () => selectedStops = value,
+                          ); // update parent state
                         },
                       );
                     },
@@ -336,7 +340,10 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
                         '${flightState.departureAirportCode} - ${flightState.arrivalAirportCode}',
                     dateText: flightState.displayDate!,
                   )
-                : FlightListView(),
+                : FlightListView(
+                    sortType: selectedSort,
+                    stopType: selectedStops,
+                  ),
           ),
         ],
       ),
