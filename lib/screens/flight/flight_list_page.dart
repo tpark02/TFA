@@ -25,6 +25,7 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
   bool isLoading = true;
   String selectedSort = 'Cost';
   String selectedStops = 'Up to 2 stops';
+  RangeValues takeoffRange = const RangeValues(0, 1439);
 
   @override
   void initState() {
@@ -234,13 +235,13 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
                         context: context,
                         sheet: RangePickerSheet(
                           title: 'Take Off',
-                          min: 0,
-                          max: 1439,
+                          min: 0, // min possible minutes
+                          max: 1439, // max possible minutes
                           divisions: 1439,
-                          initial: const RangeValues(0, 1439),
+                          initial: takeoffRange, // ✅ use the current value
                           label: formatTime,
                           onConfirmed: (range) {
-                            // use range.start/end (minutes)
+                            setState(() => takeoffRange = range);
                           },
                         ),
                       );
@@ -343,6 +344,7 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
                 : FlightListView(
                     sortType: selectedSort,
                     stopType: selectedStops,
+                    takeoff: takeoffRange,
                   ),
           ),
         ],

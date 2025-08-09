@@ -125,6 +125,8 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
           'price': formattedPrice,
           'currency': currency,
           'isReturn': i == 1, // ✅ flag: false = outbound, true = return
+          'depRaw': depRaw, // for filtering/sorting
+          'arrRaw': arrRaw, // optional, might use later
         });
       }
     }

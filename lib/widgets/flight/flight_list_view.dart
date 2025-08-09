@@ -9,8 +9,10 @@ class FlightListView extends ConsumerStatefulWidget {
     super.key,
     required this.sortType,
     required this.stopType,
+    required this.takeoff,
   });
 
+  final RangeValues takeoff;
   final String sortType;
   final String stopType;
 
@@ -97,6 +99,13 @@ class _FlightListViewState extends ConsumerState<FlightListView>
 
     final allFlights = ref.watch(flightSearchProvider).processedFlights;
 
+    int _depMinutesOfDay(dynamic depRaw) {
+      if (depRaw == null) return -1;
+      final dt = DateTime.tryParse(depRaw.toString());
+      if (dt == null) return -1;
+      return dt.hour * 60 + dt.minute; // 0..1439
+    }
+
     // ---- helpers ----
     double _parsePrice(dynamic v) {
       if (v is num) return v.toDouble();
@@ -156,7 +165,7 @@ class _FlightListViewState extends ConsumerState<FlightListView>
             a['duration'],
           ).compareTo(_parseDurationMins(b['duration']));
         case 'value':
-          return _valueScore(a).compareTo(_valueScore(b)); // better value first
+          return _valueScore(a).compareTo(_valueScore(b));
         case 'cost':
         default:
           return _parsePrice(a['price']).compareTo(_parsePrice(b['price']));
@@ -182,7 +191,17 @@ class _FlightListViewState extends ConsumerState<FlightListView>
 
     final filteredFlights = allFlights.where((f) {
       final stops = int.tryParse(f['stops'].toString().split(' ').first) ?? 0;
-      return stops <= maxStops;
+      if (stops > maxStops) return false;
+
+      if (f['isReturn'] == false) {
+        final mins = _depMinutesOfDay(f['depRaw']); // uses ISO string
+        if (mins >= 0) {
+          final start = widget.takeoff.start.round();
+          final end = widget.takeoff.end.round();
+          if (mins < start || mins > end) return false;
+        }
+      }
+      return true;
     }).toList();
 
     final sortedAllFlights = [...filteredFlights]..sort(_compare);
@@ -193,6 +212,13 @@ class _FlightListViewState extends ConsumerState<FlightListView>
     final returnFlights = sortedAllFlights
         .where((f) => f['isReturn'] == true)
         .toList();
+
+    final activeIndex =
+        (selectedDepartureIndex != null &&
+            selectedDepartureIndex! >= 0 &&
+            selectedDepartureIndex! < departureFlights.length)
+        ? selectedDepartureIndex
+        : null;
 
     final departureFlightWidgets = List.generate(
       departureFlights.length,
@@ -215,8 +241,8 @@ class _FlightListViewState extends ConsumerState<FlightListView>
     return Column(
       children: [
         // Departure flight row (static)
-        if (selectedDepartureIndex != null)
-          departureFlightWidgets[selectedDepartureIndex!]
+        if (activeIndex != null)
+          departureFlightWidgets[activeIndex!]
         else
           Expanded(
             child: ListView(
@@ -295,8 +321,7 @@ class _FlightListViewState extends ConsumerState<FlightListView>
           ),
 
         // Return flight list below
-        if (selectedDepartureIndex != null &&
-            returnFlightWidgets.isNotEmpty) ...[
+        if (activeIndex != null && returnFlightWidgets.isNotEmpty) ...[
           Flexible(
             child: SizedBox.expand(
               child: SlideTransition(
@@ -335,7 +360,12 @@ class _FlightListViewState extends ConsumerState<FlightListView>
                             ? SearchSummaryLoadingCard(
                                 key: const ValueKey('shimmer'),
                                 routeText:
-                                    returnFlights[selectedDepartureIndex!]['airportPath'],
+                                    (activeIndex != null &&
+                                        activeIndex! < departureFlights.length)
+                                    ? (departureFlights[activeIndex!]['airportPath']
+                                              as String? ??
+                                          '')
+                                    : '',
                                 dateText: flightState.displayDate!,
                               )
                             : ListView(
