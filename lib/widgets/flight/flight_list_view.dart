@@ -105,7 +105,7 @@ class _FlightListViewState extends ConsumerState<FlightListView>
 
     final allFlights = ref.watch(flightSearchProvider).processedFlights;
 
-    int _depMinutesOfDay(dynamic depRaw) {
+    int depMinutesOfDay(dynamic depRaw) {
       if (depRaw == null) return -1;
       final dt = DateTime.tryParse(depRaw.toString());
       if (dt == null) return -1;
@@ -113,7 +113,7 @@ class _FlightListViewState extends ConsumerState<FlightListView>
     }
 
     // ---- helpers ----
-    double _parsePrice(dynamic v) {
+    double parsePrice(dynamic v) {
       if (v is num) return v.toDouble();
       if (v is String) {
         final numeric = v.replaceAll(RegExp(r'[^0-9.]'), '');
@@ -123,7 +123,7 @@ class _FlightListViewState extends ConsumerState<FlightListView>
     }
 
     // Accepts "PT12H30M", "12h 30m", "12h30m", "750" (mins) etc.
-    int _parseDurationMins(dynamic v) {
+    int parseDurationMins(dynamic v) {
       if (v == null) return 1 << 30;
       if (v is int) return v;
       if (v is num) return v.toInt();
@@ -152,9 +152,9 @@ class _FlightListViewState extends ConsumerState<FlightListView>
     }
 
     // Lower is better: balances cheap + short (tweak weights if you want)
-    double _valueScore(Map f) {
-      final p = _parsePrice(f['price']);
-      final d = _parseDurationMins(f['duration']).toDouble();
+    double valueScore(Map f) {
+      final p = parsePrice(f['price']);
+      final d = parseDurationMins(f['duration']).toDouble();
       // weights: 0.7 price, 0.3 duration (per hour)
       final priceNorm = p; // already in currency units
       final durNorm = d / 60.0; // hours
@@ -164,22 +164,22 @@ class _FlightListViewState extends ConsumerState<FlightListView>
     // ---- sort ALL flights, then split ----
     final sortKey = widget.sortType.toLowerCase();
 
-    int _compare(Map a, Map b) {
+    int compare(Map a, Map b) {
       switch (sortKey) {
         case 'duration':
-          return _parseDurationMins(
+          return parseDurationMins(
             a['duration'],
-          ).compareTo(_parseDurationMins(b['duration']));
+          ).compareTo(parseDurationMins(b['duration']));
         case 'value':
-          return _valueScore(a).compareTo(_valueScore(b));
+          return valueScore(a).compareTo(valueScore(b));
         case 'cost':
         default:
-          return _parsePrice(a['price']).compareTo(_parsePrice(b['price']));
+          return parsePrice(a['price']).compareTo(parsePrice(b['price']));
       }
     }
 
     // Map label to max stops allowed
-    int _maxStopsFor(String stopsLabel) {
+    int maxStopsFor(String stopsLabel) {
       switch (stopsLabel) {
         case 'Nonstop':
           return 0;
@@ -191,12 +191,12 @@ class _FlightListViewState extends ConsumerState<FlightListView>
       }
     }
 
-    final maxStops = _maxStopsFor(
+    final maxStops = maxStopsFor(
       widget.stopType,
     ); // or pass in a separate prop
 
     // --- helpers for filters ---
-    Set<String> _layoverCityCodesOf(Map f) {
+    Set<String> layoverCityCodesOf(Map f) {
       final path = (f['airportPath'] as String? ?? '');
       final parts = path.split('→').map((s) => s.trim()).toList();
       if (parts.length <= 2) return <String>{}; // nonstop
@@ -213,7 +213,7 @@ class _FlightListViewState extends ConsumerState<FlightListView>
       return out;
     }
 
-    bool _passesAirlineFilter(Map f, Set<String> selected) {
+    bool passesAirlineFilter(Map f, Set<String> selected) {
       if (selected.isEmpty) return true; // or false, depending on your UX
 
       String norm(String s) => s.toUpperCase().trim();
@@ -229,22 +229,22 @@ class _FlightListViewState extends ConsumerState<FlightListView>
       // (equivalent: return flightAir.difference(selectedNorm).isEmpty;)
     }
 
-    bool _passesLayoverCityFilter(Map f, Set<String> selected) {
+    bool passesLayoverCityFilter(Map f, Set<String> selected) {
       if (selected.isEmpty) return true;
-      final layoverCities = _layoverCityCodesOf(f);
+      final layoverCities = layoverCityCodesOf(f);
       return layoverCities.any(selected.contains);
     }
 
     for (final s in widget.selectedAirlines) {
-      debugPrint('selected Airlines - ' + s);
+      debugPrint('selected Airlines - $s');
     }
     final filteredFlights = allFlights.where((f) {
       // airlines filter
-      if (!_passesAirlineFilter(f, widget.selectedAirlines)) return false;
+      if (!passesAirlineFilter(f, widget.selectedAirlines)) return false;
 
       debugPrint("airline - " + f['airline']);
       // layover city filter (by cityCode like "TYO", "SEL")
-      if (!_passesLayoverCityFilter(f, widget.selectedLayovers)) return false;
+      if (!passesLayoverCityFilter(f, widget.selectedLayovers)) return false;
 
       final stops = int.tryParse(f['stops'].toString().split(' ').first) ?? 0;
       if (stops > maxStops) return false;
@@ -263,26 +263,26 @@ class _FlightListViewState extends ConsumerState<FlightListView>
 
       // time windows...
       if (f['isReturn'] == false) {
-        final mins = _depMinutesOfDay(f['depRaw']);
+        final mins = depMinutesOfDay(f['depRaw']);
         if (mins >= 0) {
           final start = widget.takeoff.start.round();
           final end = widget.takeoff.end.round();
           if (mins < start || mins > end) return false;
         }
-        final arrMin = _depMinutesOfDay(f['arrRaw']);
+        final arrMin = depMinutesOfDay(f['arrRaw']);
         if (arrMin >= 0) {
           final start = widget.landing.start.round();
           final end = widget.landing.end.round();
           if (arrMin < start || arrMin > end) return false;
         }
       } else {
-        final depMin = _depMinutesOfDay(f['depRaw']);
+        final depMin = depMinutesOfDay(f['depRaw']);
         if (depMin >= 0) {
           final start = widget.takeoff.start.round();
           final end = widget.takeoff.end.round();
           if (depMin < start || depMin > end) return false;
         }
-        final arrMin = _depMinutesOfDay(f['arrRaw']);
+        final arrMin = depMinutesOfDay(f['arrRaw']);
         if (arrMin >= 0) {
           final start = widget.landing.start.round();
           final end = widget.landing.end.round();
@@ -293,7 +293,7 @@ class _FlightListViewState extends ConsumerState<FlightListView>
       return true;
     }).toList();
 
-    final sortedAllFlights = [...filteredFlights]..sort(_compare);
+    final sortedAllFlights = [...filteredFlights]..sort(compare);
 
     final departureFlights = sortedAllFlights
         .where((f) => f['isReturn'] == false)
@@ -331,7 +331,7 @@ class _FlightListViewState extends ConsumerState<FlightListView>
       children: [
         // Departure flight row (static)
         if (activeIndex != null)
-          departureFlightWidgets[activeIndex!]
+          departureFlightWidgets[activeIndex]
         else
           Expanded(
             child: ListView(
@@ -449,9 +449,8 @@ class _FlightListViewState extends ConsumerState<FlightListView>
                             ? SearchSummaryLoadingCard(
                                 key: const ValueKey('shimmer'),
                                 routeText:
-                                    (activeIndex != null &&
-                                        activeIndex! < departureFlights.length)
-                                    ? (departureFlights[activeIndex!]['airportPath']
+                                    (activeIndex < departureFlights.length)
+                                    ? (departureFlights[activeIndex]['airportPath']
                                               as String? ??
                                           '')
                                     : '',

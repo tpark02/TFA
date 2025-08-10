@@ -1,4 +1,5 @@
 import 'package:TFA/utils/time_utils.dart';
+import 'package:TFA/widgets/silvers/section_header.dart';
 import 'package:flutter/material.dart';
 
 class FlightFilterPage extends StatefulWidget {
@@ -36,27 +37,10 @@ class _FlightFilterPageState extends State<FlightFilterPage> {
   bool _showAllAirlines = false;
   bool _showAllCities = false;
 
-  final List<Widget> _sections = [];
-
   Widget _padded(Widget child) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: child,
-    );
-  }
-
-  Widget _buildSectionTitle(String title, BuildContext context) {
-    return Container(
-      color: Colors.grey[100],
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      child: Text(
-        title,
-        style: TextStyle(
-          fontSize: Theme.of(context).textTheme.bodyLarge?.fontSize,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
     );
   }
 
@@ -207,158 +191,170 @@ class _FlightFilterPageState extends State<FlightFilterPage> {
 
   @override
   Widget build(BuildContext context) {
-    final sections = [
-      _buildSectionTitle("Sort", context),
-      _padded(_radio("duration", "Duration")),
-      _padded(_radio("cost", "Cost")),
-      _padded(_radio("value", "Value")),
-
-      _buildSectionTitle("Travel Hacks", context),
-      _padded(
-        _checkbox("Self - Transfer", selfTransferEnabled, (v) {
-          setState(() => selfTransferEnabled = v);
-        }),
-      ),
-
-      _buildSectionTitle("Stops", context),
-      _padded(_radioInt(1, "Up to 1 stop")),
-      _padded(_radioInt(2, "Up to 2 stops")),
-
-      _buildSectionTitle("Take Off", context),
-      _padded(
-        _buildSlider(
-          leftLabel: formatTime(takeoffRange.start.toInt()),
-          rightLabel: formatTime(takeoffRange.end.toInt()),
-          values: takeoffRange,
-          min: 0,
-          max: 1439,
-          onChanged: (r) => setState(() => takeoffRange = r),
-        ),
-      ),
-
-      _buildSectionTitle("Landing", context),
-      _padded(
-        _buildSlider(
-          leftLabel: formatTime(landingRange.start.toInt()),
-          rightLabel: formatTime(landingRange.end.toInt()),
-          values: landingRange,
-          min: 0,
-          max: 1439,
-          onChanged: (r) => setState(() => landingRange = r),
-        ),
-      ),
-      _buildSectionTitle("Flight Duration", context),
-      _padded(
-        _buildSlider(
-          leftLabel: formatDuration(flightDuration.start.toInt()),
-          rightLabel: formatDuration(flightDuration.end.toInt()),
-          values: flightDuration,
-          min: 0,
-          max: 1440,
-          onChanged: (r) => setState(() => flightDuration = r),
-        ),
-      ),
-      _buildSectionTitle("Layover Duration", context),
-      _padded(
-        _buildSlider(
-          leftLabel: formatDuration(layoverDuration.start.toInt()),
-          rightLabel: formatDuration(layoverDuration.end.toInt()),
-          values: layoverDuration,
-          min: 0,
-          max: 1470,
-          onChanged: (r) => setState(() => layoverDuration = r),
-        ),
-      ),
-
-      // --- Airlines with Show More ---
-      _buildSectionTitle("Airlines", context),
-      ...(() {
-        final list = _showAllAirlines
-            ? widget.kAirlines
-            : widget.kAirlines.take(_visibleItemsCount).toList();
-        return [
-          ...list.map((a) => _padded(_airlineTile(a))),
-          if (widget.kAirlines.length > _visibleItemsCount)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 4),
-              child: Center(
-                child: TextButton(
-                  onPressed: () => setState(() {
-                    _showAllAirlines = !_showAllAirlines;
-                  }),
-                  child: Text(_showAllAirlines ? "Show Less" : "Show More"),
-                ),
-              ),
-            ),
-        ];
-      }()),
-      _buildSectionTitle("Layover Cities", context),
-      ...(() {
-        final list = _showAllCities
-            ? widget.kLayoverCities
-            : widget.kLayoverCities.take(_visibleItemsCount).toList();
-        return [
-          ...list.map((a) => _padded(_cityTiles(a))),
-          if (widget.kLayoverCities.length > _visibleItemsCount)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 4),
-              child: Center(
-                child: TextButton(
-                  onPressed: () => setState(() {
-                    _showAllCities = !_showAllCities;
-                  }),
-                  child: Text(_showAllCities ? "Show Less" : "Show More"),
-                ),
-              ),
-            ),
-        ];
-      }()),
-    ];
-
-    return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      child: Scaffold(
-        body: Column(
-          children: [
-            // Header
-            Padding(
+    return Scaffold(
+      body: CustomScrollView(
+        controller: widget.scrollController,
+        slivers: [
+          SliverToBoxAdapter(
+            child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    "Filters",
-                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                  ),
-                  // IconButton(
-                  //   icon: const Icon(Icons.close),
-                  //   onPressed: () => Navigator.pop(context),
-                  // ),
-                ],
+              child: Text(
+                "Filters",
+                style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
+          ),
 
-            // Scrollable SliverList
-            Expanded(
-              child: CustomScrollView(
-                controller: widget.scrollController,
-                slivers: [
-                  SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) => sections[index],
-                      childCount: sections.length,
-                    ),
-                  ),
-                  const SliverToBoxAdapter(child: SizedBox(height: 24)),
-                ],
+          SliverPersistentHeader(pinned: true, delegate: SectionHeader('Sort')),
+          SliverList(
+            delegate: SliverChildListDelegate([
+              _padded(_radio('duration', 'Duration')),
+              _padded(_radio('cost', 'Cost')),
+              _padded(_radio('value', 'Value')),
+            ]),
+          ),
+
+          SliverPersistentHeader(
+            pinned: true,
+            delegate: SectionHeader('Travel Hacks'),
+          ),
+          SliverList(
+            delegate: SliverChildListDelegate([
+              _padded(
+                _checkbox('Self - Transfer', selfTransferEnabled, (v) {
+                  setState(() => selfTransferEnabled = v);
+                }),
+              ),
+            ]),
+          ),
+
+          SliverPersistentHeader(
+            pinned: true,
+            delegate: SectionHeader('Stops'),
+          ),
+          SliverList(
+            delegate: SliverChildListDelegate([
+              _padded(_radioInt(1, 'Up to 1 stop')),
+              _padded(_radioInt(2, 'Up to 2 stops')),
+            ]),
+          ),
+
+          SliverPersistentHeader(
+            pinned: true,
+            delegate: SectionHeader('Take Off'),
+          ),
+          SliverToBoxAdapter(
+            child: _padded(
+              _buildSlider(
+                leftLabel: formatTime(takeoffRange.start.toInt()),
+                rightLabel: formatTime(takeoffRange.end.toInt()),
+                values: takeoffRange,
+                min: 0,
+                max: 1439,
+                onChanged: (r) => setState(() => takeoffRange = r),
               ),
             ),
+          ),
 
-            // Done button
-            Padding(
+          SliverPersistentHeader(
+            pinned: true,
+            delegate: SectionHeader('Landing'),
+          ),
+          SliverToBoxAdapter(
+            child: _padded(
+              _buildSlider(
+                leftLabel: formatTime(landingRange.start.toInt()),
+                rightLabel: formatTime(landingRange.end.toInt()),
+                values: landingRange,
+                min: 0,
+                max: 1439,
+                onChanged: (r) => setState(() => landingRange = r),
+              ),
+            ),
+          ),
+
+          SliverPersistentHeader(
+            pinned: true,
+            delegate: SectionHeader('Flight Duration'),
+          ),
+          SliverToBoxAdapter(
+            child: _padded(
+              _buildSlider(
+                leftLabel: formatDuration(flightDuration.start.toInt()),
+                rightLabel: formatDuration(flightDuration.end.toInt()),
+                values: flightDuration,
+                min: 0,
+                max: 1440,
+                onChanged: (r) => setState(() => flightDuration = r),
+              ),
+            ),
+          ),
+
+          SliverPersistentHeader(
+            pinned: true,
+            delegate: SectionHeader('Layover Duration'),
+          ),
+          SliverToBoxAdapter(
+            child: _padded(
+              _buildSlider(
+                leftLabel: formatDuration(layoverDuration.start.toInt()),
+                rightLabel: formatDuration(layoverDuration.end.toInt()),
+                values: layoverDuration,
+                min: 0,
+                max: 1470,
+                onChanged: (r) => setState(() => layoverDuration = r),
+              ),
+            ),
+          ),
+
+          SliverPersistentHeader(
+            pinned: true,
+            delegate: SectionHeader('Airlines'),
+          ),
+          SliverList(
+            delegate: SliverChildListDelegate([
+              ...((_showAllAirlines
+                      ? widget.kAirlines
+                      : widget.kAirlines.take(_visibleItemsCount)))
+                  .map((a) => _padded(_airlineTile(a))),
+              if (widget.kAirlines.length > _visibleItemsCount)
+                Center(
+                  child: TextButton(
+                    onPressed: () =>
+                        setState(() => _showAllAirlines = !_showAllAirlines),
+                    child: Text(_showAllAirlines ? 'Show Less' : 'Show More'),
+                  ),
+                ),
+            ]),
+          ),
+
+          SliverPersistentHeader(
+            pinned: true,
+            delegate: SectionHeader('Layover Cities'),
+          ),
+          SliverList(
+            delegate: SliverChildListDelegate([
+              ...((_showAllCities
+                      ? widget.kLayoverCities
+                      : widget.kLayoverCities.take(_visibleItemsCount)))
+                  .map((c) => _padded(_cityTiles(c))),
+              if (widget.kLayoverCities.length > _visibleItemsCount)
+                Center(
+                  child: TextButton(
+                    onPressed: () =>
+                        setState(() => _showAllCities = !_showAllCities),
+                    child: Text(_showAllCities ? 'Show Less' : 'Show More'),
+                  ),
+                ),
+            ]),
+          ),
+
+          const SliverToBoxAdapter(child: SizedBox(height: 24)),
+          SliverToBoxAdapter(
+            child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
               child: SizedBox(
                 width: double.infinity,
@@ -385,8 +381,8 @@ class _FlightFilterPageState extends State<FlightFilterPage> {
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

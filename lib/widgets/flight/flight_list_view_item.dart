@@ -158,26 +158,27 @@ class FlightListViewItem extends StatelessWidget {
               const SizedBox(height: 8),
 
               /// Duration, stops, airline, price
+              // Keep meta on the left (ellipsis), keep PRICE on one line at the right.
               Row(
                 children: [
-                  Text(
-                    "$duration | $stops | $airline",
-                    style: TextStyle(color: Colors.grey[700]),
-                  ),
-                  const SizedBox(width: 4),
                   Expanded(
-                    child: Align(
-                      alignment: Alignment.centerRight,
-                      child: Text(
-                        price,
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: Theme.of(
-                            context,
-                          ).textTheme.bodyLarge?.fontSize,
-                        ),
-                      ),
+                    child: Text(
+                      "$duration | $stops | $airline",
+                      style: TextStyle(color: Colors.grey[700]),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      softWrap: false,
                     ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    price, // e.g., €1,100.72
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: Theme.of(context).textTheme.bodyLarge?.fontSize,
+                    ),
+                    maxLines: 1,
+                    softWrap: false,
                   ),
                 ],
               ),
