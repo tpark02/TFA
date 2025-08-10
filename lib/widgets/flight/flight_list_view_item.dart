@@ -12,6 +12,79 @@ class FlightListViewItem extends StatelessWidget {
   final int index;
   final Map<String, dynamic> flight;
 
+  Widget layoverTimeline(BuildContext context, List<String> middleAirports) {
+    const double totalHeight = 48; // more room vertically
+    const double dotSize = 10;
+    const double lineY = 16; // push line higher
+    const double labelTop = lineY + dotSize / 2 + 4; // push label below dot
+
+    return SizedBox(
+      height: totalHeight,
+      child: Stack(
+        children: [
+          // Connector line
+          Positioned(
+            top: lineY,
+            left: 0,
+            right: 0,
+            child: Container(height: 1, color: Colors.grey[400]),
+          ),
+
+          // Dots + labels
+          Row(
+            children: List.generate(
+              middleAirports.isEmpty ? 0 : middleAirports.length,
+              (i) {
+                final code = middleAirports.isEmpty ? '' : middleAirports[i];
+                return Expanded(
+                  child: Stack(
+                    children: [
+                      // Dot
+                      Positioned(
+                        top: lineY - dotSize / 2,
+                        left: 0,
+                        right: 0,
+                        child: Align(
+                          alignment: Alignment.center,
+                          child: Container(
+                            width: dotSize,
+                            height: dotSize,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Colors.grey),
+                            ),
+                          ),
+                        ),
+                      ),
+                      // Label
+                      if (code.isNotEmpty)
+                        Positioned(
+                          top: labelTop,
+                          left: 0,
+                          right: 0,
+                          child: Text(
+                            code,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: Theme.of(
+                                context,
+                              ).textTheme.bodySmall?.fontSize,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final depTime = flight['depTime'] ?? '';
@@ -29,8 +102,8 @@ class FlightListViewItem extends StatelessWidget {
     final pathParts = airportPath.split('→').map((s) => s.trim()).toList();
 
     final middleAirports = pathParts.length > 2
-        ? pathParts.sublist(1, pathParts.length - 1)
-        : [];
+        ? List<String>.from(pathParts.sublist(1, pathParts.length - 1))
+        : <String>[];
 
     return Material(
       color: Colors.transparent,
@@ -53,138 +126,30 @@ class FlightListViewItem extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        // "$index  $depTime",
-                        "$depTime",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: Theme.of(
-                            context,
-                          ).textTheme.bodyLarge?.fontSize,
-                        ),
+                        depTime,
+                        style: TextStyle(fontWeight: FontWeight.bold),
                       ),
-                      Text(
-                        depAirport,
-                        style: TextStyle(color: Colors.grey[700]),
-                      ),
+                      Text(depAirport),
                     ],
                   ),
 
-                  /// Middle Path
+                  // Middle path with circles + labels
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8),
-                      child: Column(
-                        children: [
-                          /// Connector line: dots and dividers
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              ...(middleAirports.isNotEmpty
-                                  ? [
-                                      Expanded(
-                                        child: Divider(color: Colors.grey),
-                                      ),
-                                      ...List.generate(middleAirports.length, (
-                                        i,
-                                      ) {
-                                        return Row(
-                                          children: [
-                                            Icon(
-                                              Icons.circle_outlined,
-                                              size: 12,
-                                              color: Colors.grey,
-                                            ),
-                                            if (i != middleAirports.length - 1)
-                                              SizedBox(
-                                                width: 40,
-                                                child: Divider(
-                                                  color: Colors.grey,
-                                                ),
-                                              ),
-                                          ],
-                                        );
-                                      }),
-                                      Expanded(
-                                        child: Divider(color: Colors.grey),
-                                      ),
-                                    ]
-                                  : [
-                                      Expanded(
-                                        child: Divider(color: Colors.grey),
-                                      ),
-                                    ]),
-                            ],
-                          ),
-
-                          /// Airport codes
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: middleAirports.map<Widget>((airport) {
-                              return Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                ),
-                                child: Text(
-                                  airport,
-                                  style: TextStyle(
-                                    color: Colors.grey[500],
-                                    fontSize: Theme.of(
-                                      context,
-                                    ).textTheme.bodyMedium?.fontSize,
-                                  ),
-                                ),
-                              );
-                            }).toList(),
-                          ),
-                        ],
-                      ),
+                      child: layoverTimeline(context, middleAirports),
                     ),
                   ),
 
-                  /// Arrival
+                  // Arrival
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        children: [
-                          RichText(
-                            text: TextSpan(
-                              children: [
-                                TextSpan(
-                                  text: arrTime,
-                                  style: TextStyle(
-                                    fontSize: Theme.of(
-                                      context,
-                                    ).textTheme.headlineMedium?.fontSize,
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                if (plusDay.isNotEmpty)
-                                  WidgetSpan(
-                                    alignment: PlaceholderAlignment.top,
-                                    child: Transform.translate(
-                                      offset: const Offset(-8, -13),
-                                      child: Text(
-                                        plusDay,
-                                        style: TextStyle(
-                                          fontSize: Theme.of(
-                                            context,
-                                          ).textTheme.bodySmall?.fontSize,
-                                          color: Colors.red[800],
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
                       Text(
-                        arrAirport,
-                        style: TextStyle(color: Colors.grey[700]),
+                        arrTime,
+                        style: TextStyle(fontWeight: FontWeight.bold),
                       ),
+                      Text(arrAirport),
                     ],
                   ),
                 ],
