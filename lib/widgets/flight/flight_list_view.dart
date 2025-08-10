@@ -3,6 +3,7 @@ import 'package:TFA/widgets/flight/flight_list_view_item.dart';
 import 'package:TFA/widgets/search_summary_loading_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:http/http.dart';
 
 class FlightListView extends ConsumerStatefulWidget {
   const FlightListView({
@@ -76,7 +77,6 @@ class _FlightListViewState extends ConsumerState<FlightListView>
           curve: Curves.easeOut,
         );
       }
-
       return;
     }
 
@@ -102,7 +102,6 @@ class _FlightListViewState extends ConsumerState<FlightListView>
   @override
   Widget build(BuildContext context) {
     final flightState = ref.watch(flightSearchProvider);
-
     final allFlights = ref.watch(flightSearchProvider).processedFlights;
 
     int depMinutesOfDay(dynamic depRaw) {
@@ -191,9 +190,7 @@ class _FlightListViewState extends ConsumerState<FlightListView>
       }
     }
 
-    final maxStops = maxStopsFor(
-      widget.stopType,
-    ); // or pass in a separate prop
+    final maxStops = maxStopsFor(widget.stopType); // or pass in a separate prop
 
     // --- helpers for filters ---
     Set<String> layoverCityCodesOf(Map f) {
@@ -309,21 +306,22 @@ class _FlightListViewState extends ConsumerState<FlightListView>
         ? selectedDepartureIndex
         : null;
 
-    final departureFlightWidgets = List.generate(
-      departureFlights.length,
-      (i) => FlightListViewItem(
-        onClick: () => onDepartureClicked(i),
-        index: i,
-        flight: departureFlights[i],
-      ),
-    );
-
-    List<Widget> returnFlightWidgets = List.generate(
+    final List<Widget> returnFlightWidgets = List.generate(
       returnFlights.length,
       (i) => FlightListViewItem(
         onClick: () {},
         index: i,
         flight: returnFlights[i],
+      ),
+    );
+
+    final List<Widget> departureFlightWidgets = List.generate(
+      departureFlights.length,
+      (i) => FlightListViewItem(
+        onClick: () =>
+            returnFlightWidgets.isNotEmpty ? onDepartureClicked(i) : () {},
+        index: i,
+        flight: departureFlights[i],
       ),
     );
 
