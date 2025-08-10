@@ -60,33 +60,46 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
     }
   }
 
+  String _codeToName(String code, Map<String, dynamic> carriers) {
+    final up = code.toUpperCase();
+    if (up == 'HR') return 'HAHN AIR';
+    if (up == 'H1') return 'HAHN AIR SYSTEMS';
+    return (carriers[up] as String?) ?? up; // fallback to code
+  }
+
   List<Map<String, dynamic>> processFlights(
     Map<String, dynamic> latestFlights,
   ) {
     final results = <Map<String, dynamic>>[];
-
     final data = latestFlights['data'] as List<dynamic>? ?? [];
     final dictionaries =
         latestFlights['dictionaries'] as Map<String, dynamic>? ?? {};
-    final carriers = dictionaries['carriers'] as Map<String, dynamic>? ?? {};
+    final carriers = (dictionaries['carriers'] as Map<String, dynamic>? ?? {})
+        .map(
+          (k, v) =>
+              MapEntry(k.toString().toUpperCase(), v.toString().toUpperCase()),
+        );
+    final locations = (dictionaries['locations'] as Map)
+        .cast<String, dynamic>();
 
     for (final offer in data) {
       if (offer == null) continue;
-
       final itineraries = offer['itineraries'] as List;
 
-      final airlineCodes =
-          (offer['validatingAirlineCodes'] as List?) ?? const [];
-      final airlineCode = airlineCodes.isNotEmpty ? airlineCodes.first : null;
-      final airline = airlineCode != null
-          ? (carriers[airlineCode] ?? airlineCode)
-          : 'Unknown';
+      // keep validating (ticketing) only as info, do NOT use for main label
+      final validatingList =
+          ((offer['validatingAirlineCodes'] as List?) ?? const [])
+              .map((e) => e.toString().toUpperCase())
+              .toList();
+      final validatingCode = validatingList.isNotEmpty
+          ? validatingList.first
+          : null;
+      final validatingName = validatingCode != null
+          ? _codeToName(validatingCode, carriers)
+          : null;
 
       final price = offer['price']['grandTotal'];
       final currency = offer['price']['currency'] ?? 'EUR';
-
-      // If you really want KRW display, convert before formatting.
-      // Otherwise show the API currency correctly:
       final formattedPrice = NumberFormat.simpleCurrency(
         name: currency,
       ).format(double.tryParse(price.toString()) ?? 0);
@@ -95,9 +108,27 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
         final itinerary = itineraries[i];
         final segments = itinerary['segments'] as List;
 
+        // ---------- PRIMARY & ALL MARKETING CARRIERS ----------
+        final primaryMarketingCode = (segments.first['carrierCode'] as String)
+            .toUpperCase();
+        final primaryMarketingName = _codeToName(
+          primaryMarketingCode,
+          carriers,
+        );
+
+        // set of marketing CODES for the whole itinerary (ignore HR/H1)
+        final marketingCodes = <String>{
+          for (final s in segments) (s['carrierCode'] as String).toUpperCase(),
+        }..removeWhere((c) => c == 'HR' || c == 'H1');
+
+        // names for filtering/display
+        final marketingNames = marketingCodes
+            .map((c) => _codeToName(c, carriers))
+            .toSet();
+
+        // ---------- times / stops (unchanged) ----------
         final firstSegment = segments.first;
         final lastSegment = segments.last;
-
         final depRaw = firstSegment['departure']['at'];
         final arrRaw = lastSegment['arrival']['at'];
         final depTime = formatTime(depRaw);
@@ -112,7 +143,7 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
         for (int j = 0; j < segments.length; j++) {
           final seg = (segments[j] as Map).cast<String, dynamic>();
 
-          // Intra-segment tech stops
+          // intra-segment stops
           final segStops = (seg['stops'] as List?) ?? const [];
           for (final raw in segStops) {
             final s = (raw as Map).cast<String, dynamic>();
@@ -130,7 +161,7 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
             }
           }
 
-          // Inter-segment connection (gap between segments)
+          // inter-segment connection
           if (j < segments.length - 1) {
             final thisArr = DateTime.parse(seg['arrival']['at']);
             final nextDep = DateTime.parse(
@@ -139,7 +170,6 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
             final gap = nextDep.difference(thisArr).inMinutes;
             if (gap > 0) totalLayoverMin += gap;
 
-            // connection airport is the arrival of current segment
             final connCode = seg['arrival']['iataCode'] as String?;
             if (connCode != null) stopAirports.add(connCode);
           }
@@ -177,16 +207,28 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
           'layover': _fmtHM(totalLayoverMin),
           'stops': stopLabel,
           'stopAirports': stopAirports,
-          'airline': airline,
+
+          // 👇 what you should show as the main airline on the card
+          'airline': primaryMarketingName,
+          'primaryAirlineCode': primaryMarketingCode,
+
+          // 👇 for filtering: use these (marketing names or codes)
+          'airlines': marketingNames, // e.g., {'JETSTAR'}
+          'airlineCodes': marketingCodes, // e.g., {'JQ'}
+          // keep ticketing info if you want to show it small
+          'ticketingCarrierCode': validatingCode,
+          'ticketingCarrierName': validatingName,
+
           'price': formattedPrice,
           'currency': currency,
           'isReturn': i == 1,
           'depRaw': depRaw,
           'arrRaw': arrRaw,
+          'locations': locations,
+          'carriersCode': carriers,
         });
       }
     }
-
     return results;
   }
 

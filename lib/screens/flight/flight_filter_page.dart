@@ -1,10 +1,22 @@
-import 'package:TFA/constants/filter_data.dart';
 import 'package:TFA/utils/time_utils.dart';
 import 'package:flutter/material.dart';
 
 class FlightFilterPage extends StatefulWidget {
-  const FlightFilterPage({super.key, required this.scrollController});
+  const FlightFilterPage({
+    super.key,
+    required this.scrollController,
+    required this.selectedAirlines,
+    required this.selectedLayovers,
+    required this.kAirlines,
+    required this.kLayoverCities,
+    required this.carriersDict,
+  });
   final ScrollController scrollController;
+  final Set<String> selectedAirlines;
+  final Set<String> selectedLayovers;
+  final List<String> kAirlines;
+  final List<String> kLayoverCities;
+  final Map<String, String> carriersDict;
 
   @override
   State<FlightFilterPage> createState() => _FlightFilterPageState();
@@ -19,8 +31,6 @@ class _FlightFilterPageState extends State<FlightFilterPage> {
   RangeValues flightDuration = const RangeValues(0, 1395); // 8h40m to 23h15m
   RangeValues layoverDuration = const RangeValues(0, 1470); // 0 to 24h30m
   // --- Airlines state ---
-  Set<String> selectedAirlines = cloneSet(kDefaultSelectedAirlines);
-  Set<String> selectedLayovers = cloneSet(kDefaultSelectedLayovers);
 
   static const int _visibleItemsCount = 7;
   bool _showAllAirlines = false;
@@ -117,8 +127,8 @@ class _FlightFilterPageState extends State<FlightFilterPage> {
     );
   }
 
-  Widget _airlineTile(String airline) {
-    final isSelected = selectedAirlines.contains(airline);
+  Widget _airlineTile(String airlineName) {
+    final isSelected = _airlinesSel.contains(airlineName);
     return Container(
       color: Colors.white,
       child: ListTile(
@@ -129,20 +139,20 @@ class _FlightFilterPageState extends State<FlightFilterPage> {
           onChanged: (v) {
             setState(() {
               if (v == true) {
-                selectedAirlines.add(airline);
+                _airlinesSel.add(airlineName);
               } else {
-                selectedAirlines.remove(airline);
+                _airlinesSel.remove(airlineName);
               }
             });
           },
         ),
-        title: Text(airline),
+        title: Text(airlineName),
         trailing: GestureDetector(
           onTap: () {
             setState(() {
-              selectedAirlines
+              _airlinesSel
                 ..clear()
-                ..add(airline);
+                ..add(airlineName);
             });
           },
           child: const Text("only", style: TextStyle(color: Colors.lightBlue)),
@@ -152,7 +162,7 @@ class _FlightFilterPageState extends State<FlightFilterPage> {
   }
 
   Widget _cityTiles(String city) {
-    final isSelected = selectedLayovers.contains(city);
+    final isSelected = _layoversSel.contains(city);
     return Container(
       color: Colors.white,
       child: ListTile(
@@ -163,9 +173,9 @@ class _FlightFilterPageState extends State<FlightFilterPage> {
           onChanged: (v) {
             setState(() {
               if (v == true) {
-                selectedLayovers.add(city);
+                _layoversSel.add(city);
               } else {
-                selectedLayovers.remove(city);
+                _layoversSel.remove(city);
               }
             });
           },
@@ -174,7 +184,7 @@ class _FlightFilterPageState extends State<FlightFilterPage> {
         trailing: GestureDetector(
           onTap: () {
             setState(() {
-              selectedLayovers
+              _layoversSel
                 ..clear()
                 ..add(city);
             });
@@ -183,6 +193,16 @@ class _FlightFilterPageState extends State<FlightFilterPage> {
         ),
       ),
     );
+  }
+
+  late Set<String> _airlinesSel;
+  late Set<String> _layoversSel;
+
+  @override
+  void initState() {
+    super.initState();
+    _airlinesSel = {...widget.selectedAirlines}; // local copy
+    _layoversSel = {...widget.selectedLayovers};
   }
 
   @override
@@ -254,11 +274,11 @@ class _FlightFilterPageState extends State<FlightFilterPage> {
       _buildSectionTitle("Airlines", context),
       ...(() {
         final list = _showAllAirlines
-            ? kAirlines
-            : kAirlines.take(_visibleItemsCount).toList();
+            ? widget.kAirlines
+            : widget.kAirlines.take(_visibleItemsCount).toList();
         return [
           ...list.map((a) => _padded(_airlineTile(a))),
-          if (kAirlines.length > _visibleItemsCount)
+          if (widget.kAirlines.length > _visibleItemsCount)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 4),
               child: Center(
@@ -275,11 +295,11 @@ class _FlightFilterPageState extends State<FlightFilterPage> {
       _buildSectionTitle("Layover Cities", context),
       ...(() {
         final list = _showAllCities
-            ? kLayoverCities
-            : kLayoverCities.take(_visibleItemsCount).toList();
+            ? widget.kLayoverCities
+            : widget.kLayoverCities.take(_visibleItemsCount).toList();
         return [
           ...list.map((a) => _padded(_cityTiles(a))),
-          if (kLayoverCities.length > _visibleItemsCount)
+          if (widget.kLayoverCities.length > _visibleItemsCount)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 4),
               child: Center(
@@ -344,7 +364,10 @@ class _FlightFilterPageState extends State<FlightFilterPage> {
                 width: double.infinity,
                 height: 48,
                 child: ElevatedButton(
-                  onPressed: () => Navigator.pop(context),
+                  onPressed: () => Navigator.pop(context, {
+                    "airlines": _airlinesSel.toList(),
+                    "layovers": _layoversSel.toList(),
+                  }),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.lightBlue,
                     shape: const RoundedRectangleBorder(

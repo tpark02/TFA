@@ -13,12 +13,15 @@ class FlightListView extends ConsumerStatefulWidget {
     required this.landing,
     required this.flightDuration,
     required this.layOverDuration,
+    required this.selectedAirlines,
+    required this.selectedLayovers,
   });
 
   final RangeValues takeoff, landing, flightDuration, layOverDuration;
   final String sortType;
   final String stopType;
-
+  final Set<String> selectedAirlines;
+  final Set<String> selectedLayovers;
   @override
   ConsumerState<FlightListView> createState() => _FlightListViewState();
 }
@@ -192,7 +195,57 @@ class _FlightListViewState extends ConsumerState<FlightListView>
       widget.stopType,
     ); // or pass in a separate prop
 
+    // --- helpers for filters ---
+    Set<String> _layoverCityCodesOf(Map f) {
+      final path = (f['airportPath'] as String? ?? '');
+      final parts = path.split('→').map((s) => s.trim()).toList();
+      if (parts.length <= 2) return <String>{}; // nonstop
+
+      final middleIATAs = parts.sublist(1, parts.length - 1);
+      final locMap = (f['locations'] as Map?)?.cast<String, dynamic>() ?? {};
+
+      final out = <String>{};
+      for (final iata in middleIATAs) {
+        final details = (locMap[iata] as Map?)?.cast<String, dynamic>();
+        final city = details?['cityCode'] as String?;
+        if (city != null && city.isNotEmpty) out.add(city);
+      }
+      return out;
+    }
+
+    bool _passesAirlineFilter(Map f, Set<String> selected) {
+      if (selected.isEmpty) return true; // or false, depending on your UX
+
+      String norm(String s) => s.toUpperCase().trim();
+
+      final flightAir = ((f['airlines'] as Iterable?) ?? const [])
+          .map((e) => norm(e.toString()))
+          .toSet();
+
+      final selectedNorm = selected.map(norm).toSet();
+
+      // ✅ Show only if EVERY carrier in the itinerary is selected
+      return selectedNorm.containsAll(flightAir);
+      // (equivalent: return flightAir.difference(selectedNorm).isEmpty;)
+    }
+
+    bool _passesLayoverCityFilter(Map f, Set<String> selected) {
+      if (selected.isEmpty) return true;
+      final layoverCities = _layoverCityCodesOf(f);
+      return layoverCities.any(selected.contains);
+    }
+
+    for (final s in widget.selectedAirlines) {
+      debugPrint('selected Airlines - ' + s);
+    }
     final filteredFlights = allFlights.where((f) {
+      // airlines filter
+      if (!_passesAirlineFilter(f, widget.selectedAirlines)) return false;
+
+      debugPrint("airline - " + f['airline']);
+      // layover city filter (by cityCode like "TYO", "SEL")
+      if (!_passesLayoverCityFilter(f, widget.selectedLayovers)) return false;
+
       final stops = int.tryParse(f['stops'].toString().split(' ').first) ?? 0;
       if (stops > maxStops) return false;
 
@@ -200,43 +253,36 @@ class _FlightListViewState extends ConsumerState<FlightListView>
       final durMin = f['durationMin'] ?? 0;
       final dStart = widget.flightDuration.start.round();
       final dEnd = widget.flightDuration.end.round();
-      if (durMin < dStart || durMin > dEnd) {
-        return false;
-      }
+      if (durMin < dStart || durMin > dEnd) return false;
 
       // layover duration
       final layOverMin = f['layoverMin'] ?? 0;
       final lStart = widget.layOverDuration.start.round();
       final lEnd = widget.layOverDuration.end.round();
-      if (layOverMin < lStart || layOverMin > lEnd) {
-        return false;
-      }
+      if (layOverMin < lStart || layOverMin > lEnd) return false;
 
+      // time windows...
       if (f['isReturn'] == false) {
-        final mins = _depMinutesOfDay(f['depRaw']); // uses ISO string
+        final mins = _depMinutesOfDay(f['depRaw']);
         if (mins >= 0) {
           final start = widget.takeoff.start.round();
           final end = widget.takeoff.end.round();
           if (mins < start || mins > end) return false;
         }
-
-        final arrMin = _depMinutesOfDay(f['arrRaw']); // uses ISO string
+        final arrMin = _depMinutesOfDay(f['arrRaw']);
         if (arrMin >= 0) {
           final start = widget.landing.start.round();
           final end = widget.landing.end.round();
           if (arrMin < start || arrMin > end) return false;
         }
-      }
-
-      if (f['isReturn'] == true) {
-        final depMin = _depMinutesOfDay(f['depRaw']); // uses ISO string
+      } else {
+        final depMin = _depMinutesOfDay(f['depRaw']);
         if (depMin >= 0) {
           final start = widget.takeoff.start.round();
           final end = widget.takeoff.end.round();
           if (depMin < start || depMin > end) return false;
         }
-
-        final arrMin = _depMinutesOfDay(f['arrRaw']); // uses ISO string
+        final arrMin = _depMinutesOfDay(f['arrRaw']);
         if (arrMin >= 0) {
           final start = widget.landing.start.round();
           final end = widget.landing.end.round();

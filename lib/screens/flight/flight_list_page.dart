@@ -1,4 +1,3 @@
-import 'package:TFA/constants/filter_data.dart';
 import 'package:TFA/providers/flight/flight_search_controller.dart';
 import 'package:TFA/providers/flight/flight_search_state.dart';
 import 'package:TFA/providers/sort_tab_provider.dart';
@@ -30,13 +29,16 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
   RangeValues landingRange = const RangeValues(0, 1439);
   RangeValues flightDurationRange = const RangeValues(0, 1440);
   RangeValues layOverDurationRange = const RangeValues(0, 1470);
-  Set<String> selectedAirlines = cloneSet(kAirlines);
-  Set<String> selectedLayovers = cloneSet(kLayoverCities);
+  Set<String> selectedAirlines = <String>{};
+  Set<String> selectedLayovers = <String>{};
+  List<String> kAirlines = [];
+  List<String> kLayoverCities = [];
   int flightDurationSt = 0;
   int flightDurationEnd = 0;
   int layOverDurationSt = 0;
   int layOverDurationEnd = 0;
   late final ProviderSubscription<FlightSearchState> _sub;
+  Map<String, String> carriersDict = {}; // <-- add this
 
   RangeValues rangeFromFlights(
     List<Map<String, dynamic>> flights,
@@ -63,24 +65,77 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
   void initState() {
     super.initState();
 
-    _sub = ref.listenManual<FlightSearchState>(
-      flightSearchProvider,
-      (prev, next) {
-        final flights = next.processedFlights;
-        if (!mounted || flights.isEmpty) return;
+    _sub = ref.listenManual<FlightSearchState>(flightSearchProvider, (
+      prev,
+      next,
+    ) {
+      final flights = next.processedFlights;
+      if (!mounted || flights.isEmpty) return;
 
-        setState(() {
-          flightDurationRange = rangeFromFlights(flights, 'durationMin');
-          layOverDurationRange = rangeFromFlights(flights, 'layoverMin');
+      // Temp sets for this batch
+      final layovers = <String>{};
+      final airlines = <String>{};
 
-          flightDurationSt = flightDurationRange.start.toInt();
-          flightDurationEnd = flightDurationRange.end.toInt() + 1;
-          layOverDurationSt = layOverDurationRange.start.toInt();
-          layOverDurationEnd = layOverDurationRange.end.toInt() + 1;
-        });
-      },
-      fireImmediately: true, // run once with the current value too
-    );
+      for (final f in flights) {
+        // ---- airlines: use codes, normalize to upper-case
+        for (final a in (f['airlines'] as Iterable).cast<String>()) {
+          airlines.add(a.toUpperCase());
+        }
+
+        // ---- layovers: ONLY middle airports, not origin/destination
+        final locations = (f['locations'] as Map).cast<String, dynamic>();
+        final path = (f['airportPath'] as String? ?? '');
+        final parts = path.split('→').map((s) => s.trim()).toList();
+        if (parts.length > 2) {
+          final middleIATAs = parts.sublist(1, parts.length - 1);
+          for (final iata in middleIATAs) {
+            final details = (locations[iata] as Map?)?.cast<String, dynamic>();
+            final cityCode = details?['cityCode'] as String?;
+            if (cityCode != null && cityCode.isNotEmpty) {
+              layovers.add(cityCode.toUpperCase());
+            }
+          }
+        }
+      }
+
+      // ---- carriers dict: read from top-level dictionaries
+      // Adjust this access to whatever your FlightSearchState exposes.
+      // If it's nested differently, point to the right place.
+      Map<String, String> carriers = {};
+      final results = ref
+          .read(flightSearchProvider)
+          .flightResults
+          .maybeWhen(data: (v) => v, orElse: () => null);
+      final dict = (results?['dictionaries'] as Map?)?.cast<String, dynamic>();
+      final carriersRaw = (dict?['carriers'] as Map?)?.cast<String, dynamic>();
+      if (carriersRaw != null) {
+        carriers = carriersRaw.map((k, v) => MapEntry(k, v.toString()));
+      }
+
+      setState(() {
+        // master lists
+        kAirlines = airlines.toList()..sort();
+        kLayoverCities = layovers.toList()..sort();
+
+        // initialize selections to everything (adjust if you want persist)
+        selectedAirlines
+          ..clear()
+          ..addAll(airlines);
+        selectedLayovers
+          ..clear()
+          ..addAll(layovers);
+
+        carriersDict = carriers; // used only for display in the sheet
+
+        // ranges
+        flightDurationRange = rangeFromFlights(flights, 'durationMin');
+        layOverDurationRange = rangeFromFlights(flights, 'layoverMin');
+        flightDurationSt = flightDurationRange.start.toInt();
+        flightDurationEnd = flightDurationRange.end.toInt() + 1;
+        layOverDurationSt = layOverDurationRange.start.toInt();
+        layOverDurationEnd = layOverDurationRange.end.toInt() + 1;
+      });
+    }, fireImmediately: true);
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       setState(() {
@@ -128,7 +183,10 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
   @override
   Widget build(BuildContext context) {
     final flightState = ref.watch(flightSearchProvider);
-
+    debugPrint(
+      'carriersDict (${carriersDict.length}): '
+      '${carriersDict.entries.map((e) => '${e.key}→${e.value}').join(', ')}',
+    );
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(90), // required!
@@ -205,34 +263,50 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
                         ),
                         side: BorderSide(color: Colors.grey[400]!, width: 1),
                       ),
-                      onPressed: () {
-                        showModalBottomSheet(
-                          context: context,
-                          isScrollControlled: true,
-                          useSafeArea: true,
-                          backgroundColor: Colors.transparent,
-                          builder: (context) {
-                            return DraggableScrollableSheet(
-                              expand: true,
-                              initialChildSize: 1.0,
-                              minChildSize: 1.0,
-                              maxChildSize: 1.0,
-                              builder: (context, scrollController) {
-                                return Container(
-                                  decoration: const BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.vertical(
-                                      top: Radius.circular(16),
-                                    ),
-                                  ),
-                                  child: FlightFilterPage(
-                                    scrollController: scrollController,
-                                  ),
+                      onPressed: () async {
+                        final result =
+                            await showModalBottomSheet<
+                              Map<String, List<String>>
+                            >(
+                              context: context,
+                              isScrollControlled: true,
+                              useSafeArea: true,
+                              backgroundColor: Colors.transparent,
+                              builder: (context) {
+                                return DraggableScrollableSheet(
+                                  expand: true,
+                                  initialChildSize: 1.0,
+                                  minChildSize: 1.0,
+                                  maxChildSize: 1.0,
+                                  builder: (context, scrollController) {
+                                    return Container(
+                                      decoration: const BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.vertical(
+                                          top: Radius.circular(16),
+                                        ),
+                                      ),
+                                      child: FlightFilterPage(
+                                        scrollController: scrollController,
+                                        selectedAirlines: selectedAirlines,
+                                        selectedLayovers: selectedLayovers,
+                                        kAirlines: kAirlines,
+                                        kLayoverCities: kLayoverCities,
+                                        carriersDict: carriersDict,
+                                      ),
+                                    );
+                                  },
                                 );
                               },
                             );
-                          },
-                        );
+                        if (result != null) {
+                          setState(() {
+                            selectedAirlines =
+                                result['airlines']?.toSet() ?? selectedAirlines;
+                            selectedLayovers =
+                                result['layovers']?.toSet() ?? selectedLayovers;
+                          });
+                        }
                       },
                       child: Icon(Icons.tune, size: 23),
                     ),
@@ -377,10 +451,15 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
                       showSelectionBottomSheet<String>(
                         context: context,
                         title: 'Airlines',
-                        items: kAirlines,
+                        items: kAirlines, // ← full list, not from selected
                         selected: selectedAirlines,
                         labelOf: (s) => s,
-                        onDone: (s) => setState(() => selectedAirlines = s),
+                        onDone: (s) => setState(() {
+                          selectedAirlines = s;
+                          for (final a in selectedAirlines) {
+                            debugPrint('selected airlines - $a');
+                          }
+                        }),
                       );
                     },
                   ),
@@ -390,10 +469,12 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
                       showSelectionBottomSheet<String>(
                         context: context,
                         title: 'Layover Cities',
-                        items: kLayoverCities,
+                        items: kLayoverCities, // ← full list
                         selected: selectedLayovers,
                         labelOf: (s) => s,
-                        onDone: (s) => setState(() => selectedLayovers = s),
+                        onDone: (s) => setState(() {
+                          selectedLayovers = s;
+                        }),
                       );
                     },
                   ),
@@ -415,6 +496,8 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
                     landing: landingRange,
                     flightDuration: flightDurationRange,
                     layOverDuration: layOverDurationRange,
+                    selectedAirlines: selectedAirlines,
+                    selectedLayovers: selectedLayovers,
                   ),
           ),
         ],
