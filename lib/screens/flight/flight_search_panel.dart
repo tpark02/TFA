@@ -1,7 +1,5 @@
-// lib/screens/flight/flight_search_panel.dart
-
-import 'package:TFA/providers/airport/airport_provider.dart';
 import 'package:TFA/providers/flight/flight_search_controller.dart';
+import 'package:TFA/services/airport_service.dart';
 import 'package:TFA/services/location_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -22,43 +20,49 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
   bool _initialized = false;
   final user = FirebaseAuth.instance.currentUser;
   late final FlightSearchController controller;
+  final _airportSvc = AirportService();
 
   Future<void> fetchCurrentCountry() async {
+    if (!mounted) return;
     setState(() => _isLoadingCity = true);
 
     try {
-      final position = await LocationService.getCurrentLocation();
-      final placemarks = await placemarkFromCoordinates(
-        position.latitude,
-        position.longitude,
+      final controller = ref.read(flightSearchProvider.notifier);
+      final pos = await LocationService.getCurrentLocation();
+      final airports = await _airportSvc.nearbyAirports(
+        lat: pos.latitude,
+        lon: pos.longitude,
+        radiusKm: 150,
+        limit: 5,
       );
 
-      if (placemarks.isNotEmpty) {
-        final city = placemarks.first.locality ?? '';
-        final airportData = ref.watch(airportDataProvider);
+      final placemarks = await placemarkFromCoordinates(
+        pos.latitude,
+        pos.longitude,
+      );
 
-        final filteredAirports = airportData.maybeWhen(
-          data: (airports) {
-            return airports.where((a) {
-              return a.airportName.toLowerCase().contains(city) ||
-                  a.city.toLowerCase().contains(city);
-            }).toList();
-          },
-          orElse: () => [],
-        );
-        if (filteredAirports.isNotEmpty) {
-          ref
-              .read(flightSearchProvider.notifier)
-              .setDepartureCode(filteredAirports[0].iataCode);
-          debugPrint(
-            "\uD83D\uDCCD set iataCode: \${filteredAirports[0].iataCode}",
-          );
-          return;
-        }
-        debugPrint("\uD83D\uDCCD set default iataCode: JFK");
+      final city = placemarks.isNotEmpty
+          ? (placemarks.first.locality ?? '')
+          : '';
+
+      final first = airports.firstWhere(
+        (e) => (e['iataCode'] as String?)?.isNotEmpty == true,
+        orElse: () => {},
+      );
+      final code = (first['iataCode'] as String?)?.toUpperCase();
+
+      if (code != null) {
+        controller.setDepartureCode(code);
+        controller.setDepartureCity(city);
+        debugPrint('📍 set iataCode from Amadeus: $code');
+        return;
       }
-    } catch (e) {
-      debugPrint("\u274C Location error: \$e");
+      debugPrint('📍 no nearby airport from API (city: $city) → default JFK');
+      controller.setDepartureCode('JFK');
+    } catch (e, st) {
+      debugPrint('❌ Location/airport error: $e');
+      debugPrint('$st');
+      ref.read(flightSearchProvider.notifier).setDepartureCode('JFK');
     } finally {
       if (mounted) setState(() => _isLoadingCity = false);
     }

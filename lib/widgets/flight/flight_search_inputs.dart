@@ -41,8 +41,8 @@ class FlightSearchInputs extends ConsumerWidget {
               children: [
                 // Departure
                 Expanded(
-                  child: OutlinedButton(
-                    style: outlinedButtonStyle(context),
+                  child: TextButton(
+                    style: flatSegmentStyle(context),
                     onPressed: () async {
                       final result =
                           await showModalBottomSheet<AirportSelection>(
@@ -94,8 +94,8 @@ class FlightSearchInputs extends ConsumerWidget {
                 const SizedBox(width: 8),
                 // Arrival
                 Expanded(
-                  child: OutlinedButton(
-                    style: outlinedButtonStyle(context),
+                  child: TextButton(
+                    style: flatSegmentStyle(context),
                     onPressed: () async {
                       final result =
                           await showModalBottomSheet<AirportSelection>(
@@ -140,7 +140,7 @@ class FlightSearchInputs extends ConsumerWidget {
             children: [
               // Date picker
               Expanded(
-                flex: 6,
+                flex: 5,
                 child: OutlinedButton(
                   onPressed: () async {
                     final result = await showModalBottomSheet(
@@ -171,7 +171,7 @@ class FlightSearchInputs extends ConsumerWidget {
                       );
                     }
                   },
-                  style: primaryButtonStyle(context),
+                  style: outlinedButtonStyle(context),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
@@ -188,7 +188,7 @@ class FlightSearchInputs extends ConsumerWidget {
               const SizedBox(width: 8),
               // Travelers
               Expanded(
-                flex: 4,
+                flex: 5,
                 child: OutlinedButton(
                   onPressed: () async {
                     final result = await showModalBottomSheet(
@@ -208,8 +208,9 @@ class FlightSearchInputs extends ConsumerWidget {
                       controller.setPassengers(count: pax, cabinIndex: cabin);
                     }
                   },
-                  style: primaryButtonStyle(context),
+                  style: outlinedButtonStyle(context),
                   child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       const Icon(Icons.person),
                       Text(
