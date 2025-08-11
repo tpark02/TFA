@@ -143,9 +143,7 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
       });
 
       final controller = ref.read(flightSearchProvider.notifier);
-      final flightState = ref.read(
-        flightSearchProvider,
-      ); // ✅ read only, no watch
+      final flightState = ref.read(flightSearchProvider);
 
       final (searchSuccess, searchMessage) = await controller.searchFlights(
         origin: flightState.departureAirportCode,

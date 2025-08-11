@@ -408,6 +408,7 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
   }
 
   String? get departDate => state.departDate;
+  String? get returnDate => state.returnDate;
 }
 
 final flightSearchProvider =

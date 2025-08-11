@@ -3,7 +3,6 @@ import 'package:TFA/widgets/flight/flight_list_view_item.dart';
 import 'package:TFA/widgets/search_summary_loading_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:http/http.dart';
 
 class FlightListView extends ConsumerStatefulWidget {
   const FlightListView({
