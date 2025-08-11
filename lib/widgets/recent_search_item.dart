@@ -22,10 +22,16 @@ class RecentSearchItem extends ConsumerWidget {
           controller.setDepartDate(DateTime.parse(search.departDate));
           if (search.returnDate == '') {
             controller.setClearReturnDate(true);
-            // controller.setReturnDate(DateTime.parse(search.returnDate));
+            controller.setDisplayDate(
+              startDate: DateTime.parse(search.departDate),
+            );
           } else {
             controller.setClearReturnDate(false);
             controller.setReturnDate(DateTime.parse(search.returnDate));
+            controller.setDisplayDate(
+              startDate: DateTime.parse(search.departDate),
+              endDate: DateTime.parse(search.returnDate),
+            );
           }
 
           controller.setPassengers(count: search.guests, cabinIndex: 1);

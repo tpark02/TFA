@@ -131,15 +131,24 @@ class SearchSummaryCard extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              Text(dateRange, style: const TextStyle(color: Colors.white)),
+              Flexible(
+                child: Text(
+                  dateRange,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(color: Colors.white),
+                ),
+              ),
               const SizedBox(width: 5),
               Text("|", style: const TextStyle(color: Colors.white)),
               const SizedBox(width: 5),
               const Icon(Icons.person, color: Colors.white, size: 16),
               const SizedBox(width: 5),
-              Text(
-                passengerCount.toString(),
-                style: const TextStyle(color: Colors.white),
+              Flexible(
+                child: Text(
+                  passengerCount.toString(),
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(color: Colors.white),
+                ),
               ),
               const SizedBox(width: 5),
               Text("|", style: const TextStyle(color: Colors.white)),
@@ -149,7 +158,13 @@ class SearchSummaryCard extends ConsumerWidget {
                 color: Colors.white,
                 size: 16,
               ),
-              Text(cabinClass, style: const TextStyle(color: Colors.white)),
+              Flexible(
+                child: Text(
+                  cabinClass,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(color: Colors.white),
+                ),
+              ),
             ],
           ),
         ],
