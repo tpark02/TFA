@@ -53,7 +53,7 @@ class SearchSummaryCard extends ConsumerWidget {
 
                     if (result != null) {
                       controller.setDepartureCode(result.code);
-                      controller.setDepartureName(result.name);
+                      // controller.setDepartureName(result.name);
                       controller.setDepartureCity(result.city);
                     }
                   },
@@ -109,7 +109,7 @@ class SearchSummaryCard extends ConsumerWidget {
 
                     if (result != null) {
                       controller.setArrivalCode(result.code);
-                      controller.setArrivalName(result.name);
+                      // controller.setArrivalName(result.name);
                       controller.setArrivalCity(result.city);
                     }
                   },

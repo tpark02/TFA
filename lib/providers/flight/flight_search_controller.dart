@@ -322,17 +322,17 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
     state = state.copyWith(departureAirportCode: code);
   }
 
-  void setDepartureName(String name) {
-    state = state.copyWith(departureAirportName: name);
-  }
+  // void setDepartureName(String name) {
+  //   state = state.copyWith(departureAirportName: name);
+  // }
 
   void setArrivalCode(String code) {
     state = state.copyWith(arrivalAirportCode: code);
   }
 
-  void setArrivalName(String name) {
-    state = state.copyWith(arrivalAirportName: name);
-  }
+  // void setArrivalName(String name) {
+  //   state = state.copyWith(arrivalAirportName: name);
+  // }
 
   void setDisplayDate({required DateTime? startDate, DateTime? endDate}) {
     final displayDate = endDate != null

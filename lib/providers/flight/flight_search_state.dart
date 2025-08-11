@@ -6,11 +6,11 @@ class FlightSearchState {
   final List<RecentSearch> recentSearches;
   final List<Map<String, dynamic>> processedFlights;
 
-  final String departureAirportName;
+  // final String departureAirportName;
   final String departureAirportCode;
   final String departureCity;
 
-  final String arrivalAirportName;
+  // final String arrivalAirportName;
   final String arrivalAirportCode;
   final String arrivalCity;
 
@@ -91,10 +91,10 @@ class FlightSearchState {
 
   FlightSearchState({
     this.recentSearches = _defaultRecentSearches,
-    this.departureAirportName = '',
+    // this.departureAirportName = '',
     this.departureAirportCode = '',
     this.departureCity = '',
-    this.arrivalAirportName = '',
+    // this.arrivalAirportName = '',
     this.arrivalAirportCode = '',
     this.arrivalCity = '',
     this.displayDate = '',
@@ -128,10 +128,10 @@ class FlightSearchState {
       flightResults: flightResults ?? this.flightResults,
       recentSearches: recentSearches ?? this.recentSearches,
       processedFlights: processedFlights ?? this.processedFlights,
-      departureAirportName: departureAirportName ?? this.departureAirportName,
+      // departureAirportName: departureAirportName ?? this.departureAirportName,
       departureAirportCode: departureAirportCode ?? this.departureAirportCode,
       departureCity: departureCity ?? this.departureCity,
-      arrivalAirportName: arrivalAirportName ?? this.arrivalAirportName,
+      // arrivalAirportName: arrivalAirportName ?? this.arrivalAirportName,
       arrivalAirportCode: arrivalAirportCode ?? this.arrivalAirportCode,
       arrivalCity: arrivalCity ?? this.arrivalCity,
       displayDate: displayDate ?? this.displayDate,
