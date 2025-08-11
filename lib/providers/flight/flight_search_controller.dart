@@ -280,6 +280,10 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
       guests: search.guests,
       rooms: search.rooms,
       kind: search.kind,
+      departCode: search.departCode,
+      arrivalCode: search.arrivalCode,
+      departDate: search.departDate,
+      returnDate: search.returnDate,
       jwtToken: jwtToken,
     );
   }
@@ -389,6 +393,10 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
             guests: guests,
             rooms: 0,
             kind: 'flight',
+            departCode: r['depart_code'],
+            arrivalCode: r['arrival_code'],
+            departDate: r['depart_date'],
+            returnDate: r['return_date'],
           ),
         );
       }

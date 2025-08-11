@@ -8,6 +8,10 @@ class RecentSearch {
   final int guests;
   final int rooms;
   final String kind;
+  final String departCode;
+  final String arrivalCode;
+  final String departDate;
+  final String returnDate;
 
   const RecentSearch({
     required this.destination,
@@ -17,16 +21,24 @@ class RecentSearch {
     required this.guests,
     required this.rooms,
     required this.kind,
+    required this.departCode,
+    required this.arrivalCode,
+    required this.returnDate,
+    required this.departDate,
   });
 
   @override
   String toString() {
     return 'RecentSearch(destination: $destination, '
         'tripDateRange: $tripDateRange, '
-        'destinationCode: $destinationCode),'
-        'guests: $guests),'
-        'rooms: $rooms),'
-        'kind: $kind)';
+        'destinationCode: $destinationCode, '
+        'guests: $guests, '
+        'rooms: $rooms, '
+        'kind: $kind, '
+        'departCode: $departCode, '
+        'arrivalCode: $arrivalCode, '
+        'departDate: $departDate, '
+        'arrivalDate: $returnDate)';
   }
 
   @override
@@ -39,7 +51,12 @@ class RecentSearch {
           destinationCode == other.destinationCode &&
           guests == other.guests &&
           rooms == other.rooms &&
-          kind == other.kind;
+          kind == other.kind &&
+          departCode == other.departCode &&
+          arrivalCode == other.arrivalCode &&
+          departDate == other.departDate &&
+          returnDate == other.returnDate;
+
   @override
   int get hashCode =>
       destination.hashCode ^
@@ -47,5 +64,9 @@ class RecentSearch {
       destinationCode.hashCode ^
       guests.hashCode ^
       rooms.hashCode ^
-      kind.hashCode;
+      kind.hashCode ^
+      departCode.hashCode ^
+      arrivalCode.hashCode ^
+      departDate.hashCode ^
+      returnDate.hashCode;
 }

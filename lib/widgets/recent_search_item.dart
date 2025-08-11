@@ -1,3 +1,4 @@
+import 'package:TFA/providers/flight/flight_search_controller.dart';
 import 'package:TFA/screens/flight/flight_list_page.dart';
 import 'package:flutter/material.dart';
 import 'package:TFA/providers/recent_search.dart';
@@ -10,8 +11,25 @@ class RecentSearchItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final controller = ref.read(flightSearchProvider.notifier);
+
     return InkWell(
       onTap: () {
+        String kind = search.kind;
+        if (kind == 'flight') {
+          controller.setArrivalCode(search.arrivalCode);
+          controller.setDepartureCode(search.departCode);
+          controller.setDepartDate(DateTime.parse(search.departDate));
+          if (search.returnDate == '') {
+            controller.setClearReturnDate(true);
+            // controller.setReturnDate(DateTime.parse(search.returnDate));
+          } else {
+            controller.setClearReturnDate(false);
+            controller.setReturnDate(DateTime.parse(search.returnDate));
+          }
+
+          controller.setPassengers(count: search.guests, cabinIndex: 1);
+        }
         Navigator.of(
           context,
         ).push(MaterialPageRoute(builder: (_) => const FlightListPage()));

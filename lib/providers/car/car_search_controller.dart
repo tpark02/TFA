@@ -47,6 +47,10 @@ class CarSearchController extends StateNotifier<CarSearchState> {
       guests: search.guests,
       rooms: search.rooms,
       kind: search.kind,
+      departCode: search.departCode,
+      arrivalCode: search.arrivalCode,
+      departDate: search.departDate,
+      returnDate: search.returnDate,
       jwtToken: jwtToken,
     );
   }
@@ -105,6 +109,10 @@ class CarSearchController extends StateNotifier<CarSearchState> {
             guests: guests,
             rooms: 0,
             kind: 'car',
+            departCode: r['depart_code'],
+            arrivalCode: r['arrival_code'],
+            departDate: r['depart_date'],
+            returnDate: r['return_date'],
           ),
         );
       }

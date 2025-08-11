@@ -12,6 +12,10 @@ class RecentSearchApiService {
     required int guests,
     required int rooms,
     required String kind,
+    required String departCode,
+    required String arrivalCode,
+    required String departDate, // "yyyy-MM-dd"
+    required String? returnDate, // "yyyy-MM-dd"
     required String jwtToken,
   }) async {
     final url = Uri.parse("$baseUrl/api/v1/recent-searches/");
@@ -30,6 +34,10 @@ class RecentSearchApiService {
           'guests': guests,
           'rooms': rooms,
           'kind': kind,
+          'depart_code': departCode,
+          'arrival_code': arrivalCode,
+          'depart_date': departDate,
+          'return_date': returnDate,
         }),
       );
 

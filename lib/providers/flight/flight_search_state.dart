@@ -18,7 +18,7 @@ class FlightSearchState {
   final String cabinClass;
   final int passengerCount;
 
-  final String? departDate;
+  final String departDate;
   final String? returnDate;
 
   static const List<RecentSearch> _defaultRecentSearches = [
@@ -30,6 +30,10 @@ class FlightSearchState {
       guests: 0,
       rooms: 0,
       kind: 'flight',
+      departCode: '',
+      arrivalCode: '',
+      departDate: '',
+      returnDate: '',
     ),
     RecentSearch(
       destination: '',
@@ -39,6 +43,10 @@ class FlightSearchState {
       guests: 0,
       rooms: 0,
       kind: 'flight',
+      departCode: '',
+      arrivalCode: '',
+      departDate: '',
+      returnDate: '',
     ),
     RecentSearch(
       destination: '',
@@ -48,6 +56,10 @@ class FlightSearchState {
       guests: 0,
       rooms: 0,
       kind: 'flight',
+      departCode: '',
+      arrivalCode: '',
+      departDate: '',
+      returnDate: '',
     ),
     RecentSearch(
       destination: '',
@@ -57,6 +69,10 @@ class FlightSearchState {
       guests: 0,
       rooms: 0,
       kind: 'flight',
+      departCode: '',
+      arrivalCode: '',
+      departDate: '',
+      returnDate: '',
     ),
     RecentSearch(
       destination: '',
@@ -66,6 +82,10 @@ class FlightSearchState {
       guests: 0,
       rooms: 0,
       kind: 'flight',
+      departCode: '',
+      arrivalCode: '',
+      departDate: '',
+      returnDate: '',
     ),
   ];
 

@@ -496,6 +496,10 @@ class _CarSearchPanelState extends ConsumerState<CarSearchPanel> {
                           guests: -1,
                           rooms: 0,
                           kind: 'car',
+                          departCode: 'n/a',
+                          arrivalCode: 'n/a',
+                          departDate: 'n/a',
+                          returnDate: 'n/a',
                         ),
                         idToken!,
                       );

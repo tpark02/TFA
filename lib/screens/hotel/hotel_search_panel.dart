@@ -345,6 +345,10 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
                           guests: totalGuest,
                           rooms: int.tryParse(hotelState.roomCnt)!,
                           kind: 'hotel',
+                          departCode: 'n/a',
+                          arrivalCode: 'n/a',
+                          departDate: 'n/a',
+                          returnDate: 'n/a',
                         ),
                         idToken!,
                       );
