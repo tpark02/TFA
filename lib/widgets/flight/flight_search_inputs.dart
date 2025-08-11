@@ -9,6 +9,7 @@ import 'package:TFA/providers/flight/flight_search_controller.dart';
 import 'package:TFA/screens/shared/search_airport_sheet.dart';
 import 'package:TFA/screens/shared/calendar_sheet.dart';
 import 'package:TFA/screens/shared/traveler_selector_sheet.dart';
+import 'package:TFA/theme/button_styles.dart';
 
 class FlightSearchInputs extends ConsumerWidget {
   const FlightSearchInputs({
@@ -41,7 +42,7 @@ class FlightSearchInputs extends ConsumerWidget {
                 // Departure
                 Expanded(
                   child: OutlinedButton(
-                    style: _btnStyle(context),
+                    style: outlinedButtonStyle(context),
                     onPressed: () async {
                       final result =
                           await showModalBottomSheet<AirportSelection>(
@@ -80,7 +81,7 @@ class FlightSearchInputs extends ConsumerWidget {
                                 flightState.departureAirportCode.isEmpty
                                     ? 'Departure'
                                     : flightState.departureAirportCode,
-                                style: _textStyle(context),
+                                style: boldBodyTextStyle(context),
                               ),
                       ],
                     ),
@@ -94,7 +95,7 @@ class FlightSearchInputs extends ConsumerWidget {
                 // Arrival
                 Expanded(
                   child: OutlinedButton(
-                    style: _btnStyle(context),
+                    style: outlinedButtonStyle(context),
                     onPressed: () async {
                       final result =
                           await showModalBottomSheet<AirportSelection>(
@@ -123,7 +124,7 @@ class FlightSearchInputs extends ConsumerWidget {
                         flightState.arrivalAirportName.isEmpty
                             ? 'Arrival'
                             : flightState.arrivalAirportCode,
-                        style: _textStyle(context),
+                        style: boldBodyTextStyle(context),
                       ),
                     ),
                   ),
@@ -170,7 +171,7 @@ class FlightSearchInputs extends ConsumerWidget {
                       );
                     }
                   },
-                  style: _outlined(context),
+                  style: primaryButtonStyle(context),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
@@ -178,7 +179,7 @@ class FlightSearchInputs extends ConsumerWidget {
                       const SizedBox(width: 8),
                       Text(
                         flightState.displayDate ?? 'Select',
-                        style: _textStyle(context),
+                        style: boldBodyTextStyle(context),
                       ),
                     ],
                   ),
@@ -207,13 +208,13 @@ class FlightSearchInputs extends ConsumerWidget {
                       controller.setPassengers(count: pax, cabinIndex: cabin);
                     }
                   },
-                  style: _outlined(context),
+                  style: primaryButtonStyle(context),
                   child: Row(
                     children: [
                       const Icon(Icons.person),
                       Text(
                         flightState.passengerCount.toString(),
-                        style: _textStyle(context),
+                        style: boldBodyTextStyle(context),
                       ),
                       const SizedBox(width: 5),
                       const Text('|'),
@@ -224,7 +225,7 @@ class FlightSearchInputs extends ConsumerWidget {
                           flightState.cabinClass,
                           overflow: TextOverflow.ellipsis,
                           maxLines: 1,
-                          style: _textStyle(context),
+                          style: boldBodyTextStyle(context),
                         ),
                       ),
                     ],
@@ -237,20 +238,4 @@ class FlightSearchInputs extends ConsumerWidget {
       ],
     );
   }
-
-  ButtonStyle _btnStyle(BuildContext context) => OutlinedButton.styleFrom(
-    side: BorderSide.none,
-    foregroundColor: Theme.of(context).colorScheme.primary,
-    shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-  );
-
-  ButtonStyle _outlined(BuildContext context) => OutlinedButton.styleFrom(
-    side: BorderSide(color: Theme.of(context).colorScheme.primary, width: 1),
-    shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-  );
-
-  TextStyle _textStyle(BuildContext context) => TextStyle(
-    fontSize: Theme.of(context).textTheme.bodyMedium?.fontSize,
-    fontWeight: FontWeight.bold,
-  );
 }

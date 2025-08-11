@@ -199,22 +199,25 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
             color: Theme.of(context).colorScheme.primary,
             padding: const EdgeInsets.fromLTRB(
               0,
-              25,
+              30,
               0,
               10,
             ), // status bar spacing
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                IconButton(
-                  padding: EdgeInsets.zero,
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  icon: Icon(Icons.arrow_back, color: Colors.white),
+                Container(
+                  padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
+                  child: InkWell(
+                    onTap: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: Icon(Icons.arrow_back, color: Colors.white),
+                  ),
                 ),
-                const SizedBox(width: 8),
-                Expanded(
+                SizedBox(
+                  width: 250,
                   child: SearchSummaryCard(
                     from: flightState.departureAirportCode,
                     to: flightState.arrivalAirportCode,
@@ -223,20 +226,21 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
                     cabinClass: 'Economy',
                   ),
                 ),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(
-                      padding: EdgeInsets.zero,
-                      onPressed: () {},
-                      icon: Icon(Icons.favorite_border, color: Colors.white),
-                    ),
-                    IconButton(
-                      padding: EdgeInsets.zero,
-                      onPressed: () {},
-                      icon: Icon(Icons.share, color: Colors.white),
-                    ),
-                  ],
+                Container(
+                  padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
+
+                  child: InkWell(
+                    onTap: () {},
+                    child: Icon(Icons.favorite_border, color: Colors.white),
+                  ),
+                ),
+                Container(
+                  padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
+
+                  child: InkWell(
+                    onTap: () {},
+                    child: Icon(Icons.share, color: Colors.white),
+                  ),
                 ),
               ],
             ),
