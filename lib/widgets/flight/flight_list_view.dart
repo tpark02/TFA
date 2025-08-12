@@ -309,7 +309,13 @@ class _FlightListViewState extends ConsumerState<FlightListView>
     final List<Widget> returnFlightWidgets = List.generate(
       returnFlights.length,
       (i) => FlightListViewItem(
-        onClick: () {},
+        onClick: () async {
+          Navigator.of(context, rootNavigator: true).push(
+            MaterialPageRoute(
+              builder: (_) => const FlightTripDetailsPage(isReturnPage: true),
+            ),
+          );
+        },
         index: i,
         flight: returnFlights[i],
       ),
@@ -319,11 +325,15 @@ class _FlightListViewState extends ConsumerState<FlightListView>
       departureFlights.length,
       (i) => FlightListViewItem(
         onClick: returnFlightWidgets.isNotEmpty
-            ? () => onDepartureClicked(i)
+            ? () {
+                onDepartureClicked(i);
+              }
             : () {
                 Navigator.of(context, rootNavigator: true).push(
                   MaterialPageRoute(
-                    builder: (_) => const FlightTripDetailsPage(),
+                    builder: (_) {
+                      return const FlightTripDetailsPage(isReturnPage: false);
+                    },
                   ),
                 );
               },

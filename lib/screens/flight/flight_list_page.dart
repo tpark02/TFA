@@ -42,6 +42,11 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
 
   Map<String, String> carriersDict = {}; // <-- add this
 
+  Map<String, dynamic> _asMap(dynamic v) =>
+      v is Map ? v.cast<String, dynamic>() : const {};
+
+  Iterable _asIter(dynamic v) => v is Iterable ? v : const [];
+
   RangeValues rangeFromFlights(
     List<Map<String, dynamic>> flights,
     String key, {
@@ -66,114 +71,130 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
   @override
   void initState() {
     super.initState();
-    _searchSub = ref.listenManual(
-      flightSearchProvider.select<(String, String, String?, String?, int)>(
-        (s) => (
-          s.departureAirportCode,
-          s.arrivalAirportCode,
-          s.departDate,
-          s.returnDate,
-          s.passengerCount,
+
+    try {
+      _searchSub = ref.listenManual(
+        flightSearchProvider.select<(String, String, String?, String?, int)>(
+          (s) => (
+            s.departureAirportCode,
+            s.arrivalAirportCode,
+            s.departDate,
+            s.returnDate,
+            s.passengerCount,
+          ),
         ),
-      ),
-      (prev, next) async {
-        if (prev == next) return;
-        if (!mounted) return;
+        (prev, next) async {
+          if (prev == next) return;
+          if (!mounted) return;
 
-        // 🔒 guard: need a departure date to search
-        final dep = next.$3;
-        if (dep == null || dep.isEmpty) return;
+          // 🔒 guard: need a departure date to search
+          final dep = next.$3;
+          if (dep == null || dep.isEmpty) return;
 
-        setState(() => isLoading = true);
-        final (ok, msg) = await ref
-            .read(flightSearchProvider.notifier)
-            .searchFlights(
-              origin: next.$1,
-              destination: next.$2,
-              departureDate: dep,
-              returnDate: next.$4,
-              adults: next.$5,
-            );
-        if (!ok && mounted) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(msg)));
-        }
-        if (mounted) setState(() => isLoading = false);
-      },
-      fireImmediately: false,
-    );
-    _sub = ref.listenManual<FlightSearchState>(flightSearchProvider, (
-      prev,
-      next,
-    ) {
-      final flights = next.processedFlights;
-      if (!mounted || flights.isEmpty) return;
+          setState(() => isLoading = true);
+          final (ok, msg) = await ref
+              .read(flightSearchProvider.notifier)
+              .searchFlights(
+                origin: next.$1,
+                destination: next.$2,
+                departureDate: dep,
+                returnDate: next.$4,
+                adults: next.$5,
+              );
+          if (!ok && mounted) {
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(msg)));
+          }
+          if (mounted) setState(() => isLoading = false);
+        },
+        fireImmediately: false,
+      );
+    } catch (e) {
+      debugPrint("❌ Failed loading flights from summary card: $e");
+    }
 
-      // Temp sets for this batch
-      final layovers = <String>{};
-      final airlines = <String>{};
+    try {
+      _sub = ref.listenManual<FlightSearchState>(flightSearchProvider, (
+        prev,
+        next,
+      ) {
+        final flights = next.processedFlights;
+        if (!mounted || flights.isEmpty) return;
 
-      for (final f in flights) {
-        // ---- airlines: use codes, normalize to upper-case
-        for (final a in (f['airlines'] as Iterable).cast<String>()) {
-          airlines.add(a.toUpperCase());
-        }
+        // Temp sets for this batch
+        final layovers = <String>{};
+        final airlines = <String>{};
 
-        // ---- layovers: ONLY middle airports, not origin/destination
-        final locations = (f['locations'] as Map).cast<String, dynamic>();
-        final path = (f['airportPath'] as String? ?? '');
-        final parts = path.split('→').map((s) => s.trim()).toList();
-        if (parts.length > 2) {
-          final middleIATAs = parts.sublist(1, parts.length - 1);
-          for (final iata in middleIATAs) {
-            final details = (locations[iata] as Map?)?.cast<String, dynamic>();
-            final cityCode = details?['cityCode'] as String?;
-            if (cityCode != null && cityCode.isNotEmpty) {
-              layovers.add(cityCode.toUpperCase());
+        for (final f in flights) {
+          // ---- airlines: use codes, normalize to upper-case
+          for (final a in (f['airlines'] as Iterable).cast<String>()) {
+            airlines.add(a.toUpperCase());
+          }
+
+          // ---- layovers: ONLY middle airports, not origin/destination
+          for (final a in _asIter(f['airlines']).map((e) => e.toString())) {
+            airlines.add(a.toUpperCase());
+          }
+
+          final locations = _asMap(f['locations']); // 🟢 no crash on null
+          final path = (f['airportPath'] as String? ?? '');
+          final parts = path.split('→').map((s) => s.trim()).toList();
+          if (parts.length > 2) {
+            final middleIATAs = parts.sublist(1, parts.length - 1);
+            for (final iata in middleIATAs) {
+              final details = _asMap(locations[iata]);
+              final cityCode = details['cityCode'] as String?;
+              if (cityCode != null && cityCode.isNotEmpty) {
+                layovers.add(cityCode.toUpperCase());
+              }
             }
           }
         }
-      }
 
-      // ---- carriers dict: read from top-level dictionaries
-      // Adjust this access to whatever your FlightSearchState exposes.
-      // If it's nested differently, point to the right place.
-      Map<String, String> carriers = {};
-      final results = ref
-          .read(flightSearchProvider)
-          .flightResults
-          .maybeWhen(data: (v) => v, orElse: () => null);
-      final dict = (results?['dictionaries'] as Map?)?.cast<String, dynamic>();
-      final carriersRaw = (dict?['carriers'] as Map?)?.cast<String, dynamic>();
-      if (carriersRaw != null) {
+        // ---- carriers dict: read from top-level dictionaries
+        // Adjust this access to whatever your FlightSearchState exposes.
+        // If it's nested differently, point to the right place.
+        Map<String, String> carriers = {};
+        // 🟢 CHANGE carriers dict extraction (still inside _sub)
+        final results = ref
+            .read(flightSearchProvider)
+            .flightResults
+            .maybeWhen<Map<String, dynamic>>(
+              data: (v) => v,
+              orElse: () => const {},
+            );
+        final dict = _asMap(results['dictionaries']);
+        final carriersRaw = _asMap(dict['carriers']);
         carriers = carriersRaw.map((k, v) => MapEntry(k, v.toString()));
-      }
 
-      setState(() {
-        // master lists
-        kAirlines = airlines.toList()..sort();
-        kLayoverCities = layovers.toList()..sort();
+        setState(() {
+          // master lists
+          kAirlines = airlines.toList()..sort();
+          kLayoverCities = layovers.toList()..sort();
 
-        // initialize selections to everything (adjust if you want persist)
-        selectedAirlines
-          ..clear()
-          ..addAll(airlines);
-        selectedLayovers
-          ..clear()
-          ..addAll(layovers);
+          // initialize selections to everything (adjust if you want persist)
+          selectedAirlines
+            ..clear()
+            ..addAll(airlines);
+          selectedLayovers
+            ..clear()
+            ..addAll(layovers);
 
-        carriersDict = carriers; // used only for display in the sheet
+          carriersDict = carriers; // used only for display in the sheet
 
-        // ranges
-        flightDurationRange = rangeFromFlights(flights, 'durationMin');
-        layOverDurationRange = rangeFromFlights(flights, 'layoverMin');
-        flightDurationSt = flightDurationRange.start.toInt();
-        flightDurationEnd = flightDurationRange.end.toInt() + 1;
-        layOverDurationSt = layOverDurationRange.start.toInt();
-        layOverDurationEnd = layOverDurationRange.end.toInt() + 1;
-      });
-    }, fireImmediately: true);
+          // ranges
+          flightDurationRange = rangeFromFlights(flights, 'durationMin');
+          layOverDurationRange = rangeFromFlights(flights, 'layoverMin');
+          flightDurationSt = flightDurationRange.start.toInt();
+          flightDurationEnd = flightDurationRange.end.toInt() + 1;
+          layOverDurationSt = layOverDurationRange.start.toInt();
+          layOverDurationEnd = layOverDurationRange.end.toInt() + 1;
+        });
+      }, fireImmediately: true);
+    } catch (e) {
+      debugPrint("❌ Failed loading flights from flight panel: $e");
+    }
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       setState(() {
