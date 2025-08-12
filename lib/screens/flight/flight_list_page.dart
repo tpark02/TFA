@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:TFA/providers/flight/flight_search_controller.dart';
 import 'package:TFA/providers/flight/flight_search_state.dart';
 import 'package:TFA/providers/sort_tab_provider.dart';
@@ -13,6 +15,7 @@ import 'package:TFA/widgets/search_summary_loading_card.dart';
 import 'package:TFA/widgets/sort_sheets/travel_hack_bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class FlightListPage extends ConsumerStatefulWidget {
   const FlightListPage({super.key});
@@ -66,6 +69,298 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
     }
     if (minV == maxV) maxV += 1; // avoid zero-width slider
     return RangeValues(minV.toDouble(), maxV.toDouble());
+  }
+
+  Widget _pageBody(BuildContext context, FlightSearchState flightState) {
+    return Column(
+      children: [
+        Container(
+          color: Theme.of(context).colorScheme.primary,
+          padding: const EdgeInsets.fromLTRB(
+            0,
+            30,
+            0,
+            10,
+          ), // status bar spacing
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Container(
+                padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
+                child: InkWell(
+                  onTap: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Icon(Icons.arrow_back, color: Colors.white),
+                ),
+              ),
+              SizedBox(
+                width: 250,
+                child: SearchSummaryCard(
+                  from: flightState.departureAirportCode,
+                  to: flightState.arrivalAirportCode,
+                  dateRange: flightState.displayDate ?? '',
+                  passengerCount: flightState.passengerCount,
+                  cabinClass: 'Economy',
+                ),
+              ),
+              Container(
+                padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
+
+                child: InkWell(
+                  onTap: () {},
+                  child: Icon(Icons.favorite_border, color: Colors.white),
+                ),
+              ),
+              Container(
+                padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
+
+                child: InkWell(
+                  onTap: () {},
+                  child: Icon(Icons.share, color: Colors.white),
+                ),
+              ),
+            ],
+          ),
+        ),
+        Container(
+          color: Colors.grey[200],
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                  margin: const EdgeInsets.only(left: 8),
+                  child: OutlinedButton(
+                    style: OutlinedButton.styleFrom(
+                      padding: EdgeInsets.all(10),
+                      backgroundColor: Colors.white,
+                      minimumSize: const Size(0, 32),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(4.0),
+                      ),
+                      side: BorderSide(color: Colors.grey[400]!, width: 1),
+                    ),
+                    onPressed: () async {
+                      final result =
+                          await Navigator.of(
+                            context,
+                            rootNavigator: true,
+                          ).push<Map<String, List<String>>>(
+                            MaterialPageRoute(
+                              fullscreenDialog:
+                                  true, // 🟢 Full-screen modal look
+                              builder: (_) => FlightFilterScreen(
+                                selectedAirlines: selectedAirlines,
+                                selectedLayovers: selectedLayovers,
+                                kAirlines: kAirlines,
+                                kLayoverCities: kLayoverCities,
+                                carriersDict: carriersDict,
+                              ),
+                            ),
+                          );
+
+                      if (result != null) {
+                        setState(() {
+                          selectedAirlines =
+                              result['airlines']?.toSet() ??
+                              selectedAirlines; // 🟢 KEEP: same result handling
+                          selectedLayovers =
+                              result['layovers']?.toSet() ?? selectedLayovers;
+                        });
+                      }
+                    },
+                    child: Icon(Icons.tune, size: 23),
+                  ),
+                ),
+                FilterButton(
+                  label: "Sort: $selectedSort",
+                  func: () {
+                    showSortBottomSheet(
+                      title: "Sort",
+                      context: context,
+                      selectedSort: selectedSort,
+                      sortType: SortTab.sort,
+                      onSortSelected: (value) {
+                        setState(() => selectedSort = value);
+                      },
+                    );
+                  },
+                ),
+                FilterButton(
+                  label: "Travel Hacks",
+                  func: () {
+                    showModalBottomSheet(
+                      context: context,
+                      useRootNavigator: true,
+                      isScrollControlled: true,
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.vertical(
+                          top: Radius.circular(16),
+                        ),
+                      ),
+                      builder: (context) => const TravelHackBottomSheet(),
+                    );
+                  },
+                ),
+                FilterButton(
+                  label: "Stops: $selectedStops",
+                  func: () {
+                    showSortBottomSheet(
+                      title: "Stops",
+                      context: context,
+                      selectedSort: selectedStops,
+                      sortType: SortTab.stops,
+                      onSortSelected: (value) {
+                        setState(
+                          () => selectedStops = value,
+                        ); // update parent state
+                      },
+                    );
+                  },
+                ),
+                FilterButton(
+                  label: "Take Off",
+                  func: () async {
+                    await showRangePickerSheet(
+                      context: context,
+                      sheet: RangePickerSheet(
+                        title: 'Take Off',
+                        min: 0, // min possible minutes
+                        max: 1439, // max possible minutes
+                        divisions: 1439,
+                        initial: takeoffRange, // ✅ use the current value
+                        label: formatTime,
+                        onConfirmed: (range) {
+                          setState(() => takeoffRange = range);
+                        },
+                      ),
+                    );
+                  },
+                ),
+                FilterButton(
+                  label: "Landing",
+                  func: () async {
+                    await showRangePickerSheet(
+                      context: context,
+                      sheet: RangePickerSheet(
+                        title: 'Landing',
+                        min: 0,
+                        max: 1439,
+                        divisions: 1439,
+                        initial: landingRange,
+                        label: formatTime,
+                        onConfirmed: (range) {
+                          setState(() => landingRange = range);
+                        },
+                      ),
+                    );
+                  },
+                ),
+                FilterButton(
+                  label: "Flight Duration",
+                  func: () async {
+                    final dMin = flightDurationRange.start.floor();
+                    final dMax = flightDurationRange.end.ceil();
+                    final int divs = (dMax - dMin).clamp(1, 100000);
+
+                    await showRangePickerSheet(
+                      context: context,
+                      sheet: RangePickerSheet(
+                        title: 'Flight Duration',
+                        min: flightDurationSt.toDouble(),
+                        max: flightDurationEnd.toDouble(),
+                        divisions: divs,
+                        initial: RangeValues(dMin.toDouble(), dMax.toDouble()),
+                        label: formatDuration,
+                        onConfirmed: (range) =>
+                            setState(() => flightDurationRange = range),
+                      ),
+                    );
+                  },
+                ),
+                FilterButton(
+                  label: "Layover Duration",
+                  func: () async {
+                    final lMin = layOverDurationRange.start.floor();
+                    final lMax = layOverDurationRange.end.ceil();
+                    final int divs = (lMax - lMin).clamp(1, 100000);
+
+                    await showRangePickerSheet(
+                      context: context,
+                      sheet: RangePickerSheet(
+                        title: 'Layover Duration',
+                        min: layOverDurationSt.toDouble(),
+                        max: layOverDurationEnd.toDouble(),
+                        divisions: divs,
+                        initial: RangeValues(lMin.toDouble(), lMax.toDouble()),
+                        label: formatDuration,
+                        onConfirmed: (range) =>
+                            setState(() => layOverDurationRange = range),
+                      ),
+                    );
+                  },
+                ),
+                FilterButton(
+                  label: "Airlines",
+                  func: () {
+                    showSelectionBottomSheet<String>(
+                      context: context,
+                      title: 'Airlines',
+                      items: kAirlines, // ← full list, not from selected
+                      selected: selectedAirlines,
+                      labelOf: (s) => s,
+                      onDone: (s) => setState(() {
+                        selectedAirlines = s;
+                        for (final a in selectedAirlines) {
+                          debugPrint('selected airlines - $a');
+                        }
+                      }),
+                    );
+                  },
+                ),
+                FilterButton(
+                  label: "Layover Cities",
+                  func: () {
+                    showSelectionBottomSheet<String>(
+                      context: context,
+                      title: 'Layover Cities',
+                      items: kLayoverCities, // ← full list
+                      selected: selectedLayovers,
+                      labelOf: (s) => s,
+                      onDone: (s) => setState(() {
+                        selectedLayovers = s;
+                      }),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+        Expanded(
+          child: isLoading
+              ? SearchSummaryLoadingCard(
+                  routeText:
+                      '${flightState.departureAirportCode} - ${flightState.arrivalAirportCode}',
+                  dateText: flightState.displayDate ?? '',
+                )
+              : FlightListView(
+                  sortType: selectedSort,
+                  stopType: selectedStops,
+                  takeoff: takeoffRange,
+                  landing: landingRange,
+                  flightDuration: flightDurationRange,
+                  layOverDuration: layOverDurationRange,
+                  selectedAirlines: selectedAirlines,
+                  selectedLayovers: selectedLayovers,
+                ),
+        ),
+      ],
+    );
   }
 
   @override
@@ -245,7 +540,7 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
       'carriersDict (${carriersDict.length}): '
       '${carriersDict.entries.map((e) => '${e.key}→${e.value}').join(', ')}',
     );
-    return Scaffold(
+    final page = Scaffold(
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(90), // required!
         child: Container(
@@ -253,301 +548,8 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
           child: SizedBox(height: 30),
         ),
       ),
-      body: Column(
-        children: [
-          Container(
-            color: Theme.of(context).colorScheme.primary,
-            padding: const EdgeInsets.fromLTRB(
-              0,
-              30,
-              0,
-              10,
-            ), // status bar spacing
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Container(
-                  padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
-                  child: InkWell(
-                    onTap: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: Icon(Icons.arrow_back, color: Colors.white),
-                  ),
-                ),
-                SizedBox(
-                  width: 250,
-                  child: SearchSummaryCard(
-                    from: flightState.departureAirportCode,
-                    to: flightState.arrivalAirportCode,
-                    dateRange: flightState.displayDate ?? '',
-                    passengerCount: flightState.passengerCount,
-                    cabinClass: 'Economy',
-                  ),
-                ),
-                Container(
-                  padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
-
-                  child: InkWell(
-                    onTap: () {},
-                    child: Icon(Icons.favorite_border, color: Colors.white),
-                  ),
-                ),
-                Container(
-                  padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
-
-                  child: InkWell(
-                    onTap: () {},
-                    child: Icon(Icons.share, color: Colors.white),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Container(
-            color: Colors.grey[200],
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Container(
-                    margin: const EdgeInsets.only(left: 8),
-                    child: OutlinedButton(
-                      style: OutlinedButton.styleFrom(
-                        padding: EdgeInsets.all(10),
-                        backgroundColor: Colors.white,
-                        minimumSize: const Size(0, 32),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(4.0),
-                        ),
-                        side: BorderSide(color: Colors.grey[400]!, width: 1),
-                      ),
-                      onPressed: () async {
-                        final result =
-                            await Navigator.of(
-                              context,
-                              rootNavigator: true,
-                            ).push<Map<String, List<String>>>(
-                              MaterialPageRoute(
-                                fullscreenDialog:
-                                    true, // 🟢 Full-screen modal look
-                                builder: (_) => FlightFilterScreen(
-                                  selectedAirlines: selectedAirlines,
-                                  selectedLayovers: selectedLayovers,
-                                  kAirlines: kAirlines,
-                                  kLayoverCities: kLayoverCities,
-                                  carriersDict: carriersDict,
-                                ),
-                              ),
-                            );
-
-                        if (result != null) {
-                          setState(() {
-                            selectedAirlines =
-                                result['airlines']?.toSet() ??
-                                selectedAirlines; // 🟢 KEEP: same result handling
-                            selectedLayovers =
-                                result['layovers']?.toSet() ?? selectedLayovers;
-                          });
-                        }
-                      },
-                      child: Icon(Icons.tune, size: 23),
-                    ),
-                  ),
-                  FilterButton(
-                    label: "Sort: $selectedSort",
-                    func: () {
-                      showSortBottomSheet(
-                        title: "Sort",
-                        context: context,
-                        selectedSort: selectedSort,
-                        sortType: SortTab.sort,
-                        onSortSelected: (value) {
-                          setState(() => selectedSort = value);
-                        },
-                      );
-                    },
-                  ),
-                  FilterButton(
-                    label: "Travel Hacks",
-                    func: () {
-                      showModalBottomSheet(
-                        context: context,
-                        useRootNavigator: true,
-                        isScrollControlled: true,
-                        shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.vertical(
-                            top: Radius.circular(16),
-                          ),
-                        ),
-                        builder: (context) => const TravelHackBottomSheet(),
-                      );
-                    },
-                  ),
-                  FilterButton(
-                    label: "Stops: $selectedStops",
-                    func: () {
-                      showSortBottomSheet(
-                        title: "Stops",
-                        context: context,
-                        selectedSort: selectedStops,
-                        sortType: SortTab.stops,
-                        onSortSelected: (value) {
-                          setState(
-                            () => selectedStops = value,
-                          ); // update parent state
-                        },
-                      );
-                    },
-                  ),
-                  FilterButton(
-                    label: "Take Off",
-                    func: () async {
-                      await showRangePickerSheet(
-                        context: context,
-                        sheet: RangePickerSheet(
-                          title: 'Take Off',
-                          min: 0, // min possible minutes
-                          max: 1439, // max possible minutes
-                          divisions: 1439,
-                          initial: takeoffRange, // ✅ use the current value
-                          label: formatTime,
-                          onConfirmed: (range) {
-                            setState(() => takeoffRange = range);
-                          },
-                        ),
-                      );
-                    },
-                  ),
-                  FilterButton(
-                    label: "Landing",
-                    func: () async {
-                      await showRangePickerSheet(
-                        context: context,
-                        sheet: RangePickerSheet(
-                          title: 'Landing',
-                          min: 0,
-                          max: 1439,
-                          divisions: 1439,
-                          initial: landingRange,
-                          label: formatTime,
-                          onConfirmed: (range) {
-                            setState(() => landingRange = range);
-                          },
-                        ),
-                      );
-                    },
-                  ),
-                  FilterButton(
-                    label: "Flight Duration",
-                    func: () async {
-                      final dMin = flightDurationRange.start.floor();
-                      final dMax = flightDurationRange.end.ceil();
-                      final int divs = (dMax - dMin).clamp(1, 100000);
-
-                      await showRangePickerSheet(
-                        context: context,
-                        sheet: RangePickerSheet(
-                          title: 'Flight Duration',
-                          min: flightDurationSt.toDouble(),
-                          max: flightDurationEnd.toDouble(),
-                          divisions: divs,
-                          initial: RangeValues(
-                            dMin.toDouble(),
-                            dMax.toDouble(),
-                          ),
-                          label: formatDuration,
-                          onConfirmed: (range) =>
-                              setState(() => flightDurationRange = range),
-                        ),
-                      );
-                    },
-                  ),
-                  FilterButton(
-                    label: "Layover Duration",
-                    func: () async {
-                      final lMin = layOverDurationRange.start.floor();
-                      final lMax = layOverDurationRange.end.ceil();
-                      final int divs = (lMax - lMin).clamp(1, 100000);
-
-                      await showRangePickerSheet(
-                        context: context,
-                        sheet: RangePickerSheet(
-                          title: 'Layover Duration',
-                          min: layOverDurationSt.toDouble(),
-                          max: layOverDurationEnd.toDouble(),
-                          divisions: divs,
-                          initial: RangeValues(
-                            lMin.toDouble(),
-                            lMax.toDouble(),
-                          ),
-                          label: formatDuration,
-                          onConfirmed: (range) =>
-                              setState(() => layOverDurationRange = range),
-                        ),
-                      );
-                    },
-                  ),
-                  FilterButton(
-                    label: "Airlines",
-                    func: () {
-                      showSelectionBottomSheet<String>(
-                        context: context,
-                        title: 'Airlines',
-                        items: kAirlines, // ← full list, not from selected
-                        selected: selectedAirlines,
-                        labelOf: (s) => s,
-                        onDone: (s) => setState(() {
-                          selectedAirlines = s;
-                          for (final a in selectedAirlines) {
-                            debugPrint('selected airlines - $a');
-                          }
-                        }),
-                      );
-                    },
-                  ),
-                  FilterButton(
-                    label: "Layover Cities",
-                    func: () {
-                      showSelectionBottomSheet<String>(
-                        context: context,
-                        title: 'Layover Cities',
-                        items: kLayoverCities, // ← full list
-                        selected: selectedLayovers,
-                        labelOf: (s) => s,
-                        onDone: (s) => setState(() {
-                          selectedLayovers = s;
-                        }),
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ),
-          ),
-          Expanded(
-            child: isLoading
-                ? SearchSummaryLoadingCard(
-                    routeText:
-                        '${flightState.departureAirportCode} - ${flightState.arrivalAirportCode}',
-                    dateText: flightState.displayDate ?? '',
-                  )
-                : FlightListView(
-                    sortType: selectedSort,
-                    stopType: selectedStops,
-                    takeoff: takeoffRange,
-                    landing: landingRange,
-                    flightDuration: flightDurationRange,
-                    layOverDuration: layOverDurationRange,
-                    selectedAirlines: selectedAirlines,
-                    selectedLayovers: selectedLayovers,
-                  ),
-          ),
-        ],
-      ),
+      body: _pageBody(context, flightState),
     );
+    return Platform.isIOS ? CupertinoScaffold(body: page) : page;
   }
 }

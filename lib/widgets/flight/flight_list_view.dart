@@ -1,9 +1,12 @@
+import 'dart:io';
+
 import 'package:TFA/providers/flight/flight_search_controller.dart';
 import 'package:TFA/screens/flight/flight_trip_details_page.dart';
 import 'package:TFA/widgets/flight/flight_list_view_item.dart';
 import 'package:TFA/widgets/search_summary_loading_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class FlightListView extends ConsumerStatefulWidget {
   const FlightListView({
@@ -54,6 +57,26 @@ class _FlightListViewState extends ConsumerState<FlightListView>
     _returnScrollController.dispose();
     _returnAnimController.dispose();
     super.dispose();
+  }
+
+  // Call this instead of Navigator.of(...).push(...)
+  void openTripDetails(BuildContext context, {required bool isReturnPage}) {
+    if (Platform.isIOS) {
+      // 🟢 iOS page sheet style
+      CupertinoScaffold.showCupertinoModalBottomSheet(
+        context: context,
+        useRootNavigator: true,
+        expand: false, // page sheet instead of full screen
+        builder: (_) => FlightTripDetailsPage(isReturnPage: isReturnPage),
+      );
+    } else {
+      // 🟢 Android normal full page
+      Navigator.of(context, rootNavigator: true).push(
+        MaterialPageRoute(
+          builder: (_) => FlightTripDetailsPage(isReturnPage: isReturnPage),
+        ),
+      );
+    }
   }
 
   void onDepartureClicked(int index) async {
@@ -310,11 +333,12 @@ class _FlightListViewState extends ConsumerState<FlightListView>
       returnFlights.length,
       (i) => FlightListViewItem(
         onClick: () async {
-          Navigator.of(context, rootNavigator: true).push(
-            MaterialPageRoute(
-              builder: (_) => const FlightTripDetailsPage(isReturnPage: true),
-            ),
-          );
+          // Navigator.of(context, rootNavigator: true).push(
+          //   MaterialPageRoute(
+          //     builder: (_) => const FlightTripDetailsPage(isReturnPage: true),
+          //   ),
+          // );
+          openTripDetails(context, isReturnPage: true);
         },
         index: i,
         flight: returnFlights[i],
@@ -329,13 +353,14 @@ class _FlightListViewState extends ConsumerState<FlightListView>
                 onDepartureClicked(i);
               }
             : () {
-                Navigator.of(context, rootNavigator: true).push(
-                  MaterialPageRoute(
-                    builder: (_) {
-                      return const FlightTripDetailsPage(isReturnPage: false);
-                    },
-                  ),
-                );
+                // Navigator.of(context, rootNavigator: true).push(
+                //   MaterialPageRoute(
+                //     builder: (_) {
+                //       return const FlightTripDetailsPage(isReturnPage: false);
+                //     },
+                //   ),
+                // );
+                openTripDetails(context, isReturnPage: false);
               },
         index: i,
         flight: departureFlights[i],
@@ -366,7 +391,7 @@ class _FlightListViewState extends ConsumerState<FlightListView>
                             style: TextStyle(
                               fontSize: Theme.of(
                                 context,
-                              ).textTheme.headlineMedium?.fontSize,
+                              ).textTheme.bodyLarge?.fontSize,
                               color: Theme.of(context).colorScheme.primary,
                             ),
                             children: const [

@@ -70,7 +70,7 @@ class FlightListViewItem extends StatelessWidget {
                               color: Colors.grey[600],
                               fontSize: Theme.of(
                                 context,
-                              ).textTheme.bodySmall?.fontSize,
+                              ).textTheme.bodyLarge?.fontSize,
                             ),
                           ),
                         ),
@@ -98,6 +98,8 @@ class FlightListViewItem extends StatelessWidget {
     final airline = flight['airline'] ?? '';
     final price = flight['price'] ?? '';
 
+    final headlineMedium = Theme.of(context).textTheme.headlineMedium?.fontSize;
+    final bodyLarge = Theme.of(context).textTheme.bodyLarge?.fontSize;
     // Extract intermediate airport codes if needed
     final pathParts = airportPath.split('→').map((s) => s.trim()).toList();
 
@@ -127,9 +129,12 @@ class FlightListViewItem extends StatelessWidget {
                     children: [
                       Text(
                         depTime,
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: headlineMedium,
+                        ),
                       ),
-                      Text(depAirport),
+                      Text(depAirport, style: TextStyle(fontSize: bodyLarge)),
                     ],
                   ),
 
@@ -147,9 +152,12 @@ class FlightListViewItem extends StatelessWidget {
                     children: [
                       Text(
                         arrTime,
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: headlineMedium,
+                        ),
                       ),
-                      Text(arrAirport),
+                      Text(arrAirport, style: TextStyle(fontSize: bodyLarge)),
                     ],
                   ),
                 ],
@@ -175,7 +183,7 @@ class FlightListViewItem extends StatelessWidget {
                     price, // e.g., €1,100.72
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      fontSize: Theme.of(context).textTheme.bodyLarge?.fontSize,
+                      fontSize: headlineMedium,
                     ),
                     maxLines: 1,
                     softWrap: false,
