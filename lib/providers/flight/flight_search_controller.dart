@@ -79,12 +79,14 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
           (k, v) =>
               MapEntry(k.toString().toUpperCase(), v.toString().toUpperCase()),
         );
-    final locations = (dictionaries['locations'] as Map)
-        .cast<String, dynamic>();
+    final locations =
+        (dictionaries['locations'] as Map?)?.cast<String, dynamic>() ??
+        const {};
 
     for (final offer in data) {
       if (offer == null) continue;
-      final itineraries = offer['itineraries'] as List;
+      final itineraries = (offer['itineraries'] as List?) ?? const [];
+      if (itineraries.isEmpty) continue;
 
       // keep validating (ticketing) only as info, do NOT use for main label
       final validatingList =
@@ -98,8 +100,12 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
           ? _codeToName(validatingCode, carriers)
           : null;
 
-      final price = offer['price']['grandTotal'];
-      final currency = offer['price']['currency'] ?? 'EUR';
+      // final price = offer['price']['grandTotal'];
+      // final currency = offer['price']['currency'] ?? 'EUR';
+      final priceMap = (offer['price'] as Map?) ?? const {};
+      final price = priceMap['grandTotal'];
+      final currency = (priceMap['currency'] ?? 'EUR').toString();
+
       final formattedPrice = NumberFormat.simpleCurrency(
         name: currency,
       ).format(double.tryParse(price.toString()) ?? 0);
@@ -129,8 +135,10 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
         // ---------- times / stops (unchanged) ----------
         final firstSegment = segments.first;
         final lastSegment = segments.last;
-        final depRaw = firstSegment['departure']['at'];
-        final arrRaw = lastSegment['arrival']['at'];
+        final depRaw = firstSegment['departure']['at'] as String?;
+        final arrRaw = lastSegment['arrival']['at'] as String?;
+        if (depRaw == null || arrRaw == null) continue; // skip bad item
+
         final depTime = formatTime(depRaw);
         final arrTime = formatTime(arrRaw);
         final dayDiff = DateTime.parse(
