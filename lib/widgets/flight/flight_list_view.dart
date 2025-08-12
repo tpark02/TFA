@@ -1,4 +1,5 @@
 import 'package:TFA/providers/flight/flight_search_controller.dart';
+import 'package:TFA/screens/flight/flight_trip_details_page.dart';
 import 'package:TFA/widgets/flight/flight_list_view_item.dart';
 import 'package:TFA/widgets/search_summary_loading_card.dart';
 import 'package:flutter/material.dart';
@@ -317,8 +318,15 @@ class _FlightListViewState extends ConsumerState<FlightListView>
     final List<Widget> departureFlightWidgets = List.generate(
       departureFlights.length,
       (i) => FlightListViewItem(
-        onClick: () =>
-            returnFlightWidgets.isNotEmpty ? onDepartureClicked(i) : () {},
+        onClick: returnFlightWidgets.isNotEmpty
+            ? () => onDepartureClicked(i)
+            : () {
+                Navigator.of(context, rootNavigator: true).push(
+                  MaterialPageRoute(
+                    builder: (_) => const FlightTripDetailsPage(),
+                  ),
+                );
+              },
         index: i,
         flight: departureFlights[i],
       ),

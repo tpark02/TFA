@@ -43,3 +43,8 @@ const darkColorScheme = ColorScheme(
   surface: Color(0xFF1D1F1E),
   onSurface: Color(0xFFE3E6E4),
 );
+
+const primaryFontColor = Colors.black87;
+Color secondaryFontColor = Colors.grey.shade700;
+const appBackgroundColor = Colors.white;
+const appGreyColor = Color(0xFFF7F8FB);
