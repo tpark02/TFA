@@ -80,13 +80,11 @@ class SearchSummaryCard extends ConsumerWidget {
                         Icons.arrow_right_alt,
                         color: Colors.white,
                         size: Theme.of(context).textTheme.bodyMedium?.fontSize,
-                        fontWeight: FontWeight.bold,
                       )
                     : Icon(
                         Icons.compare_arrows,
                         color: Colors.white,
                         size: Theme.of(context).textTheme.bodyMedium?.fontSize,
-                        fontWeight: FontWeight.bold,
                       ),
               ),
               const SizedBox(width: 10),

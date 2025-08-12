@@ -1,7 +1,7 @@
 import 'package:TFA/providers/flight/flight_search_controller.dart';
 import 'package:TFA/providers/flight/flight_search_state.dart';
 import 'package:TFA/providers/sort_tab_provider.dart';
-import 'package:TFA/screens/flight/flight_filter_page.dart';
+import 'package:TFA/screens/flight/flight_filter_screen.dart';
 import 'package:TFA/utils/time_utils.dart';
 import 'package:TFA/widgets/filter_button.dart';
 import 'package:TFA/widgets/flight/flight_list_view.dart';
@@ -38,6 +38,8 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
   int layOverDurationSt = 0;
   int layOverDurationEnd = 0;
   late final ProviderSubscription<FlightSearchState> _sub;
+  ProviderSubscription<(String, String, String?, String?, int)>? _searchSub;
+
   Map<String, String> carriersDict = {}; // <-- add this
 
   RangeValues rangeFromFlights(
@@ -64,7 +66,43 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
   @override
   void initState() {
     super.initState();
+    _searchSub = ref.listenManual(
+      flightSearchProvider.select<(String, String, String?, String?, int)>(
+        (s) => (
+          s.departureAirportCode,
+          s.arrivalAirportCode,
+          s.departDate,
+          s.returnDate,
+          s.passengerCount,
+        ),
+      ),
+      (prev, next) async {
+        if (prev == next) return;
+        if (!mounted) return;
 
+        // 🔒 guard: need a departure date to search
+        final dep = next.$3;
+        if (dep == null || dep.isEmpty) return;
+
+        setState(() => isLoading = true);
+        final (ok, msg) = await ref
+            .read(flightSearchProvider.notifier)
+            .searchFlights(
+              origin: next.$1,
+              destination: next.$2,
+              departureDate: dep,
+              returnDate: next.$4,
+              adults: next.$5,
+            );
+        if (!ok && mounted) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(msg)));
+        }
+        if (mounted) setState(() => isLoading = false);
+      },
+      fireImmediately: false,
+    );
     _sub = ref.listenManual<FlightSearchState>(flightSearchProvider, (
       prev,
       next,
@@ -174,8 +212,9 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
 
   @override
   void dispose() {
-    _sub.close();
+    _searchSub?.close();
     super.dispose();
+    _sub.close();
   }
 
   @override
@@ -267,44 +306,28 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
                       ),
                       onPressed: () async {
                         final result =
-                            await showModalBottomSheet<
-                              Map<String, List<String>>
-                            >(
-                              context: context,
-                              isScrollControlled: true,
-                              useSafeArea: true,
-                              backgroundColor: Colors.transparent,
-                              builder: (context) {
-                                return DraggableScrollableSheet(
-                                  expand: true,
-                                  initialChildSize: 1.0,
-                                  minChildSize: 1.0,
-                                  maxChildSize: 1.0,
-                                  builder: (context, scrollController) {
-                                    return Container(
-                                      decoration: const BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius: BorderRadius.vertical(
-                                          top: Radius.circular(16),
-                                        ),
-                                      ),
-                                      child: FlightFilterPage(
-                                        scrollController: scrollController,
-                                        selectedAirlines: selectedAirlines,
-                                        selectedLayovers: selectedLayovers,
-                                        kAirlines: kAirlines,
-                                        kLayoverCities: kLayoverCities,
-                                        carriersDict: carriersDict,
-                                      ),
-                                    );
-                                  },
-                                );
-                              },
+                            await Navigator.of(
+                              context,
+                              rootNavigator: true,
+                            ).push<Map<String, List<String>>>(
+                              MaterialPageRoute(
+                                fullscreenDialog:
+                                    true, // 🟢 Full-screen modal look
+                                builder: (_) => FlightFilterScreen(
+                                  selectedAirlines: selectedAirlines,
+                                  selectedLayovers: selectedLayovers,
+                                  kAirlines: kAirlines,
+                                  kLayoverCities: kLayoverCities,
+                                  carriersDict: carriersDict,
+                                ),
+                              ),
                             );
+
                         if (result != null) {
                           setState(() {
                             selectedAirlines =
-                                result['airlines']?.toSet() ?? selectedAirlines;
+                                result['airlines']?.toSet() ??
+                                selectedAirlines; // 🟢 KEEP: same result handling
                             selectedLayovers =
                                 result['layovers']?.toSet() ?? selectedLayovers;
                           });
