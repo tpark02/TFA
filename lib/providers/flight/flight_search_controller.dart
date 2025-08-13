@@ -67,30 +67,39 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
     return (carriers[up] as String?) ?? up; // fallback to code
   }
 
+  // ✅ Add full per-stop details (dep/arr time/code/terminal, flight no, aircraft, cabin, booking class, bags)
+  // ✅ Also add connection (layover) details between segments
+
   List<Map<String, dynamic>> processFlights(
     Map<String, dynamic> latestFlights,
   ) {
     final results = <Map<String, dynamic>>[];
-    final data = latestFlights['data'] as List<dynamic>? ?? [];
+
+    final data = (latestFlights['data'] as List<dynamic>? ?? [])
+        .cast<Map<String, dynamic>>();
     final dictionaries =
-        latestFlights['dictionaries'] as Map<String, dynamic>? ?? {};
-    final carriers = (dictionaries['carriers'] as Map<String, dynamic>? ?? {})
+        (latestFlights['dictionaries'] as Map<String, dynamic>? ?? {});
+    final carriers = ((dictionaries['carriers'] as Map<String, dynamic>? ?? {}))
         .map(
           (k, v) =>
               MapEntry(k.toString().toUpperCase(), v.toString().toUpperCase()),
         );
     final locations =
-        (dictionaries['locations'] as Map?)?.cast<String, dynamic>() ??
-        const {};
+        (dictionaries['locations'] as Map<String, dynamic>? ?? const {})
+            .cast<String, dynamic>();
+    final aircraftDict =
+        (dictionaries['aircraft'] as Map<String, dynamic>? ?? const {})
+            .cast<String, String>();
 
     for (final offer in data) {
-      if (offer == null) continue;
-      final itineraries = (offer['itineraries'] as List?) ?? const [];
+      if (offer.isEmpty) continue;
+
+      final itineraries = (offer['itineraries'] as List<dynamic>? ?? [])
+          .cast<Map<String, dynamic>>();
       if (itineraries.isEmpty) continue;
 
-      // keep validating (ticketing) only as info, do NOT use for main label
       final validatingList =
-          ((offer['validatingAirlineCodes'] as List?) ?? const [])
+          ((offer['validatingAirlineCodes'] as List<dynamic>? ?? []))
               .map((e) => e.toString().toUpperCase())
               .toList();
       final validatingCode = validatingList.isNotEmpty
@@ -100,44 +109,73 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
           ? _codeToName(validatingCode, carriers)
           : null;
 
-      // final price = offer['price']['grandTotal'];
-      // final currency = offer['price']['currency'] ?? 'EUR';
-      final priceMap = (offer['price'] as Map?) ?? const {};
+      final priceMap = (offer['price'] as Map<String, dynamic>? ?? const {});
       final price = priceMap['grandTotal'];
       final currency = (priceMap['currency'] ?? 'EUR').toString();
-
       final formattedPrice = NumberFormat.simpleCurrency(
         name: currency,
       ).format(double.tryParse(price.toString()) ?? 0);
 
+      // 🔎 traveler/cabin details (used per segment)
+      final travelerPricings =
+          (offer['travelerPricings'] as List<dynamic>? ?? [])
+              .cast<Map<String, dynamic>>();
+      if (travelerPricings.isEmpty) continue;
+
+      // we use first traveler as representative (common pattern)
+      final firstTraveler = travelerPricings.first;
+      final fareDetailsBySegment =
+          (firstTraveler['fareDetailsBySegment'] as List<dynamic>? ?? [])
+              .cast<Map<String, dynamic>>();
+
+      // 🟢 Build quick lookups by segmentId -> cabin / bookingClass / bags
+      final segCabin = <String, String?>{};
+      final segBookingClass = <String, String?>{};
+      final segCheckedBags = <String, dynamic>{};
+      final segCabinBags = <String, dynamic>{};
+      for (final fd in fareDetailsBySegment) {
+        final id = (fd['segmentId'] ?? '').toString();
+        segCabin[id] = fd['cabin'] as String?;
+        segBookingClass[id] = fd['class'] as String?;
+        if (fd['includedCheckedBags'] != null) {
+          segCheckedBags[id] = fd['includedCheckedBags'];
+        }
+        if (fd['includedCabinBags'] != null) {
+          segCabinBags[id] = fd['includedCabinBags'];
+        }
+      }
+
       for (int i = 0; i < itineraries.length; i++) {
         final itinerary = itineraries[i];
-        final segments = itinerary['segments'] as List;
+        final segments = (itinerary['segments'] as List<dynamic>? ?? [])
+            .cast<Map<String, dynamic>>();
+        if (segments.isEmpty) continue;
 
-        // ---------- PRIMARY & ALL MARKETING CARRIERS ----------
+        // Primary marketing
         final primaryMarketingCode = (segments.first['carrierCode'] as String)
             .toUpperCase();
+        final primaryMarketNumber = (segments.first['number'] as String);
         final primaryMarketingName = _codeToName(
           primaryMarketingCode,
           carriers,
         );
 
-        // set of marketing CODES for the whole itinerary (ignore HR/H1)
         final marketingCodes = <String>{
           for (final s in segments) (s['carrierCode'] as String).toUpperCase(),
         }..removeWhere((c) => c == 'HR' || c == 'H1');
-
-        // names for filtering/display
         final marketingNames = marketingCodes
             .map((c) => _codeToName(c, carriers))
             .toSet();
 
-        // ---------- times / stops (unchanged) ----------
+        // Times / day shift
         final firstSegment = segments.first;
         final lastSegment = segments.last;
-        final depRaw = firstSegment['departure']['at'] as String?;
-        final arrRaw = lastSegment['arrival']['at'] as String?;
-        if (depRaw == null || arrRaw == null) continue; // skip bad item
+
+        final depObj = (firstSegment['departure'] as Map);
+        final arrObj = (lastSegment['arrival'] as Map);
+        final depRaw = depObj['at'] as String?;
+        final arrRaw = arrObj['at'] as String?;
+        if (depRaw == null || arrRaw == null) continue;
 
         final depTime = formatTime(depRaw);
         final arrTime = formatTime(arrRaw);
@@ -145,46 +183,56 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
           arrRaw,
         ).difference(DateTime.parse(depRaw)).inDays;
         final plusDay = dayDiff > 0 ? '+$dayDiff' : '';
+
+        // 🧭 Per-connection layovers + total
         final stopAirports = <String>[];
         int totalLayoverMin = 0;
+        final connections =
+            <Map<String, dynamic>>[]; // each layover between segments
 
         for (int j = 0; j < segments.length; j++) {
-          final seg = (segments[j] as Map).cast<String, dynamic>();
+          final seg = segments[j];
 
-          // intra-segment stops
-          final segStops = (seg['stops'] as List?) ?? const [];
+          // intra-segment tech stops (rare)
+          final segStops = (seg['stops'] as List<dynamic>? ?? const []);
           for (final raw in segStops) {
             final s = (raw as Map).cast<String, dynamic>();
             final code = s['iataCode'] as String?;
-            if (code != null) stopAirports.add(code);
-
             final d = s['duration'] as String?;
-            if (d != null && d.isNotEmpty) {
+            if (code != null) stopAirports.add(code);
+            if (d != null && d.isNotEmpty)
               totalLayoverMin += _parseIsoDurMin(d);
-            } else if (s['arrivalAt'] != null && s['departureAt'] != null) {
-              final arr = DateTime.parse(s['arrivalAt']);
-              final dep = DateTime.parse(s['departureAt']);
-              final gap = dep.difference(arr).inMinutes;
-              if (gap > 0) totalLayoverMin += gap;
-            }
           }
 
-          // inter-segment connection
           if (j < segments.length - 1) {
-            final thisArr = DateTime.parse(seg['arrival']['at']);
-            final nextDep = DateTime.parse(
-              (segments[j + 1] as Map)['departure']['at'],
-            );
-            final gap = nextDep.difference(thisArr).inMinutes;
-            if (gap > 0) totalLayoverMin += gap;
+            final thisArr = (seg['arrival'] as Map).cast<String, dynamic>();
+            final nextDep = (segments[j + 1]['departure'] as Map)
+                .cast<String, dynamic>();
 
-            final connCode = seg['arrival']['iataCode'] as String?;
+            final thisArrAt = DateTime.parse(thisArr['at'] as String);
+            final nextDepAt = DateTime.parse(nextDep['at'] as String);
+            final gapMin = nextDepAt.difference(thisArrAt).inMinutes;
+            if (gapMin > 0) totalLayoverMin += gapMin;
+
+            final connCode = thisArr['iataCode'] as String?;
             if (connCode != null) stopAirports.add(connCode);
+
+            connections.add({
+              'airport': connCode,
+              'durationMin': gapMin.clamp(0, 1 << 31),
+              'duration': _fmtHM(gapMin),
+              'arrAt': thisArr['at'],
+              'depAt': nextDep['at'],
+              'terminalArr': thisArr['terminal'],
+              'terminalDep': nextDep['terminal'],
+            });
           }
         }
 
-        final depAirport = firstSegment['departure']['iataCode'];
-        final arrAirport = lastSegment['arrival']['iataCode'];
+        final depAirport = depObj['iataCode'] as String?;
+        final arrAirport = arrObj['iataCode'] as String?;
+        if (depAirport == null || arrAirport == null) continue;
+
         final airportPath = stopAirports.isNotEmpty
             ? '$depAirport → ${stopAirports.join(" → ")} → $arrAirport'
             : '$depAirport → $arrAirport';
@@ -200,33 +248,87 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
             .clamp(0, 1 << 31)
             .toInt();
 
+        // ✈️ Build full per-stop (per segment) details
+        final segmentDetails = segments.map((s) {
+          final dep = (s['departure'] as Map).cast<String, dynamic>();
+          final arr = (s['arrival'] as Map).cast<String, dynamic>();
+          final segId = (s['id'] ?? '').toString();
+          final aircraftCode = (s['aircraft'] as Map?)?['code'] as String?;
+          final operating = (s['operating'] as Map?)?['carrierCode'] as String?;
+
+          return {
+            'segId': segId,
+            'marketingCarrier': s['carrierCode'],
+            'operatingCarrier': operating, // may be same or codeshare
+            'flightNumber': s['number'],
+            'marketingFlight': '${s['carrierCode']} ${s['number']}',
+            'aircraftCode': aircraftCode,
+            'aircraftName': aircraftCode != null
+                ? aircraftDict[aircraftCode]
+                : null,
+            'duration': s['duration'],
+            'dep': {
+              'code': dep['iataCode'],
+              'terminal': dep['terminal'],
+              'at': dep['at'],
+            },
+            'arr': {
+              'code': arr['iataCode'],
+              'terminal': arr['terminal'],
+              'at': arr['at'],
+            },
+            // 🧳 Fare details joined by segmentId (from travelerPricings)
+            'cabin': segCabin[segId],
+            'bookingClass': segBookingClass[segId],
+            'includedCheckedBags':
+                segCheckedBags[segId], // may be {quantity:1} or {weight: 23, weightUnit:'KG'}
+            'includedCabinBags':
+                segCabinBags[segId], // may be {quantity:1} etc.
+          };
+        }).toList();
+
+        // For display like "MF 878 / MF 849"
+        final flightNumbers = segments
+            .map((s) => '${s['carrierCode']} ${s['number']}')
+            .join(' / ');
+
         results.add({
+          // summary
           'depAirport': depAirport,
           'arrAirport': arrAirport,
           'depTime': depTime,
           'arrTime': arrTime,
           'plusDay': plusDay,
           'airportPath': airportPath,
+
+          // durations
           'durationMin': durationMin,
           'duration': _fmtHM(durationMin),
           'airMin': airMin,
           'air': _fmtHM(airMin),
+
+          // layovers
           'layoverMin': totalLayoverMin,
           'layover': _fmtHM(totalLayoverMin),
           'stops': stopLabel,
           'stopAirports': stopAirports,
-
-          // 👇 what you should show as the main airline on the card
+          'connections':
+              connections, // 🆕 each layover with times/terminal/duration
+          // airline labels
           'airline': primaryMarketingName,
           'primaryAirlineCode': primaryMarketingCode,
+          'primaryMarketNumber': primaryMarketNumber,
+          'flightNumbers': flightNumbers,
 
-          // 👇 for filtering: use these (marketing names or codes)
-          'airlines': marketingNames, // e.g., {'JETSTAR'}
-          'airlineCodes': marketingCodes, // e.g., {'JQ'}
-          // keep ticketing info if you want to show it small
+          // filtering
+          'airlines': marketingNames,
+          'airlineCodes': marketingCodes,
+
+          // ticketing
           'ticketingCarrierCode': validatingCode,
           'ticketingCarrierName': validatingName,
 
+          // price/meta
           'price': formattedPrice,
           'currency': currency,
           'isReturn': i == 1,
@@ -234,9 +336,16 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
           'arrRaw': arrRaw,
           'locations': locations,
           'carriersCode': carriers,
+          'passengerCount': travelerPricings.length,
+
+          // per-stop segment details (FULL)
+          'segments': segmentDetails, // 🆕 list with dep/arr for EACH stop/leg
+          // overall cabin for card (first segment’s cabin)
+          'cabinClass': segCabin[(segments.first['id'] ?? '').toString()],
         });
       }
     }
+
     return results;
   }
 

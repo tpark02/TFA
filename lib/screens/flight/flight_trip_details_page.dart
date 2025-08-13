@@ -4,8 +4,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:TFA/constants/colors.dart';
 
 class FlightTripDetailsPage extends ConsumerWidget {
-  const FlightTripDetailsPage({super.key, required this.isReturnPage});
+  const FlightTripDetailsPage({
+    super.key,
+    required this.isReturnPage,
+    required this.departData,
+    required this.returnData,
+  });
   final bool isReturnPage;
+  final Map<String, dynamic> departData;
+  final Map<String, dynamic>? returnData;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final primary = Theme.of(context).colorScheme.primary;
@@ -27,14 +35,6 @@ class FlightTripDetailsPage extends ConsumerWidget {
             Text(
               'Trip Details',
               style: TextStyle(color: onPrimary, fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              'ICN - JFK',
-              style: TextStyle(
-                color: onPrimary.withValues(alpha: 0.7),
-                fontSize: 12,
-              ),
             ),
           ],
         ),
@@ -61,7 +61,9 @@ class FlightTripDetailsPage extends ConsumerWidget {
           padding: EdgeInsets.zero,
           itemCount: isReturnPage ? 2 : 1,
           separatorBuilder: (_, __) => const SizedBox(height: 12),
-          itemBuilder: (_, i) => FlightTripDetailsItem(),
+          itemBuilder: (_, i) => i == 0
+              ? FlightTripDetailsItem(flightData: departData)
+              : FlightTripDetailsItem(flightData: returnData!),
         ),
       ),
       bottomNavigationBar: Container(

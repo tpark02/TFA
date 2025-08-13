@@ -1,23 +1,132 @@
+// ✅ Fully corrected version to match your JSON parser output
+// - `flightData` is ONE itinerary (Map<String, dynamic>)
+// - Renders all segments (stops) with their own times & flight numbers
+// - Inserts layover chips between segments using `connections[]`
+// - Safe null handling everywhere
+
+import 'package:TFA/providers/airport/airport_lookup.dart';
 import 'package:flutter/material.dart';
 import 'package:TFA/constants/colors.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 
-class FlightTripDetailsItem extends StatelessWidget {
-  const FlightTripDetailsItem({super.key});
+class FlightTripDetailsItem extends ConsumerWidget {
+  const FlightTripDetailsItem({super.key, required this.flightData});
+  final Map<String, dynamic> flightData;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final primary = Theme.of(context).colorScheme.primary;
-    final textSize = Theme.of(context).textTheme.displaySmall?.fontSize;
+    final textSize = Theme.of(context).textTheme.displaySmall?.fontSize ?? 16.0;
 
+    if (flightData.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    // ── Parse top-level fields from one itinerary object ────────────────────────
+    final depAirport = (flightData['depAirport'] ?? '') as String;
+    final arrAirport = (flightData['arrAirport'] ?? '') as String;
+
+    final depCity = ref.watch(cityByIataProvider(depAirport)) ?? 'N/A';
+    final arrCity = ref.watch(cityByIataProvider(arrAirport)) ?? 'N/A';
+
+    // Prefer depRaw from parser; otherwise use the first segment dep.at
+    final depRawTop = (flightData['depRaw'] as String?);
+    final segments = (flightData['segments'] as List<dynamic>? ?? const [])
+        .cast<Map<String, dynamic>>();
+    final connections =
+        (flightData['connections'] as List<dynamic>? ?? const [])
+            .cast<Map<String, dynamic>>();
+
+    final depAtForHeader =
+        depRawTop ??
+        (() {
+          if (segments.isNotEmpty) {
+            final depMap = segments.first['dep'] as Map<String, dynamic>?;
+            return depMap?['at'] as String?;
+          }
+          return null;
+        }());
+
+    final headerDate = depAtForHeader != null && depAtForHeader.isNotEmpty
+        ? _formatHeaderDate(depAtForHeader)
+        : '';
+
+    final metaAir =
+        (flightData['air'] ?? flightData['duration'] ?? '') as String;
+    final metaStops = (flightData['stops'] ?? '') as String;
+    final paxCount = (flightData['passengerCount'] ?? 1) as int;
+    final cabin = (flightData['cabinClass'] ?? '') as String;
+    final airlineName = (flightData['airline'] ?? '') as String;
+
+    // ── Build segment tiles + layovers ─────────────────────────────────────────
+    final sectionChildren = <Widget>[_AirlineLabel(name: airlineName)];
+
+    for (int i = 0; i < segments.length; i++) {
+      final seg = segments[i];
+
+      final dep = (seg['dep'] as Map?)?.cast<String, dynamic>() ?? const {};
+      final arr = (seg['arr'] as Map?)?.cast<String, dynamic>() ?? const {};
+
+      final depCode = (dep['code'] ?? '') as String;
+      final arrCode = (arr['code'] ?? '') as String;
+
+      final depAt = (dep['at'] ?? '') as String;
+      final arrAt = (arr['at'] ?? '') as String;
+
+      final depTime = depAt.isNotEmpty ? _fmtTime(depAt) : '';
+      final arrTime = arrAt.isNotEmpty ? _fmtTime(arrAt) : '';
+
+      // +day indicator for this segment
+      bool plusDay = false;
+      if (depAt.isNotEmpty && arrAt.isNotEmpty) {
+        final depDT = DateTime.parse(depAt);
+        final arrDT = DateTime.parse(arrAt);
+        plusDay = arrDT.difference(depDT).inDays > 0;
+      }
+
+      final segDuration = (seg['duration'] ?? '') as String;
+
+      // Prefer nicely assembled marketing flight if present
+      final flightNo =
+          (seg['marketingFlight'] as String?) ??
+          '${seg['marketingCarrier'] ?? ''} ${seg['flightNumber'] ?? ''}';
+
+      sectionChildren.add(
+        _SegmentTile(
+          depTime: depTime,
+          depCode: depCode,
+          arrTime: arrTime,
+          arrCode: arrCode,
+          durationText: segDuration,
+          flightNo: flightNo.trim(),
+          plusDay: plusDay,
+        ),
+      );
+
+      // Insert layover after segment if there’s a corresponding connection
+      if (i < connections.length) {
+        final conn = connections[i];
+        final layText = (conn['duration'] ?? '') as String;
+        if (layText.isNotEmpty) {
+          sectionChildren.add(_LayoverChip(text: layText));
+        }
+      }
+
+      sectionChildren.add(const SizedBox(height: 12));
+    }
+
+    // ── UI ─────────────────────────────────────────────────────────────────────
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // Cities header
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Flexible(
               child: Text(
-                'Seoul - New York',
+                '$depCity - $arrCity',
                 style: TextStyle(
                   color: primary,
                   fontSize: textSize,
@@ -30,47 +139,36 @@ class FlightTripDetailsItem extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 8),
-        Align(
-          alignment: Alignment.center,
-          child: Text(
-            'Wednesday, August 20',
-            style: TextStyle(
-              color: primaryFontColor,
-              fontWeight: FontWeight.w600,
+
+        // Date
+        if (headerDate.isNotEmpty)
+          Align(
+            alignment: Alignment.center,
+            child: Text(
+              headerDate,
+              style: const TextStyle(
+                color: primaryFontColor,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
-        ),
         const SizedBox(height: 6),
+
+        // Meta line
         Align(
           alignment: Alignment.center,
           child: Text(
-            '22h30m | 1 stop | 1 traveler | Economy',
+            '$metaAir | $metaStops | $paxCount | $cabin',
             style: TextStyle(color: secondaryFontColor, fontSize: 12),
           ),
         ),
         const SizedBox(height: 16),
-        const _AirlineLabel(name: 'HAWAIIAN AIRLINES'),
-        const _SegmentTile(
-          depTime: '9:25p',
-          depCode: 'ICN',
-          arrTime: '11:30a',
-          arrCode: 'HNL',
-          durationText: '9h05m',
-          flightNo: 'HA 460',
-        ),
-        const _LayoverChip(text: '4h Layover'),
-        const _AirlineLabel(name: 'HAWAIIAN AIRLINES'),
-        const _SegmentTile(
-          depTime: '3:30p',
-          depCode: 'HNL',
-          arrTime: '6:55a',
-          arrCode: 'JFK',
-          plusDay: true,
-          durationText: '9h25m',
-          flightNo: 'HA 50',
-        ),
+
+        ...sectionChildren,
 
         const SizedBox(height: 20),
+
+        // (Optional) Price History placeholder — keep or remove as you wish
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 14),
           decoration: BoxDecoration(
@@ -91,11 +189,11 @@ class FlightTripDetailsItem extends StatelessWidget {
               Container(
                 width: MediaQuery.of(context).size.width,
                 color: Colors.grey.shade200,
-                margin: EdgeInsets.all(0),
+                margin: EdgeInsets.zero,
                 padding: const EdgeInsets.symmetric(
                   horizontal: 20,
                   vertical: 10,
-                ), // 🟢 Inner spacing
+                ),
                 child: Text(
                   'Price History',
                   style: TextStyle(
@@ -106,11 +204,11 @@ class FlightTripDetailsItem extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 12),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 20),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Row(
-                  children: [
-                    const Expanded(
+                  children: const [
+                    Expanded(
                       child: Text(
                         'a few seconds ago',
                         style: TextStyle(color: primaryFontColor),
@@ -119,7 +217,6 @@ class FlightTripDetailsItem extends StatelessWidget {
                     Text(
                       '₩1,228,361',
                       style: TextStyle(
-                        fontSize: textSize,
                         color: primaryFontColor,
                         fontWeight: FontWeight.w800,
                       ),
@@ -142,9 +239,21 @@ class FlightTripDetailsItem extends StatelessWidget {
       ],
     );
   }
+
+  // HH:mm from ISO string
+  String _fmtTime(String iso) {
+    final dt = DateTime.parse(iso);
+    return DateFormat('HH:mm').format(dt);
+  }
+
+  // Header date: Tuesday, August 19
+  String _formatHeaderDate(String iso) {
+    final dt = DateTime.parse(iso);
+    return DateFormat('EEEE, MMMM d').format(dt);
+  }
 }
 
-// The other classes (_AirlineLabel, _SegmentTile, _LayoverChip) stay unchanged
+// ── Supporting widgets (unchanged except minor null-safety defaults) ──────────
 
 class _AirlineLabel extends StatelessWidget {
   const _AirlineLabel({required this.name});
@@ -187,17 +296,16 @@ class _SegmentTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textSize = Theme.of(context).textTheme.displaySmall?.fontSize;
+    final textSize = Theme.of(context).textTheme.displaySmall?.fontSize ?? 16;
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
-
       child: Column(
         children: [
           Row(
             children: [
-              _timeCell(depTime, textSize!),
+              _timeCell(depTime, textSize),
               const SizedBox(width: 5),
               Expanded(child: Divider(height: 1, color: Colors.grey.shade500)),
               const SizedBox(width: 5),
@@ -214,20 +322,12 @@ class _SegmentTile extends StatelessWidget {
             children: [
               Text(
                 depCode,
-                style: TextStyle(
-                  fontSize: textSize,
-                  color: secondaryFontColor,
-                  // fontWeight: FontWeight.w600,
-                ),
+                style: TextStyle(fontSize: textSize, color: secondaryFontColor),
               ),
               const Spacer(),
               Text(
                 arrCode,
-                style: TextStyle(
-                  fontSize: textSize,
-                  color: secondaryFontColor,
-                  // fontWeight: FontWeight.w600,
-                ),
+                style: TextStyle(fontSize: textSize, color: secondaryFontColor),
               ),
             ],
           ),

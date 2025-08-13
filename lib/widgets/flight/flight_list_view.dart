@@ -38,42 +38,35 @@ class _FlightListViewState extends ConsumerState<FlightListView>
 
   late AnimationController _returnAnimController;
   late Animation<Offset> _returnSlideAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _returnAnimController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 500),
-    );
-    _returnSlideAnimation =
-        Tween<Offset>(begin: const Offset(0, 1), end: Offset.zero).animate(
-          CurvedAnimation(parent: _returnAnimController, curve: Curves.easeOut),
-        );
-  }
-
-  @override
-  void dispose() {
-    _returnScrollController.dispose();
-    _returnAnimController.dispose();
-    super.dispose();
-  }
+  late Map<String, dynamic> _departData;
+  Map<String, dynamic>? _returnData;
 
   // Call this instead of Navigator.of(...).push(...)
-  void openTripDetails(BuildContext context, {required bool isReturnPage}) {
+  void openTripDetails({
+    required BuildContext context,
+    required bool isReturnPage,
+  }) {
     if (Platform.isIOS) {
       // 🟢 iOS page sheet style
       CupertinoScaffold.showCupertinoModalBottomSheet(
         context: context,
         useRootNavigator: true,
         expand: false, // page sheet instead of full screen
-        builder: (_) => FlightTripDetailsPage(isReturnPage: isReturnPage),
+        builder: (_) => FlightTripDetailsPage(
+          isReturnPage: isReturnPage,
+          departData: _departData,
+          returnData: _returnData,
+        ),
       );
     } else {
       // 🟢 Android normal full page
       Navigator.of(context, rootNavigator: true).push(
         MaterialPageRoute(
-          builder: (_) => FlightTripDetailsPage(isReturnPage: isReturnPage),
+          builder: (_) => FlightTripDetailsPage(
+            isReturnPage: isReturnPage,
+            departData: _departData,
+            returnData: _returnData,
+          ),
         ),
       );
     }
@@ -120,6 +113,26 @@ class _FlightListViewState extends ConsumerState<FlightListView>
     setState(() {
       isLoading = false;
     });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _returnAnimController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    );
+    _returnSlideAnimation =
+        Tween<Offset>(begin: const Offset(0, 1), end: Offset.zero).animate(
+          CurvedAnimation(parent: _returnAnimController, curve: Curves.easeOut),
+        );
+  }
+
+  @override
+  void dispose() {
+    _returnScrollController.dispose();
+    _returnAnimController.dispose();
+    super.dispose();
   }
 
   @override
@@ -262,7 +275,6 @@ class _FlightListViewState extends ConsumerState<FlightListView>
       // airlines filter
       if (!passesAirlineFilter(f, widget.selectedAirlines)) return false;
 
-      debugPrint("airline - " + f['airline']);
       // layover city filter (by cityCode like "TYO", "SEL")
       if (!passesLayoverCityFilter(f, widget.selectedLayovers)) return false;
 
@@ -333,12 +345,8 @@ class _FlightListViewState extends ConsumerState<FlightListView>
       returnFlights.length,
       (i) => FlightListViewItem(
         onClick: () async {
-          // Navigator.of(context, rootNavigator: true).push(
-          //   MaterialPageRoute(
-          //     builder: (_) => const FlightTripDetailsPage(isReturnPage: true),
-          //   ),
-          // );
-          openTripDetails(context, isReturnPage: true);
+          _returnData = returnFlights[i];
+          openTripDetails(context: context, isReturnPage: true);
         },
         index: i,
         flight: returnFlights[i],
@@ -350,17 +358,12 @@ class _FlightListViewState extends ConsumerState<FlightListView>
       (i) => FlightListViewItem(
         onClick: returnFlightWidgets.isNotEmpty
             ? () {
+                _departData = departureFlights[i];
                 onDepartureClicked(i);
               }
             : () {
-                // Navigator.of(context, rootNavigator: true).push(
-                //   MaterialPageRoute(
-                //     builder: (_) {
-                //       return const FlightTripDetailsPage(isReturnPage: false);
-                //     },
-                //   ),
-                // );
-                openTripDetails(context, isReturnPage: false);
+                _departData = departureFlights[i];
+                openTripDetails(context: context, isReturnPage: false);
               },
         index: i,
         flight: departureFlights[i],
