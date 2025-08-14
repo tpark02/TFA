@@ -139,7 +139,12 @@ class _FlightListViewState extends ConsumerState<FlightListView>
   @override
   Widget build(BuildContext context) {
     final FlightSearchState flightState = ref.watch(flightSearchProvider);
-    final List<Map<String, dynamic>> allFlights = ref.watch(flightSearchProvider).processedFlights;
+    final List<Map<String, dynamic>> allFlights = ref
+        .watch(flightSearchProvider)
+        .processedFlights;
+    final List<Map<String, dynamic>>? allInBoundFlights = ref
+        .watch(flightSearchProvider)
+        .processedInBoundFlights;
 
     int depMinutesOfDay(dynamic depRaw) {
       if (depRaw == null) return -1;
@@ -227,20 +232,28 @@ class _FlightListViewState extends ConsumerState<FlightListView>
       }
     }
 
-    final int maxStops = maxStopsFor(widget.stopType); // or pass in a separate prop
+    final int maxStops = maxStopsFor(
+      widget.stopType,
+    ); // or pass in a separate prop
 
     // --- helpers for filters ---
     Set<String> layoverCityCodesOf(Map f) {
       final String path = (f['airportPath'] as String? ?? '');
-      final List<String> parts = path.split('→').map((String s) => s.trim()).toList();
+      final List<String> parts = path
+          .split('→')
+          .map((String s) => s.trim())
+          .toList();
       if (parts.length <= 2) return <String>{}; // nonstop
 
       final List<String> middleIATAs = parts.sublist(1, parts.length - 1);
-      final Map<String, dynamic> locMap = (f['locations'] as Map?)?.cast<String, dynamic>() ?? <String, dynamic>{};
+      final Map<String, dynamic> locMap =
+          (f['locations'] as Map?)?.cast<String, dynamic>() ??
+          <String, dynamic>{};
 
       final Set<String> out = <String>{};
       for (final String iata in middleIATAs) {
-        final Map<String, dynamic>? details = (locMap[iata] as Map?)?.cast<String, dynamic>();
+        final Map<String, dynamic>? details = (locMap[iata] as Map?)
+            ?.cast<String, dynamic>();
         final String? city = details?['cityCode'] as String?;
         if (city != null && city.isNotEmpty) out.add(city);
       }
@@ -252,9 +265,10 @@ class _FlightListViewState extends ConsumerState<FlightListView>
 
       String norm(String s) => s.toUpperCase().trim();
 
-      final Set<String> flightAir = ((f['airlines'] as Iterable?) ?? const <dynamic>[])
-          .map((e) => norm(e.toString()))
-          .toSet();
+      final Set<String> flightAir =
+          ((f['airlines'] as Iterable?) ?? const <dynamic>[])
+              .map((e) => norm(e.toString()))
+              .toSet();
 
       final Set<String> selectedNorm = selected.map(norm).toSet();
 
@@ -272,14 +286,17 @@ class _FlightListViewState extends ConsumerState<FlightListView>
     for (final String s in widget.selectedAirlines) {
       debugPrint('selected Airlines - $s');
     }
-    final List<Map<String, dynamic>> filteredFlights = allFlights.where((Map<String, dynamic> f) {
+    final List<Map<String, dynamic>> filteredFlights = allFlights.where((
+      Map<String, dynamic> f,
+    ) {
       // airlines filter
       if (!passesAirlineFilter(f, widget.selectedAirlines)) return false;
 
       // layover city filter (by cityCode like "TYO", "SEL")
       if (!passesLayoverCityFilter(f, widget.selectedLayovers)) return false;
 
-      final int stops = int.tryParse(f['stops'].toString().split(' ').first) ?? 0;
+      final int stops =
+          int.tryParse(f['stops'].toString().split(' ').first) ?? 0;
       if (stops > maxStops) return false;
 
       // --- flight duration ---
@@ -326,14 +343,21 @@ class _FlightListViewState extends ConsumerState<FlightListView>
       return true;
     }).toList();
 
-    final List<Map<String, dynamic>> sortedAllFlights = <Map<String, dynamic>>[...filteredFlights]..sort(compare);
+    final List<Map<String, dynamic>> sortedAllFlights = <Map<String, dynamic>>[
+      ...filteredFlights,
+    ]..sort(compare);
 
     final List<Map<String, dynamic>> departureFlights = sortedAllFlights
         .where((Map<String, dynamic> f) => f['isReturn'] == false)
         .toList();
-    final List<Map<String, dynamic>> returnFlights = sortedAllFlights
-        .where((Map<String, dynamic> f) => f['isReturn'] == true)
-        .toList();
+    final List<Map<String, dynamic>> returnFlights =
+        allInBoundFlights == null || allInBoundFlights.isEmpty
+        ? sortedAllFlights
+              .where((Map<String, dynamic> f) => f['isReturn'] == true)
+              .toList()
+        : allInBoundFlights
+              .where((Map<String, dynamic> f) => f['isReturn'] == false)
+              .toList();
 
     final int? activeIndex =
         (selectedDepartureIndex != null &&
@@ -346,6 +370,7 @@ class _FlightListViewState extends ConsumerState<FlightListView>
       returnFlights.length,
       (int i) => FlightListViewItem(
         onClick: () async {
+          debugPrint("👍 returnFlightWidgets clicked");
           _returnData = returnFlights[i];
           openTripDetails(context: context, isReturnPage: true);
         },
@@ -354,15 +379,26 @@ class _FlightListViewState extends ConsumerState<FlightListView>
       ),
     );
 
+    if (allInBoundFlights != null && allInBoundFlights.isNotEmpty) {
+      debugPrint("🔴 all inbound flight empty ? ${allInBoundFlights.length}");
+    }
+    debugPrint("🟠 return flight empty ? ${returnFlights.length}");
+
     final List<Widget> departureFlightWidgets = List.generate(
       departureFlights.length,
       (int i) => FlightListViewItem(
         onClick: returnFlightWidgets.isNotEmpty
             ? () {
+                debugPrint(
+                  "☑️ departureFlightWidgets - returnFlightWidgets.isNotEmpty clicked",
+                );
                 _departData = departureFlights[i];
                 onDepartureClicked(i);
               }
             : () {
+                debugPrint(
+                  "☑️ departureFlightWidgets - returnFlightWidgets empty clicked",
+                );
                 _departData = departureFlights[i];
                 openTripDetails(context: context, isReturnPage: false);
               },

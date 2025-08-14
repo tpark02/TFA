@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:TFA/utils/api_config.dart';
 
@@ -44,3 +45,8 @@ class FlightApiService {
     }
   }
 }
+
+final Provider<FlightApiService> flightApiServiceProvider =
+    Provider<FlightApiService>((ProviderRef<FlightApiService> ref) {
+      return FlightApiService();
+    });

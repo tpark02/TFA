@@ -1,11 +1,12 @@
 import 'package:TFA/providers/recent_search.dart';
-import 'package:flutter/src/widgets/framework.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class FlightSearchState {
-  final AsyncValue<Map<String, dynamic>> flightResults;
+  final AsyncValue<Map<String, dynamic>> flightResults, inBoundFlightResults;
   final List<RecentSearch> recentSearches;
   final List<Map<String, dynamic>> processedFlights;
+  final List<Map<String, dynamic>>? processedInBoundFlights;
 
   // final String departureAirportName;
   final String departureAirportCode;
@@ -21,6 +22,7 @@ class FlightSearchState {
 
   final String departDate;
   final String? returnDate;
+  final bool isLoading;
 
   static const List<RecentSearch> _defaultRecentSearches = <RecentSearch>[
     RecentSearch(
@@ -91,6 +93,7 @@ class FlightSearchState {
   ];
 
   FlightSearchState({
+    this.isLoading = false,
     this.recentSearches = _defaultRecentSearches,
     // this.departureAirportName = '',
     this.departureAirportCode = '',
@@ -104,14 +107,21 @@ class FlightSearchState {
     this.cabinClass = 'Economy',
     this.passengerCount = 1,
     this.flightResults = const AsyncValue.data(<String, dynamic>{}),
+    this.inBoundFlightResults = const AsyncValue.data(<String, dynamic>{}),
+
     this.processedFlights = const <Map<String, dynamic>>[],
+    this.processedInBoundFlights = const <Map<String, dynamic>>[],
   });
 
   // 👇 Full and correct copyWith
   FlightSearchState copyWith({
+    bool? isLoading,
     AsyncValue<Map<String, dynamic>>? flightResults,
+    AsyncValue<Map<String, dynamic>>? inBoundFlightResults,
     List<RecentSearch>? recentSearches,
     List<Map<String, dynamic>>? processedFlights,
+    List<Map<String, dynamic>>? processedInBoundFlights,
+
     String? departureAirportName,
     String? departureAirportCode,
     String? departureCity,
@@ -124,11 +134,16 @@ class FlightSearchState {
     String? departDate,
     String? returnDate,
     bool clearReturnDate = false,
+    bool clearInboundFlights = false,
   }) {
     return FlightSearchState(
+      inBoundFlightResults: inBoundFlightResults ?? this.inBoundFlightResults,
       flightResults: flightResults ?? this.flightResults,
       recentSearches: recentSearches ?? this.recentSearches,
       processedFlights: processedFlights ?? this.processedFlights,
+      processedInBoundFlights: clearInboundFlights
+          ? null
+          : processedInBoundFlights ?? this.processedInBoundFlights,
       // departureAirportName: departureAirportName ?? this.departureAirportName,
       departureAirportCode: departureAirportCode ?? this.departureAirportCode,
       departureCity: departureCity ?? this.departureCity,
@@ -140,6 +155,7 @@ class FlightSearchState {
       passengerCount: passengerCount ?? this.passengerCount,
       departDate: departDate ?? this.departDate,
       returnDate: clearReturnDate ? null : returnDate ?? this.returnDate,
+      isLoading: isLoading ?? this.isLoading,
     );
   }
 
@@ -156,10 +172,22 @@ class FlightSearchState {
     return copyWith(flightResults: newResults);
   }
 
+  FlightSearchState copyWithInBoundFlightResults(
+    AsyncValue<Map<String, dynamic>> newResults,
+  ) {
+    return copyWith(inBoundFlightResults: newResults);
+  }
+
   FlightSearchState copyWithProcessedFlights(
     List<Map<String, dynamic>> flights,
   ) {
     return copyWith(processedFlights: flights);
+  }
+
+  FlightSearchState copyWithProcessedInboundFlights(
+    List<Map<String, dynamic>> flights,
+  ) {
+    return copyWith(processedInBoundFlights: flights);
   }
 
   @override
@@ -199,4 +227,15 @@ class FlightSearchState {
       returnDate.hashCode ^
       cabinClass.hashCode ^
       passengerCount.hashCode;
+
+  FlightSearchState copyWithLoading(bool isLoading) {
+    return copyWith(
+      flightResults: isLoading
+          ? const AsyncLoading()
+          : const AsyncData(<String, dynamic>{}),
+      inBoundFlightResults: isLoading
+          ? const AsyncLoading()
+          : const AsyncData(<String, dynamic>{}),
+    );
+  }
 }

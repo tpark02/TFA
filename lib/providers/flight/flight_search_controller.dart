@@ -8,10 +8,12 @@ import 'package:TFA/services/flight_api_service.dart';
 import 'package:TFA/types/typedefs.dart';
 
 class FlightSearchController extends StateNotifier<FlightSearchState> {
-  FlightSearchController() : super(FlightSearchState());
-
+  FlightSearchController(this._ref) : super(FlightSearchState());
+  final Ref _ref;
   int _parseIsoDurMin(String s) {
-    final RegExpMatch? m = RegExp(r'P(?:(\d+)D)?T(?:(\d+)H)?(?:(\d+)M)?').firstMatch(s);
+    final RegExpMatch? m = RegExp(
+      r'P(?:(\d+)D)?T(?:(\d+)H)?(?:(\d+)M)?',
+    ).firstMatch(s);
     final int d = int.tryParse(m?.group(1) ?? '0') ?? 0;
     final int h = int.tryParse(m?.group(2) ?? '0') ?? 0;
     final int mins = int.tryParse(m?.group(3) ?? '0') ?? 0;
@@ -31,7 +33,9 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
     required String? returnDate,
     required int adults,
     int maxResults = 20,
+    bool isInboundFlight = false,
   }) async {
+    state = state.copyWith(isLoading: true);
     state = state.copyWithFlightResults(const AsyncValue.loading());
 
     debugPrint("depart date : $departureDate");
@@ -48,15 +52,23 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
       );
 
       // ✅ Process flights before updating state
-      final List<Map<String, dynamic>> processed = processFlights(result);
+      if (!isInboundFlight) {
+        final List<Map<String, dynamic>> processed = processFlights(result);
 
-      state = state.copyWithFlightResults(AsyncValue.data(result));
-      state = state.copyWithProcessedFlights(processed);
+        state = state.copyWithFlightResults(AsyncValue.data(result));
+        state = state.copyWithProcessedFlights(processed);
+      } else {
+        final List<Map<String, dynamic>> processed = processFlights(result);
 
+        state = state.copyWithInBoundFlightResults(AsyncValue.data(result));
+        state = state.copyWithProcessedInboundFlights(processed);
+      }
       return (true, '✅ Flight search completed');
     } catch (e, st) {
       state = state.copyWithFlightResults(AsyncValue.error(e, st));
       return (false, '❌ Flight search failed: $e');
+    } finally {
+      state = state.copyWith(isLoading: false);
     }
   }
 
@@ -75,27 +87,36 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
   ) {
     final List<Map<String, dynamic>> results = <Map<String, dynamic>>[];
 
-    final List<Map<String, dynamic>> data = (latestFlights['data'] as List<dynamic>? ?? <dynamic>[])
-        .cast<Map<String, dynamic>>();
+    final List<Map<String, dynamic>> data =
+        (latestFlights['data'] as List<dynamic>? ?? <dynamic>[])
+            .cast<Map<String, dynamic>>();
     final Map<String, dynamic> dictionaries =
-        (latestFlights['dictionaries'] as Map<String, dynamic>? ?? <String, dynamic>{});
-    final Map<String, String> carriers = ((dictionaries['carriers'] as Map<String, dynamic>? ?? <String, dynamic>{}))
-        .map(
-          (String k, v) =>
-              MapEntry(k.toString().toUpperCase(), v.toString().toUpperCase()),
-        );
+        (latestFlights['dictionaries'] as Map<String, dynamic>? ??
+        <String, dynamic>{});
+    final Map<String, String> carriers =
+        ((dictionaries['carriers'] as Map<String, dynamic>? ??
+                <String, dynamic>{}))
+            .map(
+              (String k, v) => MapEntry(
+                k.toString().toUpperCase(),
+                v.toString().toUpperCase(),
+              ),
+            );
     final Map<String, dynamic> locations =
-        (dictionaries['locations'] as Map<String, dynamic>? ?? const <String, dynamic>{})
+        (dictionaries['locations'] as Map<String, dynamic>? ??
+                const <String, dynamic>{})
             .cast<String, dynamic>();
     final Map<String, String> aircraftDict =
-        (dictionaries['aircraft'] as Map<String, dynamic>? ?? const <String, dynamic>{})
+        (dictionaries['aircraft'] as Map<String, dynamic>? ??
+                const <String, dynamic>{})
             .cast<String, String>();
 
     for (final Map<String, dynamic> offer in data) {
       if (offer.isEmpty) continue;
 
-      final List<Map<String, dynamic>> itineraries = (offer['itineraries'] as List<dynamic>? ?? <dynamic>[])
-          .cast<Map<String, dynamic>>();
+      final List<Map<String, dynamic>> itineraries =
+          (offer['itineraries'] as List<dynamic>? ?? <dynamic>[])
+              .cast<Map<String, dynamic>>();
       if (itineraries.isEmpty) continue;
 
       final List<String> validatingList =
@@ -109,7 +130,9 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
           ? _codeToName(validatingCode, carriers)
           : null;
 
-      final Map<String, dynamic> priceMap = (offer['price'] as Map<String, dynamic>? ?? const <String, dynamic>{});
+      final Map<String, dynamic> priceMap =
+          (offer['price'] as Map<String, dynamic>? ??
+          const <String, dynamic>{});
       final price = priceMap['grandTotal'];
       final String currency = (priceMap['currency'] ?? 'EUR').toString();
       final String formattedPrice = NumberFormat.simpleCurrency(
@@ -125,7 +148,8 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
       // we use first traveler as representative (common pattern)
       final Map<String, dynamic> firstTraveler = travelerPricings.first;
       final List<Map<String, dynamic>> fareDetailsBySegment =
-          (firstTraveler['fareDetailsBySegment'] as List<dynamic>? ?? <dynamic>[])
+          (firstTraveler['fareDetailsBySegment'] as List<dynamic>? ??
+                  <dynamic>[])
               .cast<Map<String, dynamic>>();
 
       // 🟢 Build quick lookups by segmentId -> cabin / bookingClass / bags
@@ -147,13 +171,14 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
 
       for (int i = 0; i < itineraries.length; i++) {
         final Map<String, dynamic> itinerary = itineraries[i];
-        final List<Map<String, dynamic>> segments = (itinerary['segments'] as List<dynamic>? ?? <dynamic>[])
-            .cast<Map<String, dynamic>>();
+        final List<Map<String, dynamic>> segments =
+            (itinerary['segments'] as List<dynamic>? ?? <dynamic>[])
+                .cast<Map<String, dynamic>>();
         if (segments.isEmpty) continue;
 
         // Primary marketing
-        final String primaryMarketingCode = (segments.first['carrierCode'] as String)
-            .toUpperCase();
+        final String primaryMarketingCode =
+            (segments.first['carrierCode'] as String).toUpperCase();
         final String primaryMarketNumber = (segments.first['number'] as String);
         final String primaryMarketingName = _codeToName(
           primaryMarketingCode,
@@ -161,7 +186,8 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
         );
 
         final Set<String> marketingCodes = <String>{
-          for (final Map<String, dynamic> s in segments) (s['carrierCode'] as String).toUpperCase(),
+          for (final Map<String, dynamic> s in segments)
+            (s['carrierCode'] as String).toUpperCase(),
         }..removeWhere((String c) => c == 'HR' || c == 'H1');
         final Set<String> marketingNames = marketingCodes
             .map((String c) => _codeToName(c, carriers))
@@ -194,7 +220,8 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
           final Map<String, dynamic> seg = segments[j];
 
           // intra-segment tech stops (rare)
-          final List segStops = (seg['stops'] as List<dynamic>? ?? const <dynamic>[]);
+          final List segStops =
+              (seg['stops'] as List<dynamic>? ?? const <dynamic>[]);
           for (final raw in segStops) {
             final Map<String, dynamic> s = (raw as Map).cast<String, dynamic>();
             final String? code = s['iataCode'] as String?;
@@ -206,9 +233,10 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
           }
 
           if (j < segments.length - 1) {
-            final Map<String, dynamic> thisArr = (seg['arrival'] as Map).cast<String, dynamic>();
-            final Map<String, dynamic> nextDep = (segments[j + 1]['departure'] as Map)
+            final Map<String, dynamic> thisArr = (seg['arrival'] as Map)
                 .cast<String, dynamic>();
+            final Map<String, dynamic> nextDep =
+                (segments[j + 1]['departure'] as Map).cast<String, dynamic>();
 
             final DateTime thisArrAt = DateTime.parse(thisArr['at'] as String);
             final DateTime nextDepAt = DateTime.parse(nextDep['at'] as String);
@@ -250,12 +278,18 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
             .toInt();
 
         // ✈️ Build full per-stop (per segment) details
-        final List<Map<String, dynamic>> segmentDetails = segments.map((Map<String, dynamic> s) {
-          final Map<String, dynamic> dep = (s['departure'] as Map).cast<String, dynamic>();
-          final Map<String, dynamic> arr = (s['arrival'] as Map).cast<String, dynamic>();
+        final List<Map<String, dynamic>> segmentDetails = segments.map((
+          Map<String, dynamic> s,
+        ) {
+          final Map<String, dynamic> dep = (s['departure'] as Map)
+              .cast<String, dynamic>();
+          final Map<String, dynamic> arr = (s['arrival'] as Map)
+              .cast<String, dynamic>();
           final String segId = (s['id'] ?? '').toString();
-          final String? aircraftCode = (s['aircraft'] as Map?)?['code'] as String?;
-          final String? operating = (s['operating'] as Map?)?['carrierCode'] as String?;
+          final String? aircraftCode =
+              (s['aircraft'] as Map?)?['code'] as String?;
+          final String? operating =
+              (s['operating'] as Map?)?['carrierCode'] as String?;
 
           return <String, dynamic>{
             'segId': segId,
@@ -290,7 +324,9 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
 
         // For display like "MF 878 / MF 849"
         final String flightNumbers = segments
-            .map((Map<String, dynamic> s) => '${s['carrierCode']} ${s['number']}')
+            .map(
+              (Map<String, dynamic> s) => '${s['carrierCode']} ${s['number']}',
+            )
             .join(' / ');
 
         results.add(<String, dynamic>{
@@ -370,14 +406,20 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
   }
 
   Future<void> initRecentSearch(RecentSearch search) async {
-    final List<RecentSearch> updated = <RecentSearch>[search, ...state.recentSearches];
+    final List<RecentSearch> updated = <RecentSearch>[
+      search,
+      ...state.recentSearches,
+    ];
     if (updated.length > 5) updated.removeLast();
     state = state.copyWithRecentSearches(updated);
   }
 
   Future<bool> addRecentSearch(RecentSearch search, String jwtToken) async {
     // ✅ Always update state, even for empty ones (to preserve visual 5-item layout)
-    final List<RecentSearch> updated = <RecentSearch>[search, ...state.recentSearches];
+    final List<RecentSearch> updated = <RecentSearch>[
+      search,
+      ...state.recentSearches,
+    ];
     if (updated.length > 5) updated.removeLast();
     state = state.copyWithRecentSearches(updated);
 
@@ -481,15 +523,18 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
     state = state.copyWith(passengerCount: count, cabinClass: cabin);
   }
 
+  void clearInBoundFlights(bool b) {
+    state = state.copyWith(clearInboundFlights: b);
+  }
+
   void clearRecentSearches() {
     state = state.copyWithRecentSearches(<RecentSearch>[]);
   }
 
   Future<void> loadRecentSearchesFromApi() async {
     try {
-      final List<Map<String, dynamic>> results = await RecentSearchApiService.fetchRecentSearches(
-        'flight',
-      );
+      final List<Map<String, dynamic>> results =
+          await RecentSearchApiService.fetchRecentSearches('flight');
       state = state.copyWithRecentSearches(<RecentSearch>[]);
 
       for (final Map<String, dynamic> r in results) {
@@ -529,7 +574,10 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
   String? get returnDate => state.returnDate;
 }
 
-final StateNotifierProvider<FlightSearchController, FlightSearchState> flightSearchProvider =
+final StateNotifierProvider<FlightSearchController, FlightSearchState>
+flightSearchProvider =
     StateNotifierProvider<FlightSearchController, FlightSearchState>(
-      (StateNotifierProviderRef<FlightSearchController, FlightSearchState> ref) => FlightSearchController(),
+      (
+        StateNotifierProviderRef<FlightSearchController, FlightSearchState> ref,
+      ) => FlightSearchController(ref),
     );
