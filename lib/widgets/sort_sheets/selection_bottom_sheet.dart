@@ -62,12 +62,12 @@ class _SelectionContentState<T> extends State<_SelectionContent<T>> {
   @override
   void initState() {
     super.initState();
-    _selected = {...widget.initialSelected};
+    _selected = <T>{...widget.initialSelected};
   }
 
   @override
   Widget build(BuildContext context) {
-    final maxHeight =
+    final double maxHeight =
         MediaQuery.of(context).size.height * widget.maxHeightFraction;
 
     return SafeArea(
@@ -76,7 +76,7 @@ class _SelectionContentState<T> extends State<_SelectionContent<T>> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
-          children: [
+          children: <Widget>[
             const SizedBox(height: 12),
             Padding(
               padding: const EdgeInsets.fromLTRB(20.0, 20.0, 0, 0),
@@ -96,10 +96,10 @@ class _SelectionContentState<T> extends State<_SelectionContent<T>> {
               child: ListView.separated(
                 itemCount: widget.items.length,
                 separatorBuilder: (_, __) => const SizedBox.shrink(),
-                itemBuilder: (context, index) {
+                itemBuilder: (BuildContext context, int index) {
                   final item = widget.items[index];
-                  final label = widget.labelOf(item);
-                  final isSelected = _selected.contains(item);
+                  final String label = widget.labelOf(item);
+                  final bool isSelected = _selected.contains(item);
 
                   return ListTile(
                     dense: true,
@@ -110,7 +110,7 @@ class _SelectionContentState<T> extends State<_SelectionContent<T>> {
                       shape: const CircleBorder(),
                       side: BorderSide.none,
                       value: isSelected,
-                      onChanged: (v) {
+                      onChanged: (bool? v) {
                         setState(() {
                           if (v == true) {
                             _selected.add(item);
@@ -167,7 +167,7 @@ class _SelectionContentState<T> extends State<_SelectionContent<T>> {
                     backgroundColor: Theme.of(context).colorScheme.primary,
                     foregroundColor: Colors.white,
                     minimumSize: const Size.fromHeight(48),
-                    shape: RoundedRectangleBorder(
+                    shape: const RoundedRectangleBorder(
                       borderRadius: BorderRadius.all(Radius.circular(2)),
                     ),
                   ),

@@ -12,10 +12,10 @@ class FlightApiService {
     int adults = 1,
     int maxResults = 5,
   }) async {
-    final uri = Uri.http(
+    final Uri uri = Uri.http(
       baseUrl.replaceFirst('http://', ''),
       '/api/v1/flights/search',
-      {
+      <String, dynamic>{
         'origin': origin,
         'destination': destination,
         'departure_date': departureDate,
@@ -30,7 +30,7 @@ class FlightApiService {
       "🔍 Params: origin=$origin, destination=$destination, departure=$departureDate, return=$returnDate, adults=$adults, max=$maxResults",
     );
 
-    final response = await http.get(uri);
+    final http.Response response = await http.get(uri);
 
     if (response.statusCode == 200) {
       final decoded = jsonDecode(response.body);

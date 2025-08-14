@@ -4,12 +4,12 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-final carDataProvider = FutureProvider<List<Car>>((ref) async {
+final FutureProvider<List<Car>> carDataProvider = FutureProvider<List<Car>>((FutureProviderRef<List<Car>> ref) async {
   // Load CSV from assets
-  final raw = await loadCarData();
-  final carList = raw
+  final List<List> raw = await loadCarData();
+  final List<Car> carList = raw
       .skip(1)
-      .map((row) {
+      .map((List row) {
         try {
           return Car.fromCsvRow(row);
         } catch (e) {
@@ -24,27 +24,27 @@ final carDataProvider = FutureProvider<List<Car>>((ref) async {
   return carList;
 });
 
-final carsByCityProvider = FutureProvider<Map<String, List<Car>>>((ref) async {
+final FutureProvider<Map<String, List<Car>>> carsByCityProvider = FutureProvider<Map<String, List<Car>>>((FutureProviderRef<Map<String, List<Car>>> ref) async {
   try {
-    final carList = await ref.watch(carDataProvider.future);
-    return groupBy(carList, (car) => car.city);
+    final List<Car> carList = await ref.watch(carDataProvider.future);
+    return groupBy(carList, (Car car) => car.city);
   } catch (e, stack) {
     debugPrint("❌ Failed to group cars: $e\n$stack");
-    return {}; // return an empty map instead of null
+    return <String, List<Car>>{}; // return an empty map instead of null
   }
 });
 
-final searchCarQueryProvider = StateProvider<String>((ref) => '');
+final StateProvider<String> searchCarQueryProvider = StateProvider<String>((StateProviderRef<String> ref) => '');
 
-final filteredCarProvider = FutureProvider<Map<String, List<Car>>>((ref) async {
-  final query = ref.watch(searchCarQueryProvider).toLowerCase();
+final FutureProvider<Map<String, List<Car>>> filteredCarProvider = FutureProvider<Map<String, List<Car>>>((FutureProviderRef<Map<String, List<Car>>> ref) async {
+  final String query = ref.watch(searchCarQueryProvider).toLowerCase();
 
-  if (query.length < 2) return {};
+  if (query.length < 2) return <String, List<Car>>{};
 
-  final grouped = await ref.watch(carsByCityProvider.future);
+  final Map<String, List<Car>> grouped = await ref.watch(carsByCityProvider.future);
 
   // 🔍 Filter only country names
   return Map.fromEntries(
-    grouped.entries.where((e) => e.key.toLowerCase().contains(query)),
+    grouped.entries.where((MapEntry<String, List<Car>> e) => e.key.toLowerCase().contains(query)),
   );
 });

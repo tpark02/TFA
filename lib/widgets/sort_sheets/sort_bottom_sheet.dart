@@ -14,15 +14,15 @@ Future<void> showSortBottomSheet({
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(0)),
     ),
-    builder: (context) {
+    builder: (BuildContext context) {
       List<String> options;
 
       switch (sortType) {
         case SortTab.sort:
-          options = ['Duration', 'Cost', 'Value'];
+          options = <String>['Duration', 'Cost', 'Value'];
           break;
         case SortTab.stops:
-          options = ['Nonstop', 'Up to 1 stop', 'Up to 2 stops'];
+          options = <String>['Nonstop', 'Up to 1 stop', 'Up to 2 stops'];
           break;
         case SortTab.travelHacks:
           // TODO: Handle this case.
@@ -47,11 +47,11 @@ Future<void> showSortBottomSheet({
           throw UnimplementedError();
       }
       return StatefulBuilder(
-        builder: (context, setState) {
+        builder: (BuildContext context, setState) {
           return Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+            children: <Widget>[
               const SizedBox(height: 8),
               Padding(
                 padding: const EdgeInsets.fromLTRB(20.0, 20.0, 0, 0),
@@ -69,13 +69,13 @@ Future<void> showSortBottomSheet({
 
               // const SizedBox(height: 8),
               ...options.map(
-                (option) => RadioListTile<String>(
+                (String option) => RadioListTile<String>(
                   value: option,
                   groupValue: selectedSort,
                   title: Text(option),
-                  contentPadding: EdgeInsets.fromLTRB(10, 0, 10, 0),
+                  contentPadding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
 
-                  onChanged: (value) {
+                  onChanged: (String? value) {
                     if (value != null) {
                       setState(() => selectedSort = value);
                       onSortSelected(value);

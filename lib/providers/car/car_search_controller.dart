@@ -9,7 +9,7 @@ class CarSearchController extends StateNotifier<CarSearchState> {
   CarSearchController() : super(const CarSearchState());
 
   Future<void> initRecentSearch(RecentSearch search) async {
-    final updated = [search, ...state.recentSearches];
+    final List<RecentSearch> updated = <RecentSearch>[search, ...state.recentSearches];
     if (updated.length > 5) updated.removeLast();
     state = state.copyWith(recentSearches: updated);
   }
@@ -27,7 +27,7 @@ class CarSearchController extends StateNotifier<CarSearchState> {
   }
 
   Future<bool> addRecentSearch(RecentSearch search, String jwtToken) async {
-    final updated = [search, ...state.recentSearches];
+    final List<RecentSearch> updated = <RecentSearch>[search, ...state.recentSearches];
     if (updated.length > 5) updated.removeLast(); // optional: cap at 5 items
     state = state.copyWith(recentSearches: updated);
     // ❌ Only send to backend if not placeholder
@@ -65,7 +65,7 @@ class CarSearchController extends StateNotifier<CarSearchState> {
       return;
     }
     final String formatted = DateFormat('yyyy-MM-dd').format(selectedDate);
-    final display = DateFormat('EEE MMM d').format(selectedDate);
+    final String display = DateFormat('EEE MMM d').format(selectedDate);
 
     state = state.copyWith(beginDate: formatted, displayBeginDate: display);
   }
@@ -76,7 +76,7 @@ class CarSearchController extends StateNotifier<CarSearchState> {
       return;
     }
     final String formatted = DateFormat('yyyy-MM-dd').format(selectedDate);
-    final display = DateFormat('EEE MMM d').format(selectedDate);
+    final String display = DateFormat('EEE MMM d').format(selectedDate);
 
     state = state.copyWith(endDate: formatted, displayEndDate: display);
   }
@@ -91,12 +91,12 @@ class CarSearchController extends StateNotifier<CarSearchState> {
 
   Future<void> loadRecentSearchesFromApi() async {
     try {
-      final results = await RecentSearchApiService.fetchRecentSearches('car');
-      state = state.copyWith(recentSearches: []);
+      final List<Map<String, dynamic>> results = await RecentSearchApiService.fetchRecentSearches('car');
+      state = state.copyWith(recentSearches: <RecentSearch>[]);
 
-      for (final r in results) {
+      for (final Map<String, dynamic> r in results) {
         final guestsValue = r['guests'];
-        final guests = guestsValue is int
+        final int guests = guestsValue is int
             ? guestsValue
             : int.tryParse(guestsValue.toString()) ?? 1;
 
@@ -104,7 +104,7 @@ class CarSearchController extends StateNotifier<CarSearchState> {
           RecentSearch(
             destination: r['destination'],
             tripDateRange: r['trip_date_range'],
-            icons: [],
+            icons: <Widget>[],
             destinationCode: r['destination_code'],
             guests: guests,
             rooms: 0,
@@ -124,7 +124,7 @@ class CarSearchController extends StateNotifier<CarSearchState> {
   }
 }
 
-final carSearchProvider =
+final StateNotifierProvider<CarSearchController, CarSearchState> carSearchProvider =
     StateNotifierProvider<CarSearchController, CarSearchState>(
-      (ref) => CarSearchController(),
+      (StateNotifierProviderRef<CarSearchController, CarSearchState> ref) => CarSearchController(),
     );

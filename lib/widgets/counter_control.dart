@@ -38,7 +38,7 @@ class _CounterControlState extends State<CounterControl> {
   Widget build(BuildContext context) {
     return Row(
       mainAxisSize: MainAxisSize.min,
-      children: [
+      children: <Widget>[
         _circleButton(context, Icons.remove, _decrement, false),
         const SizedBox(width: 10),
         Text(
@@ -69,7 +69,7 @@ class _CounterControlState extends State<CounterControl> {
       child: IconButton(
         icon: Icon(icon, size: 14),
         padding: EdgeInsets.zero, // ← removes the default padding
-        constraints: BoxConstraints(), // ← removes min size constraints
+        constraints: const BoxConstraints(), // ← removes min size constraints
         color: isInc
             ? Theme.of(context).colorScheme.primary
             : Theme.of(context).colorScheme.secondary,

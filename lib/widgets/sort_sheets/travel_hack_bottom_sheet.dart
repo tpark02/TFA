@@ -14,7 +14,7 @@ class TravelHackBottomSheet extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+        children: <Widget>[
           Text(
             'Travel Hacks',
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -23,22 +23,22 @@ class TravelHackBottomSheet extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 20),
-          Row(
-            children: [
+          const Row(
+            children: <Widget>[
               // const Icon(Icons.directions_walk, size: 20),
               // const SizedBox(width: 8),
-              const Text(
+              Text(
                 'Self - Transfer',
                 style: TextStyle(fontWeight: FontWeight.w600),
               ),
               // const SizedBox(width: 6),
-              const Icon(Icons.info_outline, size: 16, color: Colors.grey),
-              const Spacer(),
-              const Icon(Icons.check, color: Colors.blue),
+              Icon(Icons.info_outline, size: 16, color: Colors.grey),
+              Spacer(),
+              Icon(Icons.check, color: Colors.blue),
             ],
           ),
           const SizedBox(height: 8),
-          Text(
+          const Text(
             'Passengers independently link two separate flights\nwithout airline aid.',
             style: TextStyle(color: Colors.black87),
           ),

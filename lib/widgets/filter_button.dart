@@ -10,7 +10,7 @@ class FilterButton extends StatelessWidget {
       margin: const EdgeInsets.only(left: 8),
       child: OutlinedButton(
         style: OutlinedButton.styleFrom(
-          padding: EdgeInsets.all(10),
+          padding: const EdgeInsets.all(10),
           backgroundColor: Colors.white,
           minimumSize: const Size(0, 32),
           shape: RoundedRectangleBorder(

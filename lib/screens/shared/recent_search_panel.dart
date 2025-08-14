@@ -1,5 +1,8 @@
 import 'package:TFA/providers/car/car_search_controller.dart';
+import 'package:TFA/providers/car/car_search_state.dart';
+import 'package:TFA/providers/flight/flight_search_state.dart';
 import 'package:TFA/providers/hotel/hotel_search_controller.dart';
+import 'package:TFA/providers/hotel/hotel_search_state.dart';
 import 'package:TFA/providers/recent_search.dart';
 import 'package:TFA/providers/flight/flight_search_controller.dart';
 import 'package:TFA/widgets/recent_search_item.dart';
@@ -12,31 +15,31 @@ class RecentSearchPanel extends ConsumerWidget {
   final String panelName;
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    List<RecentSearch> searches = [];
+    List<RecentSearch> searches = <RecentSearch>[];
     String kind = '';
 
     if (panelName == 'flight') {
-      final fstate = ref.watch(flightSearchProvider);
+      final FlightSearchState fstate = ref.watch(flightSearchProvider);
       searches = fstate.recentSearches;
       kind = 'flight';
     } else if (panelName == 'hotel') {
-      final hstate = ref.watch(hotelSearchProvider);
+      final HotelSearchState hstate = ref.watch(hotelSearchProvider);
       searches = hstate.recentSearches;
       kind = 'hotel';
     } else {
-      final cstate = ref.watch(carSearchProvider);
+      final CarSearchState cstate = ref.watch(carSearchProvider);
       searches = cstate.recentSearches;
       kind = 'car';
     }
     // Always produce 5 items, fill with empty ones if needed
-    final paddedSearches = List<RecentSearch>.generate(
+    final List<RecentSearch> paddedSearches = List<RecentSearch>.generate(
       5,
-      (i) => i < searches.length
+      (int i) => i < searches.length
           ? searches[i]
-          : RecentSearch(
+          : const RecentSearch(
               destination: '',
               tripDateRange: '',
-              icons: [],
+              icons: <Widget>[],
               destinationCode: '',
               guests: 0,
               rooms: 0,
@@ -52,7 +55,7 @@ class RecentSearchPanel extends ConsumerWidget {
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
+      children: <Widget>[
         Text(
           "Recent searches",
           style: TextStyle(
@@ -65,7 +68,7 @@ class RecentSearchPanel extends ConsumerWidget {
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           itemCount: paddedSearches.length,
-          itemBuilder: (context, index) {
+          itemBuilder: (BuildContext context, int index) {
             return SizedBox(
               width: double.infinity,
               child: RecentSearchItem(search: paddedSearches[index]),

@@ -1,3 +1,4 @@
+import 'package:TFA/models/hotel.dart';
 import 'package:TFA/providers/hotel/hotel_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -13,8 +14,8 @@ class SearchHotelSheet extends ConsumerStatefulWidget {
 class _SearchHotelSheetState extends ConsumerState<SearchHotelSheet> {
   @override
   Widget build(BuildContext context) {
-    final height = MediaQuery.of(context).size.height * 0.7;
-    final filteredHotels = ref.watch(filteredHotelProvider);
+    final double height = MediaQuery.of(context).size.height * 0.7;
+    final AsyncValue<Map<String, List<Hotel>>> filteredHotels = ref.watch(filteredHotelProvider);
 
     return SafeArea(
       child: Padding(
@@ -29,7 +30,7 @@ class _SearchHotelSheetState extends ConsumerState<SearchHotelSheet> {
             color: Colors.white,
           ),
           child: Column(
-            children: [
+            children: <Widget>[
               Text(
                 widget.title,
                 style: TextStyle(
@@ -41,10 +42,10 @@ class _SearchHotelSheetState extends ConsumerState<SearchHotelSheet> {
               ),
               const SizedBox(height: 8),
               Row(
-                children: [
+                children: <Widget>[
                   Expanded(
                     child: TextField(
-                      onChanged: (value) {
+                      onChanged: (String value) {
                         ref.read(searchHotelQueryProvider.notifier).state =
                             value;
                       },
@@ -78,31 +79,31 @@ class _SearchHotelSheetState extends ConsumerState<SearchHotelSheet> {
               const SizedBox(height: 20),
               Expanded(
                 child: filteredHotels.when(
-                  data: (grouped) {
+                  data: (Map<String, List<Hotel>> grouped) {
                     if (grouped.isEmpty) {
                       return const Center(child: Text("No matching countries"));
                     }
 
                     return ListView(
-                      children: grouped.entries.map((entry) {
-                        final city = entry.key;
-                        final hotels = entry.value;
+                      children: grouped.entries.map((MapEntry<String, List<Hotel>> entry) {
+                        final String city = entry.key;
+                        final List<Hotel> hotels = entry.value;
 
                         return Column(
-                          children: [
+                          children: <Widget>[
                             TextButton(
                               onPressed: () {
-                                Navigator.pop(context, {'city': city});
+                                Navigator.pop(context, <String, String>{'city': city});
                               },
                               child: Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
+                                children: <Widget>[
                                   Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
-                                    children: [
+                                    children: <Widget>[
                                       Text(
                                         city,
                                         style: TextStyle(
@@ -142,7 +143,7 @@ class _SearchHotelSheetState extends ConsumerState<SearchHotelSheet> {
                   },
                   loading: () =>
                       const Center(child: CircularProgressIndicator()),
-                  error: (err, _) => Center(child: Text('Error: $err')),
+                  error: (Object err, _) => Center(child: Text('Error: $err')),
                 ),
               ),
             ],

@@ -1,3 +1,4 @@
+import 'package:TFA/models/cars.dart';
 import 'package:TFA/providers/car/car_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -13,8 +14,8 @@ class SearchCarSheet extends ConsumerStatefulWidget {
 class _SearchCarSheetState extends ConsumerState<SearchCarSheet> {
   @override
   Widget build(BuildContext context) {
-    final height = MediaQuery.of(context).size.height * 0.7;
-    final filteredCars = ref.watch(filteredCarProvider);
+    final double height = MediaQuery.of(context).size.height * 0.7;
+    final AsyncValue<Map<String, List<Car>>> filteredCars = ref.watch(filteredCarProvider);
 
     return SafeArea(
       child: Padding(
@@ -29,7 +30,7 @@ class _SearchCarSheetState extends ConsumerState<SearchCarSheet> {
             color: Colors.white,
           ),
           child: Column(
-            children: [
+            children: <Widget>[
               Text(
                 widget.title,
                 style: TextStyle(
@@ -41,10 +42,10 @@ class _SearchCarSheetState extends ConsumerState<SearchCarSheet> {
               ),
               const SizedBox(height: 8),
               Row(
-                children: [
+                children: <Widget>[
                   Expanded(
                     child: TextField(
-                      onChanged: (value) {
+                      onChanged: (String value) {
                         ref.read(searchCarQueryProvider.notifier).state = value;
                       },
                       decoration: InputDecoration(
@@ -77,31 +78,31 @@ class _SearchCarSheetState extends ConsumerState<SearchCarSheet> {
               const SizedBox(height: 20),
               Expanded(
                 child: filteredCars.when(
-                  data: (grouped) {
+                  data: (Map<String, List<Car>> grouped) {
                     if (grouped.isEmpty) {
                       return const Center(child: Text("No matching countries"));
                     }
 
                     return ListView(
-                      children: grouped.entries.map((entry) {
-                        final city = entry.key;
-                        final cars = entry.value;
+                      children: grouped.entries.map((MapEntry<String, List<Car>> entry) {
+                        final String city = entry.key;
+                        final List<Car> cars = entry.value;
 
                         return Column(
-                          children: [
+                          children: <Widget>[
                             TextButton(
                               onPressed: () {
-                                Navigator.pop(context, {'city': city});
+                                Navigator.pop(context, <String, String>{'city': city});
                               },
                               child: Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
+                                children: <Widget>[
                                   Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
-                                    children: [
+                                    children: <Widget>[
                                       Text(
                                         city,
                                         style: TextStyle(
@@ -141,7 +142,7 @@ class _SearchCarSheetState extends ConsumerState<SearchCarSheet> {
                   },
                   loading: () =>
                       const Center(child: CircularProgressIndicator()),
-                  error: (err, _) => Center(child: Text('Error: $err')),
+                  error: (Object err, _) => Center(child: Text('Error: $err')),
                 ),
               ),
             ],

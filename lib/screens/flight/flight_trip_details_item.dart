@@ -16,79 +16,79 @@ class FlightTripDetailsItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final primary = Theme.of(context).colorScheme.primary;
-    final textSize = Theme.of(context).textTheme.displaySmall?.fontSize ?? 16.0;
+    final Color primary = Theme.of(context).colorScheme.primary;
+    final double textSize = Theme.of(context).textTheme.displaySmall?.fontSize ?? 16.0;
 
     if (flightData.isEmpty) {
       return const SizedBox.shrink();
     }
 
     // ── Parse top-level fields from one itinerary object ────────────────────────
-    final depAirport = (flightData['depAirport'] ?? '') as String;
-    final arrAirport = (flightData['arrAirport'] ?? '') as String;
+    final String depAirport = (flightData['depAirport'] ?? '') as String;
+    final String arrAirport = (flightData['arrAirport'] ?? '') as String;
 
-    final depCity = ref.watch(cityByIataProvider(depAirport)) ?? 'N/A';
-    final arrCity = ref.watch(cityByIataProvider(arrAirport)) ?? 'N/A';
+    final String depCity = ref.watch(cityByIataProvider(depAirport)) ?? 'N/A';
+    final String arrCity = ref.watch(cityByIataProvider(arrAirport)) ?? 'N/A';
 
     // Prefer depRaw from parser; otherwise use the first segment dep.at
-    final depRawTop = (flightData['depRaw'] as String?);
-    final segments = (flightData['segments'] as List<dynamic>? ?? const [])
+    final String? depRawTop = (flightData['depRaw'] as String?);
+    final List<Map<String, dynamic>> segments = (flightData['segments'] as List<dynamic>? ?? const <dynamic>[])
         .cast<Map<String, dynamic>>();
-    final connections =
-        (flightData['connections'] as List<dynamic>? ?? const [])
+    final List<Map<String, dynamic>> connections =
+        (flightData['connections'] as List<dynamic>? ?? const <dynamic>[])
             .cast<Map<String, dynamic>>();
 
-    final depAtForHeader =
+    final String? depAtForHeader =
         depRawTop ??
         (() {
           if (segments.isNotEmpty) {
-            final depMap = segments.first['dep'] as Map<String, dynamic>?;
+            final Map<String, dynamic>? depMap = segments.first['dep'] as Map<String, dynamic>?;
             return depMap?['at'] as String?;
           }
           return null;
         }());
 
-    final headerDate = depAtForHeader != null && depAtForHeader.isNotEmpty
+    final String headerDate = depAtForHeader != null && depAtForHeader.isNotEmpty
         ? _formatHeaderDate(depAtForHeader)
         : '';
 
-    final metaAir =
+    final String metaAir =
         (flightData['air'] ?? flightData['duration'] ?? '') as String;
-    final metaStops = (flightData['stops'] ?? '') as String;
-    final paxCount = (flightData['passengerCount'] ?? 1) as int;
-    final cabin = (flightData['cabinClass'] ?? '') as String;
-    final airlineName = (flightData['airline'] ?? '') as String;
+    final String metaStops = (flightData['stops'] ?? '') as String;
+    final int paxCount = (flightData['passengerCount'] ?? 1) as int;
+    final String cabin = (flightData['cabinClass'] ?? '') as String;
+    final String airlineName = (flightData['airline'] ?? '') as String;
 
     // ── Build segment tiles + layovers ─────────────────────────────────────────
-    final sectionChildren = <Widget>[_AirlineLabel(name: airlineName)];
+    final List<Widget> sectionChildren = <Widget>[_AirlineLabel(name: airlineName)];
 
     for (int i = 0; i < segments.length; i++) {
-      final seg = segments[i];
+      final Map<String, dynamic> seg = segments[i];
 
-      final dep = (seg['dep'] as Map?)?.cast<String, dynamic>() ?? const {};
-      final arr = (seg['arr'] as Map?)?.cast<String, dynamic>() ?? const {};
+      final Map<String, dynamic> dep = (seg['dep'] as Map?)?.cast<String, dynamic>() ?? const <String, dynamic>{};
+      final Map<String, dynamic> arr = (seg['arr'] as Map?)?.cast<String, dynamic>() ?? const <String, dynamic>{};
 
-      final depCode = (dep['code'] ?? '') as String;
-      final arrCode = (arr['code'] ?? '') as String;
+      final String depCode = (dep['code'] ?? '') as String;
+      final String arrCode = (arr['code'] ?? '') as String;
 
-      final depAt = (dep['at'] ?? '') as String;
-      final arrAt = (arr['at'] ?? '') as String;
+      final String depAt = (dep['at'] ?? '') as String;
+      final String arrAt = (arr['at'] ?? '') as String;
 
-      final depTime = depAt.isNotEmpty ? _fmtTime(depAt) : '';
-      final arrTime = arrAt.isNotEmpty ? _fmtTime(arrAt) : '';
+      final String depTime = depAt.isNotEmpty ? _fmtTime(depAt) : '';
+      final String arrTime = arrAt.isNotEmpty ? _fmtTime(arrAt) : '';
 
       // +day indicator for this segment
       bool plusDay = false;
       if (depAt.isNotEmpty && arrAt.isNotEmpty) {
-        final depDT = DateTime.parse(depAt);
-        final arrDT = DateTime.parse(arrAt);
+        final DateTime depDT = DateTime.parse(depAt);
+        final DateTime arrDT = DateTime.parse(arrAt);
         plusDay = arrDT.difference(depDT).inDays > 0;
       }
 
-      final segDuration = (seg['duration'] ?? '') as String;
+      final String segDuration = (seg['duration'] ?? '') as String;
 
       // Prefer nicely assembled marketing flight if present
-      final flightNo =
+      final String flightNo =
           (seg['marketingFlight'] as String?) ??
           '${seg['marketingCarrier'] ?? ''} ${seg['flightNumber'] ?? ''}';
 
@@ -106,8 +106,8 @@ class FlightTripDetailsItem extends ConsumerWidget {
 
       // Insert layover after segment if there’s a corresponding connection
       if (i < connections.length) {
-        final conn = connections[i];
-        final layText = (conn['duration'] ?? '') as String;
+        final Map<String, dynamic> conn = connections[i];
+        final String layText = (conn['duration'] ?? '') as String;
         if (layText.isNotEmpty) {
           sectionChildren.add(_LayoverChip(text: layText));
         }
@@ -119,11 +119,11 @@ class FlightTripDetailsItem extends ConsumerWidget {
     // ── UI ─────────────────────────────────────────────────────────────────────
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
+      children: <Widget>[
         // Cities header
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: [
+          children: <Widget>[
             Flexible(
               child: Text(
                 '$depCity - $arrCity',
@@ -185,7 +185,7 @@ class FlightTripDetailsItem extends ConsumerWidget {
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+            children: <Widget>[
               Container(
                 width: MediaQuery.of(context).size.width,
                 color: Colors.grey.shade200,
@@ -204,10 +204,10 @@ class FlightTripDetailsItem extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: 12),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20),
                 child: Row(
-                  children: const [
+                  children: <Widget>[
                     Expanded(
                       child: Text(
                         'a few seconds ago',
@@ -242,13 +242,13 @@ class FlightTripDetailsItem extends ConsumerWidget {
 
   // HH:mm from ISO string
   String _fmtTime(String iso) {
-    final dt = DateTime.parse(iso);
+    final DateTime dt = DateTime.parse(iso);
     return DateFormat('HH:mm').format(dt);
   }
 
   // Header date: Tuesday, August 19
   String _formatHeaderDate(String iso) {
-    final dt = DateTime.parse(iso);
+    final DateTime dt = DateTime.parse(iso);
     return DateFormat('EEEE, MMMM d').format(dt);
   }
 }
@@ -296,15 +296,15 @@ class _SegmentTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textSize = Theme.of(context).textTheme.displaySmall?.fontSize ?? 16;
+    final double textSize = Theme.of(context).textTheme.displaySmall?.fontSize ?? 16;
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
       child: Column(
-        children: [
+        children: <Widget>[
           Row(
-            children: [
+            children: <Widget>[
               _timeCell(depTime, textSize),
               const SizedBox(width: 5),
               Expanded(child: Divider(height: 1, color: Colors.grey.shade500)),
@@ -319,7 +319,7 @@ class _SegmentTile extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Row(
-            children: [
+            children: <Widget>[
               Text(
                 depCode,
                 style: TextStyle(fontSize: textSize, color: secondaryFontColor),
@@ -333,7 +333,7 @@ class _SegmentTile extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Row(
-            children: [
+            children: <Widget>[
               Text(
                 '$durationText | $flightNo',
                 style: TextStyle(color: Colors.grey.shade600),
@@ -353,7 +353,7 @@ class _SegmentTile extends StatelessWidget {
   }) {
     return Row(
       mainAxisSize: MainAxisSize.min,
-      children: [
+      children: <Widget>[
         Text(
           t,
           textAlign: alignEnd ? TextAlign.right : TextAlign.left,
@@ -388,7 +388,7 @@ class _LayoverChip extends StatelessWidget {
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: [
+        children: <Widget>[
           const Icon(Icons.schedule, size: 18),
           const SizedBox(width: 8),
           Text(text, style: const TextStyle(fontWeight: FontWeight.w700)),

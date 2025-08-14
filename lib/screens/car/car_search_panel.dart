@@ -1,4 +1,5 @@
 import 'package:TFA/providers/car/car_search_controller.dart';
+import 'package:TFA/providers/car/car_search_state.dart';
 import 'package:TFA/providers/recent_search.dart';
 import 'package:TFA/screens/shared/calendar_sheet.dart';
 import 'package:TFA/screens/shared/recent_search_panel.dart';
@@ -10,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_switch/flutter_switch.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:geolocator_platform_interface/src/models/position.dart';
 
 class CarSearchPanel extends ConsumerStatefulWidget {
   const CarSearchPanel({super.key});
@@ -27,20 +29,20 @@ class _CarSearchPanelState extends ConsumerState<CarSearchPanel> {
   bool _isLoadingCity = true;
   bool _isDifferentDropOff = false;
   String _dropOffCity = '';
-  final user = FirebaseAuth.instance.currentUser;
+  final User? user = FirebaseAuth.instance.currentUser;
 
   Future<void> fetchCurrentCountry() async {
     setState(() => _isLoadingCity = true);
 
     try {
-      final position = await LocationService.getCurrentLocation();
-      final placemarks = await placemarkFromCoordinates(
+      final Position position = await LocationService.getCurrentLocation();
+      final List<Placemark> placemarks = await placemarkFromCoordinates(
         position.latitude,
         position.longitude,
       );
 
       if (placemarks.isNotEmpty) {
-        final city = placemarks.first.locality ?? '';
+        final String city = placemarks.first.locality ?? '';
         ref.read(carSearchProvider.notifier).setCity(city);
         debugPrint("📍 Set city: $city");
       }
@@ -55,16 +57,16 @@ class _CarSearchPanelState extends ConsumerState<CarSearchPanel> {
   void initState() {
     super.initState();
 
-    final controller = ref.read(carSearchProvider.notifier);
-    final startDate = DateTime.now();
-    final endDate = DateTime.now().add(const Duration(days: endDays));
+    final CarSearchController controller = ref.read(carSearchProvider.notifier);
+    final DateTime startDate = DateTime.now();
+    final DateTime endDate = DateTime.now().add(const Duration(days: endDays));
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       controller.setBeginDate(startDate);
       controller.setEndDate(endDate);
 
-      final defaultTime = TimeOfDay(hour: 12, minute: 0);
-      final formatted = defaultTime.format(context).toLowerCase();
+      final TimeOfDay defaultTime = const TimeOfDay(hour: 12, minute: 0);
+      final String formatted = defaultTime.format(context).toLowerCase();
 
       controller.setBeginTime(formatted);
       controller.setEndTime(formatted);
@@ -90,20 +92,20 @@ class _CarSearchPanelState extends ConsumerState<CarSearchPanel> {
 
   @override
   Widget build(BuildContext context) {
-    final carState = ref.watch(carSearchProvider);
-    final controller = ref.read(carSearchProvider.notifier);
+    final CarSearchState carState = ref.watch(carSearchProvider);
+    final CarSearchController controller = ref.read(carSearchProvider.notifier);
 
     return SingleChildScrollView(
       child: Column(
-        children: [
+        children: <Widget>[
           Column(
             mainAxisAlignment: MainAxisAlignment.start,
-            children: [
+            children: <Widget>[
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: _padding),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
+                  children: <Widget>[
                     Text(
                       'Different drop-off',
                       style: TextStyle(
@@ -117,7 +119,7 @@ class _CarSearchPanelState extends ConsumerState<CarSearchPanel> {
                     const SizedBox(width: 8.0),
                     FlutterSwitch(
                       value: _isDifferentDropOff,
-                      onToggle: (val) {
+                      onToggle: (bool val) {
                         setState(() {
                           _isDifferentDropOff = val;
                         });
@@ -136,7 +138,7 @@ class _CarSearchPanelState extends ConsumerState<CarSearchPanel> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: _padding),
                 child: Row(
-                  children: [
+                  children: <Widget>[
                     // 🟦 Pickup
                     SizedBox(
                       width: !_isDifferentDropOff
@@ -167,12 +169,12 @@ class _CarSearchPanelState extends ConsumerState<CarSearchPanel> {
                                 top: Radius.circular(20),
                               ),
                             ),
-                            builder: (ctx) =>
-                                SearchCarSheet(title: 'Pick-up Location'),
+                            builder: (BuildContext ctx) =>
+                                const SearchCarSheet(title: 'Pick-up Location'),
                           );
 
                           if (result != null) {
-                            String city = result['city'];
+                            final String city = result['city'];
                             controller.setCity(city);
                           }
                         },
@@ -233,7 +235,7 @@ class _CarSearchPanelState extends ConsumerState<CarSearchPanel> {
                                       top: Radius.circular(20),
                                     ),
                                   ),
-                                  builder: (ctx) => SearchCarSheet(
+                                  builder: (BuildContext ctx) => const SearchCarSheet(
                                     title: 'Drop-off Location',
                                   ),
                                 );
@@ -269,7 +271,7 @@ class _CarSearchPanelState extends ConsumerState<CarSearchPanel> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: _padding),
             child: Row(
-              children: [
+              children: <Widget>[
                 Expanded(
                   flex: 6,
                   child: OutlinedButton(
@@ -282,7 +284,7 @@ class _CarSearchPanelState extends ConsumerState<CarSearchPanel> {
                             top: Radius.circular(20),
                           ),
                         ),
-                        builder: (ctx) => CalendarSheet(
+                        builder: (BuildContext ctx) => CalendarSheet(
                           key: UniqueKey(), // ✅ Force new state
                           firstTitle: "",
                           secondTitle: "",
@@ -307,9 +309,9 @@ class _CarSearchPanelState extends ConsumerState<CarSearchPanel> {
                       ),
                     ),
                     child: Row(
-                      children: [
-                        Icon(Icons.calendar_month),
-                        SizedBox(width: _padding),
+                      children: <Widget>[
+                        const Icon(Icons.calendar_month),
+                        const SizedBox(width: _padding),
                         Text(
                           carState.displayBeginDate,
                           style: TextStyle(
@@ -328,13 +330,13 @@ class _CarSearchPanelState extends ConsumerState<CarSearchPanel> {
                   flex: 3,
                   child: OutlinedButton(
                     onPressed: () async {
-                      final picked = await showAdaptiveTimePicker(
+                      final TimeOfDay? picked = await showAdaptiveTimePicker(
                         context,
-                        TimeOfDay(hour: 12, minute: 0),
+                        const TimeOfDay(hour: 12, minute: 0),
                       );
                       if (picked != null) {
                         debugPrint("Time picked: ${picked.format(context)}");
-                        String formatted = picked
+                        final String formatted = picked
                             .format(context)
                             .toLowerCase(); // → "12:00 PM"
 
@@ -367,7 +369,7 @@ class _CarSearchPanelState extends ConsumerState<CarSearchPanel> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: _padding),
             child: Row(
-              children: [
+              children: <Widget>[
                 Expanded(
                   flex: 6,
                   child: OutlinedButton(
@@ -380,7 +382,7 @@ class _CarSearchPanelState extends ConsumerState<CarSearchPanel> {
                             top: Radius.circular(20),
                           ),
                         ),
-                        builder: (ctx) => CalendarSheet(
+                        builder: (BuildContext ctx) => CalendarSheet(
                           key: UniqueKey(), // ✅ Force new state
                           firstTitle: "",
                           secondTitle: "",
@@ -405,9 +407,9 @@ class _CarSearchPanelState extends ConsumerState<CarSearchPanel> {
                       ),
                     ),
                     child: Row(
-                      children: [
-                        Icon(Icons.calendar_month),
-                        SizedBox(width: _padding),
+                      children: <Widget>[
+                        const Icon(Icons.calendar_month),
+                        const SizedBox(width: _padding),
                         Text(
                           carState.displayEndDate,
                           style: TextStyle(
@@ -426,13 +428,13 @@ class _CarSearchPanelState extends ConsumerState<CarSearchPanel> {
                   flex: 3,
                   child: OutlinedButton(
                     onPressed: () async {
-                      final picked = await showAdaptiveTimePicker(
+                      final TimeOfDay? picked = await showAdaptiveTimePicker(
                         context,
-                        TimeOfDay(hour: 12, minute: 0),
+                        const TimeOfDay(hour: 12, minute: 0),
                       );
                       if (picked != null) {
                         debugPrint("Time picked: ${picked.format(context)}");
-                        String formatted = picked
+                        final String formatted = picked
                             .format(context)
                             .toLowerCase(); // → "12:00 PM"
 
@@ -467,13 +469,13 @@ class _CarSearchPanelState extends ConsumerState<CarSearchPanel> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: _padding),
             child: Row(
-              children: [
+              children: <Widget>[
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () async {
                       debugPrint(carState.toString());
-                      final hasCity = carState.selectedCity.isNotEmpty;
-                      final hasDate =
+                      final bool hasCity = carState.selectedCity.isNotEmpty;
+                      final bool hasDate =
                           ((carState.beginDate ?? '').isNotEmpty) &&
                           ((carState.endDate ?? '').isNotEmpty) &&
                           ((carState.beginTime ?? '').isNotEmpty) &&
@@ -482,16 +484,16 @@ class _CarSearchPanelState extends ConsumerState<CarSearchPanel> {
                         return;
                       }
 
-                      String displayDate =
+                      final String displayDate =
                           '${carState.beginDate} - ${carState.endDate}, ${carState.beginTime} - ${carState.endTime}';
 
-                      final idToken = await user!.getIdToken();
+                      final String? idToken = await user!.getIdToken();
 
-                      bool success = await controller.addRecentSearch(
+                      final bool success = await controller.addRecentSearch(
                         RecentSearch(
                           destination: carState.selectedCity,
                           tripDateRange: displayDate,
-                          icons: [],
+                          icons: <Widget>[],
                           destinationCode: '',
                           guests: -1,
                           rooms: 0,
@@ -505,7 +507,7 @@ class _CarSearchPanelState extends ConsumerState<CarSearchPanel> {
                       );
                       if (!success) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
+                          const SnackBar(
                             content: Text('❌ Failed to save car recent search'),
                           ),
                         );
@@ -520,17 +522,17 @@ class _CarSearchPanelState extends ConsumerState<CarSearchPanel> {
                     ),
                     child: const Row(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: [Text('Search Cars')],
+                      children: <Widget>[Text('Search Cars')],
                     ),
                   ),
                 ),
               ],
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(_padding),
+          const Padding(
+            padding: EdgeInsets.all(_padding),
             child: Column(
-              children: [
+              children: <Widget>[
                 SizedBox(height: _padding),
                 RecentSearchPanel(panelName: 'car'),
               ],

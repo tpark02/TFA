@@ -1,3 +1,4 @@
+import 'package:TFA/models/airport.dart';
 import 'package:TFA/providers/airport/airport_selection.dart';
 import 'package:TFA/providers/airport/airport_provider.dart';
 import 'package:flutter/material.dart';
@@ -20,23 +21,23 @@ class SearchAirportSheet extends ConsumerStatefulWidget {
 class _AirportSheetState extends ConsumerState<SearchAirportSheet> {
   @override
   Widget build(BuildContext context) {
-    final height = MediaQuery.of(context).size.height * 0.7;
-    final query = ref.watch(airportSearchQueryProvider);
-    final airportData = ref.watch(airportDataProvider);
+    final double height = MediaQuery.of(context).size.height * 0.7;
+    final String query = ref.watch(airportSearchQueryProvider);
+    final AsyncValue<List<Airport>> airportData = ref.watch(airportDataProvider);
 
-    final filteredAirports = airportData.maybeWhen(
-      data: (airports) {
-        if (query.length < 2) return [];
+    final List filteredAirports = airportData.maybeWhen(
+      data: (List<Airport> airports) {
+        if (query.length < 2) return <dynamic>[];
 
-        return airports.where((a) {
-          final q = query.toLowerCase();
+        return airports.where((Airport a) {
+          final String q = query.toLowerCase();
           return a.iataCode.toLowerCase().contains(q) ||
               a.airportName.toLowerCase().contains(q) ||
               a.city.toLowerCase().contains(q) ||
               a.country.toLowerCase().contains(q);
         }).toList();
       },
-      orElse: () => [],
+      orElse: () => <dynamic>[],
     );
 
     return SafeArea(
@@ -52,7 +53,7 @@ class _AirportSheetState extends ConsumerState<SearchAirportSheet> {
             color: Colors.white,
           ),
           child: Column(
-            children: [
+            children: <Widget>[
               Text(
                 widget.title,
                 style: TextStyle(
@@ -64,10 +65,10 @@ class _AirportSheetState extends ConsumerState<SearchAirportSheet> {
               ),
               const SizedBox(height: 8),
               Row(
-                children: [
+                children: <Widget>[
                   Expanded(
                     child: TextField(
-                      onChanged: (value) =>
+                      onChanged: (String value) =>
                           ref.read(airportSearchQueryProvider.notifier).state =
                               value,
                       decoration: InputDecoration(
@@ -101,12 +102,12 @@ class _AirportSheetState extends ConsumerState<SearchAirportSheet> {
               Expanded(
                 child: ListView.builder(
                   itemCount: filteredAirports.length,
-                  itemBuilder: (context, index) {
+                  itemBuilder: (BuildContext context, int index) {
                     final airport = filteredAirports[index];
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 10),
                       child: Row(
-                        children: [
+                        children: <Widget>[
                           const Icon(Icons.local_airport),
                           const SizedBox(width: 8),
                           Expanded(
@@ -129,12 +130,12 @@ class _AirportSheetState extends ConsumerState<SearchAirportSheet> {
                               child: Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
-                                children: [
+                                children: <Widget>[
                                   Flexible(
                                     child: Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
-                                      children: [
+                                      children: <Widget>[
                                         Text(
                                           airport.airportName,
                                           overflow: TextOverflow.ellipsis,
@@ -160,7 +161,7 @@ class _AirportSheetState extends ConsumerState<SearchAirportSheet> {
                                       fontSize: Theme.of(
                                         context,
                                       ).textTheme.bodyMedium?.fontSize,
-                                      color: Color.fromRGBO(48, 48, 48, 1),
+                                      color: const Color.fromRGBO(48, 48, 48, 1),
                                     ),
                                   ),
                                 ],

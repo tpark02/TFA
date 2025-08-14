@@ -1,4 +1,5 @@
 import 'package:TFA/providers/recent_search.dart';
+import 'package:flutter/src/widgets/framework.dart';
 
 class HotelSearchState {
   final List<RecentSearch> recentSearches;
@@ -37,11 +38,11 @@ class HotelSearchState {
     this.endDate = '',
   });
 
-  static const List<RecentSearch> _defaultRecentSearches = [
+  static const List<RecentSearch> _defaultRecentSearches = <RecentSearch>[
     RecentSearch(
       destination: '',
       tripDateRange: '',
-      icons: [],
+      icons: <Widget>[],
       destinationCode: '',
       guests: 0,
       rooms: 0,
@@ -54,7 +55,7 @@ class HotelSearchState {
     RecentSearch(
       destination: '',
       tripDateRange: '',
-      icons: [],
+      icons: <Widget>[],
       destinationCode: '',
       guests: 0,
       rooms: 0,
@@ -67,7 +68,7 @@ class HotelSearchState {
     RecentSearch(
       destination: '',
       tripDateRange: '',
-      icons: [],
+      icons: <Widget>[],
       destinationCode: '',
       guests: 0,
       rooms: 0,
@@ -80,7 +81,7 @@ class HotelSearchState {
     RecentSearch(
       destination: '',
       tripDateRange: '',
-      icons: [],
+      icons: <Widget>[],
       destinationCode: '',
       guests: 0,
       rooms: 0,
@@ -93,7 +94,7 @@ class HotelSearchState {
     RecentSearch(
       destination: '',
       tripDateRange: '',
-      icons: [],
+      icons: <Widget>[],
       destinationCode: '',
       guests: 0,
       rooms: 0,

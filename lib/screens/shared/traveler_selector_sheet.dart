@@ -23,7 +23,7 @@ class _TravelerSelectorState extends State<TravelerSelectorSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final height =
+    final double height =
         MediaQuery.of(context).size.height * 0.40; // 65% of screen height
     return SafeArea(
       child: Padding(
@@ -39,13 +39,13 @@ class _TravelerSelectorState extends State<TravelerSelectorSheet> {
           constraints: BoxConstraints(maxHeight: height),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+            children: <Widget>[
               // Keep this always at the top
               Padding(
                 padding: const EdgeInsets.only(top: 16),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
+                  children: <Widget>[
                     TextButton(
                       onPressed: () {
                         setState(() {
@@ -100,9 +100,9 @@ class _TravelerSelectorState extends State<TravelerSelectorSheet> {
                 child: _selectedIndex == 0
                     ? Column(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
+                        children: <Widget>[
                           Row(
-                            children: [
+                            children: <Widget>[
                               Expanded(
                                 child: Text(
                                   "Adults",
@@ -119,7 +119,7 @@ class _TravelerSelectorState extends State<TravelerSelectorSheet> {
                                   alignment: Alignment.centerRight,
                                   child: CounterControl(
                                     count: _adultCount,
-                                    onChanged: (val) =>
+                                    onChanged: (int val) =>
                                         setState(() => _adultCount = val),
                                   ),
                                 ),
@@ -127,7 +127,7 @@ class _TravelerSelectorState extends State<TravelerSelectorSheet> {
                             ],
                           ),
                           Row(
-                            children: [
+                            children: <Widget>[
                               Align(
                                 alignment: Alignment.centerLeft,
                                 child: Text(
@@ -140,7 +140,7 @@ class _TravelerSelectorState extends State<TravelerSelectorSheet> {
                                   ),
                                 ),
                               ),
-                              SizedBox(width: 8.0),
+                              const SizedBox(width: 8.0),
                               Align(
                                 alignment: Alignment.centerLeft,
                                 child: Text(
@@ -158,7 +158,7 @@ class _TravelerSelectorState extends State<TravelerSelectorSheet> {
                                   alignment: Alignment.centerRight,
                                   child: CounterControl(
                                     count: _childCount,
-                                    onChanged: (val) =>
+                                    onChanged: (int val) =>
                                         setState(() => _childCount = val),
                                   ),
                                 ),
@@ -166,7 +166,7 @@ class _TravelerSelectorState extends State<TravelerSelectorSheet> {
                             ],
                           ),
                           Row(
-                            children: [
+                            children: <Widget>[
                               Align(
                                 alignment: Alignment.centerLeft,
                                 child: Text(
@@ -184,7 +184,7 @@ class _TravelerSelectorState extends State<TravelerSelectorSheet> {
                                   alignment: Alignment.centerRight,
                                   child: CounterControl(
                                     count: _infantLapCount,
-                                    onChanged: (val) =>
+                                    onChanged: (int val) =>
                                         setState(() => _infantLapCount = val),
                                   ),
                                 ),
@@ -192,7 +192,7 @@ class _TravelerSelectorState extends State<TravelerSelectorSheet> {
                             ],
                           ),
                           Row(
-                            children: [
+                            children: <Widget>[
                               Align(
                                 alignment: Alignment.centerLeft,
                                 child: Text(
@@ -210,7 +210,7 @@ class _TravelerSelectorState extends State<TravelerSelectorSheet> {
                                   alignment: Alignment.centerRight,
                                   child: CounterControl(
                                     count: _infantSeatCount,
-                                    onChanged: (val) =>
+                                    onChanged: (int val) =>
                                         setState(() => _infantSeatCount = val),
                                   ),
                                 ),
@@ -221,10 +221,10 @@ class _TravelerSelectorState extends State<TravelerSelectorSheet> {
                       )
                     : Column(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
+                        children: <Widget>[
                           Row(
                             mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
+                            children: <Widget>[
                               Expanded(
                                 child: Align(
                                   alignment: Alignment.centerLeft,
@@ -262,7 +262,7 @@ class _TravelerSelectorState extends State<TravelerSelectorSheet> {
                           ),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
+                            children: <Widget>[
                               Expanded(
                                 child: Align(
                                   alignment: Alignment.centerLeft,
@@ -300,7 +300,7 @@ class _TravelerSelectorState extends State<TravelerSelectorSheet> {
                           ),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
+                            children: <Widget>[
                               Expanded(
                                 child: Align(
                                   alignment: Alignment.centerLeft,
@@ -338,7 +338,7 @@ class _TravelerSelectorState extends State<TravelerSelectorSheet> {
                           ),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
+                            children: <Widget>[
                               Expanded(
                                 child: Align(
                                   alignment: Alignment.centerLeft,
@@ -379,13 +379,13 @@ class _TravelerSelectorState extends State<TravelerSelectorSheet> {
               ),
               ElevatedButton(
                 onPressed: () {
-                  final total =
+                  final int total =
                       _adultCount +
                       _childCount +
                       _infantLapCount +
                       _infantSeatCount;
 
-                  Navigator.pop(context, {
+                  Navigator.pop(context, <String, int>{
                     'passengerCount': total,
                     'cabinClass': _selectedClassIdx,
                   });
@@ -399,7 +399,7 @@ class _TravelerSelectorState extends State<TravelerSelectorSheet> {
                 ),
                 child: const Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: [Text('Done')],
+                  children: <Widget>[Text('Done')],
                 ),
               ),
             ],

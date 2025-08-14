@@ -19,14 +19,14 @@ class HomeScreen extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+          children: <Widget>[
             // 🟦 Horizontal destination categories
             SizedBox(
               height: 90,
               child: ListView(
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                children: [
+                children: <Widget>[
                   categoryChip(context, "Spotlight"),
                   categoryChip(context, "Seoul"),
                   categoryChip(context, "Porto Dale"),
@@ -44,11 +44,11 @@ class HomeScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
-                children: [
+                children: <Widget>[
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
+                      children: <Widget>[
                         Text(
                           'Introducing',
                           style: TextStyle(
@@ -57,7 +57,7 @@ class HomeScreen extends StatelessWidget {
                             ).textTheme.bodySmall?.fontSize,
                           ),
                         ),
-                        SizedBox(height: 4),
+                        const SizedBox(height: 4),
                         Text(
                           'Skiplagged Guarantee',
                           style: TextStyle(
@@ -67,7 +67,7 @@ class HomeScreen extends StatelessWidget {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        SizedBox(height: 8),
+                        const SizedBox(height: 8),
                         Text(
                           'Automatic protection included with every ticket at no extra cost.',
                           style: TextStyle(
@@ -76,8 +76,8 @@ class HomeScreen extends StatelessWidget {
                             ).textTheme.bodySmall?.fontSize,
                           ),
                         ),
-                        SizedBox(height: 8),
-                        ElevatedButton(
+                        const SizedBox(height: 8),
+                        const ElevatedButton(
                           onPressed: null,
                           child: Text('Learn More'),
                         ),
@@ -100,7 +100,7 @@ class HomeScreen extends StatelessWidget {
 
             // 🟦 Deals Section
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Text(
                 'Great Deals',
                 style: TextStyle(
@@ -116,7 +116,7 @@ class HomeScreen extends StatelessWidget {
               child: ListView(
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.only(left: 16),
-                children: [
+                children: <Widget>[
                   dealCard(
                     context: context,
                     title: 'From Montreal to Bogota',
@@ -147,7 +147,7 @@ class HomeScreen extends StatelessWidget {
       margin: const EdgeInsets.only(right: 12),
       width: 72,
       child: Column(
-        children: [
+        children: <Widget>[
           const CircleAvatar(
             radius: 28,
             backgroundImage: AssetImage('assets/images/chat.png'),
@@ -178,9 +178,9 @@ class HomeScreen extends StatelessWidget {
       margin: const EdgeInsets.only(right: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+        children: <Widget>[
           Stack(
-            children: [
+            children: <Widget>[
               ClipRRect(
                 borderRadius: BorderRadius.circular(12),
                 child: Image.asset(

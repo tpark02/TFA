@@ -12,14 +12,14 @@ class RecentSearchItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final controller = ref.read(flightSearchProvider.notifier);
-    final depCity =
+    final FlightSearchController controller = ref.read(flightSearchProvider.notifier);
+    final String depCity =
         ref.watch(cityByIataProvider(search.departCode)) ?? search.departCode;
-    final arrCity =
+    final String arrCity =
         ref.watch(cityByIataProvider(search.arrivalCode)) ?? search.arrivalCode;
     return InkWell(
       onTap: () {
-        String kind = search.kind;
+        final String kind = search.kind;
         if (kind == 'flight') {
           controller.setDepartureCity(depCity);
           controller.setArrivalCity(arrCity);
@@ -48,12 +48,12 @@ class RecentSearchItem extends ConsumerWidget {
         ).push(MaterialPageRoute(builder: (_) => const FlightListPage()));
       },
       child: Row(
-        children: [
+        children: <Widget>[
           Expanded(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+              children: <Widget>[
                 const SizedBox(height: 10.0),
                 Text(
                   search.destination,
@@ -66,7 +66,7 @@ class RecentSearchItem extends ConsumerWidget {
                   ),
                 ),
                 Row(
-                  children: [
+                  children: <Widget>[
                     Text(
                       search.tripDateRange,
                       maxLines: 1,
@@ -90,7 +90,7 @@ class RecentSearchItem extends ConsumerWidget {
             child: Align(
               alignment: Alignment.centerRight,
               child: Column(
-                children: [
+                children: <Widget>[
                   Text(
                     search.destinationCode,
                     style: TextStyle(

@@ -5,7 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
   static ThemeData get lightTheme {
-    final baseTextTheme = Platform.isAndroid
+    final TextTheme baseTextTheme = Platform.isAndroid
         ? GoogleFonts.poppinsTextTheme()
         : Typography.material2021().black; // system font fallback
 
@@ -25,7 +25,7 @@ class AppTheme {
   }
 
   static ThemeData get darkTheme {
-    final baseTextTheme = Platform.isAndroid
+    final TextTheme baseTextTheme = Platform.isAndroid
         ? GoogleFonts.poppinsTextTheme()
         : Typography.material2021().white;
 

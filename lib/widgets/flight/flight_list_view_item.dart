@@ -21,7 +21,7 @@ class FlightListViewItem extends StatelessWidget {
     return SizedBox(
       height: totalHeight,
       child: Stack(
-        children: [
+        children: <Widget>[
           // Connector line
           Positioned(
             top: lineY,
@@ -34,11 +34,11 @@ class FlightListViewItem extends StatelessWidget {
           Row(
             children: List.generate(
               middleAirports.isEmpty ? 0 : middleAirports.length,
-              (i) {
-                final code = middleAirports.isEmpty ? '' : middleAirports[i];
+              (int i) {
+                final String code = middleAirports.isEmpty ? '' : middleAirports[i];
                 return Expanded(
                   child: Stack(
-                    children: [
+                    children: <Widget>[
                       // Dot
                       Positioned(
                         top: lineY - dotSize / 2,
@@ -98,12 +98,12 @@ class FlightListViewItem extends StatelessWidget {
     final airline = flight['airline'] ?? '';
     final price = flight['price'] ?? '';
 
-    final headlineMedium = Theme.of(context).textTheme.headlineMedium?.fontSize;
-    final bodyLarge = Theme.of(context).textTheme.bodyLarge?.fontSize;
+    final double? headlineMedium = Theme.of(context).textTheme.headlineMedium?.fontSize;
+    final double? bodyLarge = Theme.of(context).textTheme.bodyLarge?.fontSize;
     // Extract intermediate airport codes if needed
     final pathParts = airportPath.split('→').map((s) => s.trim()).toList();
 
-    final middleAirports = pathParts.length > 2
+    final List<String> middleAirports = pathParts.length > 2
         ? List<String>.from(pathParts.sublist(1, pathParts.length - 1))
         : <String>[];
 
@@ -118,15 +118,15 @@ class FlightListViewItem extends StatelessWidget {
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+            children: <Widget>[
               /// Top Row — Departure & Arrival Times and Airports
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
+                children: <Widget>[
                   /// Departure
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
+                    children: <Widget>[
                       Text(
                         depTime,
                         style: TextStyle(
@@ -149,7 +149,7 @@ class FlightListViewItem extends StatelessWidget {
                   // Arrival
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
+                    children: <Widget>[
                       Text(
                         arrTime,
                         style: TextStyle(
@@ -168,7 +168,7 @@ class FlightListViewItem extends StatelessWidget {
               /// Duration, stops, airline, price
               // Keep meta on the left (ellipsis), keep PRICE on one line at the right.
               Row(
-                children: [
+                children: <Widget>[
                   Expanded(
                     child: Text(
                       "$duration | $stops | $airline",

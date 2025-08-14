@@ -9,7 +9,7 @@ class MenuScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final currentTab = ref.watch(menuTabProvider);
+    final MenuTab currentTab = ref.watch(menuTabProvider);
 
     Widget body;
     switch (currentTab) {
@@ -32,13 +32,13 @@ class MenuScreen extends ConsumerWidget {
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         currentIndex:
-            [
+            <MenuTab>[
               MenuTab.home,
               MenuTab.search,
               MenuTab.travel,
               MenuTab.account,
             ].contains(currentTab)
-            ? [
+            ? <MenuTab>[
                 MenuTab.home,
                 MenuTab.search,
                 MenuTab.travel,
@@ -47,10 +47,10 @@ class MenuScreen extends ConsumerWidget {
             : 0, // fallback when on flightList (or any non-tab screen)
         selectedItemColor: Colors.blue,
         unselectedItemColor: Colors.grey,
-        onTap: (index) {
+        onTap: (int index) {
           ref.read(menuTabProvider.notifier).state = MenuTab.values[index];
         },
-        items: const [
+        items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
           BottomNavigationBarItem(

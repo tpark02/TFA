@@ -38,8 +38,8 @@ class _RangePickerSheetState extends State<RangePickerSheet> {
   @override
   void initState() {
     super.initState();
-    final clampedStart = _clamp(widget.initial.start, widget.min, widget.max);
-    final clampedEnd = _clamp(widget.initial.end, widget.min, widget.max);
+    final double clampedStart = _clamp(widget.initial.start, widget.min, widget.max);
+    final double clampedEnd = _clamp(widget.initial.end, widget.min, widget.max);
     _values = RangeValues(
       clampedStart <= clampedEnd ? clampedStart : clampedEnd,
       clampedEnd >= clampedStart ? clampedEnd : clampedStart,
@@ -51,7 +51,7 @@ class _RangePickerSheetState extends State<RangePickerSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final primary =
+    final Color primary =
         widget.primaryColor ?? Theme.of(context).colorScheme.primary;
 
     return SafeArea(
@@ -60,7 +60,7 @@ class _RangePickerSheetState extends State<RangePickerSheet> {
         padding: const EdgeInsets.fromLTRB(0, 12, 0, 16),
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          children: [
+          children: <Widget>[
             Container(
               width: 40,
               height: 4,
@@ -89,7 +89,7 @@ class _RangePickerSheetState extends State<RangePickerSheet> {
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
+                children: <Widget>[
                   Text(widget.label(_values.start.toInt())),
                   Text(widget.label(_values.end.toInt())),
                 ],
@@ -104,13 +104,13 @@ class _RangePickerSheetState extends State<RangePickerSheet> {
                 widget.label(_values.start.toInt()),
                 widget.label(_values.end.toInt()),
               ),
-              onChanged: (v) => setState(() => _values = v),
+              onChanged: (RangeValues v) => setState(() => _values = v),
             ),
             const SizedBox(height: 8),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Row(
-                children: [
+                children: <Widget>[
                   Expanded(
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(

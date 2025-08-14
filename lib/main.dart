@@ -13,7 +13,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  final raw = await rootBundle.loadString('assets/data/airports.csv');
+  final String raw = await rootBundle.loadString('assets/data/airports.csv');
   debugPrint("🧪 CSV line count: ${raw.split('\n').length}");
 
   WidgetsFlutterBinding.ensureInitialized(); // ✅ required for plugins
@@ -31,15 +31,15 @@ class App extends StatelessWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.system, // light/dark based on OS
-      localizationsDelegates: const [
+      localizationsDelegates: const <LocalizationsDelegate>[
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      supportedLocales: const [Locale('en')], // or [Locale('ko')] for Korean
+      supportedLocales: const <Locale>[Locale('en')], // or [Locale('ko')] for Korean
       home: StreamBuilder(
         stream: FirebaseAuth.instance.authStateChanges(),
-        builder: (ctx, snapshot) {
+        builder: (BuildContext ctx, AsyncSnapshot<User?> snapshot) {
           if (snapshot.hasData) {
             return const MenuScreen();
           }

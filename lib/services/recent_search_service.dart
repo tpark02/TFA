@@ -18,16 +18,16 @@ class RecentSearchApiService {
     required String? returnDate, // "yyyy-MM-dd"
     required String jwtToken,
   }) async {
-    final url = Uri.parse("$baseUrl/api/v1/recent-searches/");
+    final Uri url = Uri.parse("$baseUrl/api/v1/recent-searches/");
 
     try {
-      final response = await http.post(
+      final http.Response response = await http.post(
         url,
-        headers: {
+        headers: <String, String>{
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $jwtToken',
         },
-        body: jsonEncode({
+        body: jsonEncode(<String, Object?>{
           'destination': destination,
           'trip_date_range': tripDateRange,
           'destination_code': destinationCode,
@@ -63,18 +63,18 @@ class RecentSearchApiService {
   static Future<List<Map<String, dynamic>>> fetchRecentSearches(
     String kind,
   ) async {
-    final user = FirebaseAuth.instance.currentUser;
-    final idToken = await user?.getIdToken();
+    final User? user = FirebaseAuth.instance.currentUser;
+    final String? idToken = await user?.getIdToken();
 
     if (idToken == null) {
       throw Exception("User not authenticated.");
     }
 
-    final url = Uri.parse("$baseUrl/api/v1/recent-searches/$kind");
+    final Uri url = Uri.parse("$baseUrl/api/v1/recent-searches/$kind");
 
-    final response = await http.get(
+    final http.Response response = await http.get(
       url,
-      headers: {
+      headers: <String, String>{
         'Authorization': 'Bearer $idToken',
         'Content-Type': 'application/json',
       },

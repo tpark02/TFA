@@ -4,11 +4,11 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-final hotelDataProvider = FutureProvider<List<Hotel>>((ref) async {
-  final raw = await loadHotelData();
-  final hotelList = raw
+final FutureProvider<List<Hotel>> hotelDataProvider = FutureProvider<List<Hotel>>((FutureProviderRef<List<Hotel>> ref) async {
+  final List<List> raw = await loadHotelData();
+  final List<Hotel> hotelList = raw
       .skip(1)
-      .map((row) {
+      .map((List row) {
         try {
           return Hotel.fromCsvRow(row); // ✅ Parse each row into a Hotel object
         } catch (e) {
@@ -22,31 +22,31 @@ final hotelDataProvider = FutureProvider<List<Hotel>>((ref) async {
   return hotelList;
 });
 
-final hotelsByCityProvider = FutureProvider<Map<String, List<Hotel>>>((
-  ref,
+final FutureProvider<Map<String, List<Hotel>>> hotelsByCityProvider = FutureProvider<Map<String, List<Hotel>>>((
+  FutureProviderRef<Map<String, List<Hotel>>> ref,
 ) async {
   try {
-    final hotelList = await ref.watch(hotelDataProvider.future);
-    return groupBy(hotelList, (hotel) => hotel.city);
+    final List<Hotel> hotelList = await ref.watch(hotelDataProvider.future);
+    return groupBy(hotelList, (Hotel hotel) => hotel.city);
   } catch (e, stack) {
     debugPrint("❌ Failed to group hotels: $e\n$stack");
-    return {}; // return an empty map instead of null
+    return <String, List<Hotel>>{}; // return an empty map instead of null
   }
 });
 
-final searchHotelQueryProvider = StateProvider<String>((ref) => '');
+final StateProvider<String> searchHotelQueryProvider = StateProvider<String>((StateProviderRef<String> ref) => '');
 
-final filteredHotelProvider = FutureProvider<Map<String, List<Hotel>>>((
-  ref,
+final FutureProvider<Map<String, List<Hotel>>> filteredHotelProvider = FutureProvider<Map<String, List<Hotel>>>((
+  FutureProviderRef<Map<String, List<Hotel>>> ref,
 ) async {
-  final query = ref.watch(searchHotelQueryProvider).toLowerCase();
+  final String query = ref.watch(searchHotelQueryProvider).toLowerCase();
 
-  if (query.length < 2) return {};
+  if (query.length < 2) return <String, List<Hotel>>{};
 
-  final grouped = await ref.watch(hotelsByCityProvider.future);
+  final Map<String, List<Hotel>> grouped = await ref.watch(hotelsByCityProvider.future);
 
   // 🔍 Filter only country names
   return Map.fromEntries(
-    grouped.entries.where((e) => e.key.toLowerCase().contains(query)),
+    grouped.entries.where((MapEntry<String, List<Hotel>> e) => e.key.toLowerCase().contains(query)),
   );
 });

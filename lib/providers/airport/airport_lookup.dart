@@ -4,12 +4,12 @@ import 'package:TFA/models/airport.dart';
 import 'package:TFA/providers/airport/airport_provider.dart';
 
 /// Build an index for fast lookups: IATA -> Airport
-final airportIndexProvider = Provider<Map<String, Airport>>((ref) {
-  final list = ref
+final Provider<Map<String, Airport>> airportIndexProvider = Provider<Map<String, Airport>>((ProviderRef<Map<String, Airport>> ref) {
+  final List<Airport> list = ref
       .watch(airportDataProvider)
-      .maybeWhen(data: (v) => v, orElse: () => const <Airport>[]);
-  final map = <String, Airport>{};
-  for (final a in list) {
+      .maybeWhen(data: (List<Airport> v) => v, orElse: () => const <Airport>[]);
+  final Map<String, Airport> map = <String, Airport>{};
+  for (final Airport a in list) {
     if (a.iataCode.isNotEmpty) {
       map[a.iataCode.toUpperCase()] = a;
     }
@@ -18,13 +18,13 @@ final airportIndexProvider = Provider<Map<String, Airport>>((ref) {
 });
 
 /// Get Airport by IATA (e.g., "ICN" -> Airport)
-final airportByIataProvider = Provider.family<Airport?, String>((ref, code) {
-  final idx = ref.watch(airportIndexProvider);
+final ProviderFamily<Airport?, String> airportByIataProvider = Provider.family<Airport?, String>((ProviderRef<Airport?> ref, String code) {
+  final Map<String, Airport> idx = ref.watch(airportIndexProvider);
   return idx[code.trim().toUpperCase()];
 });
 
 /// Get city name by IATA (e.g., "ICN" -> "Seoul")
-final cityByIataProvider = Provider.family<String?, String>((ref, code) {
-  final a = ref.watch(airportByIataProvider(code));
+final ProviderFamily<String?, String> cityByIataProvider = Provider.family<String?, String>((ProviderRef<String?> ref, String code) {
+  final Airport? a = ref.watch(airportByIataProvider(code));
   return a?.city; // assumes Airport has a `city` field
 });

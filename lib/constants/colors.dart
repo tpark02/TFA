@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-const lightColorScheme = ColorScheme(
+const ColorScheme lightColorScheme = ColorScheme(
   brightness: Brightness.light,
 
   primary: Color(0xFF3E5B49), // Deep moss green
@@ -22,7 +22,7 @@ const lightColorScheme = ColorScheme(
   onSurface: Color(0xFF1D1F1E),
 );
 
-const darkColorScheme = ColorScheme(
+const ColorScheme darkColorScheme = ColorScheme(
   brightness: Brightness.dark,
 
   primary: Color(0xFF3E5B49), // Base deep green
@@ -44,7 +44,7 @@ const darkColorScheme = ColorScheme(
   onSurface: Color(0xFFE3E6E4),
 );
 
-const primaryFontColor = Colors.black87;
+const Color primaryFontColor = Colors.black87;
 Color secondaryFontColor = Colors.grey.shade700;
-const appBackgroundColor = Colors.white;
-const appGreyColor = Color(0xFFF7F8FB);
+const Color appBackgroundColor = Colors.white;
+const Color appGreyColor = Color(0xFFF7F8FB);

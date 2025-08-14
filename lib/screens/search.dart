@@ -13,7 +13,7 @@ class SearchScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Navigator(
-      onGenerateRoute: (settings) =>
+      onGenerateRoute: (RouteSettings settings) =>
           MaterialPageRoute(builder: (_) => const _SearchContent()),
     );
   }
@@ -38,7 +38,7 @@ class _SearchContentState extends ConsumerState<_SearchContent> {
         foregroundColor: Colors.white,
         title: const Text('Search'),
         centerTitle: true,
-        actions: [
+        actions: <Widget>[
           IconButton(
             onPressed: () {
               ref.read(flightSearchProvider.notifier).clearRecentSearches();
@@ -49,11 +49,11 @@ class _SearchContentState extends ConsumerState<_SearchContent> {
         ],
       ),
       body: Column(
-        children: [
+        children: <Widget>[
           const SizedBox(height: _padding),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
+            children: <Widget>[
               _buildTabIcon(context, 0, Icons.flight_takeoff, "Flight"),
               _buildTabIcon(context, 1, Icons.hotel, "Hotel"),
               _buildTabIcon(context, 2, Icons.directions_car_filled, "Cars"),
@@ -63,7 +63,7 @@ class _SearchContentState extends ConsumerState<_SearchContent> {
           Expanded(
             child: AnimatedSwitcher(
               duration: const Duration(milliseconds: 300),
-              transitionBuilder: (child, animation) => FadeTransition(
+              transitionBuilder: (Widget child, Animation<double> animation) => FadeTransition(
                 opacity: animation,
                 child: SlideTransition(
                   position: Tween<Offset>(
@@ -92,10 +92,10 @@ class _SearchContentState extends ConsumerState<_SearchContent> {
     IconData icon,
     String label,
   ) {
-    final isSelected = _selectedIndex == index;
+    final bool isSelected = _selectedIndex == index;
 
     return Column(
-      children: [
+      children: <Widget>[
         IconButton(
           onPressed: () => setState(() => _selectedIndex = index),
           icon: Icon(icon),

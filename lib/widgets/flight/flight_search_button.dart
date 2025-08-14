@@ -1,5 +1,6 @@
 // lib/screens/flight/widgets/search_button.dart
 
+import 'package:TFA/providers/flight/flight_search_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:TFA/providers/flight/flight_search_controller.dart';
@@ -20,27 +21,27 @@ class FlightSearchButton extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final controller = ref.read(flightSearchProvider.notifier);
-    final flightState = ref.watch(flightSearchProvider);
+    final FlightSearchController controller = ref.read(flightSearchProvider.notifier);
+    final FlightSearchState flightState = ref.watch(flightSearchProvider);
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: padding),
       child: Column(
-        children: [
+        children: <Widget>[
           Row(
-            children: [
+            children: <Widget>[
               Expanded(
                 child: ElevatedButton(
                   onPressed: () async {
-                    final hasPassengers = flightState.passengerCount > 0;
-                    final hasAirports =
+                    final bool hasPassengers = flightState.passengerCount > 0;
+                    final bool hasAirports =
                         flightState.departureAirportCode.isNotEmpty &&
                         flightState.arrivalAirportCode.isNotEmpty;
-                    final hasDate = (flightState.displayDate ?? '').isNotEmpty;
+                    final bool hasDate = (flightState.displayDate ?? '').isNotEmpty;
 
                     if (!hasPassengers || !hasAirports || !hasDate) return;
 
-                    final idToken = await user?.getIdToken();
+                    final String? idToken = await user?.getIdToken();
                     if (idToken == null) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
@@ -49,12 +50,12 @@ class FlightSearchButton extends ConsumerWidget {
                       );
                       return;
                     }
-                    bool success = await controller.addRecentSearch(
+                    final bool success = await controller.addRecentSearch(
                       RecentSearch(
                         destination:
                             '${flightState.departureCity} - ${flightState.arrivalCity}',
                         tripDateRange: flightState.displayDate ?? '',
-                        icons: [
+                        icons: <Widget>[
                           const SizedBox(width: 10),
                           Icon(Icons.person, color: Colors.grey[500], size: 20),
                           Text(flightState.passengerCount.toString()),
@@ -95,7 +96,7 @@ class FlightSearchButton extends ConsumerWidget {
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
+                    children: <Widget>[
                       Text(
                         'Search Flight',
                         style: TextStyle(

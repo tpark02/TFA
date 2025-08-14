@@ -11,16 +11,16 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
   FlightSearchController() : super(FlightSearchState());
 
   int _parseIsoDurMin(String s) {
-    final m = RegExp(r'P(?:(\d+)D)?T(?:(\d+)H)?(?:(\d+)M)?').firstMatch(s);
-    final d = int.tryParse(m?.group(1) ?? '0') ?? 0;
-    final h = int.tryParse(m?.group(2) ?? '0') ?? 0;
-    final mins = int.tryParse(m?.group(3) ?? '0') ?? 0;
+    final RegExpMatch? m = RegExp(r'P(?:(\d+)D)?T(?:(\d+)H)?(?:(\d+)M)?').firstMatch(s);
+    final int d = int.tryParse(m?.group(1) ?? '0') ?? 0;
+    final int h = int.tryParse(m?.group(2) ?? '0') ?? 0;
+    final int mins = int.tryParse(m?.group(3) ?? '0') ?? 0;
     return d * 1440 + h * 60 + mins;
   }
 
   String _fmtHM(int mins) {
-    final h = mins ~/ 60;
-    final m = mins % 60;
+    final int h = mins ~/ 60;
+    final int m = mins % 60;
     return '${h}h ${m}m';
   }
 
@@ -38,7 +38,7 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
     debugPrint("return date : $returnDate");
 
     try {
-      final result = await FlightApiService.fetchFlights(
+      final Map<String, dynamic> result = await FlightApiService.fetchFlights(
         origin: origin,
         destination: destination,
         departureDate: departureDate,
@@ -48,7 +48,7 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
       );
 
       // ✅ Process flights before updating state
-      final processed = processFlights(result);
+      final List<Map<String, dynamic>> processed = processFlights(result);
 
       state = state.copyWithFlightResults(AsyncValue.data(result));
       state = state.copyWithProcessedFlights(processed);
@@ -61,7 +61,7 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
   }
 
   String _codeToName(String code, Map<String, dynamic> carriers) {
-    final up = code.toUpperCase();
+    final String up = code.toUpperCase();
     if (up == 'HR') return 'HAHN AIR';
     if (up == 'H1') return 'HAHN AIR SYSTEMS';
     return (carriers[up] as String?) ?? up; // fallback to code
@@ -73,68 +73,68 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
   List<Map<String, dynamic>> processFlights(
     Map<String, dynamic> latestFlights,
   ) {
-    final results = <Map<String, dynamic>>[];
+    final List<Map<String, dynamic>> results = <Map<String, dynamic>>[];
 
-    final data = (latestFlights['data'] as List<dynamic>? ?? [])
+    final List<Map<String, dynamic>> data = (latestFlights['data'] as List<dynamic>? ?? <dynamic>[])
         .cast<Map<String, dynamic>>();
-    final dictionaries =
-        (latestFlights['dictionaries'] as Map<String, dynamic>? ?? {});
-    final carriers = ((dictionaries['carriers'] as Map<String, dynamic>? ?? {}))
+    final Map<String, dynamic> dictionaries =
+        (latestFlights['dictionaries'] as Map<String, dynamic>? ?? <String, dynamic>{});
+    final Map<String, String> carriers = ((dictionaries['carriers'] as Map<String, dynamic>? ?? <String, dynamic>{}))
         .map(
-          (k, v) =>
+          (String k, v) =>
               MapEntry(k.toString().toUpperCase(), v.toString().toUpperCase()),
         );
-    final locations =
-        (dictionaries['locations'] as Map<String, dynamic>? ?? const {})
+    final Map<String, dynamic> locations =
+        (dictionaries['locations'] as Map<String, dynamic>? ?? const <String, dynamic>{})
             .cast<String, dynamic>();
-    final aircraftDict =
-        (dictionaries['aircraft'] as Map<String, dynamic>? ?? const {})
+    final Map<String, String> aircraftDict =
+        (dictionaries['aircraft'] as Map<String, dynamic>? ?? const <String, dynamic>{})
             .cast<String, String>();
 
-    for (final offer in data) {
+    for (final Map<String, dynamic> offer in data) {
       if (offer.isEmpty) continue;
 
-      final itineraries = (offer['itineraries'] as List<dynamic>? ?? [])
+      final List<Map<String, dynamic>> itineraries = (offer['itineraries'] as List<dynamic>? ?? <dynamic>[])
           .cast<Map<String, dynamic>>();
       if (itineraries.isEmpty) continue;
 
-      final validatingList =
-          ((offer['validatingAirlineCodes'] as List<dynamic>? ?? []))
+      final List<String> validatingList =
+          ((offer['validatingAirlineCodes'] as List<dynamic>? ?? <dynamic>[]))
               .map((e) => e.toString().toUpperCase())
               .toList();
-      final validatingCode = validatingList.isNotEmpty
+      final String? validatingCode = validatingList.isNotEmpty
           ? validatingList.first
           : null;
-      final validatingName = validatingCode != null
+      final String? validatingName = validatingCode != null
           ? _codeToName(validatingCode, carriers)
           : null;
 
-      final priceMap = (offer['price'] as Map<String, dynamic>? ?? const {});
+      final Map<String, dynamic> priceMap = (offer['price'] as Map<String, dynamic>? ?? const <String, dynamic>{});
       final price = priceMap['grandTotal'];
-      final currency = (priceMap['currency'] ?? 'EUR').toString();
-      final formattedPrice = NumberFormat.simpleCurrency(
+      final String currency = (priceMap['currency'] ?? 'EUR').toString();
+      final String formattedPrice = NumberFormat.simpleCurrency(
         name: currency,
       ).format(double.tryParse(price.toString()) ?? 0);
 
       // 🔎 traveler/cabin details (used per segment)
-      final travelerPricings =
-          (offer['travelerPricings'] as List<dynamic>? ?? [])
+      final List<Map<String, dynamic>> travelerPricings =
+          (offer['travelerPricings'] as List<dynamic>? ?? <dynamic>[])
               .cast<Map<String, dynamic>>();
       if (travelerPricings.isEmpty) continue;
 
       // we use first traveler as representative (common pattern)
-      final firstTraveler = travelerPricings.first;
-      final fareDetailsBySegment =
-          (firstTraveler['fareDetailsBySegment'] as List<dynamic>? ?? [])
+      final Map<String, dynamic> firstTraveler = travelerPricings.first;
+      final List<Map<String, dynamic>> fareDetailsBySegment =
+          (firstTraveler['fareDetailsBySegment'] as List<dynamic>? ?? <dynamic>[])
               .cast<Map<String, dynamic>>();
 
       // 🟢 Build quick lookups by segmentId -> cabin / bookingClass / bags
-      final segCabin = <String, String?>{};
-      final segBookingClass = <String, String?>{};
-      final segCheckedBags = <String, dynamic>{};
-      final segCabinBags = <String, dynamic>{};
-      for (final fd in fareDetailsBySegment) {
-        final id = (fd['segmentId'] ?? '').toString();
+      final Map<String, String?> segCabin = <String, String?>{};
+      final Map<String, String?> segBookingClass = <String, String?>{};
+      final Map<String, dynamic> segCheckedBags = <String, dynamic>{};
+      final Map<String, dynamic> segCabinBags = <String, dynamic>{};
+      for (final Map<String, dynamic> fd in fareDetailsBySegment) {
+        final String id = (fd['segmentId'] ?? '').toString();
         segCabin[id] = fd['cabin'] as String?;
         segBookingClass[id] = fd['class'] as String?;
         if (fd['includedCheckedBags'] != null) {
@@ -146,78 +146,79 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
       }
 
       for (int i = 0; i < itineraries.length; i++) {
-        final itinerary = itineraries[i];
-        final segments = (itinerary['segments'] as List<dynamic>? ?? [])
+        final Map<String, dynamic> itinerary = itineraries[i];
+        final List<Map<String, dynamic>> segments = (itinerary['segments'] as List<dynamic>? ?? <dynamic>[])
             .cast<Map<String, dynamic>>();
         if (segments.isEmpty) continue;
 
         // Primary marketing
-        final primaryMarketingCode = (segments.first['carrierCode'] as String)
+        final String primaryMarketingCode = (segments.first['carrierCode'] as String)
             .toUpperCase();
-        final primaryMarketNumber = (segments.first['number'] as String);
-        final primaryMarketingName = _codeToName(
+        final String primaryMarketNumber = (segments.first['number'] as String);
+        final String primaryMarketingName = _codeToName(
           primaryMarketingCode,
           carriers,
         );
 
-        final marketingCodes = <String>{
-          for (final s in segments) (s['carrierCode'] as String).toUpperCase(),
-        }..removeWhere((c) => c == 'HR' || c == 'H1');
-        final marketingNames = marketingCodes
-            .map((c) => _codeToName(c, carriers))
+        final Set<String> marketingCodes = <String>{
+          for (final Map<String, dynamic> s in segments) (s['carrierCode'] as String).toUpperCase(),
+        }..removeWhere((String c) => c == 'HR' || c == 'H1');
+        final Set<String> marketingNames = marketingCodes
+            .map((String c) => _codeToName(c, carriers))
             .toSet();
 
         // Times / day shift
-        final firstSegment = segments.first;
-        final lastSegment = segments.last;
+        final Map<String, dynamic> firstSegment = segments.first;
+        final Map<String, dynamic> lastSegment = segments.last;
 
-        final depObj = (firstSegment['departure'] as Map);
-        final arrObj = (lastSegment['arrival'] as Map);
-        final depRaw = depObj['at'] as String?;
-        final arrRaw = arrObj['at'] as String?;
+        final Map depObj = (firstSegment['departure'] as Map);
+        final Map arrObj = (lastSegment['arrival'] as Map);
+        final String? depRaw = depObj['at'] as String?;
+        final String? arrRaw = arrObj['at'] as String?;
         if (depRaw == null || arrRaw == null) continue;
 
-        final depTime = formatTime(depRaw);
-        final arrTime = formatTime(arrRaw);
-        final dayDiff = DateTime.parse(
+        final String depTime = formatTime(depRaw);
+        final String arrTime = formatTime(arrRaw);
+        final int dayDiff = DateTime.parse(
           arrRaw,
         ).difference(DateTime.parse(depRaw)).inDays;
-        final plusDay = dayDiff > 0 ? '+$dayDiff' : '';
+        final String plusDay = dayDiff > 0 ? '+$dayDiff' : '';
 
         // 🧭 Per-connection layovers + total
-        final stopAirports = <String>[];
+        final List<String> stopAirports = <String>[];
         int totalLayoverMin = 0;
-        final connections =
+        final List<Map<String, dynamic>> connections =
             <Map<String, dynamic>>[]; // each layover between segments
 
         for (int j = 0; j < segments.length; j++) {
-          final seg = segments[j];
+          final Map<String, dynamic> seg = segments[j];
 
           // intra-segment tech stops (rare)
-          final segStops = (seg['stops'] as List<dynamic>? ?? const []);
+          final List segStops = (seg['stops'] as List<dynamic>? ?? const <dynamic>[]);
           for (final raw in segStops) {
-            final s = (raw as Map).cast<String, dynamic>();
-            final code = s['iataCode'] as String?;
-            final d = s['duration'] as String?;
+            final Map<String, dynamic> s = (raw as Map).cast<String, dynamic>();
+            final String? code = s['iataCode'] as String?;
+            final String? d = s['duration'] as String?;
             if (code != null) stopAirports.add(code);
-            if (d != null && d.isNotEmpty)
+            if (d != null && d.isNotEmpty) {
               totalLayoverMin += _parseIsoDurMin(d);
+            }
           }
 
           if (j < segments.length - 1) {
-            final thisArr = (seg['arrival'] as Map).cast<String, dynamic>();
-            final nextDep = (segments[j + 1]['departure'] as Map)
+            final Map<String, dynamic> thisArr = (seg['arrival'] as Map).cast<String, dynamic>();
+            final Map<String, dynamic> nextDep = (segments[j + 1]['departure'] as Map)
                 .cast<String, dynamic>();
 
-            final thisArrAt = DateTime.parse(thisArr['at'] as String);
-            final nextDepAt = DateTime.parse(nextDep['at'] as String);
-            final gapMin = nextDepAt.difference(thisArrAt).inMinutes;
+            final DateTime thisArrAt = DateTime.parse(thisArr['at'] as String);
+            final DateTime nextDepAt = DateTime.parse(nextDep['at'] as String);
+            final int gapMin = nextDepAt.difference(thisArrAt).inMinutes;
             if (gapMin > 0) totalLayoverMin += gapMin;
 
-            final connCode = thisArr['iataCode'] as String?;
+            final String? connCode = thisArr['iataCode'] as String?;
             if (connCode != null) stopAirports.add(connCode);
 
-            connections.add({
+            connections.add(<String, dynamic>{
               'airport': connCode,
               'durationMin': gapMin.clamp(0, 1 << 31),
               'duration': _fmtHM(gapMin),
@@ -229,34 +230,34 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
           }
         }
 
-        final depAirport = depObj['iataCode'] as String?;
-        final arrAirport = arrObj['iataCode'] as String?;
+        final String? depAirport = depObj['iataCode'] as String?;
+        final String? arrAirport = arrObj['iataCode'] as String?;
         if (depAirport == null || arrAirport == null) continue;
 
-        final airportPath = stopAirports.isNotEmpty
+        final String airportPath = stopAirports.isNotEmpty
             ? '$depAirport → ${stopAirports.join(" → ")} → $arrAirport'
             : '$depAirport → $arrAirport';
 
-        final stopCount = stopAirports.length;
-        final stopLabel = stopCount == 0
+        final int stopCount = stopAirports.length;
+        final String stopLabel = stopCount == 0
             ? 'nonstop'
             : '$stopCount ${stopCount == 1 ? "stop" : "stops"}';
 
-        final durationStr = itinerary['duration'] as String;
-        final durationMin = _parseIsoDurMin(durationStr);
-        final airMin = (durationMin - totalLayoverMin)
+        final String durationStr = itinerary['duration'] as String;
+        final int durationMin = _parseIsoDurMin(durationStr);
+        final int airMin = (durationMin - totalLayoverMin)
             .clamp(0, 1 << 31)
             .toInt();
 
         // ✈️ Build full per-stop (per segment) details
-        final segmentDetails = segments.map((s) {
-          final dep = (s['departure'] as Map).cast<String, dynamic>();
-          final arr = (s['arrival'] as Map).cast<String, dynamic>();
-          final segId = (s['id'] ?? '').toString();
-          final aircraftCode = (s['aircraft'] as Map?)?['code'] as String?;
-          final operating = (s['operating'] as Map?)?['carrierCode'] as String?;
+        final List<Map<String, dynamic>> segmentDetails = segments.map((Map<String, dynamic> s) {
+          final Map<String, dynamic> dep = (s['departure'] as Map).cast<String, dynamic>();
+          final Map<String, dynamic> arr = (s['arrival'] as Map).cast<String, dynamic>();
+          final String segId = (s['id'] ?? '').toString();
+          final String? aircraftCode = (s['aircraft'] as Map?)?['code'] as String?;
+          final String? operating = (s['operating'] as Map?)?['carrierCode'] as String?;
 
-          return {
+          return <String, dynamic>{
             'segId': segId,
             'marketingCarrier': s['carrierCode'],
             'operatingCarrier': operating, // may be same or codeshare
@@ -267,12 +268,12 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
                 ? aircraftDict[aircraftCode]
                 : null,
             'duration': s['duration'],
-            'dep': {
+            'dep': <String, dynamic>{
               'code': dep['iataCode'],
               'terminal': dep['terminal'],
               'at': dep['at'],
             },
-            'arr': {
+            'arr': <String, dynamic>{
               'code': arr['iataCode'],
               'terminal': arr['terminal'],
               'at': arr['at'],
@@ -288,11 +289,11 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
         }).toList();
 
         // For display like "MF 878 / MF 849"
-        final flightNumbers = segments
-            .map((s) => '${s['carrierCode']} ${s['number']}')
+        final String flightNumbers = segments
+            .map((Map<String, dynamic> s) => '${s['carrierCode']} ${s['number']}')
             .join(' / ');
 
-        results.add({
+        results.add(<String, dynamic>{
           // summary
           'depAirport': depAirport,
           'arrAirport': arrAirport,
@@ -350,33 +351,33 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
   }
 
   String formatTime(String iso) {
-    final dt = DateTime.parse(iso).toLocal();
-    final hour = dt.hour % 12 == 0 ? 12 : dt.hour % 12;
-    final minute = dt.minute.toString().padLeft(2, '0');
-    final suffix = dt.hour < 12 ? 'a' : 'p';
+    final DateTime dt = DateTime.parse(iso).toLocal();
+    final int hour = dt.hour % 12 == 0 ? 12 : dt.hour % 12;
+    final String minute = dt.minute.toString().padLeft(2, '0');
+    final String suffix = dt.hour < 12 ? 'a' : 'p';
     return '$hour:$minute$suffix';
   }
 
   String formatDuration(String isoDuration) {
-    final regex = RegExp(r'PT(?:(\d+)H)?(?:(\d+)M)?');
-    final match = regex.firstMatch(isoDuration);
+    final RegExp regex = RegExp(r'PT(?:(\d+)H)?(?:(\d+)M)?');
+    final RegExpMatch? match = regex.firstMatch(isoDuration);
     if (match != null) {
-      final hours = int.tryParse(match.group(1) ?? '0') ?? 0;
-      final minutes = int.tryParse(match.group(2) ?? '0') ?? 0;
+      final int hours = int.tryParse(match.group(1) ?? '0') ?? 0;
+      final int minutes = int.tryParse(match.group(2) ?? '0') ?? 0;
       return '${hours}h ${minutes}m';
     }
     return '';
   }
 
   Future<void> initRecentSearch(RecentSearch search) async {
-    final updated = [search, ...state.recentSearches];
+    final List<RecentSearch> updated = <RecentSearch>[search, ...state.recentSearches];
     if (updated.length > 5) updated.removeLast();
     state = state.copyWithRecentSearches(updated);
   }
 
   Future<bool> addRecentSearch(RecentSearch search, String jwtToken) async {
     // ✅ Always update state, even for empty ones (to preserve visual 5-item layout)
-    final updated = [search, ...state.recentSearches];
+    final List<RecentSearch> updated = <RecentSearch>[search, ...state.recentSearches];
     if (updated.length > 5) updated.removeLast();
     state = state.copyWithRecentSearches(updated);
 
@@ -452,7 +453,7 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
   // }
 
   void setDisplayDate({required DateTime? startDate, DateTime? endDate}) {
-    final displayDate = endDate != null
+    final String displayDate = endDate != null
         ? '${DateFormat('MMM d').format(startDate!)} - ${DateFormat('MMM d').format(endDate)}'
         : DateFormat('MMM d').format(startDate!);
     state = state.copyWith(displayDate: displayDate);
@@ -481,19 +482,19 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
   }
 
   void clearRecentSearches() {
-    state = state.copyWithRecentSearches([]);
+    state = state.copyWithRecentSearches(<RecentSearch>[]);
   }
 
   Future<void> loadRecentSearchesFromApi() async {
     try {
-      final results = await RecentSearchApiService.fetchRecentSearches(
+      final List<Map<String, dynamic>> results = await RecentSearchApiService.fetchRecentSearches(
         'flight',
       );
-      state = state.copyWithRecentSearches([]);
+      state = state.copyWithRecentSearches(<RecentSearch>[]);
 
-      for (final r in results) {
+      for (final Map<String, dynamic> r in results) {
         final guestsValue = r['guests'];
-        final guests = guestsValue is int
+        final int guests = guestsValue is int
             ? guestsValue
             : int.tryParse(guestsValue.toString()) ?? 1;
 
@@ -501,7 +502,7 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
           RecentSearch(
             destination: r['destination'],
             tripDateRange: r['trip_date_range'],
-            icons: [
+            icons: <Widget>[
               const SizedBox(width: 10),
               Icon(Icons.person, color: Colors.grey[500], size: 20.0),
               Text(guests.toString()),
@@ -528,7 +529,7 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
   String? get returnDate => state.returnDate;
 }
 
-final flightSearchProvider =
+final StateNotifierProvider<FlightSearchController, FlightSearchState> flightSearchProvider =
     StateNotifierProvider<FlightSearchController, FlightSearchState>(
-      (ref) => FlightSearchController(),
+      (StateNotifierProviderRef<FlightSearchController, FlightSearchState> ref) => FlightSearchController(),
     );

@@ -16,7 +16,7 @@ class SearchSummaryLoadingCard extends StatelessWidget {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: [
+        children: <Widget>[
           const SpinKitThreeBounce(color: Colors.lightBlue, size: 40),
           const SizedBox(height: 10),
           Text(

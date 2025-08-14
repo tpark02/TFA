@@ -10,13 +10,13 @@ class HotelSearchController extends StateNotifier<HotelSearchState> {
   HotelSearchController() : super(const HotelSearchState());
 
   Future<void> initRecentSearch(RecentSearch search) async {
-    final updated = [search, ...state.recentSearches];
+    final List<RecentSearch> updated = <RecentSearch>[search, ...state.recentSearches];
     if (updated.length > 5) updated.removeLast();
     state = state.copyWith(recentSearches: updated);
   }
 
   Future<bool> addRecentSearch(RecentSearch search, String jwtToken) async {
-    final updated = [search, ...state.recentSearches];
+    final List<RecentSearch> updated = <RecentSearch>[search, ...state.recentSearches];
     if (updated.length > 5) updated.removeLast(); // optional: cap at 5 items
     state = state.copyWith(recentSearches: updated);
     // ❌ Only send to backend if not placeholder
@@ -92,7 +92,7 @@ class HotelSearchController extends StateNotifier<HotelSearchState> {
     required DateTime startDate,
     required DateTime endDate,
   }) {
-    final displayDate =
+    final String displayDate =
         '${DateFormat('MMM d').format(startDate)} - ${DateFormat('MMM d').format(endDate)}';
     final String st = DateFormat('yyyy-MM-dd').format(startDate);
     final String end = DateFormat('yyyy-MM-dd').format(endDate);
@@ -123,17 +123,17 @@ class HotelSearchController extends StateNotifier<HotelSearchState> {
 
   Future<void> loadRecentSearchesFromApi() async {
     try {
-      final results = await RecentSearchApiService.fetchRecentSearches('hotel');
-      state = state.copyWith(recentSearches: []);
+      final List<Map<String, dynamic>> results = await RecentSearchApiService.fetchRecentSearches('hotel');
+      state = state.copyWith(recentSearches: <RecentSearch>[]);
 
-      for (final r in results) {
+      for (final Map<String, dynamic> r in results) {
         final guestsValue = r['guests'];
-        final guests = guestsValue is int
+        final int guests = guestsValue is int
             ? guestsValue
             : int.tryParse(guestsValue.toString()) ?? 1;
 
         final roomsValue = r['rooms'];
-        final rooms = roomsValue is int
+        final int rooms = roomsValue is int
             ? roomsValue
             : int.tryParse(roomsValue.toString()) ?? 0;
 
@@ -141,7 +141,7 @@ class HotelSearchController extends StateNotifier<HotelSearchState> {
           RecentSearch(
             destination: r['destination'],
             tripDateRange: r['trip_date_range'],
-            icons: [
+            icons: <Widget>[
               const SizedBox(width: 10),
               Icon(Icons.bed, color: Colors.grey[500], size: 20.0),
               Text(rooms.toString()),
@@ -168,7 +168,7 @@ class HotelSearchController extends StateNotifier<HotelSearchState> {
   }
 }
 
-final hotelSearchProvider =
+final StateNotifierProvider<HotelSearchController, HotelSearchState> hotelSearchProvider =
     StateNotifierProvider<HotelSearchController, HotelSearchState>(
-      (ref) => HotelSearchController(),
+      (StateNotifierProviderRef<HotelSearchController, HotelSearchState> ref) => HotelSearchController(),
     );

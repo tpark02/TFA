@@ -1,4 +1,5 @@
 import 'package:TFA/providers/recent_search.dart';
+import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class FlightSearchState {
@@ -21,11 +22,11 @@ class FlightSearchState {
   final String departDate;
   final String? returnDate;
 
-  static const List<RecentSearch> _defaultRecentSearches = [
+  static const List<RecentSearch> _defaultRecentSearches = <RecentSearch>[
     RecentSearch(
       destination: '',
       tripDateRange: '',
-      icons: [],
+      icons: <Widget>[],
       destinationCode: '',
       guests: 0,
       rooms: 0,
@@ -38,7 +39,7 @@ class FlightSearchState {
     RecentSearch(
       destination: '',
       tripDateRange: '',
-      icons: [],
+      icons: <Widget>[],
       destinationCode: '',
       guests: 0,
       rooms: 0,
@@ -51,7 +52,7 @@ class FlightSearchState {
     RecentSearch(
       destination: '',
       tripDateRange: '',
-      icons: [],
+      icons: <Widget>[],
       destinationCode: '',
       guests: 0,
       rooms: 0,
@@ -64,7 +65,7 @@ class FlightSearchState {
     RecentSearch(
       destination: '',
       tripDateRange: '',
-      icons: [],
+      icons: <Widget>[],
       destinationCode: '',
       guests: 0,
       rooms: 0,
@@ -77,7 +78,7 @@ class FlightSearchState {
     RecentSearch(
       destination: '',
       tripDateRange: '',
-      icons: [],
+      icons: <Widget>[],
       destinationCode: '',
       guests: 0,
       rooms: 0,
@@ -102,8 +103,8 @@ class FlightSearchState {
     this.returnDate = '',
     this.cabinClass = 'Economy',
     this.passengerCount = 1,
-    this.flightResults = const AsyncValue.data({}),
-    this.processedFlights = const [],
+    this.flightResults = const AsyncValue.data(<String, dynamic>{}),
+    this.processedFlights = const <Map<String, dynamic>>[],
   });
 
   // 👇 Full and correct copyWith

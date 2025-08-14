@@ -14,7 +14,7 @@ class _RoomGuestSelectorSheet extends State<RoomGuestSelectorSheet> {
 
   @override
   Widget build(BuildContext content) {
-    final height =
+    final double height =
         MediaQuery.of(context).size.height * 0.40; // 65% of screen height
     return SafeArea(
       child: Padding(
@@ -30,12 +30,12 @@ class _RoomGuestSelectorSheet extends State<RoomGuestSelectorSheet> {
           constraints: BoxConstraints(maxHeight: height),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+            children: <Widget>[
               Padding(
                 padding: const EdgeInsets.only(top: 16),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
+                  children: <Widget>[
                     TextButton(
                       onPressed: () {},
                       style: TextButton.styleFrom(
@@ -56,9 +56,9 @@ class _RoomGuestSelectorSheet extends State<RoomGuestSelectorSheet> {
               Expanded(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
+                  children: <Widget>[
                     Row(
-                      children: [
+                      children: <Widget>[
                         Expanded(
                           child: Text(
                             "Number of Rooms",
@@ -75,14 +75,14 @@ class _RoomGuestSelectorSheet extends State<RoomGuestSelectorSheet> {
                             alignment: Alignment.centerRight,
                             child: CounterControl(
                               count: _rooms,
-                              onChanged: (val) => setState(() => _rooms = val),
+                              onChanged: (int val) => setState(() => _rooms = val),
                             ),
                           ),
                         ),
                       ],
                     ),
                     Row(
-                      children: [
+                      children: <Widget>[
                         Expanded(
                           child: Align(
                             alignment: Alignment.centerLeft,
@@ -102,7 +102,7 @@ class _RoomGuestSelectorSheet extends State<RoomGuestSelectorSheet> {
                             alignment: Alignment.centerRight,
                             child: CounterControl(
                               count: _adultCount,
-                              onChanged: (val) =>
+                              onChanged: (int val) =>
                                   setState(() => _adultCount = val),
                             ),
                           ),
@@ -110,7 +110,7 @@ class _RoomGuestSelectorSheet extends State<RoomGuestSelectorSheet> {
                       ],
                     ),
                     Row(
-                      children: [
+                      children: <Widget>[
                         Expanded(
                           child: Align(
                             alignment: Alignment.centerLeft,
@@ -130,7 +130,7 @@ class _RoomGuestSelectorSheet extends State<RoomGuestSelectorSheet> {
                             alignment: Alignment.centerRight,
                             child: CounterControl(
                               count: _childCount,
-                              onChanged: (val) =>
+                              onChanged: (int val) =>
                                   setState(() => _childCount = val),
                             ),
                           ),
@@ -145,8 +145,8 @@ class _RoomGuestSelectorSheet extends State<RoomGuestSelectorSheet> {
                 height: 50,
                 child: ElevatedButton(
                   onPressed: () {
-                    final total = _adultCount + _childCount;
-                    Navigator.pop(context, {
+                    final int total = _adultCount + _childCount;
+                    Navigator.pop(context, <String, int>{
                       'roomCnt': _rooms,
                       'guestsCnt': total,
                       'childCnt': _childCount,
@@ -162,7 +162,7 @@ class _RoomGuestSelectorSheet extends State<RoomGuestSelectorSheet> {
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
+                    children: <Widget>[
                       Text(
                         'Done',
                         style: TextStyle(

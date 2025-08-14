@@ -4,7 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 
-final _firebase = FirebaseAuth.instance;
+final FirebaseAuth _firebase = FirebaseAuth.instance;
 
 class AuthScreen extends ConsumerStatefulWidget {
   const AuthScreen({super.key});
@@ -16,13 +16,13 @@ class AuthScreen extends ConsumerStatefulWidget {
 }
 
 class _AuthScreenState extends ConsumerState<AuthScreen> {
-  final _form = GlobalKey<FormState>();
-  var _isLogin = true;
-  var _enteredEmail = '';
-  var _enteredPassword = '';
+  final GlobalKey<FormState> _form = GlobalKey<FormState>();
+  bool _isLogin = true;
+  String _enteredEmail = '';
+  String _enteredPassword = '';
 
   void _submit() async {
-    final isValid = _form.currentState!.validate();
+    final bool isValid = _form.currentState!.validate();
     if (!isValid) return;
 
     _form.currentState!.save();
@@ -46,14 +46,14 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
 
       // ✅ Try to get the ID token and call the backend
       try {
-        final idToken = await userCredentials.user!.getIdToken(
+        final String? idToken = await userCredentials.user!.getIdToken(
           true,
         ); // force refresh
         debugPrint("🔥 Firebase ID Token: $idToken");
 
-        final response = await http.get(
+        final http.Response response = await http.get(
           getBackendUri(),
-          headers: {'Authorization': 'Bearer $idToken'},
+          headers: <String, String>{'Authorization': 'Bearer $idToken'},
         );
 
         debugPrint(
@@ -103,7 +103,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
         child: SingleChildScrollView(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: [
+            children: <Widget>[
               Container(
                 margin: const EdgeInsets.only(
                   top: 30,
@@ -123,7 +123,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                       key: _form,
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
-                        children: [
+                        children: <Widget>[
                           TextFormField(
                             decoration: const InputDecoration(
                               labelText: 'Email Address',
@@ -131,7 +131,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                             keyboardType: TextInputType.emailAddress,
                             autocorrect: false,
                             textCapitalization: TextCapitalization.none,
-                            validator: (value) {
+                            validator: (String? value) {
                               if (value == null ||
                                   value.trim().isEmpty ||
                                   !value.contains('@')) {
@@ -140,7 +140,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
 
                               return null;
                             },
-                            onSaved: (value) {
+                            onSaved: (String? value) {
                               _enteredEmail = value!;
                             },
                           ),
@@ -149,13 +149,13 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                               labelText: 'Password',
                             ),
                             obscureText: true,
-                            validator: (value) {
+                            validator: (String? value) {
                               if (value == null || value.trim().length < 6) {
                                 return 'Password must be at least 6 characters long.';
                               }
                               return null;
                             },
-                            onSaved: (value) {
+                            onSaved: (String? value) {
                               _enteredPassword = value!;
                             },
                           ),

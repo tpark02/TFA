@@ -1,4 +1,5 @@
 import 'package:TFA/providers/hotel/hotel_search_controller.dart';
+import 'package:TFA/providers/hotel/hotel_search_state.dart';
 import 'package:TFA/providers/recent_search.dart';
 import 'package:TFA/screens/shared/calendar_sheet.dart';
 import 'package:TFA/screens/shared/recent_search_panel.dart';
@@ -9,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:TFA/services/location_service.dart'; // ✅ your service
 import 'package:geocoding/geocoding.dart';
+import 'package:geolocator_platform_interface/src/models/position.dart';
 
 class HotelSearchPanel extends ConsumerStatefulWidget {
   const HotelSearchPanel({super.key});
@@ -20,7 +22,7 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
   static const double _padding = 20.0;
   bool _isLoadingCity = true;
   bool _initialized = false;
-  final user = FirebaseAuth.instance.currentUser;
+  final User? user = FirebaseAuth.instance.currentUser;
   static const int startDays = 0;
   static const int endDays = 2;
 
@@ -28,14 +30,14 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
     setState(() => _isLoadingCity = true);
 
     try {
-      final position = await LocationService.getCurrentLocation();
-      final placemarks = await placemarkFromCoordinates(
+      final Position position = await LocationService.getCurrentLocation();
+      final List<Placemark> placemarks = await placemarkFromCoordinates(
         position.latitude,
         position.longitude,
       );
 
       if (placemarks.isNotEmpty) {
-        final city = placemarks.first.locality ?? '';
+        final String city = placemarks.first.locality ?? '';
         ref.read(hotelSearchProvider.notifier).setCity(city);
         debugPrint("📍 Set city: $city");
       }
@@ -50,9 +52,9 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
   void initState() {
     super.initState();
 
-    final controller = ref.read(hotelSearchProvider.notifier);
-    final startDate = DateTime.now();
-    final endDate = DateTime.now().add(const Duration(days: endDays));
+    final HotelSearchController controller = ref.read(hotelSearchProvider.notifier);
+    final DateTime startDate = DateTime.now();
+    final DateTime endDate = DateTime.now().add(const Duration(days: endDays));
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       controller.setDisplayDate(startDate: startDate, endDate: endDate);
@@ -78,12 +80,12 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
 
   @override
   Widget build(BuildContext context) {
-    final hotelState = ref.watch(hotelSearchProvider);
-    final controller = ref.read(hotelSearchProvider.notifier);
+    final HotelSearchState hotelState = ref.watch(hotelSearchProvider);
+    final HotelSearchController controller = ref.read(hotelSearchProvider.notifier);
 
     return SingleChildScrollView(
       child: Column(
-        children: [
+        children: <Widget>[
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: _padding),
             child: Container(
@@ -94,7 +96,7 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
                 ),
               ),
               child: Row(
-                children: [
+                children: <Widget>[
                   Expanded(
                     child: OutlinedButton(
                       style: OutlinedButton.styleFrom(
@@ -114,18 +116,18 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
                               top: Radius.circular(20),
                             ),
                           ),
-                          builder: (ctx) =>
+                          builder: (BuildContext ctx) =>
                               const SearchHotelSheet(title: "Hotel"),
                         );
                         if (result != null) {
-                          String city = result['city'];
+                          final String city = result['city'];
                           debugPrint(city);
                           controller.setCity(city);
                         }
                       },
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
+                        children: <Widget>[
                           const Icon(Icons.apartment),
                           const SizedBox(width: 8),
                           _isLoadingCity
@@ -156,7 +158,7 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: _padding),
             child: Row(
-              children: [
+              children: <Widget>[
                 Expanded(
                   flex: 6,
                   child: OutlinedButton(
@@ -169,7 +171,7 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
                             top: Radius.circular(20),
                           ),
                         ),
-                        builder: (ctx) => CalendarSheet(
+                        builder: (BuildContext ctx) => CalendarSheet(
                           key: UniqueKey(),
                           firstTitle: "",
                           secondTitle: "",
@@ -188,7 +190,7 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
                       }
                     },
                     style: OutlinedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(horizontal: 3),
+                      padding: const EdgeInsets.symmetric(horizontal: 3),
                       side: BorderSide(
                         color: Theme.of(context).colorScheme.primary,
                         width: 1,
@@ -199,8 +201,8 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Icon(Icons.calendar_month),
+                      children: <Widget>[
+                        const Icon(Icons.calendar_month),
                         Text(
                           hotelState.displayDate ?? 'Select',
                           style: TextStyle(
@@ -227,7 +229,7 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
                             top: Radius.circular(20),
                           ),
                         ),
-                        builder: (ctx) => const RoomGuestSelectorSheet(),
+                        builder: (BuildContext ctx) => const RoomGuestSelectorSheet(),
                       );
 
                       if (result != null) {
@@ -236,7 +238,7 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
                         final adultCnt = result['adultCnt'];
                         final childCnt = result['childCnt'];
 
-                        final rooms = roomCnt is int ? roomCnt : 1;
+                        final int rooms = roomCnt is int ? roomCnt : 1;
 
                         debugPrint(
                           'guestCnt: $guestsCnt (${guestsCnt.runtimeType})',
@@ -260,9 +262,9 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Icon(Icons.bed),
-                        SizedBox(width: 5),
+                      children: <Widget>[
+                        const Icon(Icons.bed),
+                        const SizedBox(width: 5),
                         Text(
                           hotelState.roomCnt,
                           style: TextStyle(
@@ -272,10 +274,10 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        SizedBox(width: 5),
-                        Text('|'),
-                        SizedBox(width: 5),
-                        Icon(Icons.person),
+                        const SizedBox(width: 5),
+                        const Text('|'),
+                        const SizedBox(width: 5),
+                        const Icon(Icons.person),
                         Text(
                           ((int.tryParse(hotelState.adultCnt) ?? 0) +
                                   (int.tryParse(hotelState.childCnt) ?? 0))
@@ -297,35 +299,35 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: _padding),
             child: Row(
-              children: [
+              children: <Widget>[
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () async {
                       debugPrint(hotelState.toString());
-                      final hasCity = hotelState.city.isNotEmpty;
-                      final hasDate = (hotelState.displayDate ?? '').isNotEmpty;
-                      final hasGuests =
+                      final bool hasCity = hotelState.city.isNotEmpty;
+                      final bool hasDate = (hotelState.displayDate ?? '').isNotEmpty;
+                      final bool hasGuests =
                           ((int.tryParse(hotelState.adultCnt) ?? 0) +
                               (int.tryParse(hotelState.childCnt) ?? 0)) >
                           0;
-                      final hasRoom =
+                      final bool hasRoom =
                           (int.tryParse(hotelState.roomCnt) ?? 0) > 0;
 
                       if (!hasCity || !hasGuests || !hasRoom || !hasDate) {
                         return;
                       }
 
-                      int totalGuest =
+                      final int totalGuest =
                           ((int.tryParse(hotelState.adultCnt) ?? 0) +
                           (int.tryParse(hotelState.childCnt) ?? 0));
 
-                      final idToken = await user!.getIdToken();
+                      final String? idToken = await user!.getIdToken();
 
-                      bool success = await controller.addRecentSearch(
+                      final bool success = await controller.addRecentSearch(
                         RecentSearch(
                           destination: hotelState.city,
                           tripDateRange: hotelState.displayDate ?? '',
-                          icons: [
+                          icons: <Widget>[
                             const SizedBox(width: 10),
                             Icon(
                               Icons.bed,
@@ -354,7 +356,7 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
                       );
                       if (!success) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
+                          const SnackBar(
                             content: Text(
                               '❌ Failed to save horel recent search',
                             ),
@@ -371,7 +373,7 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
                     ),
                     child: const Row(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: [Text('Search Hotel')],
+                      children: <Widget>[Text('Search Hotel')],
                     ),
                   ),
                 ),
@@ -382,9 +384,9 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
           Padding(
             padding: const EdgeInsets.all(_padding),
             child: Column(
-              children: [
+              children: <Widget>[
                 Row(
-                  children: [
+                  children: <Widget>[
                     Text(
                       "Suggestions",
                       style: TextStyle(
@@ -396,9 +398,9 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
                     ),
                   ],
                 ),
-                SizedBox(height: _padding),
+                const SizedBox(height: _padding),
                 Row(
-                  children: [
+                  children: <Widget>[
                     Expanded(
                       child: InkWell(
                         onTap: () {
@@ -414,22 +416,22 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
                             padding: const EdgeInsets.all(5),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
+                              children: <Widget>[
+                                const Icon(
                                   Icons.near_me,
                                   color: Color.fromRGBO(0, 140, 255, 1),
                                 ),
-                                SizedBox(width: 8),
+                                const SizedBox(width: 8),
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
+                                  children: <Widget>[
                                     Text(
                                       hotelState.city,
                                       style: TextStyle(
                                         fontSize: Theme.of(
                                           context,
                                         ).textTheme.bodyMedium?.fontSize,
-                                        color: Color.fromRGBO(99, 99, 99, 1),
+                                        color: const Color.fromRGBO(99, 99, 99, 1),
                                       ),
                                     ),
                                     Text(
@@ -438,7 +440,7 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
                                         fontSize: Theme.of(
                                           context,
                                         ).textTheme.bodySmall?.fontSize,
-                                        color: Color.fromRGBO(99, 99, 99, 1),
+                                        color: const Color.fromRGBO(99, 99, 99, 1),
                                       ),
                                     ),
                                   ],
@@ -454,7 +456,7 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
                                     ).colorScheme.primary,
                                     borderRadius: BorderRadius.zero,
                                   ),
-                                  child: Text(
+                                  child: const Text(
                                     "Check",
                                     style: TextStyle(
                                       color: Colors.white,
@@ -471,8 +473,8 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
                     ),
                   ],
                 ),
-                SizedBox(height: _padding),
-                RecentSearchPanel(panelName: 'hotel'),
+                const SizedBox(height: _padding),
+                const RecentSearchPanel(panelName: 'hotel'),
               ],
             ),
           ),

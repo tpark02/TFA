@@ -2,7 +2,7 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:csv/csv.dart';
 
 Future<List<List<dynamic>>> loadAirportData() async {
-  final rawData = await rootBundle.loadString('assets/data/airports.csv');
+  final String rawData = await rootBundle.loadString('assets/data/airports.csv');
   final List<List<dynamic>> csvTable = const CsvToListConverter(
     eol: '\n',
   ).convert(rawData);
@@ -10,7 +10,7 @@ Future<List<List<dynamic>>> loadAirportData() async {
 }
 
 Future<List<List<dynamic>>> loadHotelData() async {
-  final rawData = await rootBundle.loadString('assets/data/hotels.csv');
+  final String rawData = await rootBundle.loadString('assets/data/hotels.csv');
   final List<List<dynamic>> csvTable = const CsvToListConverter(
     eol: '\n',
   ).convert(rawData);
@@ -18,7 +18,7 @@ Future<List<List<dynamic>>> loadHotelData() async {
 }
 
 Future<List<List<dynamic>>> loadCarData() async {
-  final rawData = await rootBundle.loadString('assets/data/cars.csv');
+  final String rawData = await rootBundle.loadString('assets/data/cars.csv');
   final List<List<dynamic>> csvTable = const CsvToListConverter(
     eol: '\n',
   ).convert(rawData);

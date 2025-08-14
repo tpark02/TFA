@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:TFA/providers/flight/flight_search_controller.dart';
+import 'package:TFA/providers/flight/flight_search_state.dart';
 import 'package:TFA/screens/flight/flight_trip_details_page.dart';
 import 'package:TFA/widgets/flight/flight_list_view_item.dart';
 import 'package:TFA/widgets/search_summary_loading_card.dart';
@@ -77,7 +78,7 @@ class _FlightListViewState extends ConsumerState<FlightListView>
       await _returnAnimController.reverse();
       await Future.delayed(const Duration(milliseconds: 50));
 
-      final indexToScroll = selectedDepartureIndex;
+      final int? indexToScroll = selectedDepartureIndex;
       setState(() {
         selectedDepartureIndex = null;
         isLoading = true;
@@ -86,7 +87,7 @@ class _FlightListViewState extends ConsumerState<FlightListView>
       await Future.delayed(const Duration(milliseconds: 50));
 
       if (indexToScroll != null) {
-        final offset = indexToScroll * 100.0;
+        final double offset = indexToScroll * 100.0;
         _returnScrollController.animateTo(
           offset,
           duration: const Duration(milliseconds: 300),
@@ -137,12 +138,12 @@ class _FlightListViewState extends ConsumerState<FlightListView>
 
   @override
   Widget build(BuildContext context) {
-    final flightState = ref.watch(flightSearchProvider);
-    final allFlights = ref.watch(flightSearchProvider).processedFlights;
+    final FlightSearchState flightState = ref.watch(flightSearchProvider);
+    final List<Map<String, dynamic>> allFlights = ref.watch(flightSearchProvider).processedFlights;
 
     int depMinutesOfDay(dynamic depRaw) {
       if (depRaw == null) return -1;
-      final dt = DateTime.tryParse(depRaw.toString());
+      final DateTime? dt = DateTime.tryParse(depRaw.toString());
       if (dt == null) return -1;
       return dt.hour * 60 + dt.minute; // 0..1439
     }
@@ -151,7 +152,7 @@ class _FlightListViewState extends ConsumerState<FlightListView>
     double parsePrice(dynamic v) {
       if (v is num) return v.toDouble();
       if (v is String) {
-        final numeric = v.replaceAll(RegExp(r'[^0-9.]'), '');
+        final String numeric = v.replaceAll(RegExp(r'[^0-9.]'), '');
         return double.tryParse(numeric) ?? double.infinity;
       }
       return double.infinity;
@@ -162,23 +163,23 @@ class _FlightListViewState extends ConsumerState<FlightListView>
       if (v == null) return 1 << 30;
       if (v is int) return v;
       if (v is num) return v.toInt();
-      final s = v.toString().trim().toUpperCase();
+      final String s = v.toString().trim().toUpperCase();
 
       // ISO-8601 like PT12H30M
-      final iso = RegExp(r'^PT(?:(\d+)H)?(?:(\d+)M)?$');
-      final mIso = iso.firstMatch(s);
+      final RegExp iso = RegExp(r'^PT(?:(\d+)H)?(?:(\d+)M)?$');
+      final RegExpMatch? mIso = iso.firstMatch(s);
       if (mIso != null) {
-        final h = int.tryParse(mIso.group(1) ?? '0') ?? 0;
-        final m = int.tryParse(mIso.group(2) ?? '0') ?? 0;
+        final int h = int.tryParse(mIso.group(1) ?? '0') ?? 0;
+        final int m = int.tryParse(mIso.group(2) ?? '0') ?? 0;
         return h * 60 + m;
       }
 
       // "12H 30M" or "12H30M"
-      final hm = RegExp(r'(?:(\d+)\s*H)?\s*(?:(\d+)\s*M)?');
-      final mHm = hm.firstMatch(s);
+      final RegExp hm = RegExp(r'(?:(\d+)\s*H)?\s*(?:(\d+)\s*M)?');
+      final RegExpMatch? mHm = hm.firstMatch(s);
       if (mHm != null && (mHm.group(1) != null || mHm.group(2) != null)) {
-        final h = int.tryParse(mHm.group(1) ?? '0') ?? 0;
-        final m = int.tryParse(mHm.group(2) ?? '0') ?? 0;
+        final int h = int.tryParse(mHm.group(1) ?? '0') ?? 0;
+        final int m = int.tryParse(mHm.group(2) ?? '0') ?? 0;
         return h * 60 + m;
       }
 
@@ -188,16 +189,16 @@ class _FlightListViewState extends ConsumerState<FlightListView>
 
     // Lower is better: balances cheap + short (tweak weights if you want)
     double valueScore(Map f) {
-      final p = parsePrice(f['price']);
-      final d = parseDurationMins(f['duration']).toDouble();
+      final double p = parsePrice(f['price']);
+      final double d = parseDurationMins(f['duration']).toDouble();
       // weights: 0.7 price, 0.3 duration (per hour)
-      final priceNorm = p; // already in currency units
-      final durNorm = d / 60.0; // hours
+      final double priceNorm = p; // already in currency units
+      final double durNorm = d / 60.0; // hours
       return 0.7 * priceNorm + 0.3 * durNorm;
     }
 
     // ---- sort ALL flights, then split ----
-    final sortKey = widget.sortType.toLowerCase();
+    final String sortKey = widget.sortType.toLowerCase();
 
     int compare(Map a, Map b) {
       switch (sortKey) {
@@ -226,21 +227,21 @@ class _FlightListViewState extends ConsumerState<FlightListView>
       }
     }
 
-    final maxStops = maxStopsFor(widget.stopType); // or pass in a separate prop
+    final int maxStops = maxStopsFor(widget.stopType); // or pass in a separate prop
 
     // --- helpers for filters ---
     Set<String> layoverCityCodesOf(Map f) {
-      final path = (f['airportPath'] as String? ?? '');
-      final parts = path.split('→').map((s) => s.trim()).toList();
+      final String path = (f['airportPath'] as String? ?? '');
+      final List<String> parts = path.split('→').map((String s) => s.trim()).toList();
       if (parts.length <= 2) return <String>{}; // nonstop
 
-      final middleIATAs = parts.sublist(1, parts.length - 1);
-      final locMap = (f['locations'] as Map?)?.cast<String, dynamic>() ?? {};
+      final List<String> middleIATAs = parts.sublist(1, parts.length - 1);
+      final Map<String, dynamic> locMap = (f['locations'] as Map?)?.cast<String, dynamic>() ?? <String, dynamic>{};
 
-      final out = <String>{};
-      for (final iata in middleIATAs) {
-        final details = (locMap[iata] as Map?)?.cast<String, dynamic>();
-        final city = details?['cityCode'] as String?;
+      final Set<String> out = <String>{};
+      for (final String iata in middleIATAs) {
+        final Map<String, dynamic>? details = (locMap[iata] as Map?)?.cast<String, dynamic>();
+        final String? city = details?['cityCode'] as String?;
         if (city != null && city.isNotEmpty) out.add(city);
       }
       return out;
@@ -251,11 +252,11 @@ class _FlightListViewState extends ConsumerState<FlightListView>
 
       String norm(String s) => s.toUpperCase().trim();
 
-      final flightAir = ((f['airlines'] as Iterable?) ?? const [])
+      final Set<String> flightAir = ((f['airlines'] as Iterable?) ?? const <dynamic>[])
           .map((e) => norm(e.toString()))
           .toSet();
 
-      final selectedNorm = selected.map(norm).toSet();
+      final Set<String> selectedNorm = selected.map(norm).toSet();
 
       // ✅ Show only if EVERY carrier in the itinerary is selected
       return selectedNorm.containsAll(flightAir);
@@ -264,60 +265,60 @@ class _FlightListViewState extends ConsumerState<FlightListView>
 
     bool passesLayoverCityFilter(Map f, Set<String> selected) {
       if (selected.isEmpty) return true;
-      final layoverCities = layoverCityCodesOf(f);
+      final Set<String> layoverCities = layoverCityCodesOf(f);
       return layoverCities.any(selected.contains);
     }
 
-    for (final s in widget.selectedAirlines) {
+    for (final String s in widget.selectedAirlines) {
       debugPrint('selected Airlines - $s');
     }
-    final filteredFlights = allFlights.where((f) {
+    final List<Map<String, dynamic>> filteredFlights = allFlights.where((Map<String, dynamic> f) {
       // airlines filter
       if (!passesAirlineFilter(f, widget.selectedAirlines)) return false;
 
       // layover city filter (by cityCode like "TYO", "SEL")
       if (!passesLayoverCityFilter(f, widget.selectedLayovers)) return false;
 
-      final stops = int.tryParse(f['stops'].toString().split(' ').first) ?? 0;
+      final int stops = int.tryParse(f['stops'].toString().split(' ').first) ?? 0;
       if (stops > maxStops) return false;
 
       // --- flight duration ---
       final durMin = f['durationMin'] ?? 0;
-      final dStart = widget.flightDuration.start.round();
-      final dEnd = widget.flightDuration.end.round();
+      final int dStart = widget.flightDuration.start.round();
+      final int dEnd = widget.flightDuration.end.round();
       if (durMin < dStart || durMin > dEnd) return false;
 
       // layover duration
       final layOverMin = f['layoverMin'] ?? 0;
-      final lStart = widget.layOverDuration.start.round();
-      final lEnd = widget.layOverDuration.end.round();
+      final int lStart = widget.layOverDuration.start.round();
+      final int lEnd = widget.layOverDuration.end.round();
       if (layOverMin < lStart || layOverMin > lEnd) return false;
 
       // time windows...
       if (f['isReturn'] == false) {
-        final mins = depMinutesOfDay(f['depRaw']);
+        final int mins = depMinutesOfDay(f['depRaw']);
         if (mins >= 0) {
-          final start = widget.takeoff.start.round();
-          final end = widget.takeoff.end.round();
+          final int start = widget.takeoff.start.round();
+          final int end = widget.takeoff.end.round();
           if (mins < start || mins > end) return false;
         }
-        final arrMin = depMinutesOfDay(f['arrRaw']);
+        final int arrMin = depMinutesOfDay(f['arrRaw']);
         if (arrMin >= 0) {
-          final start = widget.landing.start.round();
-          final end = widget.landing.end.round();
+          final int start = widget.landing.start.round();
+          final int end = widget.landing.end.round();
           if (arrMin < start || arrMin > end) return false;
         }
       } else {
-        final depMin = depMinutesOfDay(f['depRaw']);
+        final int depMin = depMinutesOfDay(f['depRaw']);
         if (depMin >= 0) {
-          final start = widget.takeoff.start.round();
-          final end = widget.takeoff.end.round();
+          final int start = widget.takeoff.start.round();
+          final int end = widget.takeoff.end.round();
           if (depMin < start || depMin > end) return false;
         }
-        final arrMin = depMinutesOfDay(f['arrRaw']);
+        final int arrMin = depMinutesOfDay(f['arrRaw']);
         if (arrMin >= 0) {
-          final start = widget.landing.start.round();
-          final end = widget.landing.end.round();
+          final int start = widget.landing.start.round();
+          final int end = widget.landing.end.round();
           if (arrMin < start || arrMin > end) return false;
         }
       }
@@ -325,16 +326,16 @@ class _FlightListViewState extends ConsumerState<FlightListView>
       return true;
     }).toList();
 
-    final sortedAllFlights = [...filteredFlights]..sort(compare);
+    final List<Map<String, dynamic>> sortedAllFlights = <Map<String, dynamic>>[...filteredFlights]..sort(compare);
 
-    final departureFlights = sortedAllFlights
-        .where((f) => f['isReturn'] == false)
+    final List<Map<String, dynamic>> departureFlights = sortedAllFlights
+        .where((Map<String, dynamic> f) => f['isReturn'] == false)
         .toList();
-    final returnFlights = sortedAllFlights
-        .where((f) => f['isReturn'] == true)
+    final List<Map<String, dynamic>> returnFlights = sortedAllFlights
+        .where((Map<String, dynamic> f) => f['isReturn'] == true)
         .toList();
 
-    final activeIndex =
+    final int? activeIndex =
         (selectedDepartureIndex != null &&
             selectedDepartureIndex! >= 0 &&
             selectedDepartureIndex! < departureFlights.length)
@@ -343,7 +344,7 @@ class _FlightListViewState extends ConsumerState<FlightListView>
 
     final List<Widget> returnFlightWidgets = List.generate(
       returnFlights.length,
-      (i) => FlightListViewItem(
+      (int i) => FlightListViewItem(
         onClick: () async {
           _returnData = returnFlights[i];
           openTripDetails(context: context, isReturnPage: true);
@@ -355,7 +356,7 @@ class _FlightListViewState extends ConsumerState<FlightListView>
 
     final List<Widget> departureFlightWidgets = List.generate(
       departureFlights.length,
-      (i) => FlightListViewItem(
+      (int i) => FlightListViewItem(
         onClick: returnFlightWidgets.isNotEmpty
             ? () {
                 _departData = departureFlights[i];
@@ -371,7 +372,7 @@ class _FlightListViewState extends ConsumerState<FlightListView>
     );
 
     return Column(
-      children: [
+      children: <Widget>[
         // Departure flight row (static)
         if (activeIndex != null)
           departureFlightWidgets[activeIndex]
@@ -380,14 +381,14 @@ class _FlightListViewState extends ConsumerState<FlightListView>
             child: ListView(
               controller: _returnScrollController,
               // padding: const EdgeInsets.all(16),
-              children: [
+              children: <Widget>[
                 // ✅ Banner at the top of the scrollable list
                 Container(
                   color: Colors.amber[50],
                   padding: const EdgeInsets.all(20),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
+                    children: <Widget>[
                       Expanded(
                         child: RichText(
                           text: TextSpan(
@@ -397,7 +398,7 @@ class _FlightListViewState extends ConsumerState<FlightListView>
                               ).textTheme.bodyLarge?.fontSize,
                               color: Theme.of(context).colorScheme.primary,
                             ),
-                            children: const [
+                            children: const <InlineSpan>[
                               TextSpan(
                                 text: 'Automatic protection on every flight. ',
                               ),
@@ -433,7 +434,7 @@ class _FlightListViewState extends ConsumerState<FlightListView>
                   color: Colors.grey[100],
                   child: const Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
+                    children: <Widget>[
                       Text(
                         "Choose Departing flight",
                         style: TextStyle(fontWeight: FontWeight.bold),
@@ -453,14 +454,14 @@ class _FlightListViewState extends ConsumerState<FlightListView>
           ),
 
         // Return flight list below
-        if (activeIndex != null && returnFlightWidgets.isNotEmpty) ...[
+        if (activeIndex != null && returnFlightWidgets.isNotEmpty) ...<Widget>[
           Flexible(
             child: SizedBox.expand(
               child: SlideTransition(
                 position: _returnSlideAnimation,
                 child: Column(
                   key: const ValueKey('return-list'),
-                  children: [
+                  children: <Widget>[
                     Container(
                       padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
                       decoration: BoxDecoration(
@@ -471,7 +472,7 @@ class _FlightListViewState extends ConsumerState<FlightListView>
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
+                        children: <Widget>[
                           Text(
                             "Choose returning flight",
                             style: TextStyle(

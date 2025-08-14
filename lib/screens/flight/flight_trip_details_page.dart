@@ -16,10 +16,13 @@ class FlightTripDetailsPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final primary = Theme.of(context).colorScheme.primary;
-    final onPrimary = Theme.of(context).colorScheme.onPrimary;
-    final textSize = Theme.of(context).textTheme.displaySmall?.fontSize;
-
+    final Color primary = Theme.of(context).colorScheme.primary;
+    final Color onPrimary = Theme.of(context).colorScheme.onPrimary;
+    final double? textSize = Theme.of(context).textTheme.displaySmall?.fontSize;
+    final passengerCount = departData['passengerCount'];
+    final String passengerCntStr = passengerCount > 1
+        ? '$passengerCount Adults'
+        : '$passengerCount Adult';
     return Scaffold(
       backgroundColor: appBackgroundColor,
       appBar: AppBar(
@@ -31,14 +34,14 @@ class FlightTripDetailsPage extends ConsumerWidget {
         ),
         centerTitle: true,
         title: Column(
-          children: [
+          children: <Widget>[
             Text(
               'Trip Details',
               style: TextStyle(color: onPrimary, fontWeight: FontWeight.w600),
             ),
           ],
         ),
-        actions: [
+        actions: <Widget>[
           IconButton(
             icon: Icon(Icons.ios_share, color: onPrimary),
             onPressed: () {},
@@ -61,7 +64,7 @@ class FlightTripDetailsPage extends ConsumerWidget {
           padding: EdgeInsets.zero,
           itemCount: isReturnPage ? 2 : 1,
           separatorBuilder: (_, __) => const SizedBox(height: 12),
-          itemBuilder: (_, i) => i == 0
+          itemBuilder: (_, int i) => i == 0
               ? FlightTripDetailsItem(flightData: departData)
               : FlightTripDetailsItem(flightData: returnData!),
         ),
@@ -76,21 +79,24 @@ class FlightTripDetailsPage extends ConsumerWidget {
           top: false,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: [
+            children: <Widget>[
               Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
+                children: <Widget>[
                   Text(
-                    '₩1,228,361',
+                    '${departData['price']}',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: textSize,
                       fontWeight: FontWeight.w900,
                     ),
                   ),
-                  SizedBox(height: 2),
-                  Text('1 Adult', style: TextStyle(color: Colors.white70)),
+                  const SizedBox(height: 2),
+                  Text(
+                    passengerCntStr,
+                    style: const TextStyle(color: Colors.white70),
+                  ),
                   SizedBox(
                     width: MediaQuery.of(context).size.width * 0.9,
                     child: ElevatedButton(

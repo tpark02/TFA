@@ -24,20 +24,20 @@ class SearchSummaryCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final controller = ref.read(flightSearchProvider.notifier);
+    final FlightSearchController controller = ref.read(flightSearchProvider.notifier);
 
     return Container(
-      padding: EdgeInsets.all(8),
+      padding: const EdgeInsets.all(8),
       color: Theme.of(context).colorScheme.secondary,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+        children: <Widget>[
           Row(
-            children: [
+            children: <Widget>[
               Flexible(
                 child: InkWell(
                   onTap: () async {
-                    final result = await showModalBottomSheet<AirportSelection>(
+                    final AirportSelection? result = await showModalBottomSheet<AirportSelection>(
                       context: context,
                       isScrollControlled: true,
                       shape: const RoundedRectangleBorder(
@@ -45,7 +45,7 @@ class SearchSummaryCard extends ConsumerWidget {
                           top: Radius.circular(20),
                         ),
                       ),
-                      builder: (ctx) => const SearchAirportSheet(
+                      builder: (BuildContext ctx) => const SearchAirportSheet(
                         title: 'Origin',
                         isDeparture: true,
                       ),
@@ -91,7 +91,7 @@ class SearchSummaryCard extends ConsumerWidget {
               Flexible(
                 child: InkWell(
                   onTap: () async {
-                    final result = await showModalBottomSheet<AirportSelection>(
+                    final AirportSelection? result = await showModalBottomSheet<AirportSelection>(
                       context: context,
                       isScrollControlled: true,
                       shape: const RoundedRectangleBorder(
@@ -99,7 +99,7 @@ class SearchSummaryCard extends ConsumerWidget {
                           top: Radius.circular(20),
                         ),
                       ),
-                      builder: (ctx) => const SearchAirportSheet(
+                      builder: (BuildContext ctx) => const SearchAirportSheet(
                         title: 'Destination',
                         isDeparture: false,
                       ),
@@ -129,7 +129,7 @@ class SearchSummaryCard extends ConsumerWidget {
           const SizedBox(height: 8),
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
-            children: [
+            children: <Widget>[
               TextButton(
                 onPressed: () async {
                   final result = await showModalBottomSheet(
@@ -140,7 +140,7 @@ class SearchSummaryCard extends ConsumerWidget {
                         top: Radius.circular(20),
                       ),
                     ),
-                    builder: (ctx) => CalendarSheet(
+                    builder: (BuildContext ctx) => CalendarSheet(
                       key: UniqueKey(),
                       firstTitle: 'One Way',
                       secondTitle: 'Round Trip',
@@ -182,7 +182,7 @@ class SearchSummaryCard extends ConsumerWidget {
                           top: Radius.circular(20),
                         ),
                       ),
-                      builder: (ctx) => const TravelerSelectorSheet(),
+                      builder: (BuildContext ctx) => const TravelerSelectorSheet(),
                     );
 
                     if (result != null) {
@@ -193,9 +193,9 @@ class SearchSummaryCard extends ConsumerWidget {
                   },
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
+                    children: <Widget>[
                       const SizedBox(width: 5),
-                      Text("|", style: const TextStyle(color: Colors.white)),
+                      const Text("|", style: TextStyle(color: Colors.white)),
                       const SizedBox(width: 5),
                       const Icon(Icons.person, color: Colors.white, size: 16),
                       const SizedBox(width: 5),
@@ -204,7 +204,7 @@ class SearchSummaryCard extends ConsumerWidget {
                         style: const TextStyle(color: Colors.white),
                       ),
                       const SizedBox(width: 5),
-                      Text("|", style: const TextStyle(color: Colors.white)),
+                      const Text("|", style: TextStyle(color: Colors.white)),
                       const SizedBox(width: 5),
                       const Icon(
                         Icons.airline_seat_recline_normal,

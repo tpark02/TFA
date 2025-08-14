@@ -7,6 +7,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:TFA/widgets/flight/flight_search_inputs.dart';
 import 'package:TFA/widgets/flight/flight_search_button.dart';
+import 'package:geolocator_platform_interface/src/models/position.dart';
 
 class FlightSearchPanel extends ConsumerStatefulWidget {
   const FlightSearchPanel({super.key});
@@ -18,38 +19,38 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
   static const double _padding = 20.0;
   bool _isLoadingCity = true;
   bool _initialized = false;
-  final user = FirebaseAuth.instance.currentUser;
+  final User? user = FirebaseAuth.instance.currentUser;
   late final FlightSearchController controller;
-  final _airportSvc = AirportService();
+  final AirportService _airportSvc = AirportService();
 
   Future<void> fetchCurrentCountry() async {
     if (!mounted) return;
     setState(() => _isLoadingCity = true);
 
     try {
-      final controller = ref.read(flightSearchProvider.notifier);
-      final pos = await LocationService.getCurrentLocation();
-      final airports = await _airportSvc.nearbyAirports(
+      final FlightSearchController controller = ref.read(flightSearchProvider.notifier);
+      final Position pos = await LocationService.getCurrentLocation();
+      final List<Map<String, dynamic>> airports = await _airportSvc.nearbyAirports(
         lat: pos.latitude,
         lon: pos.longitude,
         radiusKm: 150,
         limit: 5,
       );
 
-      final placemarks = await placemarkFromCoordinates(
+      final List<Placemark> placemarks = await placemarkFromCoordinates(
         pos.latitude,
         pos.longitude,
       );
 
-      final city = placemarks.isNotEmpty
+      final String city = placemarks.isNotEmpty
           ? (placemarks.first.locality ?? '')
           : '';
 
-      final first = airports.firstWhere(
-        (e) => (e['iataCode'] as String?)?.isNotEmpty == true,
-        orElse: () => {},
+      final Map<String, dynamic> first = airports.firstWhere(
+        (Map<String, dynamic> e) => (e['iataCode'] as String?)?.isNotEmpty == true,
+        orElse: () => <String, dynamic>{},
       );
-      final code = (first['iataCode'] as String?)?.toUpperCase();
+      final String? code = (first['iataCode'] as String?)?.toUpperCase();
 
       if (code != null) {
         controller.setDepartureCode(code);
@@ -87,7 +88,7 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (controller.departDate == null || controller.departDate!.isEmpty) {
-          final departDate = DateTime.now();
+          final DateTime departDate = DateTime.now();
 
           controller.setDepartDate(departDate);
           controller.setDisplayDate(startDate: departDate);
@@ -104,7 +105,7 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       child: Column(
-        children: [
+        children: <Widget>[
           FlightSearchInputs(isLoadingCity: _isLoadingCity, padding: _padding),
           const SizedBox(height: 8),
           FlightSearchButton(padding: _padding, user: user),

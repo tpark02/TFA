@@ -2,6 +2,7 @@
 
 import 'dart:math' as math;
 
+import 'package:TFA/providers/flight/flight_search_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:TFA/providers/airport/airport_selection.dart';
@@ -23,11 +24,11 @@ class FlightSearchInputs extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final controller = ref.read(flightSearchProvider.notifier);
-    final flightState = ref.watch(flightSearchProvider);
+    final FlightSearchController controller = ref.read(flightSearchProvider.notifier);
+    final FlightSearchState flightState = ref.watch(flightSearchProvider);
 
     return Column(
-      children: [
+      children: <Widget>[
         Padding(
           padding: EdgeInsets.symmetric(horizontal: padding),
           child: Container(
@@ -38,13 +39,13 @@ class FlightSearchInputs extends ConsumerWidget {
               ),
             ),
             child: Row(
-              children: [
+              children: <Widget>[
                 // Departure
                 Expanded(
                   child: TextButton(
                     style: flatSegmentStyle(context),
                     onPressed: () async {
-                      final result =
+                      final AirportSelection? result =
                           await showModalBottomSheet<AirportSelection>(
                             context: context,
                             isScrollControlled: true,
@@ -53,7 +54,7 @@ class FlightSearchInputs extends ConsumerWidget {
                                 top: Radius.circular(20),
                               ),
                             ),
-                            builder: (ctx) => const SearchAirportSheet(
+                            builder: (BuildContext ctx) => const SearchAirportSheet(
                               title: 'Airport',
                               isDeparture: true,
                             ),
@@ -66,7 +67,7 @@ class FlightSearchInputs extends ConsumerWidget {
                       }
                     },
                     child: Row(
-                      children: [
+                      children: <Widget>[
                         const Icon(Icons.near_me),
                         const SizedBox(width: 8),
                         isLoadingCity
@@ -97,7 +98,7 @@ class FlightSearchInputs extends ConsumerWidget {
                   child: TextButton(
                     style: flatSegmentStyle(context),
                     onPressed: () async {
-                      final result =
+                      final AirportSelection? result =
                           await showModalBottomSheet<AirportSelection>(
                             context: context,
                             isScrollControlled: true,
@@ -106,7 +107,7 @@ class FlightSearchInputs extends ConsumerWidget {
                                 top: Radius.circular(20),
                               ),
                             ),
-                            builder: (ctx) => const SearchAirportSheet(
+                            builder: (BuildContext ctx) => const SearchAirportSheet(
                               title: 'Arrival Airport',
                               isDeparture: false,
                             ),
@@ -137,7 +138,7 @@ class FlightSearchInputs extends ConsumerWidget {
         Padding(
           padding: EdgeInsets.symmetric(horizontal: padding),
           child: Row(
-            children: [
+            children: <Widget>[
               // Date picker
               Expanded(
                 flex: 5,
@@ -151,7 +152,7 @@ class FlightSearchInputs extends ConsumerWidget {
                           top: Radius.circular(20),
                         ),
                       ),
-                      builder: (ctx) => CalendarSheet(
+                      builder: (BuildContext ctx) => CalendarSheet(
                         key: UniqueKey(),
                         firstTitle: 'One Way',
                         secondTitle: 'Round Trip',
@@ -174,7 +175,7 @@ class FlightSearchInputs extends ConsumerWidget {
                   style: outlinedButtonStyle(context),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
+                    children: <Widget>[
                       const Icon(Icons.calendar_month),
                       const SizedBox(width: 8),
                       Text(
@@ -199,7 +200,7 @@ class FlightSearchInputs extends ConsumerWidget {
                           top: Radius.circular(20),
                         ),
                       ),
-                      builder: (ctx) => const TravelerSelectorSheet(),
+                      builder: (BuildContext ctx) => const TravelerSelectorSheet(),
                     );
 
                     if (result != null) {
@@ -211,7 +212,7 @@ class FlightSearchInputs extends ConsumerWidget {
                   style: outlinedButtonStyle(context),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
+                    children: <Widget>[
                       const Icon(Icons.person),
                       Text(
                         flightState.passengerCount.toString(),

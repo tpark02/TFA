@@ -55,7 +55,7 @@ class _CalendarSheetState extends ConsumerState<CalendarSheet>
     debugPrint('_onSelectionRange');
 
     if (args.value is PickerDateRange) {
-      final range = args.value as PickerDateRange;
+      final PickerDateRange range = args.value as PickerDateRange;
 
       if (range.startDate != null && range.endDate != null) {
         startDate = range.startDate;
@@ -84,17 +84,17 @@ class _CalendarSheetState extends ConsumerState<CalendarSheet>
 
   @override
   Widget build(BuildContext context) {
-    final height =
+    final double height =
         MediaQuery.of(context).size.height * 0.7; // 95% of screen height
 
     final bool isRange = widget.isRange;
 
-    final initialRange = PickerDateRange(
+    final PickerDateRange initialRange = PickerDateRange(
       DateTime.now().add(Duration(days: widget.startDays)),
       DateTime.now().add(Duration(days: widget.endDays)),
     );
 
-    final initialDate = DateTime.now().add(Duration(days: widget.startDays));
+    final DateTime initialDate = DateTime.now().add(Duration(days: widget.startDays));
 
     return SafeArea(
       child: Padding(
@@ -110,7 +110,7 @@ class _CalendarSheetState extends ConsumerState<CalendarSheet>
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            children: [
+            children: <Widget>[
               Text(
                 "Calendar",
                 style: TextStyle(
@@ -125,7 +125,7 @@ class _CalendarSheetState extends ConsumerState<CalendarSheet>
                   ? TabBar(
                       dividerColor: Colors.transparent,
                       controller: _tabController,
-                      tabs: [
+                      tabs: <Widget>[
                         Tab(text: widget.firstTitle),
                         Tab(text: widget.secondTitle),
                       ],
@@ -160,10 +160,10 @@ class _CalendarSheetState extends ConsumerState<CalendarSheet>
                       )
                     : TabBarView(
                         controller: _tabController,
-                        children: [
+                        children: <Widget>[
                           SfDateRangePicker(
                             initialSelectedDate: DateTime.now().add(
-                              Duration(days: 10),
+                              const Duration(days: 10),
                             ),
                             minDate: DateTime.now(),
                             onSelectionChanged: _onSelectionChanged,
@@ -206,7 +206,7 @@ class _CalendarSheetState extends ConsumerState<CalendarSheet>
               ),
               const SizedBox(height: 12),
               Row(
-                children: [
+                children: <Widget>[
                   Expanded(
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
@@ -214,13 +214,13 @@ class _CalendarSheetState extends ConsumerState<CalendarSheet>
                           context,
                         ).colorScheme.onPrimary,
                         backgroundColor: Theme.of(context).colorScheme.primary,
-                        shape: RoundedRectangleBorder(
+                        shape: const RoundedRectangleBorder(
                           borderRadius:
                               BorderRadius.zero, // sharp corners, no rounding
                         ),
                       ),
                       onPressed: () {
-                        Navigator.pop(context, {
+                        Navigator.pop(context, <String, DateTime?>{
                           'startDate': startDate,
                           'endDate': endDate,
                         });

@@ -34,8 +34,8 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
   RangeValues layOverDurationRange = const RangeValues(0, 1470);
   Set<String> selectedAirlines = <String>{};
   Set<String> selectedLayovers = <String>{};
-  List<String> kAirlines = [];
-  List<String> kLayoverCities = [];
+  List<String> kAirlines = <String>[];
+  List<String> kLayoverCities = <String>[];
   int flightDurationSt = 0;
   int flightDurationEnd = 0;
   int layOverDurationSt = 0;
@@ -43,12 +43,12 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
   late final ProviderSubscription<FlightSearchState> _sub;
   ProviderSubscription<(String, String, String?, String?, int)>? _searchSub;
 
-  Map<String, String> carriersDict = {}; // <-- add this
+  Map<String, String> carriersDict = <String, String>{}; // <-- add this
 
   Map<String, dynamic> _asMap(dynamic v) =>
-      v is Map ? v.cast<String, dynamic>() : const {};
+      v is Map ? v.cast<String, dynamic>() : const <String, dynamic>{};
 
-  Iterable _asIter(dynamic v) => v is Iterable ? v : const [];
+  Iterable _asIter(dynamic v) => v is Iterable ? v : const <dynamic>[];
 
   RangeValues rangeFromFlights(
     List<Map<String, dynamic>> flights,
@@ -58,8 +58,8 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
   }) {
     int minV = 1 << 30, maxV = 0;
 
-    for (final f in flights) {
-      final v = (f[key] ?? 0) as int;
+    for (final Map<String, dynamic> f in flights) {
+      final int v = (f[key] ?? 0) as int;
       if (v < minV) minV = v;
       if (v > maxV) maxV = v;
     }
@@ -73,7 +73,7 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
 
   Widget _pageBody(BuildContext context, FlightSearchState flightState) {
     return Column(
-      children: [
+      children: <Widget>[
         Container(
           color: Theme.of(context).colorScheme.primary,
           padding: const EdgeInsets.fromLTRB(
@@ -85,14 +85,14 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
+            children: <Widget>[
               Container(
-                padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
+                padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
                 child: InkWell(
                   onTap: () {
                     Navigator.of(context).pop();
                   },
-                  child: Icon(Icons.arrow_back, color: Colors.white),
+                  child: const Icon(Icons.arrow_back, color: Colors.white),
                 ),
               ),
               SizedBox(
@@ -106,19 +106,19 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
                 ),
               ),
               Container(
-                padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
+                padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
 
                 child: InkWell(
                   onTap: () {},
-                  child: Icon(Icons.favorite_border, color: Colors.white),
+                  child: const Icon(Icons.favorite_border, color: Colors.white),
                 ),
               ),
               Container(
-                padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
+                padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
 
                 child: InkWell(
                   onTap: () {},
-                  child: Icon(Icons.share, color: Colors.white),
+                  child: const Icon(Icons.share, color: Colors.white),
                 ),
               ),
             ],
@@ -131,12 +131,12 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
             scrollDirection: Axis.horizontal,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
+              children: <Widget>[
                 Container(
                   margin: const EdgeInsets.only(left: 8),
                   child: OutlinedButton(
                     style: OutlinedButton.styleFrom(
-                      padding: EdgeInsets.all(10),
+                      padding: const EdgeInsets.all(10),
                       backgroundColor: Colors.white,
                       minimumSize: const Size(0, 32),
                       shape: RoundedRectangleBorder(
@@ -145,7 +145,7 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
                       side: BorderSide(color: Colors.grey[400]!, width: 1),
                     ),
                     onPressed: () async {
-                      final result =
+                      final Map<String, List<String>>? result =
                           await Navigator.of(
                             context,
                             rootNavigator: true,
@@ -173,7 +173,7 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
                         });
                       }
                     },
-                    child: Icon(Icons.tune, size: 23),
+                    child: const Icon(Icons.tune, size: 23),
                   ),
                 ),
                 FilterButton(
@@ -184,7 +184,7 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
                       context: context,
                       selectedSort: selectedSort,
                       sortType: SortTab.sort,
-                      onSortSelected: (value) {
+                      onSortSelected: (String value) {
                         setState(() => selectedSort = value);
                       },
                     );
@@ -202,7 +202,7 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
                           top: Radius.circular(16),
                         ),
                       ),
-                      builder: (context) => const TravelHackBottomSheet(),
+                      builder: (BuildContext context) => const TravelHackBottomSheet(),
                     );
                   },
                 ),
@@ -214,7 +214,7 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
                       context: context,
                       selectedSort: selectedStops,
                       sortType: SortTab.stops,
-                      onSortSelected: (value) {
+                      onSortSelected: (String value) {
                         setState(
                           () => selectedStops = value,
                         ); // update parent state
@@ -234,7 +234,7 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
                         divisions: 1439,
                         initial: takeoffRange, // ✅ use the current value
                         label: formatTime,
-                        onConfirmed: (range) {
+                        onConfirmed: (RangeValues range) {
                           setState(() => takeoffRange = range);
                         },
                       ),
@@ -253,7 +253,7 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
                         divisions: 1439,
                         initial: landingRange,
                         label: formatTime,
-                        onConfirmed: (range) {
+                        onConfirmed: (RangeValues range) {
                           setState(() => landingRange = range);
                         },
                       ),
@@ -263,8 +263,8 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
                 FilterButton(
                   label: "Flight Duration",
                   func: () async {
-                    final dMin = flightDurationRange.start.floor();
-                    final dMax = flightDurationRange.end.ceil();
+                    final int dMin = flightDurationRange.start.floor();
+                    final int dMax = flightDurationRange.end.ceil();
                     final int divs = (dMax - dMin).clamp(1, 100000);
 
                     await showRangePickerSheet(
@@ -276,7 +276,7 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
                         divisions: divs,
                         initial: RangeValues(dMin.toDouble(), dMax.toDouble()),
                         label: formatDuration,
-                        onConfirmed: (range) =>
+                        onConfirmed: (RangeValues range) =>
                             setState(() => flightDurationRange = range),
                       ),
                     );
@@ -285,8 +285,8 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
                 FilterButton(
                   label: "Layover Duration",
                   func: () async {
-                    final lMin = layOverDurationRange.start.floor();
-                    final lMax = layOverDurationRange.end.ceil();
+                    final int lMin = layOverDurationRange.start.floor();
+                    final int lMax = layOverDurationRange.end.ceil();
                     final int divs = (lMax - lMin).clamp(1, 100000);
 
                     await showRangePickerSheet(
@@ -298,7 +298,7 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
                         divisions: divs,
                         initial: RangeValues(lMin.toDouble(), lMax.toDouble()),
                         label: formatDuration,
-                        onConfirmed: (range) =>
+                        onConfirmed: (RangeValues range) =>
                             setState(() => layOverDurationRange = range),
                       ),
                     );
@@ -312,10 +312,10 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
                       title: 'Airlines',
                       items: kAirlines, // ← full list, not from selected
                       selected: selectedAirlines,
-                      labelOf: (s) => s,
-                      onDone: (s) => setState(() {
+                      labelOf: (String s) => s,
+                      onDone: (Set<String> s) => setState(() {
                         selectedAirlines = s;
-                        for (final a in selectedAirlines) {
+                        for (final String a in selectedAirlines) {
                           debugPrint('selected airlines - $a');
                         }
                       }),
@@ -330,8 +330,8 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
                       title: 'Layover Cities',
                       items: kLayoverCities, // ← full list
                       selected: selectedLayovers,
-                      labelOf: (s) => s,
-                      onDone: (s) => setState(() {
+                      labelOf: (String s) => s,
+                      onDone: (Set<String> s) => setState(() {
                         selectedLayovers = s;
                       }),
                     );
@@ -370,7 +370,7 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
     try {
       _searchSub = ref.listenManual(
         flightSearchProvider.select<(String, String, String?, String?, int)>(
-          (s) => (
+          (FlightSearchState s) => (
             s.departureAirportCode,
             s.arrivalAirportCode,
             s.departDate,
@@ -378,16 +378,16 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
             s.passengerCount,
           ),
         ),
-        (prev, next) async {
+        ((String, String, String?, String?, int)? prev, (String, String, String?, String?, int) next) async {
           if (prev == next) return;
           if (!mounted) return;
 
           // 🔒 guard: need a departure date to search
-          final dep = next.$3;
+          final String? dep = next.$3;
           if (dep == null || dep.isEmpty) return;
 
           setState(() => isLoading = true);
-          final (ok, msg) = await ref
+          final (bool ok, String msg) = await ref
               .read(flightSearchProvider.notifier)
               .searchFlights(
                 origin: next.$1,
@@ -411,35 +411,35 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
 
     try {
       _sub = ref.listenManual<FlightSearchState>(flightSearchProvider, (
-        prev,
-        next,
+        FlightSearchState? prev,
+        FlightSearchState next,
       ) {
-        final flights = next.processedFlights;
+        final List<Map<String, dynamic>> flights = next.processedFlights;
         if (!mounted || flights.isEmpty) return;
 
         // Temp sets for this batch
-        final layovers = <String>{};
-        final airlines = <String>{};
+        final Set<String> layovers = <String>{};
+        final Set<String> airlines = <String>{};
 
-        for (final f in flights) {
+        for (final Map<String, dynamic> f in flights) {
           // ---- airlines: use codes, normalize to upper-case
-          for (final a in (f['airlines'] as Iterable).cast<String>()) {
+          for (final String a in (f['airlines'] as Iterable).cast<String>()) {
             airlines.add(a.toUpperCase());
           }
 
           // ---- layovers: ONLY middle airports, not origin/destination
-          for (final a in _asIter(f['airlines']).map((e) => e.toString())) {
+          for (final String a in _asIter(f['airlines']).map((e) => e.toString())) {
             airlines.add(a.toUpperCase());
           }
 
-          final locations = _asMap(f['locations']); // 🟢 no crash on null
-          final path = (f['airportPath'] as String? ?? '');
-          final parts = path.split('→').map((s) => s.trim()).toList();
+          final Map<String, dynamic> locations = _asMap(f['locations']); // 🟢 no crash on null
+          final String path = (f['airportPath'] as String? ?? '');
+          final List<String> parts = path.split('→').map((String s) => s.trim()).toList();
           if (parts.length > 2) {
-            final middleIATAs = parts.sublist(1, parts.length - 1);
-            for (final iata in middleIATAs) {
-              final details = _asMap(locations[iata]);
-              final cityCode = details['cityCode'] as String?;
+            final List<String> middleIATAs = parts.sublist(1, parts.length - 1);
+            for (final String iata in middleIATAs) {
+              final Map<String, dynamic> details = _asMap(locations[iata]);
+              final String? cityCode = details['cityCode'] as String?;
               if (cityCode != null && cityCode.isNotEmpty) {
                 layovers.add(cityCode.toUpperCase());
               }
@@ -450,18 +450,18 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
         // ---- carriers dict: read from top-level dictionaries
         // Adjust this access to whatever your FlightSearchState exposes.
         // If it's nested differently, point to the right place.
-        Map<String, String> carriers = {};
+        Map<String, String> carriers = <String, String>{};
         // 🟢 CHANGE carriers dict extraction (still inside _sub)
-        final results = ref
+        final Map<String, dynamic> results = ref
             .read(flightSearchProvider)
             .flightResults
             .maybeWhen<Map<String, dynamic>>(
-              data: (v) => v,
-              orElse: () => const {},
+              data: (Map<String, dynamic> v) => v,
+              orElse: () => const <String, dynamic>{},
             );
-        final dict = _asMap(results['dictionaries']);
-        final carriersRaw = _asMap(dict['carriers']);
-        carriers = carriersRaw.map((k, v) => MapEntry(k, v.toString()));
+        final Map<String, dynamic> dict = _asMap(results['dictionaries']);
+        final Map<String, dynamic> carriersRaw = _asMap(dict['carriers']);
+        carriers = carriersRaw.map((String k, v) => MapEntry(k, v.toString()));
 
         setState(() {
           // master lists
@@ -496,10 +496,10 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
         isLoading = true; // ✅ show loading before search
       });
 
-      final controller = ref.read(flightSearchProvider.notifier);
-      final flightState = ref.read(flightSearchProvider);
+      final FlightSearchController controller = ref.read(flightSearchProvider.notifier);
+      final FlightSearchState flightState = ref.read(flightSearchProvider);
 
-      final (searchSuccess, searchMessage) = await controller.searchFlights(
+      final (bool searchSuccess, String searchMessage) = await controller.searchFlights(
         origin: flightState.departureAirportCode,
         destination: flightState.arrivalAirportCode,
         departureDate: flightState.departDate,
@@ -520,7 +520,7 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
           final Map<String, dynamic> _ = ref
               .read(flightSearchProvider)
               .flightResults
-              .maybeWhen(data: (v) => v, orElse: () => {});
+              .maybeWhen(data: (Map<String, dynamic> v) => v, orElse: () => <String, dynamic>{});
         });
       }
     });
@@ -535,17 +535,17 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
 
   @override
   Widget build(BuildContext context) {
-    final flightState = ref.watch(flightSearchProvider);
+    final FlightSearchState flightState = ref.watch(flightSearchProvider);
     debugPrint(
       'carriersDict (${carriersDict.length}): '
-      '${carriersDict.entries.map((e) => '${e.key}→${e.value}').join(', ')}',
+      '${carriersDict.entries.map((MapEntry<String, String> e) => '${e.key}→${e.value}').join(', ')}',
     );
-    final page = Scaffold(
+    final Scaffold page = Scaffold(
       appBar: PreferredSize(
-        preferredSize: Size.fromHeight(90), // required!
+        preferredSize: const Size.fromHeight(90), // required!
         child: Container(
           color: Theme.of(context).colorScheme.primary,
-          child: SizedBox(height: 30),
+          child: const SizedBox(height: 30),
         ),
       ),
       body: _pageBody(context, flightState),

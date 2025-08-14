@@ -14,7 +14,7 @@ Future<TimeOfDay?> showAdaptiveTimePicker(
       context: context,
       backgroundColor: Colors.white,
       builder: (BuildContext builder) {
-        DateTime initialDateTime = DateTime(
+        final DateTime initialDateTime = DateTime(
           0,
           0,
           0,
@@ -24,10 +24,10 @@ Future<TimeOfDay?> showAdaptiveTimePicker(
         return SizedBox(
           height: 250,
           child: Column(
-            children: [
+            children: <Widget>[
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
-                children: [
+                children: <Widget>[
                   CupertinoButton(
                     child: const Text('Done'),
                     onPressed: () => Navigator.pop(context),
