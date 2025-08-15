@@ -437,7 +437,7 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
 
         try {
           if (next.$4 != null && next.$4!.isNotEmpty) {
-            debugPrint("🔄 Round trip");
+            debugPrint("🔄🔄 Round trip");
 
             final FlightSearchState state = ref.read(flightSearchProvider);
             final FlightSearchController controller = ref.read(
@@ -455,14 +455,15 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
 
             if (useCombined) {
               debugPrint("✅✅ Combined");
-
-              controller.clearInBoundFlights(true);
+              controller.clearProcessedFlights();
               final (bool ok, String msg) = await controller.searchFlights(
                 origin: next.$1,
                 destination: next.$2,
                 departureDate: dep,
                 returnDate: next.$4!,
                 adults: next.$5,
+                isInboundFlight: false,
+                mode: PricingMode.combined,
               );
               if (!ok && mounted) {
                 ScaffoldMessenger.of(
@@ -479,24 +480,29 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
               debugPrint(
                 '▶️ IN  search: ${next.$2} -> ${next.$1} on ${next.$4!}',
               );
+              controller.clearProcessedFlights();
 
-              final List<Future<(bool, String)>> futures = <Future<(bool, String)>>[
-                controller.searchFlights(
-                  origin: next.$1,
-                  destination: next.$2,
-                  departureDate: dep,
-                  returnDate: null,
-                  adults: next.$5,
-                ),
-                controller.searchFlights(
-                  origin: next.$2,
-                  destination: next.$1,
-                  departureDate: next.$4!, // return date
-                  returnDate: null,
-                  adults: next.$5,
-                  isInboundFlight: true,
-                ),
-              ];
+              final List<Future<(bool, String)>> futures =
+                  <Future<(bool, String)>>[
+                    controller.searchFlights(
+                      origin: next.$1,
+                      destination: next.$2,
+                      departureDate: dep,
+                      returnDate: null,
+                      adults: next.$5,
+                      isInboundFlight: false,
+                      mode: PricingMode.perLeg,
+                    ),
+                    controller.searchFlights(
+                      origin: next.$2,
+                      destination: next.$1,
+                      departureDate: next.$4!, // return date
+                      returnDate: null,
+                      adults: next.$5,
+                      isInboundFlight: true,
+                      mode: PricingMode.perLeg,
+                    ),
+                  ];
 
               final List<(bool, String)> results = await Future.wait(futures);
 
@@ -516,7 +522,7 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
             }
           } else {
             debugPrint("✈️✈️ one-way");
-            controller.clearInBoundFlights(true);
+            controller.clearProcessedFlights();
 
             final (bool ok, String msg) = await controller.searchFlights(
               origin: next.$1,
@@ -524,6 +530,8 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
               departureDate: dep,
               returnDate: null,
               adults: next.$5,
+              isInboundFlight: false,
+              mode: PricingMode.perLeg,
             );
 
             if (!ok && mounted) {
@@ -635,13 +643,15 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
       if (flightState.returnDate != null) {
         if (useCombined) {
           debugPrint("✅ Combined");
-          controller.clearInBoundFlights(true);
+          controller.clearProcessedFlights();
           final (bool ok, String msg) = await controller.searchFlights(
             origin: flightState.departureAirportCode,
             destination: flightState.arrivalAirportCode,
             departureDate: flightState.departDate,
             returnDate: flightState.returnDate,
             adults: flightState.passengerCount,
+            isInboundFlight: false,
+            mode: PricingMode.combined,
           );
           if (!ok && mounted) {
             ScaffoldMessenger.of(
@@ -653,23 +663,38 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
           if (_rtFetching == true) return;
           _rtFetching = true;
           try {
-            final List<Future<(bool, String)>> futures = <Future<(bool, String)>>[
-              controller.searchFlights(
-                origin: flightState.departureAirportCode,
-                destination: flightState.arrivalAirportCode,
-                departureDate: flightState.departDate,
-                returnDate: null,
-                adults: flightState.passengerCount,
-              ),
-              controller.searchFlights(
-                origin: flightState.arrivalAirportCode,
-                destination: flightState.departureAirportCode,
-                departureDate: flightState.returnDate!,
-                returnDate: null,
-                adults: flightState.passengerCount,
-                isInboundFlight: true,
-              ),
-            ];
+            controller.clearProcessedFlights();
+
+            final List<Future<(bool, String)>> futures =
+                <Future<(bool, String)>>[
+                  controller.searchFlights(
+                    origin: flightState.departureAirportCode,
+                    destination: flightState.arrivalAirportCode,
+                    departureDate: flightState.departDate,
+                    returnDate: flightState.returnDate,
+                    adults: flightState.passengerCount,
+                    isInboundFlight: false,
+                    mode: PricingMode.combined,
+                  ),
+                  controller.searchFlights(
+                    origin: flightState.departureAirportCode,
+                    destination: flightState.arrivalAirportCode,
+                    departureDate: flightState.departDate,
+                    returnDate: null,
+                    adults: flightState.passengerCount,
+                    isInboundFlight: false,
+                    mode: PricingMode.perLeg,
+                  ),
+                  controller.searchFlights(
+                    origin: flightState.arrivalAirportCode,
+                    destination: flightState.departureAirportCode,
+                    departureDate: flightState.returnDate!,
+                    returnDate: null,
+                    adults: flightState.passengerCount,
+                    isInboundFlight: true,
+                    mode: PricingMode.perLeg,
+                  ),
+                ];
 
             final List<(bool, String)> results = await Future.wait(futures);
 
@@ -692,14 +717,15 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
         }
       } else {
         debugPrint("✈️ One-way");
-        controller.clearInBoundFlights(true);
-
+        controller.clearProcessedFlights();
         final (bool ok, String msg) = await controller.searchFlights(
           origin: flightState.departureAirportCode,
           destination: flightState.arrivalAirportCode,
           departureDate: flightState.departDate,
           returnDate: null,
           adults: flightState.passengerCount,
+          isInboundFlight: false,
+          mode: PricingMode.perLeg,
         );
         if (!ok && mounted) {
           ScaffoldMessenger.of(

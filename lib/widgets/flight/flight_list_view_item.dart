@@ -12,6 +12,51 @@ class FlightListViewItem extends StatelessWidget {
   final int index;
   final Map<String, dynamic> flight;
 
+  Widget _timeCell(String time, double fontSize, {int? plusDay}) {
+    return RichText(
+      text: TextSpan(
+        children: <InlineSpan>[
+          TextSpan(
+            text: time,
+            style: TextStyle(
+              fontSize: fontSize,
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+            ),
+          ),
+          if (plusDay != null && plusDay > 0)
+            WidgetSpan(
+              // 🟢 FIX: align to alphabetic baseline
+              alignment: PlaceholderAlignment.baseline,
+              baseline: TextBaseline.alphabetic,
+              child: Transform.translate(
+                // small upward nudge (proportional to font size)
+                offset: Offset(-5, -fontSize * 0.7),
+                child: Text(
+                  '+$plusDay',
+                  style: TextStyle(
+                    fontSize: fontSize * 0.55,
+                    color: Colors.red,
+                    height: 1, // keep tight
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+      // 🟢 FIX: normalize line metrics so left/right line up
+      strutStyle: StrutStyle(
+        forceStrutHeight: true,
+        fontSize: fontSize,
+        height: 1.0,
+      ),
+      textHeightBehavior: const TextHeightBehavior(
+        applyHeightToFirstAscent: false,
+        applyHeightToLastDescent: false,
+      ),
+    );
+  }
+
   Widget layoverTimeline(BuildContext context, List<String> middleAirports) {
     const double totalHeight = 48; // more room vertically
     const double dotSize = 10;
@@ -35,7 +80,9 @@ class FlightListViewItem extends StatelessWidget {
             children: List.generate(
               middleAirports.isEmpty ? 0 : middleAirports.length,
               (int i) {
-                final String code = middleAirports.isEmpty ? '' : middleAirports[i];
+                final String code = middleAirports.isEmpty
+                    ? ''
+                    : middleAirports[i];
                 return Expanded(
                   child: Stack(
                     children: <Widget>[
@@ -89,7 +136,7 @@ class FlightListViewItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final depTime = flight['depTime'] ?? '';
     final arrTime = flight['arrTime'] ?? '';
-    final plusDay = flight['plusDay'] ?? '';
+    final plusDayStr = flight['plusDay'] ?? '';
     final depAirport = flight['depAirport'] ?? '';
     final arrAirport = flight['arrAirport'] ?? '';
     final airportPath = flight['airportPath'] ?? '';
@@ -98,7 +145,13 @@ class FlightListViewItem extends StatelessWidget {
     final airline = flight['airline'] ?? '';
     final price = flight['price'] ?? '';
 
-    final double? headlineMedium = Theme.of(context).textTheme.headlineMedium?.fontSize;
+    final int plusDay = plusDayStr == ''
+        ? 0
+        : int.parse(flight['plusDay'] as String);
+
+    final double? headlineMedium = Theme.of(
+      context,
+    ).textTheme.headlineMedium?.fontSize;
     final double? bodyLarge = Theme.of(context).textTheme.bodyLarge?.fontSize;
     // Extract intermediate airport codes if needed
     final pathParts = airportPath.split('→').map((s) => s.trim()).toList();
@@ -106,13 +159,14 @@ class FlightListViewItem extends StatelessWidget {
     final List<String> middleAirports = pathParts.length > 2
         ? List<String>.from(pathParts.sublist(1, pathParts.length - 1))
         : <String>[];
+    final double? fs = headlineMedium;
 
     return Material(
-      color: Colors.transparent,
+      color: flight['pricingMode'] == 'perleg' ? Colors.red : Colors.blue,
       child: InkWell(
         onTap: onClick,
         child: Container(
-          padding: const EdgeInsets.fromLTRB(20, 15, 10, 10),
+          padding: const EdgeInsets.fromLTRB(20, 10, 10, 10),
           decoration: BoxDecoration(
             border: Border(bottom: BorderSide(color: Colors.grey.shade300)),
           ),
@@ -123,42 +177,26 @@ class FlightListViewItem extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
-                  /// Departure
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Text(
-                        depTime,
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: headlineMedium,
-                        ),
+                  Padding(
+                    padding: const EdgeInsets.all(0.0),
+                    child: Text(
+                      depTime,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: fs,
                       ),
-                      Text(depAirport, style: TextStyle(fontSize: bodyLarge)),
-                    ],
+                    ),
                   ),
-
-                  // Middle path with circles + labels
                   Expanded(
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      padding: const EdgeInsets.fromLTRB(10, 15, 10, 0),
                       child: layoverTimeline(context, middleAirports),
                     ),
                   ),
-
-                  // Arrival
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Text(
-                        arrTime,
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: headlineMedium,
-                        ),
-                      ),
-                      Text(arrAirport, style: TextStyle(fontSize: bodyLarge)),
-                    ],
+                  _timeCell(
+                    arrTime,
+                    fs!,
+                    plusDay: plusDay > 0 ? plusDay : null,
                   ),
                 ],
               ),

@@ -1,3 +1,4 @@
+import 'package:TFA/providers/iata_country_provider.dart';
 import 'package:TFA/providers/recent_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -33,13 +34,14 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
     required String? returnDate,
     required int adults,
     int maxResults = 20,
-    bool isInboundFlight = false,
+    required bool isInboundFlight,
+    required PricingMode mode,
   }) async {
     state = state.copyWith(isLoading: true);
-    state = state.copyWithFlightResults(const AsyncValue.loading());
+    // state = state.copyWithFlightResults(const AsyncValue.loading());
 
-    debugPrint("depart date : $departureDate");
-    debugPrint("return date : $returnDate");
+    debugPrint("1 depart date : $departureDate");
+    debugPrint("2 return date : $returnDate");
 
     try {
       final Map<String, dynamic> result = await FlightApiService.fetchFlights(
@@ -51,21 +53,21 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
         maxResults: maxResults,
       );
 
-      // ✅ Process flights before updating state
-      if (!isInboundFlight) {
-        final List<Map<String, dynamic>> processed = processFlights(result);
+      final List<Map<String, dynamic>> res = processFlights(
+        result,
+        mode,
+        isInboundFlight,
+      );
 
-        state = state.copyWithFlightResults(AsyncValue.data(result));
-        state = state.copyWithProcessedFlights(processed);
-      } else {
-        final List<Map<String, dynamic>> processed = processFlights(result);
-
-        state = state.copyWithInBoundFlightResults(AsyncValue.data(result));
-        state = state.copyWithProcessedInboundFlights(processed);
-      }
+      state = state.copyWith(
+        processedFlights: <Map<String, dynamic>>[
+          ...state.processedFlights,
+          ...res,
+        ],
+      );
       return (true, '✅ Flight search completed');
-    } catch (e, st) {
-      state = state.copyWithFlightResults(AsyncValue.error(e, st));
+    } catch (e) {
+      // state = state.copyWithFlightResults(AsyncValue.error(e, st));
       return (false, '❌ Flight search failed: $e');
     } finally {
       state = state.copyWith(isLoading: false);
@@ -84,6 +86,8 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
 
   List<Map<String, dynamic>> processFlights(
     Map<String, dynamic> latestFlights,
+    PricingMode mode,
+    bool isInBoundFlight,
   ) {
     final List<Map<String, dynamic>> results = <Map<String, dynamic>>[];
 
@@ -329,6 +333,11 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
             )
             .join(' / ');
 
+        //pricing mode
+        final String pricingMode = PricingMode.combined == mode
+            ? 'combined'
+            : 'perleg';
+
         results.add(<String, dynamic>{
           // summary
           'depAirport': depAirport,
@@ -379,6 +388,8 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
           'segments': segmentDetails, // 🆕 list with dep/arr for EACH stop/leg
           // overall cabin for card (first segment’s cabin)
           'cabinClass': segCabin[(segments.first['id'] ?? '').toString()],
+          'pricingMode': pricingMode,
+          'isInBoundFlight': isInBoundFlight,
         });
       }
     }
@@ -482,6 +493,10 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
     state = state.copyWith(departureAirportCode: code);
   }
 
+  void clearProcessedFlights() {
+    debugPrint("🔴 clear processed flights");
+    state = state.copyWith(processedFlights: <Map<String, dynamic>>[]);
+  }
   // void setDepartureName(String name) {
   //   state = state.copyWith(departureAirportName: name);
   // }
@@ -521,10 +536,6 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
     }
 
     state = state.copyWith(passengerCount: count, cabinClass: cabin);
-  }
-
-  void clearInBoundFlights(bool b) {
-    state = state.copyWith(clearInboundFlights: b);
   }
 
   void clearRecentSearches() {

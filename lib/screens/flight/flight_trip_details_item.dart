@@ -17,7 +17,8 @@ class FlightTripDetailsItem extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final Color primary = Theme.of(context).colorScheme.primary;
-    final double textSize = Theme.of(context).textTheme.displaySmall?.fontSize ?? 16.0;
+    final double textSize =
+        Theme.of(context).textTheme.displaySmall?.fontSize ?? 16.0;
 
     if (flightData.isEmpty) {
       return const SizedBox.shrink();
@@ -32,8 +33,9 @@ class FlightTripDetailsItem extends ConsumerWidget {
 
     // Prefer depRaw from parser; otherwise use the first segment dep.at
     final String? depRawTop = (flightData['depRaw'] as String?);
-    final List<Map<String, dynamic>> segments = (flightData['segments'] as List<dynamic>? ?? const <dynamic>[])
-        .cast<Map<String, dynamic>>();
+    final List<Map<String, dynamic>> segments =
+        (flightData['segments'] as List<dynamic>? ?? const <dynamic>[])
+            .cast<Map<String, dynamic>>();
     final List<Map<String, dynamic>> connections =
         (flightData['connections'] as List<dynamic>? ?? const <dynamic>[])
             .cast<Map<String, dynamic>>();
@@ -42,13 +44,15 @@ class FlightTripDetailsItem extends ConsumerWidget {
         depRawTop ??
         (() {
           if (segments.isNotEmpty) {
-            final Map<String, dynamic>? depMap = segments.first['dep'] as Map<String, dynamic>?;
+            final Map<String, dynamic>? depMap =
+                segments.first['dep'] as Map<String, dynamic>?;
             return depMap?['at'] as String?;
           }
           return null;
         }());
 
-    final String headerDate = depAtForHeader != null && depAtForHeader.isNotEmpty
+    final String headerDate =
+        depAtForHeader != null && depAtForHeader.isNotEmpty
         ? _formatHeaderDate(depAtForHeader)
         : '';
 
@@ -60,13 +64,19 @@ class FlightTripDetailsItem extends ConsumerWidget {
     final String airlineName = (flightData['airline'] ?? '') as String;
 
     // ── Build segment tiles + layovers ─────────────────────────────────────────
-    final List<Widget> sectionChildren = <Widget>[_AirlineLabel(name: airlineName)];
+    final List<Widget> sectionChildren = <Widget>[
+      _AirlineLabel(name: airlineName),
+    ];
 
     for (int i = 0; i < segments.length; i++) {
       final Map<String, dynamic> seg = segments[i];
 
-      final Map<String, dynamic> dep = (seg['dep'] as Map?)?.cast<String, dynamic>() ?? const <String, dynamic>{};
-      final Map<String, dynamic> arr = (seg['arr'] as Map?)?.cast<String, dynamic>() ?? const <String, dynamic>{};
+      final Map<String, dynamic> dep =
+          (seg['dep'] as Map?)?.cast<String, dynamic>() ??
+          const <String, dynamic>{};
+      final Map<String, dynamic> arr =
+          (seg['arr'] as Map?)?.cast<String, dynamic>() ??
+          const <String, dynamic>{};
 
       final String depCode = (dep['code'] ?? '') as String;
       final String arrCode = (arr['code'] ?? '') as String;
@@ -78,12 +88,17 @@ class FlightTripDetailsItem extends ConsumerWidget {
       final String arrTime = arrAt.isNotEmpty ? _fmtTime(arrAt) : '';
 
       // +day indicator for this segment
-      bool plusDay = false;
-      if (depAt.isNotEmpty && arrAt.isNotEmpty) {
-        final DateTime depDT = DateTime.parse(depAt);
-        final DateTime arrDT = DateTime.parse(arrAt);
-        plusDay = arrDT.difference(depDT).inDays > 0;
-      }
+      // bool plusDay = false;
+      // if (depAt.isNotEmpty && arrAt.isNotEmpty) {
+      //   final DateTime depDT = DateTime.parse(depAt);
+      //   final DateTime arrDT = DateTime.parse(arrAt);
+      //   plusDay = arrDT.difference(depDT).inDays > 0;
+      // }
+      final String plusDayStr = flightData['plusDay'];
+
+      final int plusDay = plusDayStr == ''
+          ? 0
+          : int.parse(flightData['plusDay'] as String);
 
       final String segDuration = (seg['duration'] ?? '') as String;
 
@@ -283,7 +298,7 @@ class _SegmentTile extends StatelessWidget {
     required this.arrCode,
     required this.durationText,
     required this.flightNo,
-    this.plusDay = false,
+    required this.plusDay,
   });
 
   final String depTime;
@@ -292,11 +307,12 @@ class _SegmentTile extends StatelessWidget {
   final String arrCode;
   final String durationText;
   final String flightNo;
-  final bool plusDay;
+  final int plusDay;
 
   @override
   Widget build(BuildContext context) {
-    final double textSize = Theme.of(context).textTheme.displaySmall?.fontSize ?? 16;
+    final double textSize =
+        Theme.of(context).textTheme.displaySmall?.fontSize ?? 16;
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
@@ -312,7 +328,7 @@ class _SegmentTile extends StatelessWidget {
               _timeCell(
                 arrTime,
                 textSize,
-                suffix: plusDay ? ' +1' : null,
+                suffix: plusDay > 0 ? plusDay.toString() : null,
                 alignEnd: true,
               ),
             ],
@@ -346,31 +362,68 @@ class _SegmentTile extends StatelessWidget {
   }
 
   Widget _timeCell(
-    String t,
+    String time,
     double textSize, {
     String? suffix,
     bool alignEnd = false,
   }) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: <Widget>[
-        Text(
-          t,
-          textAlign: alignEnd ? TextAlign.right : TextAlign.left,
-          style: TextStyle(fontSize: textSize, fontWeight: FontWeight.w800),
-        ),
-        if (suffix != null)
-          Padding(
-            padding: const EdgeInsets.only(left: 2, top: 8),
-            child: Text(
-              suffix,
-              style: TextStyle(fontSize: textSize, fontWeight: FontWeight.w700),
-            ),
+    return Text.rich(
+      TextSpan(
+        children: <InlineSpan>[
+          TextSpan(
+            text: time,
+            style: TextStyle(fontSize: textSize, color: Colors.black),
           ),
-      ],
+          if (suffix != null)
+            WidgetSpan(
+              child: Transform.translate(
+                offset: const Offset(1, -16), // move right and up
+                child: Text(
+                  '+$suffix',
+                  style: const TextStyle(fontSize: 14, color: Colors.red),
+                ),
+              ),
+            ),
+        ],
+      ),
     );
   }
 }
+//   Widget _timeCell(
+//     String t,
+//     double textSize, {
+//     String? suffix,
+//     bool alignEnd = false,
+//   }) {
+//     return Row(
+//       mainAxisSize: MainAxisSize.min,
+//       children: <Widget>[
+//         Text(
+//           t,
+//           textAlign: alignEnd ? TextAlign.right : TextAlign.left,
+//           style: TextStyle(
+//             fontSize: textSize,
+//             fontWeight: FontWeight.w800,
+//             color: Colors.red,
+//           ),
+//         ),
+//         if (suffix != null)
+//           Padding(
+//             padding: const EdgeInsets.only(left: 2, top: 8),
+//             child: Text(
+//               suffix,
+//               style: TextStyle(
+//                 offset: const Offset(1, -4),
+//                 fontSize: textSize,
+//                 fontWeight: FontWeight.w700,
+//                 color: Colors.red,
+//               ),
+//             ),
+//           ),
+//       ],
+//     );
+//   }
+// }
 
 class _LayoverChip extends StatelessWidget {
   const _LayoverChip({required this.text});

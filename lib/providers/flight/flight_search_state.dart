@@ -116,12 +116,12 @@ class FlightSearchState {
   // 👇 Full and correct copyWith
   FlightSearchState copyWith({
     bool? isLoading,
-    AsyncValue<Map<String, dynamic>>? flightResults,
-    AsyncValue<Map<String, dynamic>>? inBoundFlightResults,
+    // AsyncValue<Map<String, dynamic>>? flightResults,
+    // AsyncValue<Map<String, dynamic>>? inBoundFlightResults,
     List<RecentSearch>? recentSearches,
     List<Map<String, dynamic>>? processedFlights,
-    List<Map<String, dynamic>>? processedInBoundFlights,
 
+    // List<Map<String, dynamic>>? processedInBoundFlights,
     String? departureAirportName,
     String? departureAirportCode,
     String? departureCity,
@@ -137,13 +137,10 @@ class FlightSearchState {
     bool clearInboundFlights = false,
   }) {
     return FlightSearchState(
-      inBoundFlightResults: inBoundFlightResults ?? this.inBoundFlightResults,
-      flightResults: flightResults ?? this.flightResults,
+      // inBoundFlightResults: inBoundFlightResults ?? this.inBoundFlightResults,
+      // flightResults: flightResults ?? this.flightResults,
       recentSearches: recentSearches ?? this.recentSearches,
       processedFlights: processedFlights ?? this.processedFlights,
-      processedInBoundFlights: clearInboundFlights
-          ? null
-          : processedInBoundFlights ?? this.processedInBoundFlights,
       // departureAirportName: departureAirportName ?? this.departureAirportName,
       departureAirportCode: departureAirportCode ?? this.departureAirportCode,
       departureCity: departureCity ?? this.departureCity,
@@ -166,29 +163,29 @@ class FlightSearchState {
     return copyWith(recentSearches: updatedRecentSearches);
   }
 
-  FlightSearchState copyWithFlightResults(
-    AsyncValue<Map<String, dynamic>> newResults,
-  ) {
-    return copyWith(flightResults: newResults);
-  }
+  // FlightSearchState copyWithFlightResults(
+  //   AsyncValue<Map<String, dynamic>> newResults,
+  // ) {
+  //   return copyWith(flightResults: newResults);
+  // }
 
-  FlightSearchState copyWithInBoundFlightResults(
-    AsyncValue<Map<String, dynamic>> newResults,
-  ) {
-    return copyWith(inBoundFlightResults: newResults);
-  }
+  // FlightSearchState copyWithInBoundFlightResults(
+  //   AsyncValue<Map<String, dynamic>> newResults,
+  // ) {
+  //   return copyWith(inBoundFlightResults: newResults);
+  // }
 
-  FlightSearchState copyWithProcessedFlights(
-    List<Map<String, dynamic>> flights,
-  ) {
-    return copyWith(processedFlights: flights);
-  }
+  // FlightSearchState copyWithProcessedFlights(
+  //   List<Map<String, dynamic>> flights,
+  // ) {
+  //   return copyWith(processedFlights: flights);
+  // }
 
-  FlightSearchState copyWithProcessedInboundFlights(
-    List<Map<String, dynamic>> flights,
-  ) {
-    return copyWith(processedInBoundFlights: flights);
-  }
+  // FlightSearchState copyWithProcessedInboundFlights(
+  //   List<Map<String, dynamic>> flights,
+  // ) {
+  //   return copyWith(processedInBoundFlights: flights);
+  // }
 
   @override
   String toString() {
@@ -228,14 +225,14 @@ class FlightSearchState {
       cabinClass.hashCode ^
       passengerCount.hashCode;
 
-  FlightSearchState copyWithLoading(bool isLoading) {
-    return copyWith(
-      flightResults: isLoading
-          ? const AsyncLoading()
-          : const AsyncData(<String, dynamic>{}),
-      inBoundFlightResults: isLoading
-          ? const AsyncLoading()
-          : const AsyncData(<String, dynamic>{}),
-    );
-  }
+  // FlightSearchState copyWithLoading(bool isLoading) {
+  //   return copyWith(
+  //     flightResults: isLoading
+  //         ? const AsyncLoading()
+  //         : const AsyncData(<String, dynamic>{}),
+  //     inBoundFlightResults: isLoading
+  //         ? const AsyncLoading()
+  //         : const AsyncData(<String, dynamic>{}),
+  //   );
+  // }
 }

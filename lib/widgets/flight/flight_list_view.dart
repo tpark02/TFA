@@ -142,9 +142,9 @@ class _FlightListViewState extends ConsumerState<FlightListView>
     final List<Map<String, dynamic>> allFlights = ref
         .watch(flightSearchProvider)
         .processedFlights;
-    final List<Map<String, dynamic>>? allInBoundFlights = ref
-        .watch(flightSearchProvider)
-        .processedInBoundFlights;
+    // final List<Map<String, dynamic>>? allInBoundFlights = ref
+    //     .watch(flightSearchProvider)
+    //     .processedInBoundFlights;
 
     int depMinutesOfDay(dynamic depRaw) {
       if (depRaw == null) return -1;
@@ -286,9 +286,12 @@ class _FlightListViewState extends ConsumerState<FlightListView>
     for (final String s in widget.selectedAirlines) {
       debugPrint('selected Airlines - $s');
     }
+    debugPrint("🟣 all flights count : ${allFlights.length}");
+
     final List<Map<String, dynamic>> filteredFlights = allFlights.where((
       Map<String, dynamic> f,
     ) {
+      debugPrint("🧳 all flights - pricing mode : ${f['pricingMode']}");
       // airlines filter
       if (!passesAirlineFilter(f, widget.selectedAirlines)) return false;
 
@@ -348,17 +351,34 @@ class _FlightListViewState extends ConsumerState<FlightListView>
     ]..sort(compare);
 
     final List<Map<String, dynamic>> departureFlights = sortedAllFlights
-        .where((Map<String, dynamic> f) => f['isReturn'] == false)
+        .where(
+          (Map<String, dynamic> f) =>
+              f['isReturn'] == false && f['isInBoundFlight'] == false,
+        )
         .toList();
-    final List<Map<String, dynamic>> returnFlights =
-        allInBoundFlights == null || allInBoundFlights.isEmpty
-        ? sortedAllFlights
-              .where((Map<String, dynamic> f) => f['isReturn'] == true)
-              .toList()
-        : allInBoundFlights
-              .where((Map<String, dynamic> f) => f['isReturn'] == false)
-              .toList();
+    // final List<Map<String, dynamic>> returnFlights =
+    //     allInBoundFlights == null || allInBoundFlights.isEmpty
+    //     ? sortedAllFlights
+    //           .where((Map<String, dynamic> f) => f['isReturn'] == true)
+    //           .toList()
+    //     : allInBoundFlights
+    //           .where((Map<String, dynamic> f) => f['isReturn'] == false)
+    //           .toList();
+    final List<Map<String, dynamic>> returnFlights = sortedAllFlights
+        .where(
+          (Map<String, dynamic> f) =>
+              (f['pricingMode'] == 'combined' && f['isReturn'] == true) ||
+              (f['pricingMode'] == 'perleg' && f['isInBoundFlight'] == true),
+        )
+        .toList();
 
+    // if (allInBoundFlights != null && allInBoundFlights.isNotEmpty) {
+    //   final allInbounds = allInBoundFlights!
+    //       .where((Map<String, dynamic> f) => f['isReturn'] == false)
+    //       .toList();
+
+    //   allInbounds.map((f) => returnFlights.add(f));
+    // }
     final int? activeIndex =
         (selectedDepartureIndex != null &&
             selectedDepartureIndex! >= 0 &&
@@ -366,7 +386,7 @@ class _FlightListViewState extends ConsumerState<FlightListView>
         ? selectedDepartureIndex
         : null;
 
-    final List<Widget> returnFlightWidgets = List.generate(
+    final List<FlightListViewItem> returnFlightWidgets = List.generate(
       returnFlights.length,
       (int i) => FlightListViewItem(
         onClick: () async {
@@ -379,9 +399,9 @@ class _FlightListViewState extends ConsumerState<FlightListView>
       ),
     );
 
-    if (allInBoundFlights != null && allInBoundFlights.isNotEmpty) {
-      debugPrint("🔴 all inbound flight empty ? ${allInBoundFlights.length}");
-    }
+    // if (allInBoundFlights != null && allInBoundFlights.isNotEmpty) {
+    //   debugPrint("🔴 all inbound flight empty ? ${allInBoundFlights.length}");
+    // }
     debugPrint("🟠 return flight empty ? ${returnFlights.length}");
 
     final List<Widget> departureFlightWidgets = List.generate(
@@ -390,14 +410,14 @@ class _FlightListViewState extends ConsumerState<FlightListView>
         onClick: returnFlightWidgets.isNotEmpty
             ? () {
                 debugPrint(
-                  "☑️ departureFlightWidgets - returnFlightWidgets.isNotEmpty clicked",
+                  "☑️ departureFlightWidgets - round trip flight clicked -> must choose return flight",
                 );
                 _departData = departureFlights[i];
                 onDepartureClicked(i);
               }
             : () {
                 debugPrint(
-                  "☑️ departureFlightWidgets - returnFlightWidgets empty clicked",
+                  "☑️ departureFlightWidgets - one way flight clicked -> go to detail page",
                 );
                 _departData = departureFlights[i];
                 openTripDetails(context: context, isReturnPage: false);
@@ -539,7 +559,13 @@ class _FlightListViewState extends ConsumerState<FlightListView>
                             : ListView(
                                 key: const ValueKey('return-list'),
                                 controller: _returnScrollController,
-                                children: returnFlightWidgets,
+                                children: returnFlightWidgets
+                                    .where(
+                                      (FlightListViewItem f) =>
+                                          f.flight['pricingMode'] ==
+                                          _departData['pricingMode'],
+                                    )
+                                    .toList(),
                               ),
                       ),
                     ),
