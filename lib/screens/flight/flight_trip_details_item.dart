@@ -18,7 +18,7 @@ class FlightTripDetailsItem extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final Color primary = Theme.of(context).colorScheme.primary;
     final double textSize =
-        Theme.of(context).textTheme.displaySmall?.fontSize ?? 16.0;
+        Theme.of(context).textTheme.headlineMedium?.fontSize ?? 16.0;
 
     if (flightData.isEmpty) {
       return const SizedBox.shrink();
@@ -132,126 +132,139 @@ class FlightTripDetailsItem extends ConsumerWidget {
     }
 
     // ── UI ─────────────────────────────────────────────────────────────────────
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        // Cities header
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Flexible(
-              child: Text(
-                '$depCity - $arrCity',
-                style: TextStyle(
-                  color: primary,
-                  fontSize: textSize,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-            ),
-            const SizedBox(width: 6),
-            Icon(Icons.keyboard_arrow_down, color: secondaryFontColor),
-          ],
-        ),
-        const SizedBox(height: 8),
+    return Container(
+      padding: const EdgeInsets.fromLTRB(0, 16, 0, 16),
 
-        // Date
-        if (headerDate.isNotEmpty)
-          Align(
-            alignment: Alignment.center,
-            child: Text(
-              headerDate,
-              style: const TextStyle(
-                color: primaryFontColor,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-        const SizedBox(height: 6),
-
-        // Meta line
-        Align(
-          alignment: Alignment.center,
-          child: Text(
-            '$metaAir | $metaStops | $paxCount | $cabin',
-            style: TextStyle(color: secondaryFontColor, fontSize: 12),
-          ),
-        ),
-        const SizedBox(height: 16),
-
-        ...sectionChildren,
-
-        const SizedBox(height: 20),
-
-        // (Optional) Price History placeholder — keep or remove as you wish
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 14),
-          decoration: BoxDecoration(
-            color: Colors.transparent,
-            borderRadius: const BorderRadius.vertical(
-              bottom: Radius.circular(0),
-            ),
-            border: BoxBorder.fromLTRB(
-              left: BorderSide.none,
-              top: BorderSide(color: Colors.grey.shade300),
-              right: BorderSide.none,
-              bottom: BorderSide.none,
-            ),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Container(
-                width: MediaQuery.of(context).size.width,
-                color: Colors.grey.shade200,
-                margin: EdgeInsets.zero,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 10,
-                ),
-                child: Text(
-                  'Price History',
-                  style: TextStyle(
-                    backgroundColor: Colors.grey.shade200,
-                    fontWeight: FontWeight.w700,
-                    fontSize: textSize,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const SizedBox(width: 50),
+              Expanded(
+                child: Center(
+                  child: Text(
+                    '$depCity - $arrCity',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: primary,
+                      fontSize: textSize,
+                      fontWeight: FontWeight.w800,
+                    ),
                   ),
                 ),
               ),
-              const SizedBox(height: 12),
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20),
-                child: Row(
-                  children: <Widget>[
-                    Expanded(
-                      child: Text(
-                        'a few seconds ago',
-                        style: TextStyle(color: primaryFontColor),
-                      ),
-                    ),
-                    Text(
-                      '₩1,228,361',
-                      style: TextStyle(
-                        color: primaryFontColor,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
-              Container(
-                height: 64,
-                decoration: BoxDecoration(
-                  color: primary.withValues(alpha: 0.7),
-                  borderRadius: BorderRadius.circular(10),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(0, 0, 40, 0),
+                child: Icon(
+                  Icons.keyboard_arrow_down,
+                  color: secondaryFontColor,
+                  size: 20,
                 ),
               ),
             ],
           ),
-        ),
-        const SizedBox(height: 88),
-      ],
+          const SizedBox(height: 8),
+          // Date
+          if (headerDate.isNotEmpty)
+            Align(
+              alignment: Alignment.center,
+              child: Text(
+                headerDate,
+                style: const TextStyle(
+                  color: primaryFontColor,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          const SizedBox(height: 6),
+
+          // Meta line
+          Align(
+            alignment: Alignment.center,
+            child: Text(
+              '$metaAir | $metaStops | $paxCount | $cabin',
+              style: TextStyle(color: secondaryFontColor, fontSize: 12),
+            ),
+          ),
+          const SizedBox(height: 16),
+          ...sectionChildren,
+
+          if (flightData['pricingMode'] == 'perleg') ...<Widget>[
+            const SizedBox(height: 20),
+            // (Optional) Price History placeholder — keep or remove as you wish
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 14),
+              decoration: BoxDecoration(
+                color: Colors.transparent,
+                borderRadius: const BorderRadius.vertical(
+                  bottom: Radius.circular(0),
+                ),
+                border: BoxBorder.fromLTRB(
+                  left: BorderSide.none,
+                  top: BorderSide(color: Colors.grey.shade300),
+                  right: BorderSide.none,
+                  bottom: BorderSide.none,
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Container(
+                    width: MediaQuery.of(context).size.width,
+                    color: Colors.grey.shade200,
+                    margin: EdgeInsets.zero,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 0,
+                      vertical: 10,
+                    ),
+                    child: Text(
+                      'Price History',
+                      style: TextStyle(
+                        backgroundColor: Colors.grey.shade200,
+                        fontWeight: FontWeight.w700,
+                        fontSize: textSize,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Row(
+                      children: <Widget>[
+                        const Expanded(
+                          child: Text(
+                            'a few seconds ago',
+                            style: TextStyle(color: primaryFontColor),
+                          ),
+                        ),
+                        Text(
+                          '${flightData['price']}',
+                          style: const TextStyle(
+                            color: primaryFontColor,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Container(
+                    height: 64,
+                    decoration: BoxDecoration(
+                      color: primary.withValues(alpha: 0.7),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 88),
+          ],
+        ],
+      ),
     );
   }
 

@@ -1,4 +1,5 @@
 import 'package:TFA/screens/flight/flight_trip_details_item.dart';
+import 'package:TFA/widgets/dotted_divider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:TFA/constants/colors.dart';
@@ -48,26 +49,20 @@ class FlightTripDetailsPage extends ConsumerWidget {
           ),
         ],
       ),
-      body: Container(
-        padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
-        decoration: BoxDecoration(
-          color: Colors.transparent,
-          borderRadius: const BorderRadius.vertical(bottom: Radius.circular(0)),
-          border: BoxBorder.fromLTRB(
-            left: BorderSide.none,
-            top: BorderSide.none,
-            right: BorderSide.none,
-            bottom: BorderSide(color: Colors.grey.shade300),
-          ),
+      body: ListView.separated(
+        padding: EdgeInsets.zero,
+        itemCount: isReturnPage ? 2 : 1,
+        separatorBuilder: (_, __) => const Padding(
+          padding: EdgeInsets.symmetric(vertical: 8, horizontal: 0),
+          child: DottedDivider(thickness: 2, dashLength: 2, dashGap: 6),
         ),
-        child: ListView.separated(
-          padding: EdgeInsets.zero,
-          itemCount: isReturnPage ? 2 : 1,
-          separatorBuilder: (_, __) => const SizedBox(height: 12),
-          itemBuilder: (_, int i) => i == 0
-              ? FlightTripDetailsItem(flightData: departData)
-              : FlightTripDetailsItem(flightData: returnData!),
-        ),
+        itemBuilder: (_, int i) {
+          if (i == 0) {
+            return FlightTripDetailsItem(flightData: departData);
+          } else {
+            return FlightTripDetailsItem(flightData: returnData!);
+          }
+        },
       ),
       bottomNavigationBar: Container(
         padding: const EdgeInsets.fromLTRB(0, 5, 0, 20),
