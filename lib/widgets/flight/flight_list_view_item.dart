@@ -12,47 +12,76 @@ class FlightListViewItem extends StatelessWidget {
   final int index;
   final Map<String, dynamic> flight;
 
-  Widget _timeCell(String time, double fontSize, {int? plusDay}) {
-    return RichText(
-      text: TextSpan(
-        children: <InlineSpan>[
-          TextSpan(
-            text: time,
-            style: TextStyle(
-              fontSize: fontSize,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
-            ),
-          ),
-          if (plusDay != null && plusDay > 0)
-            WidgetSpan(
-              // 🟢 FIX: align to alphabetic baseline
-              alignment: PlaceholderAlignment.baseline,
-              baseline: TextBaseline.alphabetic,
-              child: Transform.translate(
-                // small upward nudge (proportional to font size)
-                offset: Offset(-5, -fontSize * 0.7),
-                child: Text(
-                  '+$plusDay',
-                  style: TextStyle(
-                    fontSize: fontSize * 0.55,
-                    color: Colors.red,
-                    height: 1, // keep tight
+  Widget _timeCell(
+    String time,
+    double fontSize, {
+    int? plusDay,
+    String? arrAirport,
+    double? fs,
+  }) {
+    final h = plusDay != null && plusDay > 0 ? 52.0 : 55.0;
+    return SizedBox(
+      width: 85,
+      height: h,
+      child: Stack(
+        children: <Widget>[
+          Positioned(
+            top: 11,
+            left: 0,
+            right: 0,
+            child: RichText(
+              text: TextSpan(
+                children: <InlineSpan>[
+                  TextSpan(
+                    text: time,
+                    style: TextStyle(
+                      fontSize: fontSize,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
                   ),
-                ),
+                  if (plusDay != null && plusDay > 0)
+                    WidgetSpan(
+                      // 🟢 FIX: align to alphabetic baseline
+                      alignment: PlaceholderAlignment.baseline,
+                      baseline: TextBaseline.alphabetic,
+                      child: Transform.translate(
+                        // small upward nudge (proportional to font size)
+                        offset: Offset(-5, -fontSize * 0.7),
+                        child: Text(
+                          '+$plusDay',
+                          style: TextStyle(
+                            fontSize: fontSize * 0.55,
+                            color: Colors.red,
+                            height: 1, // keep tight
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+              // 🟢 FIX: normalize line metrics so left/right line up
+              strutStyle: StrutStyle(
+                forceStrutHeight: true,
+                fontSize: fontSize,
+                height: 1.0,
+              ),
+              textHeightBehavior: const TextHeightBehavior(
+                applyHeightToFirstAscent: false,
+                applyHeightToLastDescent: false,
               ),
             ),
+          ),
+          Positioned(
+            top: 30,
+            left: 0,
+            right: 0,
+            child: Text(
+              arrAirport ?? 'N/A',
+              style: TextStyle(fontSize: fs, color: Colors.grey),
+            ),
+          ),
         ],
-      ),
-      // 🟢 FIX: normalize line metrics so left/right line up
-      strutStyle: StrutStyle(
-        forceStrutHeight: true,
-        fontSize: fontSize,
-        height: 1.0,
-      ),
-      textHeightBehavior: const TextHeightBehavior(
-        applyHeightToFirstAscent: false,
-        applyHeightToLastDescent: false,
       ),
     );
   }
@@ -175,21 +204,40 @@ class FlightListViewItem extends StatelessWidget {
             children: <Widget>[
               /// Top Row — Departure & Arrival Times and Airports
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.all(0.0),
-                    child: Text(
-                      depTime,
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: fs,
-                      ),
+                  SizedBox(
+                    width: 75,
+                    height: 62,
+                    child: Stack(
+                      children: <Widget>[
+                        Positioned(
+                          top: 11,
+                          left: 0,
+                          right: 0,
+                          child: Text(
+                            depTime,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: fs,
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          top: 35,
+                          left: 0,
+                          right: 0,
+                          child: Text(
+                            depAirport,
+                            style: TextStyle(fontSize: fs, color: Colors.grey),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   Expanded(
                     child: Padding(
-                      padding: const EdgeInsets.fromLTRB(10, 15, 10, 0),
+                      padding: const EdgeInsets.fromLTRB(0, 15, 10, 0),
                       child: layoverTimeline(context, middleAirports),
                     ),
                   ),
@@ -197,6 +245,8 @@ class FlightListViewItem extends StatelessWidget {
                     arrTime,
                     fs!,
                     plusDay: plusDay > 0 ? plusDay : null,
+                    arrAirport: arrAirport,
+                    fs: fs,
                   ),
                 ],
               ),
