@@ -28,14 +28,17 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
     setState(() => _isLoadingCity = true);
 
     try {
-      final FlightSearchController controller = ref.read(flightSearchProvider.notifier);
-      final Position pos = await LocationService.getCurrentLocation();
-      final List<Map<String, dynamic>> airports = await _airportSvc.nearbyAirports(
-        lat: pos.latitude,
-        lon: pos.longitude,
-        radiusKm: 150,
-        limit: 5,
+      final FlightSearchController controller = ref.read(
+        flightSearchProvider.notifier,
       );
+      final Position pos = await LocationService.getCurrentLocation();
+      final List<Map<String, dynamic>> airports = await _airportSvc
+          .nearbyAirports(
+            lat: pos.latitude,
+            lon: pos.longitude,
+            radiusKm: 150,
+            limit: 5,
+          );
 
       final List<Placemark> placemarks = await placemarkFromCoordinates(
         pos.latitude,
@@ -47,7 +50,8 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
           : '';
 
       final Map<String, dynamic> first = airports.firstWhere(
-        (Map<String, dynamic> e) => (e['iataCode'] as String?)?.isNotEmpty == true,
+        (Map<String, dynamic> e) =>
+            (e['iataCode'] as String?)?.isNotEmpty == true,
         orElse: () => <String, dynamic>{},
       );
       final String? code = (first['iataCode'] as String?)?.toUpperCase();
@@ -60,10 +64,12 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
       }
       debugPrint('📍 no nearby airport from API (city: $city) → default JFK');
       controller.setDepartureCode('JFK');
+      controller.setDepartureCity('New York');
     } catch (e, st) {
       debugPrint('❌ Location/airport error: $e');
       debugPrint('$st');
-      ref.read(flightSearchProvider.notifier).setDepartureCode('JFK');
+      controller.setDepartureCode('JFK');
+      controller.setDepartureCity('New York');
     } finally {
       if (mounted) setState(() => _isLoadingCity = false);
     }

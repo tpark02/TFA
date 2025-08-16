@@ -19,7 +19,7 @@ class FlightListViewItem extends StatelessWidget {
     String? arrAirport,
     double? fs,
   }) {
-    final h = plusDay != null && plusDay > 0 ? 52.0 : 55.0;
+    final double h = plusDay != null && plusDay > 0 ? 52.0 : 55.0;
     return SizedBox(
       width: 85,
       height: h,
