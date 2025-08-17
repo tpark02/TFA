@@ -34,9 +34,14 @@ class _CalendarSheetState extends ConsumerState<CalendarSheet>
   @override
   void initState() {
     super.initState();
-
-    startDate = DateTime.now().add(Duration(days: widget.startDays));
-    endDate = null;
+    
+    if (widget.isRange) {
+      startDate = DateTime.now().add(Duration(days: widget.startDays));
+      endDate = DateTime.now().add(Duration(days: widget.endDays));
+    } else {
+      startDate = DateTime.now().add(Duration(days: widget.startDays));
+      endDate = null;
+    }
 
     _tabController = TabController(length: 2, vsync: this);
   }
@@ -52,8 +57,6 @@ class _CalendarSheetState extends ConsumerState<CalendarSheet>
       flightSearchProvider.notifier,
     );
 
-    debugPrint('_onSelectionRange');
-
     if (args.value is PickerDateRange) {
       final PickerDateRange range = args.value as PickerDateRange;
 
@@ -61,31 +64,33 @@ class _CalendarSheetState extends ConsumerState<CalendarSheet>
         startDate = range.startDate;
         endDate = range.endDate;
         controller.setClearReturnDate(false);
+        debugPrint("📅 start date : $startDate, end date : $endDate");
       } else {
-        debugPrint('selected range: start or end is null');
+        debugPrint('📅 selected range: start or end is null');
       }
     } else {
-      debugPrint('selected range: null or not a valid range');
+      debugPrint('📅 selected range: null or not a valid range');
     }
   }
 
   void _onSelectionChanged(DateRangePickerSelectionChangedArgs args) {
-    debugPrint('_onSelectionChanged');
     final FlightSearchController controller = ref.read(
       flightSearchProvider.notifier,
     );
     if (args.value is DateTime) {
       startDate = args.value;
       controller.setClearReturnDate(true);
+      debugPrint("📅 start date : $startDate , end date : $endDate");
     } else {
-      debugPrint('Selection is not a DateTime: ${args.value.runtimeType}');
+      debugPrint('📅 Selection is not a DateTime: ${args.value.runtimeType}');
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final double height =
-        MediaQuery.of(context).size.height * 0.7; // 95% of screen height
+    final double height = MediaQuery.of(
+      context,
+    ).size.height; // 95% of screen height
 
     final bool isRange = widget.isRange;
 
@@ -94,8 +99,11 @@ class _CalendarSheetState extends ConsumerState<CalendarSheet>
       DateTime.now().add(Duration(days: widget.endDays)),
     );
 
-    final DateTime initialDate = DateTime.now().add(Duration(days: widget.startDays));
+    final DateTime initialDate = DateTime.now().add(
+      Duration(days: widget.startDays),
+    );
 
+    ref.watch(flightSearchProvider);
     return SafeArea(
       child: Padding(
         padding: EdgeInsets.only(
@@ -220,6 +228,9 @@ class _CalendarSheetState extends ConsumerState<CalendarSheet>
                         ),
                       ),
                       onPressed: () {
+                        debugPrint(
+                          "📅 onpressed start date : $startDate, end date : $endDate",
+                        );
                         Navigator.pop(context, <String, DateTime?>{
                           'startDate': startDate,
                           'endDate': endDate,

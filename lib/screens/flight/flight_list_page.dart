@@ -41,7 +41,8 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
   int layOverDurationSt = 0;
   int layOverDurationEnd = 0;
   late final ProviderSubscription<FlightSearchState> _sub;
-  ProviderSubscription<(String, String, String?, String?, int)>? _searchSub;
+  ProviderSubscription<(String, String, String?, String?, int, int)>?
+  _searchSub;
   bool _rtFetching = false;
 
   Map<String, String> carriersDict = <String, String>{}; // <-- add this
@@ -410,145 +411,128 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
   void initState() {
     super.initState();
 
-    _searchSub = ref.listenManual(
-      flightSearchProvider.select<(String, String, String?, String?, int)>(
-        (FlightSearchState s) => (
-          s.departureAirportCode,
-          s.arrivalAirportCode,
-          s.departDate,
-          s.returnDate,
-          s.passengerCount,
-        ),
-      ),
-      (
-        (String, String, String?, String?, int)? prev,
-        (String, String, String?, String?, int) next,
-      ) async {
-        if (prev == next) return;
-        if (!mounted) return;
+    Future<void> _onSearchChange(
+      (String, String, String?, String?, int, int) next,
+    ) async {
+      if (!mounted) return;
 
-        // 🔒 guard: need a departure date to search
-        final String? dep = next.$3;
-        if (dep == null || dep.isEmpty) return;
+      final origin = next.$1;
+      final dest = next.$2;
+      final dep = next.$3; // String?
+      final ret = next.$4; // String? (may be null)
+      final pax = next.$5;
 
-        final FlightSearchController controller = ref.read(
-          flightSearchProvider.notifier,
-        );
+      debugPrint('🧷 snapshot dep=$dep ret=$ret pax=$pax');
+      if (dep == null || dep.isEmpty) return;
 
-        try {
-          if (next.$4 != null && next.$4!.isNotEmpty) {
-            debugPrint("🔄🔄 Round trip");
+      if (_rtFetching) return;
+      _rtFetching = true;
 
-            final FlightSearchState state = ref.read(flightSearchProvider);
-            final FlightSearchController controller = ref.read(
-              flightSearchProvider.notifier,
-            );
+      final controller = ref.read(flightSearchProvider.notifier);
 
-            final PricingMode mode = await ref.read(
-              roundTripModeProvider((
-                state.departureAirportCode, // origin IATA
-                state.arrivalAirportCode, // destination IATA
-              )).future,
-            );
+      try {
+        controller.clearProcessedFlights();
+        debugPrint("‼️ _onSearchChange return date : $ret");
+        if ((ret ?? '').isNotEmpty) {
+          final mode = await ref.read(
+            roundTripModeProvider((next.$1, next.$2)).future,
+          );
 
-            final bool useCombined = (mode == PricingMode.combined);
-
-            if (useCombined) {
-              debugPrint("✅✅ Combined");
-              controller.clearProcessedFlights();
-              final (bool ok, String msg) = await controller.searchFlights(
-                origin: next.$1,
-                destination: next.$2,
-                departureDate: dep,
-                returnDate: next.$4!,
-                adults: next.$5,
-                isInboundFlight: false,
-                mode: PricingMode.combined,
-              );
-              if (!ok && mounted) {
-                ScaffoldMessenger.of(
-                  context,
-                ).showSnackBar(SnackBar(content: Text(msg)));
-              }
-            } else {
-              debugPrint("✅✅ Per-leg");
-
-              if (_rtFetching == true) return;
-              _rtFetching = true;
-
-              debugPrint('▶️ OUT search: ${next.$1} -> ${next.$2} on $dep');
-              debugPrint(
-                '▶️ IN  search: ${next.$2} -> ${next.$1} on ${next.$4!}',
-              );
-              controller.clearProcessedFlights();
-
-              final List<Future<(bool, String)>> futures =
-                  <Future<(bool, String)>>[
-                    controller.searchFlights(
-                      origin: next.$1,
-                      destination: next.$2,
-                      departureDate: dep,
-                      returnDate: null,
-                      adults: next.$5,
-                      isInboundFlight: false,
-                      mode: PricingMode.perLeg,
-                    ),
-                    controller.searchFlights(
-                      origin: next.$2,
-                      destination: next.$1,
-                      departureDate: next.$4!, // return date
-                      returnDate: null,
-                      adults: next.$5,
-                      isInboundFlight: true,
-                      mode: PricingMode.perLeg,
-                    ),
-                  ];
-
-              final List<(bool, String)> results = await Future.wait(futures);
-
-              final (bool okOut, String msgOut) = results[0];
-              final (bool okIn, String msgIn) = results[1];
-
-              if (!okOut && mounted) {
-                ScaffoldMessenger.of(
-                  context,
-                ).showSnackBar(SnackBar(content: Text(msgOut)));
-              }
-              if (!okIn && mounted) {
-                ScaffoldMessenger.of(
-                  context,
-                ).showSnackBar(SnackBar(content: Text(msgIn)));
-              }
-            }
-          } else {
-            debugPrint("✈️✈️ one-way");
-            controller.clearProcessedFlights();
-
-            final (bool ok, String msg) = await controller.searchFlights(
+          if (mode == PricingMode.combined) {
+            final (ok, msg) = await controller.searchFlights(
               origin: next.$1,
               destination: next.$2,
               departureDate: dep,
-              returnDate: null,
+              returnDate: ret!,
               adults: next.$5,
               isInboundFlight: false,
-              mode: PricingMode.perLeg,
+              mode: PricingMode.combined,
             );
-
             if (!ok && mounted) {
               ScaffoldMessenger.of(
                 context,
               ).showSnackBar(SnackBar(content: Text(msg)));
             }
-          }
-        } catch (e, st) {
-          debugPrint("❌ Failed loading flights from summary card: $e\n$st");
-        } finally {
-          _rtFetching = false; // 🟢 FIX: reset here, not in initState finally
-        }
-      },
+          } else {
+            final results = await Future.wait<(bool, String)>([
+              controller.searchFlights(
+                origin: next.$1,
+                destination: next.$2,
+                departureDate: dep,
+                returnDate: null,
+                adults: next.$5,
+                isInboundFlight: false,
+                mode: PricingMode.perLeg,
+              ),
+              controller.searchFlights(
+                origin: next.$2,
+                destination: next.$1,
+                departureDate: ret!,
+                returnDate: null,
+                adults: next.$5,
+                isInboundFlight: true,
+                mode: PricingMode.perLeg,
+              ),
+            ]);
 
+            final (okOut, msgOut) = results[0];
+            final (okIn, msgIn) = results[1];
+            if (!okOut && mounted) {
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(msgOut)));
+            }
+            if (!okIn && mounted) {
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(msgIn)));
+            }
+          }
+        } else {
+          final (ok, msg) = await controller.searchFlights(
+            origin: next.$1,
+            destination: next.$2,
+            departureDate: dep,
+            returnDate: null,
+            adults: next.$5,
+            isInboundFlight: false,
+            mode: PricingMode.perLeg,
+          );
+          if (!ok && mounted) {
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(msg)));
+          }
+        }
+      } catch (e, st) {
+        debugPrint("❌ Failed loading flights: $e\n$st");
+      } finally {
+        _rtFetching = false;
+      }
+    }
+
+    _searchSub = ref.listenManual(
+      flightSearchProvider.select<(String, String, String?, String?, int, int)>(
+        (s) => (
+          s.departureAirportCode,
+          s.arrivalAirportCode,
+          s.departDate,
+          s.returnDate,
+          s.passengerCount,
+          s.searchNonce,
+        ),
+      ),
+      (prev, next) {
+        debugPrint(
+          '🔔 listenManual fired dep=${next.$3} ret=${next.$4} nonce=${next.$6}',
+        );
+        Future.microtask(
+          () => _onSearchChange(next),
+        ); // 🟢 no await in listener
+      },
       fireImmediately: false,
     );
+    _searchSub!.read(); // important with listenManual
 
     try {
       _sub = ref.listenManual<FlightSearchState>(flightSearchProvider, (

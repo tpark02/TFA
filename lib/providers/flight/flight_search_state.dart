@@ -23,6 +23,7 @@ class FlightSearchState {
   final String departDate;
   final String? returnDate;
   final bool isLoading;
+  final int searchNonce;
 
   static const List<RecentSearch> _defaultRecentSearches = <RecentSearch>[
     RecentSearch(
@@ -111,6 +112,7 @@ class FlightSearchState {
 
     this.processedFlights = const <Map<String, dynamic>>[],
     this.processedInBoundFlights = const <Map<String, dynamic>>[],
+    this.searchNonce = 0,
   });
 
   // 👇 Full and correct copyWith
@@ -135,6 +137,7 @@ class FlightSearchState {
     String? returnDate,
     bool clearReturnDate = false,
     bool clearInboundFlights = false,
+    int? searchNonce,
   }) {
     return FlightSearchState(
       // inBoundFlightResults: inBoundFlightResults ?? this.inBoundFlightResults,
@@ -153,6 +156,7 @@ class FlightSearchState {
       departDate: departDate ?? this.departDate,
       returnDate: clearReturnDate ? null : returnDate ?? this.returnDate,
       isLoading: isLoading ?? this.isLoading,
+      searchNonce: searchNonce ?? this.searchNonce,
     );
   }
 

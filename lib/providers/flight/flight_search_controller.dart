@@ -581,6 +581,12 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
     }
   }
 
+  void bumpSearchNonce() {
+    final before = state.searchNonce;
+    state = state.copyWith(searchNonce: before + 1); // 🟢 must assign new state
+    debugPrint('🔔 nonce ${before} -> ${state.searchNonce}');
+  }
+
   String? get departDate => state.departDate;
   String? get returnDate => state.returnDate;
 }

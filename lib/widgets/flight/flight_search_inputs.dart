@@ -24,7 +24,9 @@ class FlightSearchInputs extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final FlightSearchController controller = ref.read(flightSearchProvider.notifier);
+    final FlightSearchController controller = ref.read(
+      flightSearchProvider.notifier,
+    );
     final FlightSearchState flightState = ref.watch(flightSearchProvider);
 
     return Column(
@@ -54,10 +56,11 @@ class FlightSearchInputs extends ConsumerWidget {
                                 top: Radius.circular(20),
                               ),
                             ),
-                            builder: (BuildContext ctx) => const SearchAirportSheet(
-                              title: 'Airport',
-                              isDeparture: true,
-                            ),
+                            builder: (BuildContext ctx) =>
+                                const SearchAirportSheet(
+                                  title: 'Airport',
+                                  isDeparture: true,
+                                ),
                           );
 
                       if (result != null) {
@@ -107,10 +110,11 @@ class FlightSearchInputs extends ConsumerWidget {
                                 top: Radius.circular(20),
                               ),
                             ),
-                            builder: (BuildContext ctx) => const SearchAirportSheet(
-                              title: 'Arrival Airport',
-                              isDeparture: false,
-                            ),
+                            builder: (BuildContext ctx) =>
+                                const SearchAirportSheet(
+                                  title: 'Arrival Airport',
+                                  isDeparture: false,
+                                ),
                           );
 
                       if (result != null) {
@@ -144,6 +148,9 @@ class FlightSearchInputs extends ConsumerWidget {
                 flex: 5,
                 child: OutlinedButton(
                   onPressed: () async {
+                    controller
+                        .clearProcessedFlights();
+
                     final result = await showModalBottomSheet(
                       context: context,
                       isScrollControlled: true,
@@ -164,12 +171,21 @@ class FlightSearchInputs extends ConsumerWidget {
                     );
 
                     if (result != null) {
-                      controller.setDepartDate(result['startDate']);
-                      controller.setReturnDate(result['endDate']);
+                      final startDate = result['startDate'];
+                      final endDate = result['endDate'];
+
+                      debugPrint(
+                        "📅📅 selected dates start date : $startDate, end date : $endDate",
+                      );
+                      controller.setDepartDate(startDate);
+                      controller.setReturnDate(endDate);
+
                       controller.setDisplayDate(
                         startDate: result['startDate'],
                         endDate: result['endDate'],
                       );
+
+                      controller.bumpSearchNonce();
                     }
                   },
                   style: outlinedButtonStyle(context),
@@ -200,7 +216,8 @@ class FlightSearchInputs extends ConsumerWidget {
                           top: Radius.circular(20),
                         ),
                       ),
-                      builder: (BuildContext ctx) => const TravelerSelectorSheet(),
+                      builder: (BuildContext ctx) =>
+                          const TravelerSelectorSheet(),
                     );
 
                     if (result != null) {

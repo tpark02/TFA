@@ -145,7 +145,7 @@ class FlightTripDetailsItem extends ConsumerWidget {
         children: <Widget>[
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: [
+            children: <Widget>[
               const SizedBox(width: 50),
               Expanded(
                 child: Center(
