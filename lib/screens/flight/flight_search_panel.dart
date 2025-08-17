@@ -81,7 +81,7 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
     controller = ref.read(flightSearchProvider.notifier);
 
     Future.microtask(() {
-      controller.loadRecentSearchesFromApi();
+      controller.loadRecentSearches();
     });
   }
 

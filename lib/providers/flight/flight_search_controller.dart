@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:TFA/providers/iata_country_provider.dart';
 import 'package:TFA/providers/recent_search.dart';
 import 'package:flutter/material.dart';
@@ -542,22 +544,80 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
     state = state.copyWithRecentSearches(<RecentSearch>[]);
   }
 
-  Future<void> loadRecentSearchesFromApi() async {
+  String _fmt(DateTime d) => DateFormat('yyyy-MM-dd').format(d);
+  DateTime _dOnly(DateTime d) => DateTime(d.year, d.month, d.day);
+  // Header date: Tuesday, August 19
+  String _formatHeaderDate(DateTime d) {
+    return DateFormat('MMM d').format(d);
+  }
+
+  Future<void> loadRecentSearches() async {
     try {
       final List<Map<String, dynamic>> results =
           await RecentSearchApiService.fetchRecentSearches('flight');
+
       state = state.copyWithRecentSearches(<RecentSearch>[]);
 
+      final DateTime today = _dOnly(DateTime.now());
+
       for (final Map<String, dynamic> r in results) {
-        final guestsValue = r['guests'];
-        final int guests = guestsValue is int
-            ? guestsValue
-            : int.tryParse(guestsValue.toString()) ?? 1;
+        // guests
+        final gv = r['guests'];
+        final int guests = gv is int ? gv : int.tryParse(gv.toString()) ?? 1;
+
+        // parse strings
+        final String? depStr = r['depart_date']?.toString();
+        final String? retStr = r['return_date']?.toString();
+
+        debugPrint('📅 departure date : $depStr, return date : $retStr');
+        debugPrint('📅 today : ${_fmt(DateTime.now())}');
+
+        // parse DateTimes
+        final DateTime? stDt = depStr != null
+            ? DateTime.tryParse(depStr)
+            : null;
+        final DateTime? edDt = retStr != null
+            ? DateTime.tryParse(retStr)
+            : null;
+
+        // outputs (non-null strings)
+        String departureDate;
+        String returnDate;
+        String tripDateRange = r['trip_date_range'];
+
+        if (stDt != null) {
+          final DateTime start = _dOnly(stDt.toLocal());
+
+          if (start.isBefore(today)) {
+            // 🟢 FIX: shift trip forward keeping same length
+            final DateTime newStart = today.add(const Duration(days: 2));
+            departureDate = _fmt(newStart);
+            tripDateRange = _formatHeaderDate(newStart);
+
+            if (edDt != null) {
+              final DateTime end = _dOnly(edDt.toLocal());
+              int days = end.difference(start).inDays; // exclusive diff
+              if (days < 0) days = 0; // 🟢 FIX: guard bad data
+              final DateTime newEnd = newStart.add(Duration(days: days));
+              returnDate = _fmt(newEnd);
+              tripDateRange += (' - ' + _formatHeaderDate(newEnd));
+            } else {
+              returnDate = ''; // one-way
+            }
+          } else {
+            departureDate = depStr!;
+            returnDate = retStr ?? '';
+          }
+        } else {
+          final DateTime newStart = today.add(const Duration(days: 2));
+          departureDate = _fmt(newStart);
+          returnDate = '';
+        }
 
         initRecentSearch(
           RecentSearch(
             destination: r['destination'],
-            tripDateRange: r['trip_date_range'],
+            tripDateRange: tripDateRange,
             icons: <Widget>[
               const SizedBox(width: 10),
               Icon(Icons.person, color: Colors.grey[500], size: 20.0),
@@ -569,15 +629,15 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
             kind: 'flight',
             departCode: r['depart_code'],
             arrivalCode: r['arrival_code'],
-            departDate: r['depart_date'],
-            returnDate: r['return_date'],
+            departDate: departureDate, // 🟢 no '!' needed
+            returnDate: returnDate, // 🟢 no '!' needed
           ),
         );
       }
 
-      debugPrint("✅ Fetched into state: $results");
-    } catch (e) {
-      debugPrint("❌ Failed loading recent searches: $e");
+      debugPrint("✅ Fetched into state: ${results.length} items");
+    } catch (e, st) {
+      debugPrint("❌ Failed loading recent searches: $e\n$st");
     }
   }
 
