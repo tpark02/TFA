@@ -11,8 +11,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 class FlightTripDetailsItem extends ConsumerWidget {
-  const FlightTripDetailsItem({super.key, required this.flightData});
+  const FlightTripDetailsItem({
+    super.key,
+    required this.flightData,
+    required this.isReturnPage,
+  });
   final Map<String, dynamic> flightData;
+  final bool isReturnPage;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -192,76 +197,88 @@ class FlightTripDetailsItem extends ConsumerWidget {
           const SizedBox(height: 16),
           ...sectionChildren,
 
-          if (flightData['pricingMode'] == 'perleg') ...<Widget>[
-            const SizedBox(height: 20),
+          if (flightData['pricingMode'] == 'perleg' &&
+              isReturnPage) ...<Widget>[
+            // const SizedBox(height: 20),
             // (Optional) Price History placeholder — keep or remove as you wish
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 14),
-              decoration: BoxDecoration(
+              padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 10),
+              decoration: const BoxDecoration(
                 color: Colors.transparent,
-                borderRadius: const BorderRadius.vertical(
-                  bottom: Radius.circular(0),
-                ),
-                border: BoxBorder.fromLTRB(
-                  left: BorderSide.none,
-                  top: BorderSide(color: Colors.grey.shade300),
-                  right: BorderSide.none,
-                  bottom: BorderSide.none,
-                ),
+                borderRadius: BorderRadius.vertical(bottom: Radius.circular(0)),
+                // border: BoxBorder.all(color: Colors.red, width: 1),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  Container(
-                    width: MediaQuery.of(context).size.width,
-                    color: Colors.grey.shade200,
-                    margin: EdgeInsets.zero,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 0,
-                      vertical: 10,
-                    ),
-                    child: Text(
-                      'Price History',
-                      style: TextStyle(
-                        backgroundColor: Colors.grey.shade200,
-                        fontWeight: FontWeight.w700,
-                        fontSize: textSize,
+                  // Container(
+                  //   width: MediaQuery.of(context).size.width,
+                  //   color: Colors.grey.shade200,
+                  //   margin: EdgeInsets.zero,
+                  //   padding: const EdgeInsets.symmetric(
+                  //     horizontal: 0,
+                  //     vertical: 10,
+                  //   ),
+                  //   child: Text(
+                  //     'Price History',
+                  //     style: TextStyle(
+                  //       backgroundColor: Colors.grey.shade200,
+                  //       fontWeight: FontWeight.w700,
+                  //       fontSize: textSize,
+                  //     ),
+                  //   ),
+                  // ),
+                  // const SizedBox(height: 12),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      // const Expanded(
+                      //   child: Text(
+                      //     'a few seconds ago',
+                      //     style: TextStyle(color: primaryFontColor),
+                      //   ),
+                      // ),
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width * 0.9,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Theme.of(
+                              context,
+                            ).colorScheme.primaryContainer,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(2),
+                            ),
+                            elevation: 0,
+                          ),
+                          onPressed: () {
+                            debugPrint("Book button clicked");
+                          },
+                          child: Align(
+                            alignment: Alignment.center,
+                            child: Text(
+                              'Book Departing for ${flightData['price']}',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w700,
+                                color: primary,
+                              ),
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
+                    ],
                   ),
-                  const SizedBox(height: 12),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Row(
-                      children: <Widget>[
-                        const Expanded(
-                          child: Text(
-                            'a few seconds ago',
-                            style: TextStyle(color: primaryFontColor),
-                          ),
-                        ),
-                        Text(
-                          '${flightData['price']}',
-                          style: const TextStyle(
-                            color: primaryFontColor,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Container(
-                    height: 64,
-                    decoration: BoxDecoration(
-                      color: primary.withValues(alpha: 0.7),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
+                  // const SizedBox(height: 16),
+                  // Container(
+                  //   height: 64,
+                  //   decoration: BoxDecoration(
+                  //     color: primary.withValues(alpha: 0.7),
+                  //     borderRadius: BorderRadius.circular(10),
+                  //   ),
+                  // ),
                 ],
               ),
             ),
-            const SizedBox(height: 88),
+            // const SizedBox(height: 88),
           ],
         ],
       ),

@@ -24,6 +24,8 @@ class FlightTripDetailsPage extends ConsumerWidget {
     final String passengerCntStr = passengerCount > 1
         ? '$passengerCount Adults'
         : '$passengerCount Adult';
+    final pricingMode = departData['pricingMode'];
+
     return Scaffold(
       backgroundColor: appBackgroundColor,
       appBar: AppBar(
@@ -58,9 +60,15 @@ class FlightTripDetailsPage extends ConsumerWidget {
         ),
         itemBuilder: (_, int i) {
           if (i == 0) {
-            return FlightTripDetailsItem(flightData: departData);
+            return FlightTripDetailsItem(
+              flightData: departData,
+              isReturnPage: isReturnPage,
+            );
           } else {
-            return FlightTripDetailsItem(flightData: returnData!);
+            return FlightTripDetailsItem(
+              flightData: returnData!,
+              isReturnPage: isReturnPage,
+            );
           }
         },
       ),
@@ -92,28 +100,30 @@ class FlightTripDetailsPage extends ConsumerWidget {
                     passengerCntStr,
                     style: const TextStyle(color: Colors.white70),
                   ),
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width * 0.9,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Theme.of(
-                          context,
-                        ).colorScheme.primaryContainer,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(2),
+                  if (!isReturnPage || pricingMode == 'combined') ...<Widget>[
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.9,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Theme.of(
+                            context,
+                          ).colorScheme.primaryContainer,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                          elevation: 0,
                         ),
-                        elevation: 0,
-                      ),
-                      onPressed: () {},
-                      child: Text(
-                        'Book Now',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w700,
-                          color: primary,
+                        onPressed: () {},
+                        child: Text(
+                          'Book Now',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                            color: primary,
+                          ),
                         ),
                       ),
                     ),
-                  ),
+                  ],
                 ],
               ),
             ],

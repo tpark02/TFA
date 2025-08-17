@@ -24,7 +24,10 @@ class SearchSummaryCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final FlightSearchController controller = ref.read(flightSearchProvider.notifier);
+    final FlightSearchController controller = ref.read(
+      flightSearchProvider.notifier,
+    );
+    ref.watch(flightSearchProvider);
 
     return Container(
       padding: const EdgeInsets.all(8),
@@ -37,19 +40,21 @@ class SearchSummaryCard extends ConsumerWidget {
               Flexible(
                 child: InkWell(
                   onTap: () async {
-                    final AirportSelection? result = await showModalBottomSheet<AirportSelection>(
-                      context: context,
-                      isScrollControlled: true,
-                      shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.vertical(
-                          top: Radius.circular(20),
-                        ),
-                      ),
-                      builder: (BuildContext ctx) => const SearchAirportSheet(
-                        title: 'Origin',
-                        isDeparture: true,
-                      ),
-                    );
+                    final AirportSelection? result =
+                        await showModalBottomSheet<AirportSelection>(
+                          context: context,
+                          isScrollControlled: true,
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.vertical(
+                              top: Radius.circular(20),
+                            ),
+                          ),
+                          builder: (BuildContext ctx) =>
+                              const SearchAirportSheet(
+                                title: 'Origin',
+                                isDeparture: true,
+                              ),
+                        );
 
                     if (result != null) {
                       controller.setDepartureCode(result.code);
@@ -91,19 +96,21 @@ class SearchSummaryCard extends ConsumerWidget {
               Flexible(
                 child: InkWell(
                   onTap: () async {
-                    final AirportSelection? result = await showModalBottomSheet<AirportSelection>(
-                      context: context,
-                      isScrollControlled: true,
-                      shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.vertical(
-                          top: Radius.circular(20),
-                        ),
-                      ),
-                      builder: (BuildContext ctx) => const SearchAirportSheet(
-                        title: 'Destination',
-                        isDeparture: false,
-                      ),
-                    );
+                    final AirportSelection? result =
+                        await showModalBottomSheet<AirportSelection>(
+                          context: context,
+                          isScrollControlled: true,
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.vertical(
+                              top: Radius.circular(20),
+                            ),
+                          ),
+                          builder: (BuildContext ctx) =>
+                              const SearchAirportSheet(
+                                title: 'Destination',
+                                isDeparture: false,
+                              ),
+                        );
 
                     if (result != null) {
                       controller.setArrivalCode(result.code);
@@ -182,7 +189,8 @@ class SearchSummaryCard extends ConsumerWidget {
                           top: Radius.circular(20),
                         ),
                       ),
-                      builder: (BuildContext ctx) => const TravelerSelectorSheet(),
+                      builder: (BuildContext ctx) =>
+                          const TravelerSelectorSheet(),
                     );
 
                     if (result != null) {
