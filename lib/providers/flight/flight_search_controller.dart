@@ -1,5 +1,5 @@
-import 'dart:io';
-
+import 'package:TFA/models/flight_search_int.dart';
+import 'package:TFA/models/flight_search_out.dart';
 import 'package:TFA/providers/iata_country_provider.dart';
 import 'package:TFA/providers/recent_search.dart';
 import 'package:flutter/material.dart';
@@ -11,22 +11,72 @@ import 'package:TFA/services/flight_api_service.dart';
 import 'package:TFA/types/typedefs.dart';
 
 class FlightSearchController extends StateNotifier<FlightSearchState> {
-  FlightSearchController(this._ref) : super(FlightSearchState());
-  final Ref _ref;
-  int _parseIsoDurMin(String s) {
-    final RegExpMatch? m = RegExp(
-      r'P(?:(\d+)D)?T(?:(\d+)H)?(?:(\d+)M)?',
-    ).firstMatch(s);
-    final int d = int.tryParse(m?.group(1) ?? '0') ?? 0;
-    final int h = int.tryParse(m?.group(2) ?? '0') ?? 0;
-    final int mins = int.tryParse(m?.group(3) ?? '0') ?? 0;
-    return d * 1440 + h * 60 + mins;
-  }
+  FlightSearchController(this.ref) : super(FlightSearchState());
+  final Ref ref;
 
-  String _fmtHM(int mins) {
-    final int h = mins ~/ 60;
-    final int m = mins % 60;
-    return '${h}h ${m}m';
+  Future<FlightSearchResult> searchHiddenFlights({
+    required String origin,
+    required String destination,
+    required String departureDate,
+    required String? returnDate,
+    required int adults,
+    required bool isInboundFlight,
+    required PricingMode mode,
+    required List<String> candidates,
+    int maxResults = 20,
+  }) async {
+    state = state.copyWith(isLoading: true);
+    debugPrint("🫣 search hidden flight");
+    debugPrint("1 depart date : $departureDate");
+    debugPrint("2 return date : $returnDate");
+
+    try {
+      final FlightApiService api = ref.read(flightApiServiceProvider);
+
+      final FlightSearchIn payload = FlightSearchIn(
+        origin: origin,
+        exitVia: destination,
+        departDate: departureDate,
+        adults: adults,
+        cabin: "ECONOMY",
+        candidateDests: candidates,
+      );
+
+      final List<FlightSearchOut> result = await api.fetchHiddenCity(
+        payload: payload,
+      );
+
+      // Collect all processed flights first
+      final List allProcessed = result
+          .expand(
+            (FlightSearchOut r) => processFlights(
+              r,
+              mode,
+              isInboundFlight,
+              isHiddenCityFlight: true,
+            ),
+          )
+          .toList();
+
+      // Then update state once
+      state = state.copyWith(
+        processedFlights: <Map<String, dynamic>>[
+          ...state.processedFlights,
+          ...allProcessed,
+        ],
+      );
+
+      // you can also update state here if you want
+      return (
+        true,
+        "✅ Hidden-city search completed, items added : ${allProcessed.length}",
+      );
+    } catch (e) {
+      debugPrint("❌ Hidden-city search failed: $e");
+      return (false, "❌ Hidden-city search failed: $e");
+    } finally {
+      state = state.copyWith(isLoading: false);
+    }
   }
 
   Future<FlightSearchResult> searchFlights({
@@ -40,13 +90,15 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
     required PricingMode mode,
   }) async {
     state = state.copyWith(isLoading: true);
-    // state = state.copyWithFlightResults(const AsyncValue.loading());
+    debugPrint("✈️ search flight");
 
     debugPrint("1 depart date : $departureDate");
     debugPrint("2 return date : $returnDate");
 
     try {
-      final Map<String, dynamic> result = await FlightApiService.fetchFlights(
+      final FlightApiService api = ref.read(flightApiServiceProvider);
+
+      final FlightSearchOut result = await api.fetchFlights(
         origin: origin,
         destination: destination,
         departureDate: departureDate,
@@ -59,6 +111,7 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
         result,
         mode,
         isInboundFlight,
+        isHiddenCityFlight: false,
       );
 
       state = state.copyWith(
@@ -83,132 +136,110 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
     return (carriers[up] as String?) ?? up; // fallback to code
   }
 
-  // ✅ Add full per-stop details (dep/arr time/code/terminal, flight no, aircraft, cabin, booking class, bags)
-  // ✅ Also add connection (layover) details between segments
-
   List<Map<String, dynamic>> processFlights(
-    Map<String, dynamic> latestFlights,
+    FlightSearchOut latestFlights,
     PricingMode mode,
-    bool isInBoundFlight,
-  ) {
+    bool isInBoundFlight, {
+    required bool isHiddenCityFlight,
+  }) {
     final List<Map<String, dynamic>> results = <Map<String, dynamic>>[];
 
-    final List<Map<String, dynamic>> data =
-        (latestFlights['data'] as List<dynamic>? ?? <dynamic>[])
-            .cast<Map<String, dynamic>>();
-    final Map<String, dynamic> dictionaries =
-        (latestFlights['dictionaries'] as Map<String, dynamic>? ??
-        <String, dynamic>{});
-    final Map<String, String> carriers =
-        ((dictionaries['carriers'] as Map<String, dynamic>? ??
-                <String, dynamic>{}))
-            .map(
-              (String k, v) => MapEntry(
-                k.toString().toUpperCase(),
-                v.toString().toUpperCase(),
-              ),
-            );
-    final Map<String, dynamic> locations =
-        (dictionaries['locations'] as Map<String, dynamic>? ??
-                const <String, dynamic>{})
-            .cast<String, dynamic>();
-    final Map<String, String> aircraftDict =
-        (dictionaries['aircraft'] as Map<String, dynamic>? ??
-                const <String, dynamic>{})
-            .cast<String, String>();
+    // Typed access
+    final List<FlightOffer> offers = latestFlights.data!;
+    final Dictionaries dict = latestFlights.dictionaries!;
 
-    for (final Map<String, dynamic> offer in data) {
-      if (offer.isEmpty) continue;
+    // Normalize carriers dict to UPPERCASE keys for easy lookup
+    final Map<String, String> carriers = <String, String>{
+      for (final MapEntry<String, String> e in dict.carriers!.entries)
+        e.key.toUpperCase(): e.value.toUpperCase(),
+    };
 
-      final List<Map<String, dynamic>> itineraries =
-          (offer['itineraries'] as List<dynamic>? ?? <dynamic>[])
-              .cast<Map<String, dynamic>>();
+    // Useful lookups
+    final Map<String, String> aircraftDict = dict.aircraft!;
+
+    for (final FlightOffer offer in offers) {
+      final List<Itinerary> itineraries = offer.itineraries ?? <Itinerary>[];
       if (itineraries.isEmpty) continue;
 
-      final List<String> validatingList =
-          ((offer['validatingAirlineCodes'] as List<dynamic>? ?? <dynamic>[]))
-              .map((e) => e.toString().toUpperCase())
-              .toList();
-      final String? validatingCode = validatingList.isNotEmpty
-          ? validatingList.first
+      // Validating airline
+      final List<String> validatingCodes = (offer.validatingAirlineCodes ?? <String>[])
+          .map((String e) => e.toUpperCase())
+          .toList();
+      final String? validatingCode = validatingCodes.isNotEmpty
+          ? validatingCodes.first
           : null;
       final String? validatingName = validatingCode != null
           ? _codeToName(validatingCode, carriers)
           : null;
 
-      final Map<String, dynamic> priceMap =
-          (offer['price'] as Map<String, dynamic>? ??
-          const <String, dynamic>{});
-      final price = priceMap['grandTotal'];
-      final String currency = (priceMap['currency'] ?? 'EUR').toString();
-      final String formattedPrice = NumberFormat.simpleCurrency(
-        name: currency,
-      ).format(double.tryParse(price.toString()) ?? 0);
+      // Price
+      final Price? price = offer.price;
+      final String currency = price?.currency ?? 'EUR';
+      final String? totalStr = price?.grandTotal ?? price?.total;
+      final String formattedPrice = totalStr == null
+          ? NumberFormat.simpleCurrency(name: currency).format(0)
+          : NumberFormat.simpleCurrency(
+              name: currency,
+            ).format(double.tryParse(totalStr) ?? 0);
 
-      // 🔎 traveler/cabin details (used per segment)
-      final List<Map<String, dynamic>> travelerPricings =
-          (offer['travelerPricings'] as List<dynamic>? ?? <dynamic>[])
-              .cast<Map<String, dynamic>>();
-      if (travelerPricings.isEmpty) continue;
-
-      // we use first traveler as representative (common pattern)
-      final Map<String, dynamic> firstTraveler = travelerPricings.first;
-      final List<Map<String, dynamic>> fareDetailsBySegment =
-          (firstTraveler['fareDetailsBySegment'] as List<dynamic>? ??
-                  <dynamic>[])
-              .cast<Map<String, dynamic>>();
-
-      // 🟢 Build quick lookups by segmentId -> cabin / bookingClass / bags
+      // Build segment-level lookups from travelerPricings (first traveler is typical)
       final Map<String, String?> segCabin = <String, String?>{};
       final Map<String, String?> segBookingClass = <String, String?>{};
       final Map<String, dynamic> segCheckedBags = <String, dynamic>{};
       final Map<String, dynamic> segCabinBags = <String, dynamic>{};
-      for (final Map<String, dynamic> fd in fareDetailsBySegment) {
-        final String id = (fd['segmentId'] ?? '').toString();
-        segCabin[id] = fd['cabin'] as String?;
-        segBookingClass[id] = fd['class'] as String?;
-        if (fd['includedCheckedBags'] != null) {
-          segCheckedBags[id] = fd['includedCheckedBags'];
-        }
-        if (fd['includedCabinBags'] != null) {
-          segCabinBags[id] = fd['includedCabinBags'];
+
+      final List<TravelerPricing> tps = offer.travelerPricings ?? <TravelerPricing>[];
+      if (tps.isNotEmpty) {
+        final TravelerPricing tp = tps.first;
+        for (final FareDetailsBySegment fd in tp.fareDetailsBySegment ?? <FareDetailsBySegment>[]) {
+          final String id = (fd.segmentId ?? '').toString();
+          if (id.isEmpty) continue;
+          segCabin[id] = fd.cabin;
+          segBookingClass[id] = fd.class_;
+          if (fd.includedCheckedBags != null) {
+            segCheckedBags[id] = <String, Object?>{
+              'quantity': fd.includedCheckedBags?.quantity,
+              'weight': fd.includedCheckedBags?.weight,
+              'weightUnit': fd.includedCheckedBags?.weightUnit,
+            };
+          }
+          if (fd.includedCabinBags != null) {
+            segCabinBags[id] = <String, Object?>{
+              'quantity': fd.includedCabinBags?.quantity,
+              'weight': fd.includedCabinBags?.weight,
+              'weightUnit': fd.includedCabinBags?.weightUnit,
+            };
+          }
         }
       }
 
+      // Iterate itineraries
       for (int i = 0; i < itineraries.length; i++) {
-        final Map<String, dynamic> itinerary = itineraries[i];
-        final List<Map<String, dynamic>> segments =
-            (itinerary['segments'] as List<dynamic>? ?? <dynamic>[])
-                .cast<Map<String, dynamic>>();
+        final Itinerary it = itineraries[i];
+        final List<Segment> segments = it.segments ?? <Segment>[];
         if (segments.isEmpty) continue;
 
-        // Primary marketing
-        final String primaryMarketingCode =
-            (segments.first['carrierCode'] as String).toUpperCase();
-        final String primaryMarketNumber = (segments.first['number'] as String);
+        // Primary marketing info (first segment)
+        final Segment firstSeg = segments.first;
+        final Segment lastSeg = segments.last;
+
+        final String? depRaw = firstSeg.departure?.at;
+        final String? arrRaw = lastSeg.arrival?.at;
+        if (depRaw == null || arrRaw == null) continue;
+
+        final String depAirport = firstSeg.departure?.iataCode ?? '';
+        final String arrAirport = lastSeg.arrival?.iataCode ?? '';
+        if (depAirport.isEmpty || arrAirport.isEmpty) continue;
+
+        final String primaryMarketingCode = (firstSeg.carrierCode ?? '')
+            .toUpperCase();
         final String primaryMarketingName = _codeToName(
           primaryMarketingCode,
           carriers,
         );
-
-        final Set<String> marketingCodes = <String>{
-          for (final Map<String, dynamic> s in segments)
-            (s['carrierCode'] as String).toUpperCase(),
-        }..removeWhere((String c) => c == 'HR' || c == 'H1');
-        final Set<String> marketingNames = marketingCodes
-            .map((String c) => _codeToName(c, carriers))
-            .toSet();
+        final String primaryMarketNumber = firstSeg.number ?? '';
 
         // Times / day shift
-        final Map<String, dynamic> firstSegment = segments.first;
-        final Map<String, dynamic> lastSegment = segments.last;
-
-        final Map depObj = (firstSegment['departure'] as Map);
-        final Map arrObj = (lastSegment['arrival'] as Map);
-        final String? depRaw = depObj['at'] as String?;
-        final String? arrRaw = arrObj['at'] as String?;
-        if (depRaw == null || arrRaw == null) continue;
-
         final String depTime = formatTime(depRaw);
         final String arrTime = formatTime(arrRaw);
         final int dayDiff = DateTime.parse(
@@ -216,57 +247,39 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
         ).difference(DateTime.parse(depRaw)).inDays;
         final String plusDay = dayDiff > 0 ? '+$dayDiff' : '';
 
-        // 🧭 Per-connection layovers + total
+        // Stops / layovers between segments
         final List<String> stopAirports = <String>[];
         int totalLayoverMin = 0;
-        final List<Map<String, dynamic>> connections =
-            <Map<String, dynamic>>[]; // each layover between segments
+        final List<Map<String, dynamic>> connections = <Map<String, dynamic>>[];
 
-        for (int j = 0; j < segments.length; j++) {
-          final Map<String, dynamic> seg = segments[j];
+        for (int j = 0; j < segments.length - 1; j++) {
+          final Segment cur = segments[j];
+          final Segment nxt = segments[j + 1];
 
-          // intra-segment tech stops (rare)
-          final List segStops =
-              (seg['stops'] as List<dynamic>? ?? const <dynamic>[]);
-          for (final raw in segStops) {
-            final Map<String, dynamic> s = (raw as Map).cast<String, dynamic>();
-            final String? code = s['iataCode'] as String?;
-            final String? d = s['duration'] as String?;
-            if (code != null) stopAirports.add(code);
-            if (d != null && d.isNotEmpty) {
-              totalLayoverMin += _parseIsoDurMin(d);
-            }
-          }
-
-          if (j < segments.length - 1) {
-            final Map<String, dynamic> thisArr = (seg['arrival'] as Map)
-                .cast<String, dynamic>();
-            final Map<String, dynamic> nextDep =
-                (segments[j + 1]['departure'] as Map).cast<String, dynamic>();
-
-            final DateTime thisArrAt = DateTime.parse(thisArr['at'] as String);
-            final DateTime nextDepAt = DateTime.parse(nextDep['at'] as String);
-            final int gapMin = nextDepAt.difference(thisArrAt).inMinutes;
+          final String? curArrAt = cur.arrival?.at;
+          final String? nxtDepAt = nxt.departure?.at;
+          if (curArrAt != null && nxtDepAt != null) {
+            final int gapMin = DateTime.parse(
+              nxtDepAt,
+            ).difference(DateTime.parse(curArrAt)).inMinutes;
             if (gapMin > 0) totalLayoverMin += gapMin;
 
-            final String? connCode = thisArr['iataCode'] as String?;
-            if (connCode != null) stopAirports.add(connCode);
+            final String? connCode = cur.arrival?.iataCode;
+            if (connCode != null && connCode.isNotEmpty) {
+              stopAirports.add(connCode);
+            }
 
             connections.add(<String, dynamic>{
               'airport': connCode,
-              'durationMin': gapMin.clamp(0, 1 << 31),
+              'durationMin': gapMin < 0 ? 0 : gapMin,
               'duration': _fmtHM(gapMin),
-              'arrAt': thisArr['at'],
-              'depAt': nextDep['at'],
-              'terminalArr': thisArr['terminal'],
-              'terminalDep': nextDep['terminal'],
+              'arrAt': curArrAt,
+              'depAt': nxtDepAt,
+              'terminalArr': cur.arrival?.terminal,
+              'terminalDep': nxt.departure?.terminal,
             });
           }
         }
-
-        final String? depAirport = depObj['iataCode'] as String?;
-        final String? arrAirport = arrObj['iataCode'] as String?;
-        if (depAirport == null || arrAirport == null) continue;
 
         final String airportPath = stopAirports.isNotEmpty
             ? '$depAirport → ${stopAirports.join(" → ")} → $arrAirport'
@@ -277,66 +290,50 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
             ? 'nonstop'
             : '$stopCount ${stopCount == 1 ? "stop" : "stops"}';
 
-        final String durationStr = itinerary['duration'] as String;
-        final int durationMin = _parseIsoDurMin(durationStr);
-        final int airMin = (durationMin - totalLayoverMin)
-            .clamp(0, 1 << 31)
-            .toInt();
+        // Durations
+        final int durationMin = _parseIsoDurMin(it.duration);
+        final int airMin = (durationMin - totalLayoverMin);
+        final String durationFmt = _fmtHM(durationMin);
+        final String airFmt = _fmtHM(airMin);
 
-        // ✈️ Build full per-stop (per segment) details
-        final List<Map<String, dynamic>> segmentDetails = segments.map((
-          Map<String, dynamic> s,
-        ) {
-          final Map<String, dynamic> dep = (s['departure'] as Map)
-              .cast<String, dynamic>();
-          final Map<String, dynamic> arr = (s['arrival'] as Map)
-              .cast<String, dynamic>();
-          final String segId = (s['id'] ?? '').toString();
-          final String? aircraftCode =
-              (s['aircraft'] as Map?)?['code'] as String?;
-          final String? operating =
-              (s['operating'] as Map?)?['carrierCode'] as String?;
+        // Segment details (typed → map)
+        final List<Map<String, dynamic>> segmentDetails = segments.map((Segment s) {
+          final String segId = (s.id ?? '').toString();
+          final String? acCode = s.aircraft?.code;
+          final String? operatingCode = s.operating?.carrierCode;
 
           return <String, dynamic>{
             'segId': segId,
-            'marketingCarrier': s['carrierCode'],
-            'operatingCarrier': operating, // may be same or codeshare
-            'flightNumber': s['number'],
-            'marketingFlight': '${s['carrierCode']} ${s['number']}',
-            'aircraftCode': aircraftCode,
-            'aircraftName': aircraftCode != null
-                ? aircraftDict[aircraftCode]
-                : null,
-            'duration': s['duration'],
-            'dep': <String, dynamic>{
-              'code': dep['iataCode'],
-              'terminal': dep['terminal'],
-              'at': dep['at'],
+            'marketingCarrier': s.carrierCode,
+            'operatingCarrier': operatingCode,
+            'flightNumber': s.number,
+            'marketingFlight': '${s.carrierCode ?? ''} ${s.number ?? ''}',
+            'aircraftCode': acCode,
+            'aircraftName': acCode != null ? aircraftDict[acCode] : null,
+            'duration': s.duration,
+            'dep': <String, String?>{
+              'code': s.departure?.iataCode,
+              'terminal': s.departure?.terminal,
+              'at': s.departure?.at,
             },
-            'arr': <String, dynamic>{
-              'code': arr['iataCode'],
-              'terminal': arr['terminal'],
-              'at': arr['at'],
+            'arr': <String, String?>{
+              'code': s.arrival?.iataCode,
+              'terminal': s.arrival?.terminal,
+              'at': s.arrival?.at,
             },
-            // 🧳 Fare details joined by segmentId (from travelerPricings)
             'cabin': segCabin[segId],
             'bookingClass': segBookingClass[segId],
-            'includedCheckedBags':
-                segCheckedBags[segId], // may be {quantity:1} or {weight: 23, weightUnit:'KG'}
-            'includedCabinBags':
-                segCabinBags[segId], // may be {quantity:1} etc.
+            'includedCheckedBags': segCheckedBags[segId],
+            'includedCabinBags': segCabinBags[segId],
           };
         }).toList();
 
-        // For display like "MF 878 / MF 849"
+        // For display like "UA 1665 / UA 2610"
         final String flightNumbers = segments
-            .map(
-              (Map<String, dynamic> s) => '${s['carrierCode']} ${s['number']}',
-            )
+            .map((Segment s) => '${s.carrierCode ?? ''} ${s.number ?? ''}'.trim())
             .join(' / ');
 
-        //pricing mode
-        final String pricingMode = PricingMode.combined == mode
+        final String pricingMode = mode == PricingMode.combined
             ? 'combined'
             : 'perleg';
 
@@ -351,26 +348,22 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
 
           // durations
           'durationMin': durationMin,
-          'duration': _fmtHM(durationMin),
-          'airMin': airMin,
-          'air': _fmtHM(airMin),
+          'duration': durationFmt,
+          'airMin': airMin < 0 ? 0 : airMin,
+          'air': airFmt,
 
           // layovers
           'layoverMin': totalLayoverMin,
           'layover': _fmtHM(totalLayoverMin),
           'stops': stopLabel,
           'stopAirports': stopAirports,
-          'connections':
-              connections, // 🆕 each layover with times/terminal/duration
+          'connections': connections,
+
           // airline labels
           'airline': primaryMarketingName,
           'primaryAirlineCode': primaryMarketingCode,
           'primaryMarketNumber': primaryMarketNumber,
           'flightNumbers': flightNumbers,
-
-          // filtering
-          'airlines': marketingNames,
-          'airlineCodes': marketingCodes,
 
           // ticketing
           'ticketingCarrierCode': validatingCode,
@@ -379,19 +372,18 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
           // price/meta
           'price': formattedPrice,
           'currency': currency,
-          'isReturn': i == 1,
+          'isReturn':
+              isInBoundFlight, // or: i == 1 if you want itinerary index logic
           'depRaw': depRaw,
           'arrRaw': arrRaw,
-          'locations': locations,
-          'carriersCode': carriers,
-          'passengerCount': travelerPricings.length,
 
           // per-stop segment details (FULL)
-          'segments': segmentDetails, // 🆕 list with dep/arr for EACH stop/leg
+          'segments': segmentDetails,
           // overall cabin for card (first segment’s cabin)
-          'cabinClass': segCabin[(segments.first['id'] ?? '').toString()],
+          'cabinClass': segCabin[(firstSeg.id ?? '').toString()],
           'pricingMode': pricingMode,
           'isInBoundFlight': isInBoundFlight,
+          'isHiddenCityFlight': isHiddenCityFlight,
         });
       }
     }
@@ -399,12 +391,33 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
     return results;
   }
 
+  /// Parse ISO-8601 duration like "PT5H41M" into minutes.
+  int _parseIsoDurMin(String? iso) {
+    if (iso == null || iso.isEmpty) return 0;
+    final RegExp re = RegExp(r'^PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?$');
+    final RegExpMatch? m = re.firstMatch(iso);
+    if (m == null) return 0;
+    final int h = int.tryParse(m.group(1) ?? '0') ?? 0;
+    final int min = int.tryParse(m.group(2) ?? '0') ?? 0;
+    final int s = int.tryParse(m.group(3) ?? '0') ?? 0;
+    return h * 60 + min + (s ~/ 60);
+  }
+
+  /// Format minutes to "Hh MMm" (e.g., 341 → "5h 41m")
+  String _fmtHM(int minutes) {
+    final int m = minutes < 0 ? 0 : minutes;
+    final int h = m ~/ 60;
+    final int mm = m % 60;
+    if (h == 0) return '${mm}m';
+    if (mm == 0) return '${h}h';
+    return '${h}h ${mm}m';
+  }
+
+  /// Format an ISO timestamp to "HH:mm" local time.
   String formatTime(String iso) {
-    final DateTime dt = DateTime.parse(iso).toLocal();
-    final int hour = dt.hour % 12 == 0 ? 12 : dt.hour % 12;
-    final String minute = dt.minute.toString().padLeft(2, '0');
-    final String suffix = dt.hour < 12 ? 'a' : 'p';
-    return '$hour:$minute$suffix';
+    final DateTime? dt = DateTime.tryParse(iso);
+    if (dt == null) return iso;
+    return DateFormat.Hm().format(dt.toLocal());
   }
 
   String formatDuration(String isoDuration) {
@@ -498,6 +511,15 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
   void clearProcessedFlights() {
     debugPrint("🔴 clear processed flights");
     state = state.copyWith(processedFlights: <Map<String, dynamic>>[]);
+  }
+
+  void clearHiddenAiportCodeList() {
+    debugPrint("🔴 clear hidden airport code list flights");
+    state = state.copyWith(hiddenAirporCodeList: <String>[]);
+  }
+
+  void setHiddenAirporCodeList(List<String> lst) {
+    state = state.copyWith(hiddenAirporCodeList: lst);
   }
   // void setDepartureName(String name) {
   //   state = state.copyWith(departureAirportName: name);
@@ -600,7 +622,7 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
               if (days < 0) days = 0; // 🟢 FIX: guard bad data
               final DateTime newEnd = newStart.add(Duration(days: days));
               returnDate = _fmt(newEnd);
-              tripDateRange += (' - ' + _formatHeaderDate(newEnd));
+              tripDateRange += (' - ${_formatHeaderDate(newEnd)}');
             } else {
               returnDate = ''; // one-way
             }
@@ -642,9 +664,9 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
   }
 
   void bumpSearchNonce() {
-    final before = state.searchNonce;
+    final int before = state.searchNonce;
     state = state.copyWith(searchNonce: before + 1); // 🟢 must assign new state
-    debugPrint('🔔 nonce ${before} -> ${state.searchNonce}');
+    debugPrint('🔔 nonce $before -> ${state.searchNonce}');
   }
 
   String? get departDate => state.departDate;

@@ -7,7 +7,7 @@ class FlightSearchState {
   final List<RecentSearch> recentSearches;
   final List<Map<String, dynamic>> processedFlights;
   final List<Map<String, dynamic>>? processedInBoundFlights;
-
+  final List<String> hiddenAirporCodeList;
   // final String departureAirportName;
   final String departureAirportCode;
   final String departureCity;
@@ -113,6 +113,7 @@ class FlightSearchState {
     this.processedFlights = const <Map<String, dynamic>>[],
     this.processedInBoundFlights = const <Map<String, dynamic>>[],
     this.searchNonce = 0,
+    this.hiddenAirporCodeList = const <String>[],
   });
 
   // 👇 Full and correct copyWith
@@ -122,7 +123,7 @@ class FlightSearchState {
     // AsyncValue<Map<String, dynamic>>? inBoundFlightResults,
     List<RecentSearch>? recentSearches,
     List<Map<String, dynamic>>? processedFlights,
-
+    List<String>? hiddenAirporCodeList,
     // List<Map<String, dynamic>>? processedInBoundFlights,
     String? departureAirportName,
     String? departureAirportCode,
@@ -157,6 +158,7 @@ class FlightSearchState {
       returnDate: clearReturnDate ? null : returnDate ?? this.returnDate,
       isLoading: isLoading ?? this.isLoading,
       searchNonce: searchNonce ?? this.searchNonce,
+      hiddenAirporCodeList: hiddenAirporCodeList ?? this.hiddenAirporCodeList,
     );
   }
 

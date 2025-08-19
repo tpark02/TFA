@@ -283,7 +283,8 @@ class _FlightListViewState extends ConsumerState<FlightListView>
       return layoverCities.any(selected.contains);
     }
 
-    for (final String s in widget.selectedAirlines) {
+    for (final String s in 
+    widget.selectedAirlines) {
       debugPrint('selected Airlines - $s');
     }
     debugPrint("🟣 all flights count : ${allFlights.length}");
@@ -386,25 +387,27 @@ class _FlightListViewState extends ConsumerState<FlightListView>
         ? selectedDepartureIndex
         : null;
 
-    final List<FlightListViewItem> returnFlightWidgets = List.generate(
-      returnFlights.length,
-      (int i) => FlightListViewItem(
-        onClick: () async {
-          debugPrint("👍 returnFlightWidgets clicked");
-          _returnData = returnFlights[i];
-          openTripDetails(context: context, isReturnPage: true);
-        },
-        index: i,
-        flight: returnFlights[i],
-      ),
-    );
+    final List<FlightListViewItem> returnFlightWidgets =
+        List<FlightListViewItem>.generate(
+          returnFlights.length,
+          (int i) => FlightListViewItem(
+            onClick: () async {
+              debugPrint("👍 returnFlightWidgets clicked");
+              _returnData = returnFlights[i];
+              openTripDetails(context: context, isReturnPage: true);
+            },
+            index: i,
+            flight: returnFlights[i],
+          ),
+        );
 
     // if (allInBoundFlights != null && allInBoundFlights.isNotEmpty) {
     //   debugPrint("🔴 all inbound flight empty ? ${allInBoundFlights.length}");
     // }
     debugPrint("🟠 return flight empty ? ${returnFlights.length}");
 
-    final List<Widget> departureFlightWidgets = List.generate(
+    final List<Widget>
+    departureFlightWidgets = List<FlightListViewItem>.generate(
       departureFlights.length,
       (int i) => FlightListViewItem(
         onClick: returnFlightWidgets.isNotEmpty

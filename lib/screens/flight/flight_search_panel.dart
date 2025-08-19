@@ -1,6 +1,7 @@
 import 'package:TFA/providers/flight/flight_search_controller.dart';
 import 'package:TFA/services/airport_service.dart';
 import 'package:TFA/services/location_service.dart';
+import 'package:TFA/utils/dev_logger.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geocoding/geocoding.dart';
@@ -48,6 +49,13 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
       final String city = placemarks.isNotEmpty
           ? (placemarks.first.locality ?? '')
           : '';
+
+      logInfo('nearby airports fetched: ${airports.length}', name: 'airport');
+      logJson(
+        airports.take(3).toList(),
+        name: 'airport',
+        headline: 'nearby aiports',
+      );
 
       final Map<String, dynamic> first = airports.firstWhere(
         (Map<String, dynamic> e) =>

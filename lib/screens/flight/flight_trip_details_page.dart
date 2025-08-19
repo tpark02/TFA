@@ -20,7 +20,7 @@ class FlightTripDetailsPage extends ConsumerWidget {
     final Color primary = Theme.of(context).colorScheme.primary;
     final Color onPrimary = Theme.of(context).colorScheme.onPrimary;
     final double? textSize = Theme.of(context).textTheme.displaySmall?.fontSize;
-    final passengerCount = departData['passengerCount'];
+    final passengerCount = departData['passengerCount'] ?? 1;
     final String passengerCntStr = passengerCount > 1
         ? '$passengerCount Adults'
         : '$passengerCount Adult';

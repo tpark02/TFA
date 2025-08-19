@@ -12,7 +12,9 @@ class RecentSearchItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final FlightSearchController controller = ref.read(flightSearchProvider.notifier);
+    final FlightSearchController controller = ref.read(
+      flightSearchProvider.notifier,
+    );
     final String depCity =
         ref.watch(cityByIataProvider(search.departCode)) ?? search.departCode;
     final String arrCity =
@@ -21,6 +23,7 @@ class RecentSearchItem extends ConsumerWidget {
       onTap: () {
         final String kind = search.kind;
         if (kind == 'flight') {
+          if (search.departCode == '') return;
           controller.setDepartureCity(depCity);
           controller.setArrivalCity(arrCity);
 

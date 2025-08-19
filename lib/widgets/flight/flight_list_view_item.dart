@@ -181,7 +181,7 @@ class FlightListViewItem extends StatelessWidget {
     final double? headlineMedium = Theme.of(
       context,
     ).textTheme.headlineMedium?.fontSize;
-    final double? bodyLarge = Theme.of(context).textTheme.bodyLarge?.fontSize;
+    // final double? bodyLarge = Theme.of(context).textTheme.bodyLarge?.fontSize;
     // Extract intermediate airport codes if needed
     final pathParts = airportPath.split('→').map((s) => s.trim()).toList();
 
@@ -191,7 +191,11 @@ class FlightListViewItem extends StatelessWidget {
     final double? fs = headlineMedium;
 
     return Material(
-      color: flight['pricingMode'] == 'perleg' ? Colors.red : Colors.blue,
+      color: flight['pricingMode'] == 'perleg'
+          ? flight['isHiddenCityFlight']
+                ? Colors.amber
+                : Colors.red
+          : Colors.blue,
       child: InkWell(
         onTap: onClick,
         child: Container(

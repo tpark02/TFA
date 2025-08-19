@@ -411,16 +411,16 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
   void initState() {
     super.initState();
 
-    Future<void> _onSearchChange(
+    Future<void> onSearchChange(
       (String, String, String?, String?, int, int) next,
     ) async {
       if (!mounted) return;
 
-      final origin = next.$1;
-      final dest = next.$2;
-      final dep = next.$3; // String?
-      final ret = next.$4; // String? (may be null)
-      final pax = next.$5;
+      final String origin = next.$1;
+      final String dest = next.$2;
+      final String? dep = next.$3; // String?
+      final String? ret = next.$4; // String? (may be null)
+      final int pax = next.$5;
 
       debugPrint('🧷 snapshot dep=$dep ret=$ret pax=$pax');
       if (dep == null || dep.isEmpty) return;
@@ -428,23 +428,25 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
       if (_rtFetching) return;
       _rtFetching = true;
 
-      final controller = ref.read(flightSearchProvider.notifier);
+      final FlightSearchController controller = ref.read(
+        flightSearchProvider.notifier,
+      );
 
       try {
         controller.clearProcessedFlights();
         debugPrint("‼️ _onSearchChange return date : $ret");
         if ((ret ?? '').isNotEmpty) {
-          final mode = await ref.read(
+          final PricingMode mode = await ref.read(
             roundTripModeProvider((next.$1, next.$2)).future,
           );
 
           if (mode == PricingMode.combined) {
-            final (ok, msg) = await controller.searchFlights(
-              origin: next.$1,
-              destination: next.$2,
+            final (bool ok, String msg) = await controller.searchFlights(
+              origin: origin,
+              destination: dest,
               departureDate: dep,
               returnDate: ret!,
-              adults: next.$5,
+              adults: pax,
               isInboundFlight: false,
               mode: PricingMode.combined,
             );
@@ -454,29 +456,30 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
               ).showSnackBar(SnackBar(content: Text(msg)));
             }
           } else {
-            final results = await Future.wait<(bool, String)>([
-              controller.searchFlights(
-                origin: next.$1,
-                destination: next.$2,
-                departureDate: dep,
-                returnDate: null,
-                adults: next.$5,
-                isInboundFlight: false,
-                mode: PricingMode.perLeg,
-              ),
-              controller.searchFlights(
-                origin: next.$2,
-                destination: next.$1,
-                departureDate: ret!,
-                returnDate: null,
-                adults: next.$5,
-                isInboundFlight: true,
-                mode: PricingMode.perLeg,
-              ),
-            ]);
+            final List<(bool, String)> results =
+                await Future.wait<(bool, String)>(<Future<(bool, String)>>[
+                  controller.searchFlights(
+                    origin: origin,
+                    destination: dest,
+                    departureDate: dep,
+                    returnDate: null,
+                    adults: pax,
+                    isInboundFlight: false,
+                    mode: PricingMode.perLeg,
+                  ),
+                  controller.searchFlights(
+                    origin: origin,
+                    destination: dest,
+                    departureDate: ret!,
+                    returnDate: null,
+                    adults: pax,
+                    isInboundFlight: true,
+                    mode: PricingMode.perLeg,
+                  ),
+                ]);
 
-            final (okOut, msgOut) = results[0];
-            final (okIn, msgIn) = results[1];
+            final (bool okOut, String msgOut) = results[0];
+            final (bool okIn, String msgIn) = results[1];
             if (!okOut && mounted) {
               ScaffoldMessenger.of(
                 context,
@@ -489,7 +492,7 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
             }
           }
         } else {
-          final (ok, msg) = await controller.searchFlights(
+          final (bool ok, String msg) = await controller.searchFlights(
             origin: next.$1,
             destination: next.$2,
             departureDate: dep,
@@ -513,7 +516,7 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
 
     _searchSub = ref.listenManual(
       flightSearchProvider.select<(String, String, String?, String?, int, int)>(
-        (s) => (
+        (FlightSearchState s) => (
           s.departureAirportCode,
           s.arrivalAirportCode,
           s.departDate,
@@ -522,13 +525,14 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
           s.searchNonce,
         ),
       ),
-      (prev, next) {
+      (
+        (String, String, String?, String?, int, int)? prev,
+        (String, String, String?, String?, int, int) next,
+      ) {
         debugPrint(
           '🔔 listenManual fired dep=${next.$3} ret=${next.$4} nonce=${next.$6}',
         );
-        Future.microtask(
-          () => _onSearchChange(next),
-        ); // 🟢 no await in listener
+        Future.microtask(() => onSearchChange(next)); // 🟢 no await in listener
       },
       fireImmediately: false,
     );
@@ -547,26 +551,21 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
         final Set<String> airlines = <String>{};
 
         for (final Map<String, dynamic> f in flights) {
-          // ---- airlines: use codes, normalize to upper-case
-          for (final String a in (f['airlines'] as Iterable).cast<String>()) {
-            airlines.add(a.toUpperCase());
-          }
-
-          // ---- layovers: ONLY middle airports, not origin/destination
+          // airlines safe
           for (final String a in _asIter(
             f['airlines'],
           ).map((e) => e.toString())) {
             airlines.add(a.toUpperCase());
           }
 
-          final Map<String, dynamic> locations = _asMap(
-            f['locations'],
-          ); // 🟢 no crash on null
+          // layovers safe
+          final Map<String, dynamic> locations = _asMap(f['locations']);
           final String path = (f['airportPath'] as String? ?? '');
           final List<String> parts = path
               .split('→')
               .map((String s) => s.trim())
               .toList();
+
           if (parts.length > 2) {
             final List<String> middleIATAs = parts.sublist(1, parts.length - 1);
             for (final String iata in middleIATAs) {
@@ -623,11 +622,11 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
       );
 
       final bool useCombined = (mode == PricingMode.combined);
+      controller.clearProcessedFlights();
 
-      if (flightState.returnDate != null) {
+      if (flightState.returnDate != null && flightState.returnDate! != '') {
         if (useCombined) {
           debugPrint("✅ Combined");
-          controller.clearProcessedFlights();
           final (bool ok, String msg) = await controller.searchFlights(
             origin: flightState.departureAirportCode,
             destination: flightState.arrivalAirportCode,
@@ -642,13 +641,12 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
               context,
             ).showSnackBar(SnackBar(content: Text(msg)));
           }
-        } else {
+        } else if (useCombined &&
+            (flightState.returnDate != null && flightState.returnDate! != '')) {
           debugPrint("✅ Per-leg ");
           if (_rtFetching == true) return;
           _rtFetching = true;
           try {
-            controller.clearProcessedFlights();
-
             final List<Future<(bool, String)>> futures =
                 <Future<(bool, String)>>[
                   controller.searchFlights(
@@ -701,20 +699,46 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
         }
       } else {
         debugPrint("✈️ One-way");
-        controller.clearProcessedFlights();
-        final (bool ok, String msg) = await controller.searchFlights(
-          origin: flightState.departureAirportCode,
-          destination: flightState.arrivalAirportCode,
-          departureDate: flightState.departDate,
-          returnDate: null,
-          adults: flightState.passengerCount,
-          isInboundFlight: false,
-          mode: PricingMode.perLeg,
-        );
-        if (!ok && mounted) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(msg)));
+        try {
+          // Run both hidden-city and normal search sequentially
+          final List<(bool, String)> results = <(bool, String)>[
+            await controller.searchFlights(
+              origin: flightState.departureAirportCode,
+              destination: flightState.arrivalAirportCode,
+              departureDate: flightState.departDate,
+              returnDate: null,
+              adults: flightState.passengerCount,
+              isInboundFlight: false,
+              mode: PricingMode.perLeg,
+            ),
+            await controller.searchHiddenFlights(
+              origin: flightState.departureAirportCode,
+              destination: flightState.arrivalAirportCode,
+              departureDate: flightState.departDate,
+              returnDate: null,
+              adults: flightState.passengerCount,
+              isInboundFlight: false,
+              mode: PricingMode.perLeg,
+              candidates: flightState.hiddenAirporCodeList,
+            ),
+          ];
+
+          // Handle errors in one loop
+          for (final (bool ok, String msg) in results) {
+            if (!ok && mounted) {
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(msg)));
+            } else {
+              debugPrint(msg);
+            }
+          }
+        } catch (e) {
+          if (mounted) {
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text("❌ Unexpected error: $e")));
+          }
         }
       }
 
