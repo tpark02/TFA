@@ -414,55 +414,110 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
     );
   }
 
+  Future<void> _onSearchChange(FlightSearchParams next) async {
+    if (!mounted) return;
+
+    final String departureAirport = next.$1;
+    final String arrivalAirPort = next.$2;
+    final String? departureDate = next.$3; // String?
+    final String? returnDate = next.$4; // String? (may be null)
+    final int passengerCount = next.$5;
+
+    if (_rtFetching) return;
+    _rtFetching = true;
+
+    final FlightSearchController controller = ref.read(
+      flightSearchProvider.notifier,
+    );
+    final bool hasReturn = (returnDate?.isNotEmpty ?? false);
+
+    try {
+      debugPrint(
+        '🧷 snapshot departureAirport=$departureAirport, arrivalAirPort=$arrivalAirPort departureDate=$departureDate returnDate=$returnDate passengerCount=$passengerCount',
+      );
+      final List<Future<(bool, String)> Function()> ops = controller
+          .executeFlightSearch(hasReturn: hasReturn);
+
+      for (final Future<(bool, String)> Function() op in ops) {
+        final (ok, msg) = await op();
+        if (!ok) {
+          if (mounted) {
+            throw OpFailed(msg);
+          }
+          return;
+        }
+        debugPrint("🧷 onSearchChange msg : $msg");
+      }
+    } catch (e, st) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(e.toString())));
+      }
+      debugPrint('❌ $e\n$st');
+    } finally {
+      _rtFetching = false;
+    }
+  }
+
+  // 🟢 NEW: extract the processing logic
+  void _processFlightsAndUpdate(FlightSearchState next) {
+    final List<Map<String, dynamic>> flights = next.processedFlights;
+    if (!mounted || flights.isEmpty) return;
+
+    final Set<String> layovers = <String>{};
+    final Set<String> airlines = <String>{};
+
+    for (final Map<String, dynamic> f in flights) {
+      // airlines
+      for (final String a in _asIter(f['airlines']).map((e) => e.toString())) {
+        airlines.add(a.toUpperCase());
+      }
+
+      // layovers
+      final Map<String, dynamic> locations = _asMap(f['locations']);
+      final String path = (f['airportPath'] as String? ?? '');
+      final List<String> parts = path.split('→').map((s) => s.trim()).toList();
+
+      if (parts.length > 2) {
+        for (final String iata in parts.sublist(1, parts.length - 1)) {
+          final Map<String, dynamic> details = _asMap(locations[iata]);
+          final String? cityCode = details['cityCode'] as String?;
+          if (cityCode?.isNotEmpty ?? false) {
+            layovers.add(cityCode!.toUpperCase());
+          }
+        }
+      }
+    }
+
+    // outbound carriers
+    Map<String, dynamic> results = ref
+        .read(flightSearchProvider)
+        .flightResults
+        .maybeWhen(data: (v) => v, orElse: () => const <String, dynamic>{});
+    _makeCarrier(
+      airlines: airlines,
+      layovers: layovers,
+      flights: flights,
+      results: results,
+    );
+
+    // inbound carriers
+    results = ref
+        .read(flightSearchProvider)
+        .inBoundFlightResults
+        .maybeWhen(data: (v) => v, orElse: () => const <String, dynamic>{});
+    _makeCarrier(
+      airlines: airlines,
+      layovers: layovers,
+      flights: flights,
+      results: results,
+    );
+  }
+
   @override
   void initState() {
     super.initState();
-
-    Future<void> onSearchChange(FlightSearchParams next) async {
-      if (!mounted) return;
-
-      final String departureAirport = next.$1;
-      final String arrivalAirPort = next.$2;
-      final String? departureDate = next.$3; // String?
-      final String? returnDate = next.$4; // String? (may be null)
-      final int passengerCount = next.$5;
-
-      if (_rtFetching) return;
-      _rtFetching = true;
-
-      final FlightSearchController controller = ref.read(
-        flightSearchProvider.notifier,
-      );
-      final bool hasReturn = (returnDate?.isNotEmpty ?? false);
-
-      try {
-        debugPrint(
-          '🧷 snapshot departureAirport=$departureAirport, arrivalAirPort=$arrivalAirPort departureDate=$departureDate returnDate=$returnDate passengerCount=$passengerCount',
-        );
-        final List<Future<(bool, String)> Function()> ops = controller
-            .executeFlightSearch(hasReturn: hasReturn);
-
-        for (final Future<(bool, String)> Function() op in ops) {
-          final (ok, msg) = await op();
-          if (!ok) {
-            if (mounted) {
-              throw OpFailed(msg);
-            }
-            return;
-          }
-          debugPrint("🧷 onSearchChange msg : $msg");
-        }
-      } catch (e, st) {
-        if (mounted) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(e.toString())));
-        }
-        debugPrint('❌ $e\n$st');
-      } finally {
-        _rtFetching = false;
-      }
-    }
 
     _searchSub = ref.listenManual(
       flightSearchProvider.select<FlightSearchParams>(
@@ -476,84 +531,28 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
       ),
       (FlightSearchParams? prev, FlightSearchParams next) {
         debugPrint(
-          '🔔 listenManual fired departureAirportCode=${next.$1} arrivalAirportCode=${next.$2} departure=${next.$3} arrival=${next.$4} departureDate=${next.$3} returnDate=${next.$4} passengerCount=${next.$5}',
+          '🔥 listenManual fired\n'
+          'departureAirportCode=${next.$1}\n'
+          'arrivalAirportCode=${next.$2}\n'
+          'departure=${next.$3}\n'
+          'arrival=${next.$4}\n'
+          'departureDate=${next.$3}\n'
+          'returnDate=${next.$4}\n'
+          'passengerCount=${next.$5}',
         );
-        onSearchChange(next);
+        _onSearchChange(next);
       },
       fireImmediately: false,
     );
 
     _searchSub!.read(); // important with listenManual
 
-    try {
-      _sub = ref.listenManual<FlightSearchState>(flightSearchProvider, (
-        FlightSearchState? prev,
-        FlightSearchState next,
-      ) {
-        final List<Map<String, dynamic>> flights = next.processedFlights;
-        if (!mounted || flights.isEmpty) return;
-
-        // Temp sets for this batch
-        final Set<String> layovers = <String>{};
-        final Set<String> airlines = <String>{};
-
-        for (final Map<String, dynamic> f in flights) {
-          // airlines safe
-          for (final String a in _asIter(
-            f['airlines'],
-          ).map((e) => e.toString())) {
-            airlines.add(a.toUpperCase());
-          }
-
-          // layovers safe
-          final Map<String, dynamic> locations = _asMap(f['locations']);
-          final String path = (f['airportPath'] as String? ?? '');
-          final List<String> parts = path
-              .split('→')
-              .map((String s) => s.trim())
-              .toList();
-
-          if (parts.length > 2) {
-            final List<String> middleIATAs = parts.sublist(1, parts.length - 1);
-            for (final String iata in middleIATAs) {
-              final Map<String, dynamic> details = _asMap(locations[iata]);
-              final String? cityCode = details['cityCode'] as String?;
-              if (cityCode != null && cityCode.isNotEmpty) {
-                layovers.add(cityCode.toUpperCase());
-              }
-            }
-          }
-        }
-        Map<String, dynamic> results = ref
-            .read(flightSearchProvider)
-            .flightResults
-            .maybeWhen<Map<String, dynamic>>(
-              data: (Map<String, dynamic> v) => v,
-              orElse: () => const <String, dynamic>{},
-            );
-        _makeCarrier(
-          airlines: airlines,
-          layovers: layovers,
-          flights: flights,
-          results: results,
-        );
-        results = ref
-            .read(flightSearchProvider)
-            .inBoundFlightResults
-            .maybeWhen<Map<String, dynamic>>(
-              data: (Map<String, dynamic> v) => v,
-              orElse: () => const <String, dynamic>{},
-            );
-        _makeCarrier(
-          airlines: airlines,
-          layovers: layovers,
-          flights: flights,
-          results: results,
-        );
-      }, fireImmediately: true);
-    } catch (e) {
-      debugPrint("❌ Failed loading flights from flight panel: $e");
-    }
+    _sub = ref.listenManual<FlightSearchState>(flightSearchProvider, (
+      FlightSearchState? prev,
+      FlightSearchState next,
+    ) {
+      _processFlightsAndUpdate(next);
+    }, fireImmediately: true);
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final flightState = ref.read(flightSearchProvider);
