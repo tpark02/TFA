@@ -144,7 +144,7 @@ class _AirportSheetState extends ConsumerState<SearchAirportSheet> {
           bottom: MediaQuery.of(context).viewInsets.bottom,
         ),
         child: Stack(
-          children: [
+          children: <Widget>[
             AbsorbPointer(
               absorbing: _isFetchingHidden,
               child: Container(
@@ -212,7 +212,7 @@ class _AirportSheetState extends ConsumerState<SearchAirportSheet> {
                       child: ListView.builder(
                         itemCount: filteredAirports.length,
                         itemBuilder: (BuildContext context, int index) {
-                          final airport = filteredAirports[index] as Airport;
+                          final Airport airport = filteredAirports[index] as Airport;
                           return Padding(
                             padding: const EdgeInsets.only(bottom: 10),
                             child: Row(
@@ -297,7 +297,7 @@ class _AirportSheetState extends ConsumerState<SearchAirportSheet> {
                                         ),
                                         Row(
                                           mainAxisSize: MainAxisSize.min,
-                                          children: [
+                                          children: <Widget>[
                                             Text(
                                               airport.iataCode,
                                               overflow: TextOverflow.ellipsis,

@@ -21,7 +21,9 @@ class FlightSearchButton extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final FlightSearchController controller = ref.read(flightSearchProvider.notifier);
+    final FlightSearchController controller = ref.read(
+      flightSearchProvider.notifier,
+    );
     final FlightSearchState flightState = ref.watch(flightSearchProvider);
 
     return Padding(
@@ -37,7 +39,8 @@ class FlightSearchButton extends ConsumerWidget {
                     final bool hasAirports =
                         flightState.departureAirportCode.isNotEmpty &&
                         flightState.arrivalAirportCode.isNotEmpty;
-                    final bool hasDate = (flightState.displayDate ?? '').isNotEmpty;
+                    final bool hasDate =
+                        (flightState.displayDate ?? '').isNotEmpty;
 
                     if (!hasPassengers || !hasAirports || !hasDate) return;
 

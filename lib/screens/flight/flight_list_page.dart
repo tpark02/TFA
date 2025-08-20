@@ -5,6 +5,7 @@ import 'package:TFA/providers/flight/flight_search_state.dart';
 import 'package:TFA/providers/iata_country_provider.dart';
 import 'package:TFA/providers/sort_tab_provider.dart';
 import 'package:TFA/screens/flight/flight_filter_screen.dart';
+import 'package:TFA/types/typedefs.dart';
 import 'package:TFA/utils/time_utils.dart';
 import 'package:TFA/widgets/filter_button.dart';
 import 'package:TFA/widgets/flight/flight_list_view.dart';
@@ -25,6 +26,13 @@ class FlightListPage extends ConsumerStatefulWidget {
   ConsumerState<FlightListPage> createState() => _FlightListPageState();
 }
 
+class OpFailed implements Exception {
+  final String message;
+  OpFailed(this.message);
+  @override
+  String toString() => message;
+}
+
 class _FlightListPageState extends ConsumerState<FlightListPage> {
   String selectedSort = 'Cost';
   String selectedStops = 'Up to 2 stops';
@@ -41,8 +49,7 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
   int layOverDurationSt = 0;
   int layOverDurationEnd = 0;
   late final ProviderSubscription<FlightSearchState> _sub;
-  ProviderSubscription<(String, String, String?, String?, int, int)>?
-  _searchSub;
+  ProviderSubscription<FlightSearchParams>? _searchSub;
   bool _rtFetching = false;
 
   Map<String, String> carriersDict = <String, String>{}; // <-- add this
@@ -411,19 +418,14 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
   void initState() {
     super.initState();
 
-    Future<void> onSearchChange(
-      (String, String, String?, String?, int, int) next,
-    ) async {
+    Future<void> onSearchChange(FlightSearchParams next) async {
       if (!mounted) return;
 
-      final String origin = next.$1;
-      final String dest = next.$2;
-      final String? dep = next.$3; // String?
-      final String? ret = next.$4; // String? (may be null)
-      final int pax = next.$5;
-
-      debugPrint('🧷 snapshot dep=$dep ret=$ret pax=$pax');
-      if (dep == null || dep.isEmpty) return;
+      final String departureAirport = next.$1;
+      final String arrivalAirPort = next.$2;
+      final String? departureDate = next.$3; // String?
+      final String? returnDate = next.$4; // String? (may be null)
+      final int passengerCount = next.$5;
 
       if (_rtFetching) return;
       _rtFetching = true;
@@ -431,111 +433,56 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
       final FlightSearchController controller = ref.read(
         flightSearchProvider.notifier,
       );
+      final bool hasReturn = (returnDate?.isNotEmpty ?? false);
 
       try {
-        controller.clearProcessedFlights();
-        debugPrint("‼️ _onSearchChange return date : $ret");
-        if ((ret ?? '').isNotEmpty) {
-          final PricingMode mode = await ref.read(
-            roundTripModeProvider((next.$1, next.$2)).future,
-          );
+        debugPrint(
+          '🧷 snapshot departureAirport=$departureAirport, arrivalAirPort=$arrivalAirPort departureDate=$departureDate returnDate=$returnDate passengerCount=$passengerCount',
+        );
+        final List<Future<(bool, String)> Function()> ops = controller
+            .executeFlightSearch(hasReturn: hasReturn);
 
-          if (mode == PricingMode.combined) {
-            final (bool ok, String msg) = await controller.searchFlights(
-              origin: origin,
-              destination: dest,
-              departureDate: dep,
-              returnDate: ret!,
-              adults: pax,
-              isInboundFlight: false,
-              mode: PricingMode.combined,
-            );
-            if (!ok && mounted) {
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(SnackBar(content: Text(msg)));
+        for (final Future<(bool, String)> Function() op in ops) {
+          final (ok, msg) = await op();
+          if (!ok) {
+            if (mounted) {
+              throw OpFailed(msg);
             }
-          } else {
-            final List<(bool, String)> results =
-                await Future.wait<(bool, String)>(<Future<(bool, String)>>[
-                  controller.searchFlights(
-                    origin: origin,
-                    destination: dest,
-                    departureDate: dep,
-                    returnDate: null,
-                    adults: pax,
-                    isInboundFlight: false,
-                    mode: PricingMode.perLeg,
-                  ),
-                  controller.searchFlights(
-                    origin: origin,
-                    destination: dest,
-                    departureDate: ret!,
-                    returnDate: null,
-                    adults: pax,
-                    isInboundFlight: true,
-                    mode: PricingMode.perLeg,
-                  ),
-                ]);
-
-            final (bool okOut, String msgOut) = results[0];
-            final (bool okIn, String msgIn) = results[1];
-            if (!okOut && mounted) {
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(SnackBar(content: Text(msgOut)));
-            }
-            if (!okIn && mounted) {
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(SnackBar(content: Text(msgIn)));
-            }
+            return;
           }
-        } else {
-          final (bool ok, String msg) = await controller.searchFlights(
-            origin: next.$1,
-            destination: next.$2,
-            departureDate: dep,
-            returnDate: null,
-            adults: next.$5,
-            isInboundFlight: false,
-            mode: PricingMode.perLeg,
-          );
-          if (!ok && mounted) {
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text(msg)));
-          }
+          debugPrint("🧷 onSearchChange msg : $msg");
         }
       } catch (e, st) {
-        debugPrint("❌ Failed loading flights: $e\n$st");
+        if (mounted) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(e.toString())));
+        }
+        debugPrint('❌ $e\n$st');
       } finally {
         _rtFetching = false;
       }
     }
 
     _searchSub = ref.listenManual(
-      flightSearchProvider.select<(String, String, String?, String?, int, int)>(
+      flightSearchProvider.select<FlightSearchParams>(
         (FlightSearchState s) => (
           s.departureAirportCode,
           s.arrivalAirportCode,
           s.departDate,
           s.returnDate,
           s.passengerCount,
-          s.searchNonce,
         ),
       ),
-      (
-        (String, String, String?, String?, int, int)? prev,
-        (String, String, String?, String?, int, int) next,
-      ) {
+      (FlightSearchParams? prev, FlightSearchParams next) {
         debugPrint(
-          '🔔 listenManual fired dep=${next.$3} ret=${next.$4} nonce=${next.$6}',
+          '🔔 listenManual fired departureAirportCode=${next.$1} arrivalAirportCode=${next.$2} departure=${next.$3} arrival=${next.$4} departureDate=${next.$3} returnDate=${next.$4} passengerCount=${next.$5}',
         );
-        Future.microtask(() => onSearchChange(next)); // 🟢 no await in listener
+        onSearchChange(next);
       },
       fireImmediately: false,
     );
+
     _searchSub!.read(); // important with listenManual
 
     try {
@@ -609,152 +556,49 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
     }
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final FlightSearchState flightState = ref.read(flightSearchProvider);
-      final FlightSearchController controller = ref.read(
-        flightSearchProvider.notifier,
-      );
+      final flightState = ref.read(flightSearchProvider);
+      final controller = ref.read(flightSearchProvider.notifier);
+      final bool hasReturn = (flightState.returnDate?.isNotEmpty ?? false);
 
-      final PricingMode mode = await ref.read(
-        roundTripModeProvider((
-          flightState.departureAirportCode, // origin IATA
-          flightState.arrivalAirportCode, // destination IATA
-        )).future,
-      );
+      try {
+        if (_rtFetching) return;
+        _rtFetching = true;
 
-      final bool useCombined = (mode == PricingMode.combined);
-      controller.clearProcessedFlights();
+        final List<Future<(bool, String)> Function()> ops = controller
+            .executeFlightSearch(hasReturn: hasReturn);
 
-      if (flightState.returnDate != null && flightState.returnDate! != '') {
-        if (useCombined) {
-          debugPrint("✅ Combined");
-          final (bool ok, String msg) = await controller.searchFlights(
-            origin: flightState.departureAirportCode,
-            destination: flightState.arrivalAirportCode,
-            departureDate: flightState.departDate,
-            returnDate: flightState.returnDate,
-            adults: flightState.passengerCount,
-            isInboundFlight: false,
-            mode: PricingMode.combined,
-          );
-          if (!ok && mounted) {
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text(msg)));
-          }
-        } else if (useCombined &&
-            (flightState.returnDate != null && flightState.returnDate! != '')) {
-          debugPrint("✅ Per-leg ");
-          if (_rtFetching == true) return;
-          _rtFetching = true;
-          try {
-            final List<Future<(bool, String)>> futures =
-                <Future<(bool, String)>>[
-                  controller.searchFlights(
-                    origin: flightState.departureAirportCode,
-                    destination: flightState.arrivalAirportCode,
-                    departureDate: flightState.departDate,
-                    returnDate: flightState.returnDate,
-                    adults: flightState.passengerCount,
-                    isInboundFlight: false,
-                    mode: PricingMode.combined,
-                  ),
-                  controller.searchFlights(
-                    origin: flightState.departureAirportCode,
-                    destination: flightState.arrivalAirportCode,
-                    departureDate: flightState.departDate,
-                    returnDate: null,
-                    adults: flightState.passengerCount,
-                    isInboundFlight: false,
-                    mode: PricingMode.perLeg,
-                  ),
-                  controller.searchFlights(
-                    origin: flightState.arrivalAirportCode,
-                    destination: flightState.departureAirportCode,
-                    departureDate: flightState.returnDate!,
-                    returnDate: null,
-                    adults: flightState.passengerCount,
-                    isInboundFlight: true,
-                    mode: PricingMode.perLeg,
-                  ),
-                ];
-
-            final List<(bool, String)> results = await Future.wait(futures);
-
-            final (bool okOut, String msgOut) = results[0];
-            final (bool okIn, String msgIn) = results[1];
-
-            if (!okOut && mounted) {
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(SnackBar(content: Text(msgOut)));
+        for (final Future<(bool, String)> Function() op in ops) {
+          final (ok, msg) = await op();
+          if (!ok) {
+            if (mounted) {
+              throw OpFailed(msg);
             }
-            if (!okIn && mounted) {
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(SnackBar(content: Text(msgIn)));
-            }
-          } finally {
-            _rtFetching = false;
+            return;
           }
+          debugPrint("✅ msg : $msg");
         }
-      } else {
-        debugPrint("✈️ One-way");
-        try {
-          // Run both hidden-city and normal search sequentially
-          final List<(bool, String)> results = <(bool, String)>[
-            await controller.searchFlights(
-              origin: flightState.departureAirportCode,
-              destination: flightState.arrivalAirportCode,
-              departureDate: flightState.departDate,
-              returnDate: null,
-              adults: flightState.passengerCount,
-              isInboundFlight: false,
-              mode: PricingMode.perLeg,
-            ),
-            await controller.searchHiddenFlights(
-              origin: flightState.departureAirportCode,
-              destination: flightState.arrivalAirportCode,
-              departureDate: flightState.departDate,
-              returnDate: null,
-              adults: flightState.passengerCount,
-              isInboundFlight: false,
-              mode: PricingMode.perLeg,
-              candidates: flightState.hiddenAirporCodeList,
-            ),
-          ];
-
-          // Handle errors in one loop
-          for (final (bool ok, String msg) in results) {
-            if (!ok && mounted) {
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(SnackBar(content: Text(msg)));
-            } else {
-              debugPrint(msg);
-            }
-          }
-        } catch (e) {
-          if (mounted) {
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text("❌ Unexpected error: $e")));
-          }
+      } catch (e, st) {
+        if (mounted) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(e.toString())));
         }
+        debugPrint('❌ $e\n$st');
+      } finally {
+        _rtFetching = false;
       }
 
       if (mounted) {
         setState(() {
-          final Map<String, dynamic> _ = ref
+          // force rebuild if needed by creating a dependency on provider state
+          final _ = ref
               .read(flightSearchProvider)
               .flightResults
-              .maybeWhen(
-                data: (Map<String, dynamic> v) => v,
-                orElse: () => <String, dynamic>{},
-              );
+              .maybeWhen(data: (v) => v, orElse: () => <String, dynamic>{});
         });
       }
     });
-  }
+  } // end of init
 
   @override
   void dispose() {

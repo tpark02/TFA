@@ -23,6 +23,7 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
     required bool isInboundFlight,
     required PricingMode mode,
     required List<String> candidates,
+    // required int searchId,
     int maxResults = 20,
   }) async {
     state = state.copyWith(isLoading: true);
@@ -45,6 +46,8 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
       final List<FlightSearchOut> result = await api.fetchHiddenCity(
         payload: payload,
       );
+
+      // if (searchId != state.searchNonce) return (false, 'stale search ignored');
 
       // Collect all processed flights first
       final List allProcessed = result
@@ -72,6 +75,7 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
         "✅ Hidden-city search completed, items added : ${allProcessed.length}",
       );
     } catch (e) {
+      // if (searchId != state.searchNonce) return (false, 'stale error ignored');
       debugPrint("❌ Hidden-city search failed: $e");
       return (false, "❌ Hidden-city search failed: $e");
     } finally {
@@ -79,15 +83,23 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
     }
   }
 
+  void setSearchNonce(int id) => state = state.copyWith(searchNonce: id);
+  void setLoadingAndClear() => state = state.copyWith(
+    isLoading: true,
+    processedFlights: <Map<String, dynamic>>[],
+    // optionally set flightResults = const AsyncLoading()
+  );
+
   Future<FlightSearchResult> searchFlights({
     required String origin,
     required String destination,
     required String departureDate,
     required String? returnDate,
     required int adults,
-    int maxResults = 20,
     required bool isInboundFlight,
     required PricingMode mode,
+    // required int searchId,
+    int maxResults = 20,
   }) async {
     state = state.copyWith(isLoading: true);
     debugPrint("✈️ search flight");
@@ -107,6 +119,8 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
         maxResults: maxResults,
       );
 
+      // if (searchId != state.searchNonce) return (false, 'stale search ignored');
+
       final List<Map<String, dynamic>> res = processFlights(
         result,
         mode,
@@ -123,6 +137,8 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
       return (true, '✅ Flight search completed');
     } catch (e) {
       // state = state.copyWithFlightResults(AsyncValue.error(e, st));
+      // if (searchId != state.searchNonce) return (false, 'stale error ignored');
+
       return (false, '❌ Flight search failed: $e');
     } finally {
       state = state.copyWith(isLoading: false);
@@ -162,9 +178,10 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
       if (itineraries.isEmpty) continue;
 
       // Validating airline
-      final List<String> validatingCodes = (offer.validatingAirlineCodes ?? <String>[])
-          .map((String e) => e.toUpperCase())
-          .toList();
+      final List<String> validatingCodes =
+          (offer.validatingAirlineCodes ?? <String>[])
+              .map((String e) => e.toUpperCase())
+              .toList();
       final String? validatingCode = validatingCodes.isNotEmpty
           ? validatingCodes.first
           : null;
@@ -188,10 +205,12 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
       final Map<String, dynamic> segCheckedBags = <String, dynamic>{};
       final Map<String, dynamic> segCabinBags = <String, dynamic>{};
 
-      final List<TravelerPricing> tps = offer.travelerPricings ?? <TravelerPricing>[];
+      final List<TravelerPricing> tps =
+          offer.travelerPricings ?? <TravelerPricing>[];
       if (tps.isNotEmpty) {
         final TravelerPricing tp = tps.first;
-        for (final FareDetailsBySegment fd in tp.fareDetailsBySegment ?? <FareDetailsBySegment>[]) {
+        for (final FareDetailsBySegment fd
+            in tp.fareDetailsBySegment ?? <FareDetailsBySegment>[]) {
           final String id = (fd.segmentId ?? '').toString();
           if (id.isEmpty) continue;
           segCabin[id] = fd.cabin;
@@ -297,7 +316,9 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
         final String airFmt = _fmtHM(airMin);
 
         // Segment details (typed → map)
-        final List<Map<String, dynamic>> segmentDetails = segments.map((Segment s) {
+        final List<Map<String, dynamic>> segmentDetails = segments.map((
+          Segment s,
+        ) {
           final String segId = (s.id ?? '').toString();
           final String? acCode = s.aircraft?.code;
           final String? operatingCode = s.operating?.carrierCode;
@@ -330,7 +351,9 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
 
         // For display like "UA 1665 / UA 2610"
         final String flightNumbers = segments
-            .map((Segment s) => '${s.carrierCode ?? ''} ${s.number ?? ''}'.trim())
+            .map(
+              (Segment s) => '${s.carrierCode ?? ''} ${s.number ?? ''}'.trim(),
+            )
             .join(' / ');
 
         final String pricingMode = mode == PricingMode.combined
@@ -372,8 +395,7 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
           // price/meta
           'price': formattedPrice,
           'currency': currency,
-          'isReturn':
-              isInBoundFlight, // or: i == 1 if you want itinerary index logic
+          'isReturn': i == 1,
           'depRaw': depRaw,
           'arrRaw': arrRaw,
 
@@ -669,8 +691,92 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
     debugPrint('🔔 nonce $before -> ${state.searchNonce}');
   }
 
+  List<Future<(bool, String)> Function()> executeFlightSearch({
+    required bool hasReturn,
+  }) {
+    clearProcessedFlights();
+
+    if (hasReturn) {
+      debugPrint("✈️ Round Trip");
+      return [
+        () => searchFlights(
+          origin: state.departureAirportCode,
+          destination: state.arrivalAirportCode,
+          departureDate: state.departDate,
+          returnDate: state.returnDate,
+          adults: state.passengerCount,
+          isInboundFlight: false,
+          mode: PricingMode.combined,
+        ),
+        () => searchFlights(
+          origin: state.departureAirportCode,
+          destination: state.arrivalAirportCode,
+          departureDate: state.departDate,
+          returnDate: null,
+          adults: state.passengerCount,
+          isInboundFlight: false,
+          mode: PricingMode.perLeg,
+        ),
+        () => searchFlights(
+          origin: state.arrivalAirportCode,
+          destination: state.departureAirportCode,
+          departureDate: state.returnDate!,
+          returnDate: null,
+          adults: state.passengerCount,
+          isInboundFlight: true,
+          mode: PricingMode.perLeg,
+        ),
+        () => searchHiddenFlights(
+          origin: state.departureAirportCode,
+          destination: state.arrivalAirportCode,
+          departureDate: state.departDate,
+          returnDate: null,
+          adults: state.passengerCount,
+          isInboundFlight: false,
+          mode: PricingMode.perLeg,
+          candidates: state.hiddenAirporCodeList,
+        ),
+        () => searchHiddenFlights(
+          origin: state.arrivalAirportCode,
+          destination: state.departureAirportCode,
+          departureDate: state.returnDate!,
+          returnDate: null,
+          adults: state.passengerCount,
+          isInboundFlight: true,
+          mode: PricingMode.perLeg,
+          candidates: state.hiddenAirporCodeList,
+        ),
+      ];
+    } else {
+      debugPrint("✈️ One-way");
+
+      return [
+        () => searchFlights(
+          origin: state.departureAirportCode,
+          destination: state.arrivalAirportCode,
+          departureDate: state.departDate,
+          returnDate: null,
+          adults: state.passengerCount,
+          isInboundFlight: false,
+          mode: PricingMode.perLeg,
+        ),
+        () => searchHiddenFlights(
+          origin: state.departureAirportCode,
+          destination: state.arrivalAirportCode,
+          departureDate: state.departDate,
+          returnDate: null,
+          adults: state.passengerCount,
+          isInboundFlight: false,
+          mode: PricingMode.perLeg,
+          candidates: state.hiddenAirporCodeList,
+        ),
+      ];
+    }
+  }
+
   String? get departDate => state.departDate;
   String? get returnDate => state.returnDate;
+  List<String> get hiddenCandidates => state.hiddenAirporCodeList;
 }
 
 final StateNotifierProvider<FlightSearchController, FlightSearchState>
