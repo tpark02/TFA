@@ -190,101 +190,165 @@ class FlightListViewItem extends StatelessWidget {
         : <String>[];
     final double? fs = headlineMedium;
 
+    Color textColor = Theme.of(context).colorScheme.primary;
+    Color labelColor = Colors.transparent;
+    Color frontLabelColor = Colors.transparent;
+    String label = "";
+
+    if (flight['isHiddenCityFlight']) {
+      label = "Skip Lagging";
+      labelColor = Colors.grey.shade200;
+      frontLabelColor = Theme.of(context).colorScheme.primary;
+    } else if (flight['pricingMode'] == 'perleg') {
+      label = "Seperate Tickets";
+      labelColor = Colors.grey.shade200;
+      frontLabelColor = Theme.of(context).colorScheme.primary;
+    }
+
+    bool isSeperateTicket = flight['pricingMode'] == 'perleg' ? true : false;
+
     return Material(
       color: flight['pricingMode'] == 'perleg'
           ? flight['isHiddenCityFlight']
                 ? Colors.amber
                 : Colors.red
           : Colors.blue,
-      child: InkWell(
-        onTap: onClick,
-        child: Container(
-          padding: const EdgeInsets.fromLTRB(20, 10, 10, 10),
-          decoration: BoxDecoration(
-            border: Border(bottom: BorderSide(color: Colors.grey.shade300)),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              /// Top Row — Departure & Arrival Times and Airports
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: <Widget>[
-                  SizedBox(
-                    width: 75,
-                    height: 62,
-                    child: Stack(
+      child: Column(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              border: Border(
+                left: BorderSide(color: frontLabelColor, width: 6),
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (isSeperateTicket) ...[
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: labelColor, // light blue background
+                      borderRadius: BorderRadius.zero,
+                    ),
+                    child: Text(
+                      label,
+                      style: TextStyle(
+                        color: textColor,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
+                InkWell(
+                  onTap: onClick,
+                  child: Container(
+                    padding: const EdgeInsets.fromLTRB(20, 10, 10, 10),
+                    decoration: BoxDecoration(
+                      border: Border(
+                        bottom: BorderSide(color: Colors.grey.shade300),
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        Positioned(
-                          top: 11,
-                          left: 0,
-                          right: 0,
-                          child: Text(
-                            depTime,
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: fs,
+                        /// Top Row — Departure & Arrival Times and Airports
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: <Widget>[
+                            SizedBox(
+                              width: 75,
+                              height: 62,
+                              child: Stack(
+                                children: <Widget>[
+                                  Positioned(
+                                    top: 11,
+                                    left: 0,
+                                    right: 0,
+                                    child: Text(
+                                      depTime,
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: fs,
+                                      ),
+                                    ),
+                                  ),
+                                  Positioned(
+                                    top: 35,
+                                    left: 0,
+                                    right: 0,
+                                    child: Text(
+                                      depAirport,
+                                      style: TextStyle(
+                                        fontSize: fs,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
+                            Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.fromLTRB(
+                                  0,
+                                  15,
+                                  10,
+                                  0,
+                                ),
+                                child: layoverTimeline(context, middleAirports),
+                              ),
+                            ),
+                            _timeCell(
+                              arrTime,
+                              fs!,
+                              plusDay: plusDay > 0 ? plusDay : null,
+                              arrAirport: arrAirport,
+                              fs: fs,
+                            ),
+                          ],
                         ),
-                        Positioned(
-                          top: 35,
-                          left: 0,
-                          right: 0,
-                          child: Text(
-                            depAirport,
-                            style: TextStyle(fontSize: fs, color: Colors.grey),
-                          ),
+
+                        const SizedBox(height: 8),
+
+                        /// Duration, stops, airline, price
+                        // Keep meta on the left (ellipsis), keep PRICE on one line at the right.
+                        Row(
+                          children: <Widget>[
+                            Expanded(
+                              child: Text(
+                                "$duration | $stops | $airline",
+                                style: TextStyle(color: Colors.grey[700]),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                softWrap: false,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              price, // e.g., €1,100.72
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: headlineMedium,
+                              ),
+                              maxLines: 1,
+                              softWrap: false,
+                            ),
+                          ],
                         ),
                       ],
                     ),
                   ),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(0, 15, 10, 0),
-                      child: layoverTimeline(context, middleAirports),
-                    ),
-                  ),
-                  _timeCell(
-                    arrTime,
-                    fs!,
-                    plusDay: plusDay > 0 ? plusDay : null,
-                    arrAirport: arrAirport,
-                    fs: fs,
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 8),
-
-              /// Duration, stops, airline, price
-              // Keep meta on the left (ellipsis), keep PRICE on one line at the right.
-              Row(
-                children: <Widget>[
-                  Expanded(
-                    child: Text(
-                      "$duration | $stops | $airline",
-                      style: TextStyle(color: Colors.grey[700]),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      softWrap: false,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    price, // e.g., €1,100.72
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: headlineMedium,
-                    ),
-                    maxLines: 1,
-                    softWrap: false,
-                  ),
-                ],
-              ),
-            ],
+                ),
+              ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

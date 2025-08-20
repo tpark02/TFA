@@ -28,19 +28,19 @@ class CalendarSheet extends ConsumerStatefulWidget {
 class _CalendarSheetState extends ConsumerState<CalendarSheet>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  DateTime? startDate;
-  DateTime? endDate;
+  DateTime? departDate;
+  DateTime? returnDate;
 
   @override
   void initState() {
     super.initState();
-    
+
     if (widget.isRange) {
-      startDate = DateTime.now().add(Duration(days: widget.startDays));
-      endDate = DateTime.now().add(Duration(days: widget.endDays));
+      departDate = DateTime.now().add(Duration(days: widget.startDays));
+      returnDate = DateTime.now().add(Duration(days: widget.endDays));
     } else {
-      startDate = DateTime.now().add(Duration(days: widget.startDays));
-      endDate = null;
+      departDate = DateTime.now().add(Duration(days: widget.startDays));
+      returnDate = null;
     }
 
     _tabController = TabController(length: 2, vsync: this);
@@ -53,18 +53,18 @@ class _CalendarSheetState extends ConsumerState<CalendarSheet>
   }
 
   void _onSelectionRange(DateRangePickerSelectionChangedArgs args) {
-    final FlightSearchController controller = ref.read(
-      flightSearchProvider.notifier,
-    );
+    // final FlightSearchController controller = ref.read(
+    //   flightSearchProvider.notifier,
+    // );
 
     if (args.value is PickerDateRange) {
       final PickerDateRange range = args.value as PickerDateRange;
 
       if (range.startDate != null && range.endDate != null) {
-        startDate = range.startDate;
-        endDate = range.endDate;
-        controller.setClearReturnDate(false);
-        debugPrint("📅 start date : $startDate, end date : $endDate");
+        departDate = range.startDate;
+        returnDate = range.endDate;
+        // controller.setClearReturnDate(false);
+        debugPrint("📅 start date : $departDate, end date : $returnDate");
       } else {
         debugPrint('📅 selected range: start or end is null');
       }
@@ -74,13 +74,13 @@ class _CalendarSheetState extends ConsumerState<CalendarSheet>
   }
 
   void _onSelectionChanged(DateRangePickerSelectionChangedArgs args) {
-    final FlightSearchController controller = ref.read(
-      flightSearchProvider.notifier,
-    );
+    // final FlightSearchController controller = ref.read(
+    //   flightSearchProvider.notifier,
+    // );
     if (args.value is DateTime) {
-      startDate = args.value;
-      controller.setClearReturnDate(true);
-      debugPrint("📅 start date : $startDate , end date : $endDate");
+      departDate = args.value;
+      // controller.setClearReturnDate(true);
+      debugPrint("📅 start date : $departDate , end date : $returnDate");
     } else {
       debugPrint('📅 Selection is not a DateTime: ${args.value.runtimeType}');
     }
@@ -104,6 +104,9 @@ class _CalendarSheetState extends ConsumerState<CalendarSheet>
     );
 
     ref.watch(flightSearchProvider);
+    final FlightSearchController controller = ref.read(
+      flightSearchProvider.notifier,
+    );
     return SafeArea(
       child: Padding(
         padding: EdgeInsets.only(
@@ -229,11 +232,11 @@ class _CalendarSheetState extends ConsumerState<CalendarSheet>
                       ),
                       onPressed: () {
                         debugPrint(
-                          "📅 onpressed start date : $startDate, end date : $endDate",
+                          "📅 onpressed start date : $departDate, end date : $returnDate",
                         );
                         Navigator.pop(context, <String, DateTime?>{
-                          'startDate': startDate,
-                          'endDate': endDate,
+                          'departDate': departDate,
+                          'returnDate': returnDate,
                         });
                       },
                       child: const Text("Confirm"),

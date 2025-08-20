@@ -7,6 +7,24 @@ import 'package:http/http.dart' as http;
 import 'package:TFA/utils/api_config.dart';
 
 class FlightApiService {
+  void _checkNulls(Map<String, dynamic> map, [String path = ""]) {
+    map.forEach((String key, value) {
+      final String fullPath = path.isEmpty ? key : "$path.$key";
+      if (value == null) {
+        debugPrint("⚠️ NULL detected at $fullPath");
+      } else if (value is Map<String, dynamic>) {
+        _checkNulls(value, fullPath);
+      } else if (value is List) {
+        for (int i = 0; i < value.length; i++) {
+          final item = value[i];
+          if (item is Map<String, dynamic>) {
+            _checkNulls(item, "$fullPath[$i]");
+          }
+        }
+      }
+    });
+  }
+
   Future<FlightSearchOut> fetchFlights({
     required String origin,
     required String destination,
@@ -31,7 +49,12 @@ class FlightApiService {
 
       debugPrint("📤 Flight API Request URI: $url");
       debugPrint(
-        "🔍 Params: origin=$origin, destination=$destination, departure=$departureDate, return=$returnDate, adults=$adults, max=$maxResults",
+        "🔍 Params: origin=$origin, \n"
+        "destination=$destination, \n"
+        "departure=$departureDate, \n"
+        "return=$returnDate, \n"
+        "adults=$adults, \n"
+        "max=$maxResults",
       );
 
       final http.Response response = await http.get(url);
@@ -39,29 +62,10 @@ class FlightApiService {
       if (response.statusCode == 200) {
         final decoded = jsonDecode(response.body);
 
-        // 🟢 Debug: print every field that's null
-        void checkNulls(Map<String, dynamic> map, [String path = ""]) {
-          map.forEach((String key, value) {
-            final String fullPath = path.isEmpty ? key : "$path.$key";
-            if (value == null) {
-              debugPrint("⚠️ NULL detected at $fullPath");
-            } else if (value is Map<String, dynamic>) {
-              checkNulls(value, fullPath);
-            } else if (value is List) {
-              for (int i = 0; i < value.length; i++) {
-                final item = value[i];
-                if (item is Map<String, dynamic>) {
-                  checkNulls(item, "$fullPath[$i]");
-                }
-              }
-            }
-          });
-        }
-
         if (decoded is List) {
           for (int i = 0; i < decoded.length; i++) {
             if (decoded[i] is Map<String, dynamic>) {
-              checkNulls(decoded[i], "root[$i]");
+              _checkNulls(decoded[i], "root[$i]");
             }
           }
         }

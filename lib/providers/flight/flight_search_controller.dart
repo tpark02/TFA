@@ -176,7 +176,6 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
     for (final FlightOffer offer in offers) {
       final List<Itinerary> itineraries = offer.itineraries ?? <Itinerary>[];
       if (itineraries.isEmpty) continue;
-
       // Validating airline
       final List<String> validatingCodes =
           (offer.validatingAirlineCodes ?? <String>[])
@@ -234,6 +233,8 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
 
       // Iterate itineraries
       for (int i = 0; i < itineraries.length; i++) {
+        // Set<String> airlinesCnt = <String>{};
+
         final Itinerary it = itineraries[i];
         final List<Segment> segments = it.segments ?? <Segment>[];
         if (segments.isEmpty) continue;
@@ -322,13 +323,19 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
           final String segId = (s.id ?? '').toString();
           final String? acCode = s.aircraft?.code;
           final String? operatingCode = s.operating?.carrierCode;
+          final flightNumber = '${s.carrierCode ?? ''} ${s.number ?? ''}';
+
+          // if (s.carrierCode != null) {
+          //   debugPrint("✈️ carrier code : ${s.carrierCode}");
+          //   airlinesCnt.add(s.carrierCode!);
+          // }
 
           return <String, dynamic>{
             'segId': segId,
             'marketingCarrier': s.carrierCode,
             'operatingCarrier': operatingCode,
             'flightNumber': s.number,
-            'marketingFlight': '${s.carrierCode ?? ''} ${s.number ?? ''}',
+            'marketingFlight': flightNumber,
             'aircraftCode': acCode,
             'aircraftName': acCode != null ? aircraftDict[acCode] : null,
             'duration': s.duration,
@@ -406,6 +413,7 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
           'pricingMode': pricingMode,
           'isInBoundFlight': isInBoundFlight,
           'isHiddenCityFlight': isHiddenCityFlight,
+          // 'isSelfTransfer': airlinesCnt.length > 1 ? true : false,
         });
       }
     }
@@ -496,27 +504,60 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
     );
   }
 
-  void setClearReturnDate(bool b) {
-    state = state.copyWith(clearReturnDate: b);
-  }
+  // void setClearReturnDate(bool b) {
+  //   state = state.copyWith(clearReturnDate: b);
+  // }
+  // 🟢 FIX: combine date setting + display string into ONE atomic write
+  void setTripDates({
+    required DateTime departDate, // non-null
+    DateTime? returnDate, // nullable for one-way
+  }) {
+    // 🧽 CLEANUP: use two formatters (ISO for state, pretty for display)
+    final iso = DateFormat('yyyy-MM-dd');
+    final pretty = DateFormat('MMM d');
 
-  void setDepartDate(DateTime? d) {
-    if (d == null) {
-      state = state.copyWith(departDate: null);
+    // 🟢 FIX: format safely
+    final String dIso = iso.format(departDate);
+    final String? rIso = (returnDate == null) ? null : iso.format(returnDate);
+
+    // 🟢 FIX: build display once here
+    final String display = (returnDate != null)
+        ? '${pretty.format(departDate)} - ${pretty.format(returnDate)}'
+        : pretty.format(departDate);
+
+    // 🛡️ GUARD: skip redundant state writes
+    if (state.departDate == dIso &&
+        state.returnDate == rIso &&
+        state.displayDate == display) {
       return;
     }
-    final String formatted = DateFormat('yyyy-MM-dd').format(d);
-    state = state.copyWith(departDate: formatted);
+
+    // ✅ Atomic update: updates depart/return/display in one go (prevents double fires)
+    state = state.copyWith(
+      departDate: dIso,
+      returnDate: rIso,
+      displayDate: display,
+      clearReturnDate: returnDate == null ? true : false,
+    );
   }
 
-  void setReturnDate(DateTime? d) {
-    if (d == null) {
-      state = state.copyWith(returnDate: null);
-      return;
-    }
-    final String formatted = DateFormat('yyyy-MM-dd').format(d);
-    state = state.copyWith(returnDate: formatted);
-  }
+  // void setDepartDate(DateTime? d) {
+  // if (d == null) {
+  //   state = state.copyWith(departDate: null);
+  //   return;
+  // }
+  //   final String formatted = DateFormat('yyyy-MM-dd').format(d);
+  //   state = state.copyWith(departDate: formatted);
+  // }
+
+  // void setReturnDate(DateTime? d) {
+  // if (d == null) {
+  //   state = state.copyWith(returnDate: null);
+  //   return;
+  // }
+  //   final String formatted = DateFormat('yyyy-MM-dd').format(d);
+  //   state = state.copyWith(returnDate: formatted);
+  // }
 
   void setDepartureCity(String city) {
     state = state.copyWith(departureCity: city);
@@ -555,11 +596,8 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
   //   state = state.copyWith(arrivalAirportName: name);
   // }
 
-  void setDisplayDate({required DateTime? startDate, DateTime? endDate}) {
-    final String displayDate = endDate != null
-        ? '${DateFormat('MMM d').format(startDate!)} - ${DateFormat('MMM d').format(endDate)}'
-        : DateFormat('MMM d').format(startDate!);
-    state = state.copyWith(displayDate: displayDate);
+  void setSearchConfirmed(bool b) {
+    state = state.copyWith(isSearchConfirmed: b);
   }
 
   void setPassengers({required int count, required int cabinIndex}) {
@@ -685,11 +723,11 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
     }
   }
 
-  void bumpSearchNonce() {
-    final int before = state.searchNonce;
-    state = state.copyWith(searchNonce: before + 1); // 🟢 must assign new state
-    debugPrint('🔔 nonce $before -> ${state.searchNonce}');
-  }
+  // void bumpSearchNonce() {
+  //   final int before = state.searchNonce;
+  //   state = state.copyWith(searchNonce: before + 1); // 🟢 must assign new state
+  //   debugPrint('🔔 nonce $before -> ${state.searchNonce}');
+  // }
 
   List<Future<(bool, String)> Function()> executeFlightSearch({
     required bool hasReturn,
@@ -698,7 +736,7 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
 
     if (hasReturn) {
       debugPrint("✈️ Round Trip");
-      return [
+      return <Future<(bool, String)> Function()>[
         () => searchFlights(
           origin: state.departureAirportCode,
           destination: state.arrivalAirportCode,
@@ -726,31 +764,31 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
           isInboundFlight: true,
           mode: PricingMode.perLeg,
         ),
-        () => searchHiddenFlights(
-          origin: state.departureAirportCode,
-          destination: state.arrivalAirportCode,
-          departureDate: state.departDate,
-          returnDate: null,
-          adults: state.passengerCount,
-          isInboundFlight: false,
-          mode: PricingMode.perLeg,
-          candidates: state.hiddenAirporCodeList,
-        ),
-        () => searchHiddenFlights(
-          origin: state.arrivalAirportCode,
-          destination: state.departureAirportCode,
-          departureDate: state.returnDate!,
-          returnDate: null,
-          adults: state.passengerCount,
-          isInboundFlight: true,
-          mode: PricingMode.perLeg,
-          candidates: state.hiddenAirporCodeList,
-        ),
+        // () => searchHiddenFlights(
+        //   origin: state.departureAirportCode,
+        //   destination: state.arrivalAirportCode,
+        //   departureDate: state.departDate,
+        //   returnDate: null,
+        //   adults: state.passengerCount,
+        //   isInboundFlight: false,
+        //   mode: PricingMode.perLeg,
+        //   candidates: state.hiddenAirporCodeList,
+        // ),
+        // () => searchHiddenFlights(
+        //   origin: state.arrivalAirportCode,
+        //   destination: state.departureAirportCode,
+        //   departureDate: state.returnDate!,
+        //   returnDate: null,
+        //   adults: state.passengerCount,
+        //   isInboundFlight: true,
+        //   mode: PricingMode.perLeg,
+        //   candidates: state.hiddenAirporCodeList,
+        // ),
       ];
     } else {
       debugPrint("✈️ One-way");
 
-      return [
+      return <Future<(bool, String)> Function()>[
         () => searchFlights(
           origin: state.departureAirportCode,
           destination: state.arrivalAirportCode,
@@ -760,16 +798,16 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
           isInboundFlight: false,
           mode: PricingMode.perLeg,
         ),
-        () => searchHiddenFlights(
-          origin: state.departureAirportCode,
-          destination: state.arrivalAirportCode,
-          departureDate: state.departDate,
-          returnDate: null,
-          adults: state.passengerCount,
-          isInboundFlight: false,
-          mode: PricingMode.perLeg,
-          candidates: state.hiddenAirporCodeList,
-        ),
+        // () => searchHiddenFlights(
+        //   origin: state.departureAirportCode,
+        //   destination: state.arrivalAirportCode,
+        //   departureDate: state.departDate,
+        //   returnDate: null,
+        //   adults: state.passengerCount,
+        //   isInboundFlight: false,
+        //   mode: PricingMode.perLeg,
+        //   candidates: state.hiddenAirporCodeList,
+        // ),
       ];
     }
   }
@@ -777,6 +815,12 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
   String? get departDate => state.departDate;
   String? get returnDate => state.returnDate;
   List<String> get hiddenCandidates => state.hiddenAirporCodeList;
+
+  void setOneWayDate(DateTime departDate) =>
+      setTripDates(departDate: departDate, returnDate: null);
+
+  void setRoundTripDates(DateTime departDate, DateTime returnDate) =>
+      setTripDates(departDate: departDate, returnDate: returnDate);
 }
 
 final StateNotifierProvider<FlightSearchController, FlightSearchState>

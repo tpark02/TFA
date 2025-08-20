@@ -159,24 +159,15 @@ class SearchSummaryCard extends ConsumerWidget {
                   );
 
                   if (result != null) {
-                    final DateTime? startDate = result['startDate'];
-                    final DateTime? endDate = result['endDate'];
+                    final DateTime? departDate = result['departDate'];
+                    final DateTime? returnDate = result['returnDate'];
 
                     debugPrint(
-                      "📅📅📅 selected dates start date : $startDate, end date : $endDate",
+                      "📅 selected dates start date : $departDate, returnDate : $returnDate",
                     );
-                    controller.setDepartDate(startDate);
-
-                    if (endDate == null) {
-                      controller.setClearReturnDate(true);
-                    } else {
-                      controller.setClearReturnDate(false);
-                      controller.setReturnDate(endDate);
-                    }
-
-                    controller.setDisplayDate(
-                      startDate: result['startDate'],
-                      endDate: result['endDate'],
+                    controller.setTripDates(
+                      departDate: departDate!,
+                      returnDate: returnDate,
                     );
                   }
                 },

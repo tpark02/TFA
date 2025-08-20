@@ -85,7 +85,7 @@ class FlightSearchButton extends ConsumerWidget {
                         ),
                       );
                     }
-
+                    controller.clearProcessedFlights();
                     Navigator.of(context).push(
                       MaterialPageRoute(builder: (_) => const FlightListPage()),
                     );

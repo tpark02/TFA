@@ -1,8 +1,8 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:TFA/providers/flight/flight_search_controller.dart';
 import 'package:TFA/providers/flight/flight_search_state.dart';
-import 'package:TFA/providers/iata_country_provider.dart';
 import 'package:TFA/providers/sort_tab_provider.dart';
 import 'package:TFA/screens/flight/flight_filter_screen.dart';
 import 'package:TFA/types/typedefs.dart';
@@ -49,7 +49,6 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
   int layOverDurationSt = 0;
   int layOverDurationEnd = 0;
   late final ProviderSubscription<FlightSearchState> _sub;
-  ProviderSubscription<FlightSearchParams>? _searchSub;
   bool _rtFetching = false;
 
   Map<String, String> carriersDict = <String, String>{}; // <-- add this
@@ -433,13 +432,19 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
 
     try {
       debugPrint(
-        '🧷 snapshot departureAirport=$departureAirport, arrivalAirPort=$arrivalAirPort departureDate=$departureDate returnDate=$returnDate passengerCount=$passengerCount',
+        '🧷 snapshot departureAirport=$departureAirport\n'
+        'arrivalAirPort=$arrivalAirPort\n'
+        'departureDate=$departureDate\n'
+        'returnDate=$returnDate\n'
+        'passengerCount=$passengerCount',
       );
+      controller.clearProcessedFlights();
+
       final List<Future<(bool, String)> Function()> ops = controller
           .executeFlightSearch(hasReturn: hasReturn);
 
       for (final Future<(bool, String)> Function() op in ops) {
-        final (ok, msg) = await op();
+        final (bool ok, String msg) = await op();
         if (!ok) {
           if (mounted) {
             throw OpFailed(msg);
@@ -477,7 +482,10 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
       // layovers
       final Map<String, dynamic> locations = _asMap(f['locations']);
       final String path = (f['airportPath'] as String? ?? '');
-      final List<String> parts = path.split('→').map((s) => s.trim()).toList();
+      final List<String> parts = path
+          .split('→')
+          .map((String s) => s.trim())
+          .toList();
 
       if (parts.length > 2) {
         for (final String iata in parts.sublist(1, parts.length - 1)) {
@@ -494,7 +502,10 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
     Map<String, dynamic> results = ref
         .read(flightSearchProvider)
         .flightResults
-        .maybeWhen(data: (v) => v, orElse: () => const <String, dynamic>{});
+        .maybeWhen(
+          data: (Map<String, dynamic> v) => v,
+          orElse: () => const <String, dynamic>{},
+        );
     _makeCarrier(
       airlines: airlines,
       layovers: layovers,
@@ -506,7 +517,10 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
     results = ref
         .read(flightSearchProvider)
         .inBoundFlightResults
-        .maybeWhen(data: (v) => v, orElse: () => const <String, dynamic>{});
+        .maybeWhen(
+          data: (Map<String, dynamic> v) => v,
+          orElse: () => const <String, dynamic>{},
+        );
     _makeCarrier(
       airlines: airlines,
       layovers: layovers,
@@ -515,95 +529,195 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
     );
   }
 
+  // 🟢 ADD: fields (top of State class)
+  Timer? _searchDebounce; // 🟢 coalesce rapid UI updates
+  String? _lastParamsSig; // 🟢 dedupe identical param sets
+  bool _filtersBootstrapped = false; // 🟢 avoid setState during first build
+  // 🟢 ADD: helpers (anywhere in State class)
+  String _normStr(String? s) => (s == null || s.isEmpty) ? '' : s; // 🟢
+
+  String _buildSig(
+    FlightSearchState s,
+  ) => // 🟢 stable signature for change detection
+      '${s.departureAirportCode}|'
+      '${s.arrivalAirportCode}|'
+      '${_normStr(s.departDate)}|'
+      '${_normStr(s.returnDate)}|'
+      '${s.passengerCount}';
+
+  bool _paramsReady(FlightSearchState s) {
+    // 🟢 treat null/"" return as one-way
+    final hasDep = s.departureAirportCode.isNotEmpty;
+    final hasArr = s.arrivalAirportCode.isNotEmpty;
+    final hasOut = _normStr(s.departDate).isNotEmpty;
+    final hasRet = _normStr(s.returnDate).isNotEmpty;
+    final isOneWay = !hasRet;
+    return hasDep && hasArr && hasOut && (isOneWay || hasRet);
+  }
+
+  // 🟢 ADD: debounce that reads the LATEST provider state at fire time
+  void _scheduleSearchLatest() {
+    _searchDebounce?.cancel();
+    _searchDebounce = Timer(const Duration(milliseconds: 150), () {
+      if (!mounted) return;
+
+      final s = ref.read(flightSearchProvider); // 🟢 read fresh state
+      if (!_paramsReady(s)) return;
+
+      // 🟢 recompute signature at fire time and dedupe here
+      final sigNow = _buildSig(s);
+      if (_lastParamsSig == sigNow) return;
+      _lastParamsSig = sigNow;
+
+      final next = (
+        s.departureAirportCode,
+        s.arrivalAirportCode,
+        _normStr(s.departDate).isEmpty ? null : s.departDate,
+        _normStr(s.returnDate).isEmpty ? null : s.returnDate,
+        s.passengerCount,
+      );
+      _onSearchChange(next);
+    });
+  }
+
   @override
   void initState() {
     super.initState();
 
-    _searchSub = ref.listenManual(
-      flightSearchProvider.select<FlightSearchParams>(
-        (FlightSearchState s) => (
-          s.departureAirportCode,
-          s.arrivalAirportCode,
-          s.departDate,
-          s.returnDate,
-          s.passengerCount,
-        ),
-      ),
-      (FlightSearchParams? prev, FlightSearchParams next) {
-        debugPrint(
-          '🔥 listenManual fired\n'
-          'departureAirportCode=${next.$1}\n'
-          'arrivalAirportCode=${next.$2}\n'
-          'departure=${next.$3}\n'
-          'arrival=${next.$4}\n'
-          'departureDate=${next.$3}\n'
-          'returnDate=${next.$4}\n'
-          'passengerCount=${next.$5}',
-        );
-        _onSearchChange(next);
+    // _searchSub = ref.listenManual<int>(
+    //   flightSearchProvider.select<int>(_paramsSig),
+    //   (_, __) {
+    //     final s = ref.read(flightSearchProvider);
+    //     final next = (
+    //       s.departureAirportCode,
+    //       s.arrivalAirportCode,
+    //       s.departDate,
+    //       _norm(s.returnDate),
+    //       s.passengerCount,
+    //     );
+    //     debugPrint(
+    //       '🔥 listenManual fired\n'
+    //       '🔥 departureAirportCode=${next.$1}\n'
+    //       '🔥 arrivalAirportCode=${next.$2}\n'
+    //       '🔥 departureDate=${next.$3}\n'
+    //       '🔥 returnDate=${next.$4}\n'
+    //       '🔥 passengerCount=${next.$5}',
+    //     );
+    //     _scheduleSearch(next); // 🟢 FIX: debounce coalesces rapid updates
+    //   },
+    //   fireImmediately: false, // keep your post-frame bootstrap if you use it
+    // );
+    // _searchSub = ref.listenManual(
+    //   flightSearchProvider.select<FlightSearchParams>(
+    //     (FlightSearchState s) => (
+    //       s.departureAirportCode,
+    //       s.arrivalAirportCode,
+    //       s.departDate,
+    //       _norm(s.returnDate),
+    //       s.passengerCount,
+    //     ),
+    //   ),
+    //   (FlightSearchParams? prev, FlightSearchParams next) {
+    //     if (_sameParams(prev, next)) return;
+    // debugPrint(
+    //   '🔥 listenManual fired\n'
+    //   '🔥 departureAirportCode=${next.$1}\n'
+    //   '🔥 arrivalAirportCode=${next.$2}\n'
+    //   '🔥 departureDate=${next.$3}\n'
+    //   '🔥 returnDate=${next.$4}\n'
+    //   '🔥 passengerCount=${next.$5}',
+    // );
+    //     _scheduleSearch(next);
+    //   },
+    //   fireImmediately: false,
+    // );
+
+    // _searchSub!.read(); // important with listenManual
+
+    // _sub = ref.listenManual<FlightSearchState>(flightSearchProvider, (
+    //   FlightSearchState? prev,
+    //   FlightSearchState next,
+    // ) {
+    //   _processFlightsAndUpdate(next);
+    // }, fireImmediately: true);
+
+    _sub = ref.listenManual<FlightSearchState>(
+      flightSearchProvider,
+      (FlightSearchState? prev, FlightSearchState next) {
+        // 🟢 first setState deferred to avoid “modify provider during build”
+        if (!_filtersBootstrapped && prev == null) {
+          _filtersBootstrapped = true;
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) _processFlightsAndUpdate(next);
+          });
+        } else {
+          _processFlightsAndUpdate(next);
+        }
+
+        // 🟢 detect any param change (dep/arr/out/ret/pax) and debounce
+        final sig = _buildSig(next);
+        if (_lastParamsSig == sig) return; // same values → ignore
+        // ⚠️ do NOT set _lastParamsSig here; set it inside _scheduleSearchLatest()
+        _scheduleSearchLatest();
       },
-      fireImmediately: false,
+      fireImmediately:
+          true, // 🟢 ensures initial processing; search will run after debounce
     );
+    // WidgetsBinding.instance.addPostFrameCallback((_) async {
+    //   final FlightSearchState flightState = ref.read(flightSearchProvider);
+    //   final FlightSearchController controller = ref.read(
+    //     flightSearchProvider.notifier,
+    //   );
+    //   final bool hasReturn = (flightState.returnDate?.isNotEmpty ?? false);
 
-    _searchSub!.read(); // important with listenManual
+    //   try {
+    //     if (_rtFetching) return;
+    //     _rtFetching = true;
 
-    _sub = ref.listenManual<FlightSearchState>(flightSearchProvider, (
-      FlightSearchState? prev,
-      FlightSearchState next,
-    ) {
-      _processFlightsAndUpdate(next);
-    }, fireImmediately: true);
+    //     final List<Future<(bool, String)> Function()> ops = controller
+    //         .executeFlightSearch(hasReturn: hasReturn);
 
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final flightState = ref.read(flightSearchProvider);
-      final controller = ref.read(flightSearchProvider.notifier);
-      final bool hasReturn = (flightState.returnDate?.isNotEmpty ?? false);
+    //     for (final Future<(bool, String)> Function() op in ops) {
+    //       final (bool ok, String msg) = await op();
+    //       if (!ok) {
+    //         if (mounted) {
+    //           throw OpFailed(msg);
+    //         }
+    //         return;
+    //       }
+    //       debugPrint("✅ msg : $msg");
+    //     }
+    //   } catch (e, st) {
+    //     if (mounted) {
+    //       ScaffoldMessenger.of(
+    //         context,
+    //       ).showSnackBar(SnackBar(content: Text(e.toString())));
+    //     }
+    //     debugPrint('❌ $e\n$st');
+    //   } finally {
+    //     _rtFetching = false;
+    //   }
 
-      try {
-        if (_rtFetching) return;
-        _rtFetching = true;
-
-        final List<Future<(bool, String)> Function()> ops = controller
-            .executeFlightSearch(hasReturn: hasReturn);
-
-        for (final Future<(bool, String)> Function() op in ops) {
-          final (ok, msg) = await op();
-          if (!ok) {
-            if (mounted) {
-              throw OpFailed(msg);
-            }
-            return;
-          }
-          debugPrint("✅ msg : $msg");
-        }
-      } catch (e, st) {
-        if (mounted) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(e.toString())));
-        }
-        debugPrint('❌ $e\n$st');
-      } finally {
-        _rtFetching = false;
-      }
-
-      if (mounted) {
-        setState(() {
-          // force rebuild if needed by creating a dependency on provider state
-          final _ = ref
-              .read(flightSearchProvider)
-              .flightResults
-              .maybeWhen(data: (v) => v, orElse: () => <String, dynamic>{});
-        });
-      }
-    });
-  } // end of init
+    //   if (mounted) {
+    //     setState(() {
+    //       // force rebuild if needed by creating a dependency on provider state
+    //       final Map<String, dynamic> _ = ref
+    //           .read(flightSearchProvider)
+    //           .flightResults
+    //           .maybeWhen(
+    //             data: (Map<String, dynamic> v) => v,
+    //             orElse: () => <String, dynamic>{},
+    //           );
+    //     });
+    //   }
+    // });
+  }
 
   @override
   void dispose() {
-    _searchSub?.close();
-    super.dispose();
+    _searchDebounce?.cancel();
     _sub.close();
+    super.dispose();
   }
 
   @override

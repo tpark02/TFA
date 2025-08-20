@@ -104,8 +104,7 @@ class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
         if (controller.departDate == null || controller.departDate!.isEmpty) {
           final DateTime departDate = DateTime.now();
 
-          controller.setDepartDate(departDate);
-          controller.setDisplayDate(startDate: departDate);
+          controller.setTripDates(departDate: departDate);
         }
       });
 

@@ -148,9 +148,6 @@ class FlightSearchInputs extends ConsumerWidget {
                 flex: 5,
                 child: OutlinedButton(
                   onPressed: () async {
-                    controller
-                        .clearProcessedFlights();
-
                     final result = await showModalBottomSheet(
                       context: context,
                       isScrollControlled: true,
@@ -171,21 +168,16 @@ class FlightSearchInputs extends ConsumerWidget {
                     );
 
                     if (result != null) {
-                      final startDate = result['startDate'];
-                      final endDate = result['endDate'];
+                      final departDate = result['departDate'];
+                      final returnDate = result['returnDate'];
 
+                      controller.setTripDates(
+                        departDate: departDate,
+                        returnDate: returnDate,
+                      );
                       debugPrint(
-                        "📅📅 selected dates start date : $startDate, end date : $endDate",
+                        "📅 selected dates depart date : $departDate, end date : ${returnDate ?? "empty"}",
                       );
-                      controller.setDepartDate(startDate);
-                      controller.setReturnDate(endDate);
-
-                      controller.setDisplayDate(
-                        startDate: result['startDate'],
-                        endDate: result['endDate'],
-                      );
-
-                      controller.bumpSearchNonce();
                     }
                   },
                   style: outlinedButtonStyle(context),
