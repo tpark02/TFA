@@ -26,6 +26,7 @@ class FlightSearchState {
   final int searchNonce;
 
   final bool isSearchConfirmed;
+  // final bool hasReturnFlight;
 
   static const List<RecentSearch> _defaultRecentSearches = <RecentSearch>[
     RecentSearch(
@@ -117,6 +118,7 @@ class FlightSearchState {
     this.searchNonce = 0,
     this.hiddenAirporCodeList = const <String>[],
     this.isSearchConfirmed = false,
+    // this.hasReturnFlight = false,
   });
 
   // 👇 Full and correct copyWith
@@ -143,6 +145,7 @@ class FlightSearchState {
     bool clearInboundFlights = false,
     int? searchNonce,
     bool? isSearchConfirmed = false,
+    bool? hasReturnFlight = false,
   }) {
     return FlightSearchState(
       // inBoundFlightResults: inBoundFlightResults ?? this.inBoundFlightResults,

@@ -1,16 +1,21 @@
+import 'package:TFA/providers/flight/flight_search_controller.dart';
+import 'package:TFA/providers/flight/flight_search_state.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class FlightListViewItem extends StatelessWidget {
+class FlightListViewItem extends ConsumerWidget {
   const FlightListViewItem({
     super.key,
     required this.onClick,
     required this.index,
     required this.flight,
+    required this.hasReturnFlights,
   });
 
   final void Function() onClick;
   final int index;
   final Map<String, dynamic> flight;
+  final bool hasReturnFlights;
 
   Widget _timeCell(
     String time,
@@ -162,7 +167,9 @@ class FlightListViewItem extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final FlightSearchState flightState = ref.watch(flightSearchProvider);
+
     final depTime = flight['depTime'] ?? '';
     final arrTime = flight['arrTime'] ?? '';
     final plusDayStr = flight['plusDay'] ?? '';
@@ -199,7 +206,7 @@ class FlightListViewItem extends StatelessWidget {
       label = "Skip Lagging";
       labelColor = Colors.grey.shade200;
       frontLabelColor = Theme.of(context).colorScheme.primary;
-    } else if (flight['pricingMode'] == 'perleg') {
+    } else if (flight['pricingMode'] == 'perleg' && hasReturnFlights == true) {
       label = "Seperate Tickets";
       labelColor = Colors.grey.shade200;
       frontLabelColor = Theme.of(context).colorScheme.primary;

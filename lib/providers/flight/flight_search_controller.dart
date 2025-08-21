@@ -540,7 +540,6 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
       clearReturnDate: returnDate == null ? true : false,
     );
   }
-
   // void setDepartDate(DateTime? d) {
   // if (d == null) {
   //   state = state.copyWith(departDate: null);
@@ -599,6 +598,10 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
   void setSearchConfirmed(bool b) {
     state = state.copyWith(isSearchConfirmed: b);
   }
+
+  // void setHasReturnFlight(bool b) {
+  //   state = state.copyWith(hasReturnFlight: b);
+  // }
 
   void setPassengers({required int count, required int cabinIndex}) {
     String cabin;
