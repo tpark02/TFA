@@ -3,6 +3,7 @@ import 'package:TFA/widgets/dotted_divider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:TFA/constants/colors.dart';
+import 'package:intl/intl.dart';
 
 class FlightTripDetailsPage extends ConsumerWidget {
   const FlightTripDetailsPage({
@@ -25,6 +26,18 @@ class FlightTripDetailsPage extends ConsumerWidget {
         ? '$passengerCount Adults'
         : '$passengerCount Adult';
     final pricingMode = departData['pricingMode'];
+
+    final String currency = (departData['price'] as String).substring(0, 1);
+
+    final String dtp = (departData['price'] as String).substring(1);
+    final String rtp = returnData != null
+        ? (returnData!['price'] as String).substring(1)
+        : '0';
+
+    final p = ((double.tryParse(dtp) ?? 0) + (double.tryParse(rtp) ?? 0));
+
+    final fmt = NumberFormat.currency(symbol: currency, decimalDigits: 2);
+    final ticketTotalPrice = fmt.format(p); // "€238.04"
 
     return Scaffold(
       backgroundColor: appBackgroundColor,
@@ -88,7 +101,7 @@ class FlightTripDetailsPage extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
                   Text(
-                    '${departData['price']}',
+                    ticketTotalPrice,
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: textSize,

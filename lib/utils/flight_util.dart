@@ -1,3 +1,5 @@
+import 'package:intl/intl.dart';
+
 int depMinutesOfDay(dynamic depRaw) {
   if (depRaw == null) return -1;
   final DateTime? dt = DateTime.tryParse(depRaw.toString());
@@ -126,4 +128,74 @@ bool passesLayoverCityFilter(Map f, Set<String> selected) {
   if (selected.isEmpty) return true;
   final Set<String> layoverCities = layoverCityCodesOf(f);
   return layoverCities.any(selected.contains);
+}
+
+/// Parse ISO-8601 duration like "PT5H41M" into minutes.
+int parseIsoDurMin(String? iso) {
+  if (iso == null || iso.isEmpty) return 0;
+  final RegExp re = RegExp(r'^PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?$');
+  final RegExpMatch? m = re.firstMatch(iso);
+  if (m == null) return 0;
+  final int h = int.tryParse(m.group(1) ?? '0') ?? 0;
+  final int min = int.tryParse(m.group(2) ?? '0') ?? 0;
+  final int s = int.tryParse(m.group(3) ?? '0') ?? 0;
+  return h * 60 + min + (s ~/ 60);
+}
+
+/// Format minutes to "Hh MMm" (e.g., 341 → "5h 41m")
+String fmtHM(int minutes) {
+  final int m = minutes < 0 ? 0 : minutes;
+  final int h = m ~/ 60;
+  final int mm = m % 60;
+  if (h == 0) return '${mm}m';
+  if (mm == 0) return '${h}h';
+  return '${h}h ${mm}m';
+}
+
+/// Format an ISO timestamp to "HH:mm" local time.
+String formatTime(String iso) {
+  final DateTime? dt = DateTime.tryParse(iso);
+  if (dt == null) return iso;
+  return DateFormat.Hm().format(dt.toLocal());
+}
+
+String formatDuration(String isoDuration) {
+  final RegExp regex = RegExp(r'PT(?:(\d+)H)?(?:(\d+)M)?');
+  final RegExpMatch? match = regex.firstMatch(isoDuration);
+  if (match != null) {
+    final int hours = int.tryParse(match.group(1) ?? '0') ?? 0;
+    final int minutes = int.tryParse(match.group(2) ?? '0') ?? 0;
+    return '${hours}h ${minutes}m';
+  }
+  return '';
+}
+
+int parseIsoDurationToMin(String iso) {
+  // "PT9H44M" => minutes
+  final RegExp re = RegExp(
+    r'^P(?:\d+Y)?(?:\d+M)?(?:\d+D)?T?(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?$',
+  );
+  final RegExpMatch? m = re.firstMatch(iso);
+  if (m == null) return 0;
+  final int h = int.tryParse(m.group(1) ?? '0') ?? 0;
+  final int min = int.tryParse(m.group(2) ?? '0') ?? 0;
+  final int s = int.tryParse(m.group(3) ?? '0') ?? 0;
+  return h * 60 + min + (s > 0 ? 1 : 0); // round up if seconds present
+}
+
+/// Converts total minutes (0–1439) to formatted time like `12:45p`.
+String formatTimeFromMinutes(int minutes) {
+  final int hours = minutes ~/ 60;
+  final int mins = minutes % 60;
+  final String period = hours < 12 ? 'a' : 'p';
+  final int displayHour = hours % 12 == 0 ? 12 : hours % 12;
+  final String displayMin = mins.toString().padLeft(2, '0');
+  return '$displayHour:$displayMin$period';
+}
+
+/// Converts total minutes to duration format like `5h 30m`.
+String formatDurationFromMinutes(int minutes) {
+  final int hours = minutes ~/ 60;
+  final int mins = minutes % 60;
+  return '${hours}h ${mins}m';
 }

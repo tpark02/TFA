@@ -29,10 +29,12 @@ class RecentSearchItem extends ConsumerWidget {
 
           controller.setArrivalCode(search.arrivalCode);
           controller.setDepartureCode(search.departCode);
-          controller.setTripDates(
-            departDate: DateTime.parse(search.departDate),
-            returnDate: DateTime.parse(search.returnDate),
-          );
+
+          if (search.departDate.isNotEmpty && search.returnDate.isNotEmpty) {
+            final DateTime dt = DateTime.parse(search.departDate);
+            final DateTime rt = DateTime.parse(search.returnDate);
+            controller.setTripDates(departDate: dt, returnDate: rt);
+          }
           controller.setPassengers(count: search.guests, cabinIndex: 1);
         }
         Navigator.of(

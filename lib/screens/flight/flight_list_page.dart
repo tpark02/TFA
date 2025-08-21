@@ -6,7 +6,7 @@ import 'package:TFA/providers/flight/flight_search_state.dart';
 import 'package:TFA/providers/sort_tab_provider.dart';
 import 'package:TFA/screens/flight/flight_filter_screen.dart';
 import 'package:TFA/types/typedefs.dart';
-import 'package:TFA/utils/time_utils.dart';
+import 'package:TFA/utils/flight_util.dart';
 import 'package:TFA/widgets/filter_button.dart';
 import 'package:TFA/widgets/flight/flight_list_view.dart';
 import 'package:TFA/widgets/sort_sheets/range_picker_sheet.dart';
@@ -283,7 +283,7 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
                         max: 1439, // max possible minutes
                         divisions: 1439,
                         initial: takeoffRange, // ✅ use the current value
-                        label: formatTime,
+                        label: formatTimeFromMinutes,
                         onConfirmed: (RangeValues range) {
                           setState(() => takeoffRange = range);
                         },
@@ -302,7 +302,7 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
                         max: 1439,
                         divisions: 1439,
                         initial: landingRange,
-                        label: formatTime,
+                        label: formatTimeFromMinutes,
                         onConfirmed: (RangeValues range) {
                           setState(() => landingRange = range);
                         },
@@ -325,7 +325,7 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
                         max: flightDurationEnd.toDouble(),
                         divisions: divs,
                         initial: RangeValues(dMin.toDouble(), dMax.toDouble()),
-                        label: formatDuration,
+                        label: formatDurationFromMinutes,
                         onConfirmed: (RangeValues range) =>
                             setState(() => flightDurationRange = range),
                       ),
@@ -347,7 +347,7 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
                         max: layOverDurationEnd.toDouble(),
                         divisions: divs,
                         initial: RangeValues(lMin.toDouble(), lMax.toDouble()),
-                        label: formatDuration,
+                        label: formatDurationFromMinutes,
                         onConfirmed: (RangeValues range) =>
                             setState(() => layOverDurationRange = range),
                       ),

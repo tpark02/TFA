@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:TFA/providers/flight/flight_search_controller.dart';
 import 'package:TFA/providers/flight/flight_search_state.dart';
 import 'package:TFA/screens/flight/flight_trip_details_page.dart';
-import 'package:TFA/utils/flight_list_view_util.dart';
+import 'package:TFA/utils/flight_util.dart';
 import 'package:TFA/widgets/flight/flight_list_view_item.dart';
 import 'package:TFA/widgets/search_summary_loading_card.dart';
 import 'package:flutter/material.dart';

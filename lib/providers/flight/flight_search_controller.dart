@@ -2,6 +2,7 @@ import 'package:TFA/models/flight_search_int.dart';
 import 'package:TFA/models/flight_search_out.dart';
 import 'package:TFA/providers/iata_country_provider.dart';
 import 'package:TFA/providers/recent_search.dart';
+import 'package:TFA/utils/flight_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -292,7 +293,7 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
             connections.add(<String, dynamic>{
               'airport': connCode,
               'durationMin': gapMin < 0 ? 0 : gapMin,
-              'duration': _fmtHM(gapMin),
+              'duration': fmtHM(gapMin),
               'arrAt': curArrAt,
               'depAt': nxtDepAt,
               'terminalArr': cur.arrival?.terminal,
@@ -311,10 +312,10 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
             : '$stopCount ${stopCount == 1 ? "stop" : "stops"}';
 
         // Durations
-        final int durationMin = _parseIsoDurMin(it.duration);
+        final int durationMin = parseIsoDurMin(it.duration);
         final int airMin = (durationMin - totalLayoverMin);
-        final String durationFmt = _fmtHM(durationMin);
-        final String airFmt = _fmtHM(airMin);
+        final String durationFmt = fmtHM(durationMin);
+        final String airFmt = fmtHM(airMin);
 
         // Segment details (typed → map)
         final List<Map<String, dynamic>> segmentDetails = segments.map((
@@ -384,7 +385,7 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
 
           // layovers
           'layoverMin': totalLayoverMin,
-          'layover': _fmtHM(totalLayoverMin),
+          'layover': fmtHM(totalLayoverMin),
           'stops': stopLabel,
           'stopAirports': stopAirports,
           'connections': connections,
@@ -419,46 +420,6 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
     }
 
     return results;
-  }
-
-  /// Parse ISO-8601 duration like "PT5H41M" into minutes.
-  int _parseIsoDurMin(String? iso) {
-    if (iso == null || iso.isEmpty) return 0;
-    final RegExp re = RegExp(r'^PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?$');
-    final RegExpMatch? m = re.firstMatch(iso);
-    if (m == null) return 0;
-    final int h = int.tryParse(m.group(1) ?? '0') ?? 0;
-    final int min = int.tryParse(m.group(2) ?? '0') ?? 0;
-    final int s = int.tryParse(m.group(3) ?? '0') ?? 0;
-    return h * 60 + min + (s ~/ 60);
-  }
-
-  /// Format minutes to "Hh MMm" (e.g., 341 → "5h 41m")
-  String _fmtHM(int minutes) {
-    final int m = minutes < 0 ? 0 : minutes;
-    final int h = m ~/ 60;
-    final int mm = m % 60;
-    if (h == 0) return '${mm}m';
-    if (mm == 0) return '${h}h';
-    return '${h}h ${mm}m';
-  }
-
-  /// Format an ISO timestamp to "HH:mm" local time.
-  String formatTime(String iso) {
-    final DateTime? dt = DateTime.tryParse(iso);
-    if (dt == null) return iso;
-    return DateFormat.Hm().format(dt.toLocal());
-  }
-
-  String formatDuration(String isoDuration) {
-    final RegExp regex = RegExp(r'PT(?:(\d+)H)?(?:(\d+)M)?');
-    final RegExpMatch? match = regex.firstMatch(isoDuration);
-    if (match != null) {
-      final int hours = int.tryParse(match.group(1) ?? '0') ?? 0;
-      final int minutes = int.tryParse(match.group(2) ?? '0') ?? 0;
-      return '${hours}h ${minutes}m';
-    }
-    return '';
   }
 
   Future<void> initRecentSearch(RecentSearch search) async {

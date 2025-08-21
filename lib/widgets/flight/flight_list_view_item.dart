@@ -204,11 +204,11 @@ class FlightListViewItem extends ConsumerWidget {
 
     if (flight['isHiddenCityFlight']) {
       label = "Skip Lagging";
-      labelColor = Colors.grey.shade200;
+      labelColor = Colors.blueGrey.shade100;
       frontLabelColor = Theme.of(context).colorScheme.primary;
     } else if (flight['pricingMode'] == 'perleg' && hasReturnFlights == true) {
       label = "Seperate Tickets";
-      labelColor = Colors.grey.shade200;
+      labelColor = Colors.blueGrey.shade100;
       frontLabelColor = Theme.of(context).colorScheme.primary;
     }
 

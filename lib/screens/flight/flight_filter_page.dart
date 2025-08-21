@@ -1,4 +1,4 @@
-import 'package:TFA/utils/time_utils.dart';
+import 'package:TFA/utils/flight_util.dart';
 import 'package:TFA/widgets/silvers/section_header.dart';
 import 'package:flutter/material.dart';
 
@@ -200,10 +200,7 @@ class _FlightFilterPageState extends State<FlightFilterPage> {
               padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
               child: Text(
                 "Filters",
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
               ),
             ),
           ),
@@ -249,8 +246,8 @@ class _FlightFilterPageState extends State<FlightFilterPage> {
           SliverToBoxAdapter(
             child: _padded(
               _buildSlider(
-                leftLabel: formatTime(takeoffRange.start.toInt()),
-                rightLabel: formatTime(takeoffRange.end.toInt()),
+                leftLabel: formatTimeFromMinutes(takeoffRange.start.toInt()),
+                rightLabel: formatTimeFromMinutes(takeoffRange.end.toInt()),
                 values: takeoffRange,
                 min: 0,
                 max: 1439,
@@ -266,8 +263,8 @@ class _FlightFilterPageState extends State<FlightFilterPage> {
           SliverToBoxAdapter(
             child: _padded(
               _buildSlider(
-                leftLabel: formatTime(landingRange.start.toInt()),
-                rightLabel: formatTime(landingRange.end.toInt()),
+                leftLabel: formatTimeFromMinutes(landingRange.start.toInt()),
+                rightLabel: formatTimeFromMinutes(landingRange.end.toInt()),
                 values: landingRange,
                 min: 0,
                 max: 1439,
@@ -283,12 +280,17 @@ class _FlightFilterPageState extends State<FlightFilterPage> {
           SliverToBoxAdapter(
             child: _padded(
               _buildSlider(
-                leftLabel: formatDuration(flightDuration.start.toInt()),
-                rightLabel: formatDuration(flightDuration.end.toInt()),
+                leftLabel: formatDurationFromMinutes(
+                  flightDuration.start.toInt(),
+                ),
+                rightLabel: formatDurationFromMinutes(
+                  flightDuration.end.toInt(),
+                ),
                 values: flightDuration,
                 min: 0,
                 max: 1440,
-                onChanged: (RangeValues r) => setState(() => flightDuration = r),
+                onChanged: (RangeValues r) =>
+                    setState(() => flightDuration = r),
               ),
             ),
           ),
@@ -300,12 +302,17 @@ class _FlightFilterPageState extends State<FlightFilterPage> {
           SliverToBoxAdapter(
             child: _padded(
               _buildSlider(
-                leftLabel: formatDuration(layoverDuration.start.toInt()),
-                rightLabel: formatDuration(layoverDuration.end.toInt()),
+                leftLabel: formatDurationFromMinutes(
+                  layoverDuration.start.toInt(),
+                ),
+                rightLabel: formatDurationFromMinutes(
+                  layoverDuration.end.toInt(),
+                ),
                 values: layoverDuration,
                 min: 0,
                 max: 1470,
-                onChanged: (RangeValues r) => setState(() => layoverDuration = r),
+                onChanged: (RangeValues r) =>
+                    setState(() => layoverDuration = r),
               ),
             ),
           ),
@@ -360,10 +367,11 @@ class _FlightFilterPageState extends State<FlightFilterPage> {
                 width: double.infinity,
                 height: 48,
                 child: ElevatedButton(
-                  onPressed: () => Navigator.pop(context, <String, List<String>>{
-                    "airlines": _airlinesSel.toList(),
-                    "layovers": _layoversSel.toList(),
-                  }),
+                  onPressed: () =>
+                      Navigator.pop(context, <String, List<String>>{
+                        "airlines": _airlinesSel.toList(),
+                        "layovers": _layoversSel.toList(),
+                      }),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.lightBlue,
                     shape: const RoundedRectangleBorder(
