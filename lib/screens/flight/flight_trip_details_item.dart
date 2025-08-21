@@ -5,6 +5,7 @@
 // - Safe null handling everywhere
 
 import 'package:TFA/providers/airport/airport_lookup.dart';
+import 'package:TFA/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:TFA/constants/colors.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -91,14 +92,6 @@ class FlightTripDetailsItem extends ConsumerWidget {
 
       final String depTime = depAt.isNotEmpty ? _fmtTime(depAt) : '';
       final String arrTime = arrAt.isNotEmpty ? _fmtTime(arrAt) : '';
-
-      // +day indicator for this segment
-      // bool plusDay = false;
-      // if (depAt.isNotEmpty && arrAt.isNotEmpty) {
-      //   final DateTime depDT = DateTime.parse(depAt);
-      //   final DateTime arrDT = DateTime.parse(arrAt);
-      //   plusDay = arrDT.difference(depDT).inDays > 0;
-      // }
       final String plusDayStr = flightData['plusDay'];
 
       final int plusDay = plusDayStr == ''
@@ -138,62 +131,85 @@ class FlightTripDetailsItem extends ConsumerWidget {
 
     // ── UI ─────────────────────────────────────────────────────────────────────
     return Container(
-      padding: const EdgeInsets.fromLTRB(0, 16, 0, 16),
+      decoration: BoxDecoration(color: Colors.transparent),
 
+      padding: const EdgeInsets.fromLTRB(0, 16, 0, 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              const SizedBox(width: 50),
-              Expanded(
-                child: Center(
-                  child: Text(
-                    '$depCity - $arrCity',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: primary,
-                      fontSize: textSize,
-                      fontWeight: FontWeight.w800,
+          Container(
+            decoration: BoxDecoration(
+              border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
+            ),
+            child: Column(
+              children: <Widget>[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: <Widget>[
+                    Container(
+                      padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
+                      child: InkWell(
+                        onTap: () {},
+                        child: const Icon(
+                          Icons.keyboard_arrow_down,
+                          color: Colors.transparent,
+                        ),
+                      ),
+                    ),
+                    Flexible(
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown, // only decreases size to fit
+                        child: Container(
+                          decoration: const BoxDecoration(
+                            color: Colors.transparent,
+                          ),
+                          padding: const EdgeInsets.all(0),
+                          child: Text(
+                            '$depCity - $arrCity',
+                            maxLines: 1,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: primary,
+                              fontSize: textSize,
+                              overflow: TextOverflow.ellipsis,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.fromLTRB(0, 0, 20, 0),
+                      decoration: const BoxDecoration(
+                        color: Colors.transparent,
+                      ),
+                      child: InkWell(
+                        onTap: () {},
+                        child: Icon(
+                          Icons.keyboard_arrow_down,
+                          color: secondaryFontColor,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                // Date
+                if (headerDate.isNotEmpty)
+                  Text(
+                    headerDate,
+                    style: const TextStyle(
+                      color: primaryFontColor,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
+                Text(
+                  '$metaAir | $metaStops | $paxCount | $cabin',
+                  style: TextStyle(color: secondaryFontColor, fontSize: 12),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(0, 0, 40, 0),
-                child: Icon(
-                  Icons.keyboard_arrow_down,
-                  color: secondaryFontColor,
-                  size: 20,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          // Date
-          if (headerDate.isNotEmpty)
-            Align(
-              alignment: Alignment.center,
-              child: Text(
-                headerDate,
-                style: const TextStyle(
-                  color: primaryFontColor,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
+              ],
             ),
-          const SizedBox(height: 6),
+          ),
 
-          // Meta line
-          Align(
-            alignment: Alignment.center,
-            child: Text(
-              '$metaAir | $metaStops | $paxCount | $cabin',
-              style: TextStyle(color: secondaryFontColor, fontSize: 12),
-            ),
-          ),
           const SizedBox(height: 16),
           ...sectionChildren,
 
@@ -381,7 +397,7 @@ class _SegmentTile extends StatelessWidget {
           Row(
             children: <Widget>[
               Text(
-                '$durationText | $flightNo',
+                '${formatDuration(durationText)} | $flightNo',
                 style: TextStyle(color: Colors.grey.shade600),
               ),
             ],

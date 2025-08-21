@@ -5,25 +5,33 @@ class CarSearchState {
   final String query;
   final String selectedCountry;
   final String selectedCity;
-  final String beginDate;
-  final String endDate;
+  // final String beginDate;
+  // final String endDate;
   final String beginTime;
   final String endTime;
-  final String displayBeginDate;
-  final String displayEndDate;
+  // final String displayBeginDate;
+  // final String displayEndDate;
   final List<RecentSearch> recentSearches;
+  final String departDate;
+  final String? returnDate;
+  final String displayDepartDate;
+  final String? displayReturnDate;
 
   const CarSearchState({
     this.recentSearches = _defaultRecentSearches,
-    this.beginDate = '',
-    this.endDate = '',
+    // this.beginDate = '',
+    // this.endDate = '',
     this.beginTime = '',
     this.endTime = '',
     this.query = '',
     this.selectedCountry = '',
     this.selectedCity = '',
-    this.displayBeginDate = '',
-    this.displayEndDate = '',
+    // this.displayBeginDate = '',
+    // this.displayEndDate = '',
+    this.departDate = '',
+    this.returnDate = '',
+    this.displayDepartDate = '',
+    this.displayReturnDate = '',
   });
 
   static const List<RecentSearch> _defaultRecentSearches = <RecentSearch>[
@@ -98,25 +106,36 @@ class CarSearchState {
     String? query,
     String? selectedCountry,
     String? selectedCity,
-    String? beginDate,
-    String? endDate,
+    // String? beginDate,
+    // String? endDate,
     String? beginTime,
     String? endTime,
-    String? displayBeginDate,
-    String? displayEndDate,
+    // String? displayBeginDate,
+    // String? displayEndDate,
+    bool clearReturnDate = false,
+
+    String? departDate,
+    String? returnDate,
     List<RecentSearch>? recentSearches,
+    String? displayDepartDate,
+    String? displayReturnDate,
   }) {
     return CarSearchState(
       query: query ?? this.query,
       selectedCountry: selectedCountry ?? this.selectedCountry,
       selectedCity: selectedCity ?? this.selectedCity,
       recentSearches: recentSearches ?? this.recentSearches,
-      beginDate: beginDate ?? this.beginDate,
-      endDate: endDate ?? this.endDate,
+      departDate: departDate ?? this.departDate,
+      returnDate: clearReturnDate ? null : returnDate ?? this.returnDate,
+      displayDepartDate: displayDepartDate ?? this.displayDepartDate,
+      displayReturnDate: displayReturnDate ?? this.displayReturnDate,
+
+      // beginDate: beginDate ?? this.beginDate,
+      // endDate: endDate ?? this.endDate,
       beginTime: beginTime ?? this.beginTime,
       endTime: endTime ?? this.endTime,
-      displayEndDate: displayEndDate ?? this.displayEndDate,
-      displayBeginDate: displayBeginDate ?? this.displayBeginDate,
+      // displayEndDate: displayEndDate ?? this.displayEndDate,
+      // displayBeginDate: displayBeginDate ?? this.displayBeginDate,
     );
   }
 }

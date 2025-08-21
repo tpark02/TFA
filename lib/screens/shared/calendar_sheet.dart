@@ -1,3 +1,4 @@
+import 'package:TFA/constants/colors.dart';
 import 'package:TFA/providers/flight/flight_search_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -104,11 +105,35 @@ class _CalendarSheetState extends ConsumerState<CalendarSheet>
     );
 
     ref.watch(flightSearchProvider);
-    final FlightSearchController controller = ref.read(
-      flightSearchProvider.notifier,
-    );
-    return SafeArea(
-      child: Padding(
+
+    final Color primary = Theme.of(context).colorScheme.primary;
+    final Color onPrimary = Theme.of(context).colorScheme.onPrimary;
+    return Scaffold(
+      backgroundColor: appBackgroundColor,
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: primary,
+        leading: IconButton(
+          icon: Icon(Icons.close, color: onPrimary),
+          onPressed: () => Navigator.of(context).maybePop(),
+        ),
+        centerTitle: true,
+        title: Column(
+          children: <Widget>[
+            Text(
+              'Trip Details',
+              style: TextStyle(color: onPrimary, fontWeight: FontWeight.w600),
+            ),
+          ],
+        ),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.ios_share, color: onPrimary),
+            onPressed: () {},
+          ),
+        ],
+      ),
+      body: Padding(
         padding: EdgeInsets.only(
           bottom: MediaQuery.of(context).viewInsets.bottom,
         ),

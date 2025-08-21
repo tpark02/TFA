@@ -2,7 +2,7 @@ import 'package:TFA/models/flight_search_int.dart';
 import 'package:TFA/models/flight_search_out.dart';
 import 'package:TFA/providers/iata_country_provider.dart';
 import 'package:TFA/providers/recent_search.dart';
-import 'package:TFA/utils/flight_util.dart';
+import 'package:TFA/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -468,32 +468,27 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
   // void setClearReturnDate(bool b) {
   //   state = state.copyWith(clearReturnDate: b);
   // }
-  // 🟢 FIX: combine date setting + display string into ONE atomic write
+
   void setTripDates({
     required DateTime departDate, // non-null
     DateTime? returnDate, // nullable for one-way
   }) {
-    // 🧽 CLEANUP: use two formatters (ISO for state, pretty for display)
     final iso = DateFormat('yyyy-MM-dd');
     final pretty = DateFormat('MMM d');
 
-    // 🟢 FIX: format safely
     final String dIso = iso.format(departDate);
     final String? rIso = (returnDate == null) ? null : iso.format(returnDate);
 
-    // 🟢 FIX: build display once here
     final String display = (returnDate != null)
         ? '${pretty.format(departDate)} - ${pretty.format(returnDate)}'
         : pretty.format(departDate);
 
-    // 🛡️ GUARD: skip redundant state writes
     if (state.departDate == dIso &&
         state.returnDate == rIso &&
         state.displayDate == display) {
       return;
     }
 
-    // ✅ Atomic update: updates depart/return/display in one go (prevents double fires)
     state = state.copyWith(
       departDate: dIso,
       returnDate: rIso,

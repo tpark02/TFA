@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:TFA/providers/car/car_search_controller.dart';
 import 'package:TFA/providers/car/car_search_state.dart';
 import 'package:TFA/providers/recent_search.dart';
@@ -6,6 +8,7 @@ import 'package:TFA/screens/shared/recent_search_panel.dart';
 import 'package:TFA/screens/shared/search_car_sheet.dart';
 import 'package:TFA/screens/shared/show_adaptive_time_picker.dart';
 import 'package:TFA/services/location_service.dart';
+import 'package:TFA/utils/utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -58,12 +61,13 @@ class _CarSearchPanelState extends ConsumerState<CarSearchPanel> {
     super.initState();
 
     final CarSearchController controller = ref.read(carSearchProvider.notifier);
-    final DateTime startDate = DateTime.now();
-    final DateTime endDate = DateTime.now().add(const Duration(days: endDays));
+    final DateTime departDate = DateTime.now();
+    final DateTime returnDate = DateTime.now().add(
+      const Duration(days: endDays),
+    );
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      controller.setBeginDate(startDate);
-      controller.setEndDate(endDate);
+      controller.setTripDates(departDate: departDate, returnDate: returnDate);
 
       final TimeOfDay defaultTime = const TimeOfDay(hour: 12, minute: 0);
       final String formatted = defaultTime.format(context).toLowerCase();
@@ -235,9 +239,10 @@ class _CarSearchPanelState extends ConsumerState<CarSearchPanel> {
                                       top: Radius.circular(20),
                                     ),
                                   ),
-                                  builder: (BuildContext ctx) => const SearchCarSheet(
-                                    title: 'Drop-off Location',
-                                  ),
+                                  builder: (BuildContext ctx) =>
+                                      const SearchCarSheet(
+                                        title: 'Drop-off Location',
+                                      ),
                                 );
 
                                 if (result != null) {
@@ -276,27 +281,19 @@ class _CarSearchPanelState extends ConsumerState<CarSearchPanel> {
                   flex: 6,
                   child: OutlinedButton(
                     onPressed: () async {
-                      final result = await showModalBottomSheet(
-                        context: context,
-                        isScrollControlled: true,
-                        shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.vertical(
-                            top: Radius.circular(20),
-                          ),
-                        ),
-                        builder: (BuildContext ctx) => CalendarSheet(
-                          key: UniqueKey(), // ✅ Force new state
-                          firstTitle: "",
-                          secondTitle: "",
-                          isOnlyTab: true,
-                          isRange: false,
-                          startDays: startDays,
-                          endDays: endDays,
-                        ),
+                      final result = await showCalender(
+                        context,
+                        ref,
+                        '',
+                        '',
+                        true,
+                        false,
+                        startDays,
+                        endDays,
                       );
-
                       if (result != null) {
-                        controller.setBeginDate(result['startDate']);
+                        final departDate = result['departDate'];
+                        controller.setDepartDate(departDate);
                       }
                     },
                     style: OutlinedButton.styleFrom(
@@ -313,7 +310,7 @@ class _CarSearchPanelState extends ConsumerState<CarSearchPanel> {
                         const Icon(Icons.calendar_month),
                         const SizedBox(width: _padding),
                         Text(
-                          carState.displayBeginDate,
+                          carState.displayDepartDate,
                           style: TextStyle(
                             fontSize: Theme.of(
                               context,
@@ -374,27 +371,20 @@ class _CarSearchPanelState extends ConsumerState<CarSearchPanel> {
                   flex: 6,
                   child: OutlinedButton(
                     onPressed: () async {
-                      final result = await showModalBottomSheet(
-                        context: context,
-                        isScrollControlled: true,
-                        shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.vertical(
-                            top: Radius.circular(20),
-                          ),
-                        ),
-                        builder: (BuildContext ctx) => CalendarSheet(
-                          key: UniqueKey(), // ✅ Force new state
-                          firstTitle: "",
-                          secondTitle: "",
-                          isOnlyTab: true,
-                          isRange: false,
-                          startDays: startDays + 2,
-                          endDays: endDays,
-                        ),
+                      final result = await showCalender(
+                        context,
+                        ref,
+                        '',
+                        '',
+                        true,
+                        false,
+                        startDays + 2,
+                        endDays,
                       );
 
                       if (result != null) {
-                        controller.setBeginDate(result['endDate']);
+                        final returnDate = result['departDate'];
+                        controller.setReturnDate(returnDate);
                       }
                     },
                     style: OutlinedButton.styleFrom(
@@ -411,7 +401,7 @@ class _CarSearchPanelState extends ConsumerState<CarSearchPanel> {
                         const Icon(Icons.calendar_month),
                         const SizedBox(width: _padding),
                         Text(
-                          carState.displayEndDate,
+                          carState.displayReturnDate ?? 'N/A',
                           style: TextStyle(
                             fontSize: Theme.of(
                               context,
@@ -476,8 +466,8 @@ class _CarSearchPanelState extends ConsumerState<CarSearchPanel> {
                       debugPrint(carState.toString());
                       final bool hasCity = carState.selectedCity.isNotEmpty;
                       final bool hasDate =
-                          ((carState.beginDate ?? '').isNotEmpty) &&
-                          ((carState.endDate ?? '').isNotEmpty) &&
+                          ((carState.departDate ?? '').isNotEmpty) &&
+                          ((carState.returnDate ?? '').isNotEmpty) &&
                           ((carState.beginTime ?? '').isNotEmpty) &&
                           ((carState.endTime ?? '').isNotEmpty);
                       if (!hasCity || !hasDate) {
@@ -485,7 +475,7 @@ class _CarSearchPanelState extends ConsumerState<CarSearchPanel> {
                       }
 
                       final String displayDate =
-                          '${carState.beginDate} - ${carState.endDate}, ${carState.beginTime} - ${carState.endTime}';
+                          '${carState.departDate} - ${carState.returnDate}, ${carState.beginTime} - ${carState.endTime}';
 
                       final String? idToken = await user!.getIdToken();
 

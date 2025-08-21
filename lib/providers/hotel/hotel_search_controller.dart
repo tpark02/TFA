@@ -10,13 +10,19 @@ class HotelSearchController extends StateNotifier<HotelSearchState> {
   HotelSearchController() : super(const HotelSearchState());
 
   Future<void> initRecentSearch(RecentSearch search) async {
-    final List<RecentSearch> updated = <RecentSearch>[search, ...state.recentSearches];
+    final List<RecentSearch> updated = <RecentSearch>[
+      search,
+      ...state.recentSearches,
+    ];
     if (updated.length > 5) updated.removeLast();
     state = state.copyWith(recentSearches: updated);
   }
 
   Future<bool> addRecentSearch(RecentSearch search, String jwtToken) async {
-    final List<RecentSearch> updated = <RecentSearch>[search, ...state.recentSearches];
+    final List<RecentSearch> updated = <RecentSearch>[
+      search,
+      ...state.recentSearches,
+    ];
     if (updated.length > 5) updated.removeLast(); // optional: cap at 5 items
     state = state.copyWith(recentSearches: updated);
     // ❌ Only send to backend if not placeholder
@@ -88,19 +94,46 @@ class HotelSearchController extends StateNotifier<HotelSearchState> {
     state = state.copyWith(country: country);
   }
 
-  void setDisplayDate({
-    required DateTime startDate,
-    required DateTime endDate,
+  // void setDisplayDate({
+  //   required DateTime startDate,
+  //   required DateTime endDate,
+  // }) {
+  //   final String displayDate =
+  //       '${DateFormat('MMM d').format(startDate)} - ${DateFormat('MMM d').format(endDate)}';
+  //   final String st = DateFormat('yyyy-MM-dd').format(startDate);
+  //   final String end = DateFormat('yyyy-MM-dd').format(endDate);
+
+  //   state = state.copyWith(
+  //     displayDate: displayDate,
+  //     startDate: st,
+  //     endDate: end,
+  //   );
+  // }
+  void setTripDates({
+    required DateTime departDate, // non-null
+    DateTime? returnDate, // nullable for one-way
   }) {
-    final String displayDate =
-        '${DateFormat('MMM d').format(startDate)} - ${DateFormat('MMM d').format(endDate)}';
-    final String st = DateFormat('yyyy-MM-dd').format(startDate);
-    final String end = DateFormat('yyyy-MM-dd').format(endDate);
+    final iso = DateFormat('yyyy-MM-dd');
+    final pretty = DateFormat('MMM d');
+
+    final String dIso = iso.format(departDate);
+    final String? rIso = (returnDate == null) ? null : iso.format(returnDate);
+
+    final String display = (returnDate != null)
+        ? '${pretty.format(departDate)} - ${pretty.format(returnDate)}'
+        : pretty.format(departDate);
+
+    if (state.departDate == dIso &&
+        state.returnDate == rIso &&
+        state.displayDate == display) {
+      return;
+    }
 
     state = state.copyWith(
-      displayDate: displayDate,
-      startDate: st,
-      endDate: end,
+      departDate: dIso,
+      returnDate: rIso,
+      displayDate: display,
+      clearReturnDate: returnDate == null ? true : false,
     );
   }
 
@@ -123,7 +156,8 @@ class HotelSearchController extends StateNotifier<HotelSearchState> {
 
   Future<void> loadRecentSearchesFromApi() async {
     try {
-      final List<Map<String, dynamic>> results = await RecentSearchApiService.fetchRecentSearches('hotel');
+      final List<Map<String, dynamic>> results =
+          await RecentSearchApiService.fetchRecentSearches('hotel');
       state = state.copyWith(recentSearches: <RecentSearch>[]);
 
       for (final Map<String, dynamic> r in results) {
@@ -168,7 +202,9 @@ class HotelSearchController extends StateNotifier<HotelSearchState> {
   }
 }
 
-final StateNotifierProvider<HotelSearchController, HotelSearchState> hotelSearchProvider =
+final StateNotifierProvider<HotelSearchController, HotelSearchState>
+hotelSearchProvider =
     StateNotifierProvider<HotelSearchController, HotelSearchState>(
-      (StateNotifierProviderRef<HotelSearchController, HotelSearchState> ref) => HotelSearchController(),
+      (StateNotifierProviderRef<HotelSearchController, HotelSearchState> ref) =>
+          HotelSearchController(),
     );

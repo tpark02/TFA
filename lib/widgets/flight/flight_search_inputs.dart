@@ -1,14 +1,15 @@
 // lib/screens/flight/widgets/search_inputs.dart
 
+import 'dart:io';
 import 'dart:math' as math;
 
 import 'package:TFA/providers/flight/flight_search_state.dart';
+import 'package:TFA/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:TFA/providers/airport/airport_selection.dart';
 import 'package:TFA/providers/flight/flight_search_controller.dart';
 import 'package:TFA/screens/shared/search_airport_sheet.dart';
-import 'package:TFA/screens/shared/calendar_sheet.dart';
 import 'package:TFA/screens/shared/traveler_selector_sheet.dart';
 import 'package:TFA/theme/button_styles.dart';
 
@@ -21,6 +22,38 @@ class FlightSearchInputs extends ConsumerWidget {
 
   final bool isLoadingCity;
   final double padding;
+
+  // void showCalender(BuildContext context, WidgetRef ref) async {
+  //   final controller = ref.read(flightSearchProvider.notifier);
+
+  //   final result =
+  //       await CupertinoScaffold.showCupertinoModalBottomSheet<
+  //         Map<String, DateTime?>
+  //       >(
+  //         context: context,
+  //         useRootNavigator: true,
+  //         expand: true,
+  //         builder: (_) => CalendarSheet(
+  //           key: UniqueKey(),
+  //           firstTitle: 'One Way',
+  //           secondTitle: 'Round Trip',
+  //           isOnlyTab: false,
+  //           isRange: false,
+  //           startDays: 0,
+  //           endDays: 0,
+  //         ),
+  //       );
+
+  //   if (result != null) {
+  //     final departDate = result['departDate'];
+  //     final returnDate = result['returnDate'];
+
+  //     controller.setTripDates(departDate: departDate!, returnDate: returnDate);
+  //     debugPrint(
+  //       "📅 selected dates depart date : $departDate, end date : ${returnDate ?? "empty"}",
+  //     );
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -148,31 +181,22 @@ class FlightSearchInputs extends ConsumerWidget {
                 flex: 5,
                 child: OutlinedButton(
                   onPressed: () async {
-                    final result = await showModalBottomSheet(
-                      context: context,
-                      isScrollControlled: true,
-                      shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.vertical(
-                          top: Radius.circular(20),
-                        ),
-                      ),
-                      builder: (BuildContext ctx) => CalendarSheet(
-                        key: UniqueKey(),
-                        firstTitle: 'One Way',
-                        secondTitle: 'Round Trip',
-                        isOnlyTab: false,
-                        isRange: false,
-                        startDays: 0,
-                        endDays: 0,
-                      ),
+                    final result = await showCalender(
+                      context,
+                      ref,
+                      'One way',
+                      'Round-Trip',
+                      false,
+                      false,
+                      0,
+                      0,
                     );
-
                     if (result != null) {
                       final departDate = result['departDate'];
                       final returnDate = result['returnDate'];
 
                       controller.setTripDates(
-                        departDate: departDate,
+                        departDate: departDate!,
                         returnDate: returnDate,
                       );
                       debugPrint(

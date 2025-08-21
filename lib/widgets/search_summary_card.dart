@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:TFA/providers/airport/airport_selection.dart';
 import 'package:TFA/providers/flight/flight_search_controller.dart';
 import 'package:TFA/screens/shared/calendar_sheet.dart';
@@ -5,6 +7,8 @@ import 'package:TFA/screens/shared/search_airport_sheet.dart';
 import 'package:TFA/screens/shared/traveler_selector_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart'
+    as CupertinoScaffold;
 
 class SearchSummaryCard extends ConsumerWidget {
   final String from;
@@ -139,35 +143,52 @@ class SearchSummaryCard extends ConsumerWidget {
             children: <Widget>[
               TextButton(
                 onPressed: () async {
-                  final result = await showModalBottomSheet(
-                    context: context,
-                    isScrollControlled: true,
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.vertical(
-                        top: Radius.circular(20),
-                      ),
-                    ),
-                    builder: (BuildContext ctx) => CalendarSheet(
-                      key: UniqueKey(),
-                      firstTitle: 'One Way',
-                      secondTitle: 'Round Trip',
-                      isOnlyTab: false,
-                      isRange: false,
-                      startDays: 0,
-                      endDays: 0,
-                    ),
-                  );
+                  final result =
+                      await Navigator.of(
+                        context,
+                        rootNavigator: true,
+                      ).push<Map<String, DateTime?>>(
+                        MaterialPageRoute(
+                          builder: (_) => CalendarSheet(
+                            key: UniqueKey(),
+                            firstTitle: 'One Way',
+                            secondTitle: 'Round Trip',
+                            isOnlyTab: false,
+                            isRange: false,
+                            startDays: 0,
+                            endDays: 0,
+                          ),
+                        ),
+                      );
+                  // final result = await showModalBottomSheet(
+                  //   context: context,
+                  //   isScrollControlled: true,
+                  //   shape: const RoundedRectangleBorder(
+                  //     borderRadius: BorderRadius.vertical(
+                  //       top: Radius.circular(20),
+                  //     ),
+                  //   ),
+                  //   builder: (BuildContext ctx) => CalendarSheet(
+                  //     key: UniqueKey(),
+                  //     firstTitle: 'One Way',
+                  //     secondTitle: 'Round Trip',
+                  //     isOnlyTab: false,
+                  //     isRange: false,
+                  //     startDays: 0,
+                  //     endDays: 0,
+                  //   ),
+                  // );
 
                   if (result != null) {
-                    final DateTime? departDate = result['departDate'];
-                    final DateTime? returnDate = result['returnDate'];
+                    final departDate = result['departDate'];
+                    final returnDate = result['returnDate'];
 
-                    debugPrint(
-                      "📅 selected dates start date : $departDate, returnDate : $returnDate",
-                    );
                     controller.setTripDates(
                       departDate: departDate!,
                       returnDate: returnDate,
+                    );
+                    debugPrint(
+                      "📅 selected dates depart date : $departDate, end date : ${returnDate ?? "empty"}",
                     );
                   }
                 },

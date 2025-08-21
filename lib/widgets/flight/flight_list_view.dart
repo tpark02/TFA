@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:TFA/providers/flight/flight_search_controller.dart';
 import 'package:TFA/providers/flight/flight_search_state.dart';
 import 'package:TFA/screens/flight/flight_trip_details_page.dart';
-import 'package:TFA/utils/flight_util.dart';
+import 'package:TFA/utils/utils.dart';
 import 'package:TFA/widgets/flight/flight_list_view_item.dart';
 import 'package:TFA/widgets/search_summary_loading_card.dart';
 import 'package:flutter/material.dart';
@@ -48,30 +48,16 @@ class _FlightListViewState extends ConsumerState<FlightListView>
     required BuildContext context,
     required bool isReturnPage,
   }) {
-    if (Platform.isIOS) {
-      // 🟢 iOS page sheet style
-      CupertinoScaffold.showCupertinoModalBottomSheet(
-        context: context,
-        useRootNavigator: true,
-        expand: false, // page sheet instead of full screen
-        builder: (_) => FlightTripDetailsPage(
-          isReturnPage: isReturnPage,
-          departData: _departData,
-          returnData: _returnData,
-        ),
-      );
-    } else {
-      // 🟢 Android normal full page
-      Navigator.of(context, rootNavigator: true).push(
-        MaterialPageRoute(
-          builder: (_) => FlightTripDetailsPage(
-            isReturnPage: isReturnPage,
-            departData: _departData,
-            returnData: _returnData,
-          ),
-        ),
-      );
-    }
+    CupertinoScaffold.showCupertinoModalBottomSheet(
+      context: context,
+      useRootNavigator: true,
+      expand: false, // page sheet instead of full screen
+      builder: (_) => FlightTripDetailsPage(
+        isReturnPage: isReturnPage,
+        departData: _departData,
+        returnData: _returnData,
+      ),
+    );
   }
 
   void onDepartureClicked(int index) async {
@@ -139,9 +125,6 @@ class _FlightListViewState extends ConsumerState<FlightListView>
 
   @override
   Widget build(BuildContext context) {
-    final FlightSearchController controller = ref.read(
-      flightSearchProvider.notifier,
-    );
     final FlightSearchState flightState = ref.watch(flightSearchProvider);
     final List<Map<String, dynamic>> allFlights = ref
         .watch(flightSearchProvider)

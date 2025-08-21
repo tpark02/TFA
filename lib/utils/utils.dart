@@ -1,4 +1,8 @@
+import 'package:TFA/screens/shared/calendar_sheet.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 int depMinutesOfDay(dynamic depRaw) {
   if (depRaw == null) return -1;
@@ -198,4 +202,32 @@ String formatDurationFromMinutes(int minutes) {
   final int hours = minutes ~/ 60;
   final int mins = minutes % 60;
   return '${hours}h ${mins}m';
+}
+
+Future<Map<String, DateTime?>?> showCalender(
+  BuildContext context,
+  WidgetRef ref,
+  String firstTitle,
+  String secondTitle,
+  bool isOnlyTab,
+  bool isRange,
+  int stDays,
+  int edDays,
+) {
+  return CupertinoScaffold.showCupertinoModalBottomSheet<
+    Map<String, DateTime?>
+  >(
+    context: context,
+    useRootNavigator: true,
+    expand: true,
+    builder: (_) => CalendarSheet(
+      key: UniqueKey(),
+      firstTitle: firstTitle,
+      secondTitle: secondTitle,
+      isOnlyTab: isOnlyTab,
+      isRange: isRange,
+      startDays: stDays,
+      endDays: edDays,
+    ),
+  );
 }

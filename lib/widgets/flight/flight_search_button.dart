@@ -1,11 +1,11 @@
 // lib/screens/flight/widgets/search_button.dart
 
 import 'package:TFA/providers/flight/flight_search_state.dart';
+import 'package:TFA/screens/flight/flight_list_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:TFA/providers/flight/flight_search_controller.dart';
 import 'package:TFA/providers/recent_search.dart';
-import 'package:TFA/screens/flight/flight_list_page.dart';
 import 'package:TFA/screens/shared/recent_search_panel.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 

@@ -6,7 +6,7 @@ import 'package:TFA/providers/flight/flight_search_state.dart';
 import 'package:TFA/providers/sort_tab_provider.dart';
 import 'package:TFA/screens/flight/flight_filter_screen.dart';
 import 'package:TFA/types/typedefs.dart';
-import 'package:TFA/utils/flight_util.dart';
+import 'package:TFA/utils/utils.dart';
 import 'package:TFA/widgets/filter_button.dart';
 import 'package:TFA/widgets/flight/flight_list_view.dart';
 import 'package:TFA/widgets/sort_sheets/range_picker_sheet.dart';

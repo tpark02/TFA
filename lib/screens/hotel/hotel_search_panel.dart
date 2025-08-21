@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:TFA/providers/hotel/hotel_search_controller.dart';
 import 'package:TFA/providers/hotel/hotel_search_state.dart';
 import 'package:TFA/providers/recent_search.dart';
@@ -5,6 +7,7 @@ import 'package:TFA/screens/shared/calendar_sheet.dart';
 import 'package:TFA/screens/shared/recent_search_panel.dart';
 import 'package:TFA/screens/shared/room_guest_selector_sheet.dart';
 import 'package:TFA/screens/shared/search_hotel_sheet.dart';
+import 'package:TFA/utils/utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -52,12 +55,14 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
   void initState() {
     super.initState();
 
-    final HotelSearchController controller = ref.read(hotelSearchProvider.notifier);
+    final HotelSearchController controller = ref.read(
+      hotelSearchProvider.notifier,
+    );
     final DateTime startDate = DateTime.now();
     final DateTime endDate = DateTime.now().add(const Duration(days: endDays));
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      controller.setDisplayDate(startDate: startDate, endDate: endDate);
+      controller.setTripDates(departDate: startDate, returnDate: endDate);
     });
 
     Future.microtask(() {
@@ -81,7 +86,9 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
   @override
   Widget build(BuildContext context) {
     final HotelSearchState hotelState = ref.watch(hotelSearchProvider);
-    final HotelSearchController controller = ref.read(hotelSearchProvider.notifier);
+    final HotelSearchController controller = ref.read(
+      hotelSearchProvider.notifier,
+    );
 
     return SingleChildScrollView(
       child: Column(
@@ -163,29 +170,26 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
                   flex: 6,
                   child: OutlinedButton(
                     onPressed: () async {
-                      final result = await showModalBottomSheet(
-                        context: context,
-                        isScrollControlled: true,
-                        shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.vertical(
-                            top: Radius.circular(20),
-                          ),
-                        ),
-                        builder: (BuildContext ctx) => CalendarSheet(
-                          key: UniqueKey(),
-                          firstTitle: "",
-                          secondTitle: "",
-                          isOnlyTab: true,
-                          isRange: true,
-                          startDays: startDays,
-                          endDays: endDays,
-                        ),
+                      final result = await showCalender(
+                        context,
+                        ref,
+                        '',
+                        '',
+                        true,
+                        true,
+                        startDays,
+                        endDays,
                       );
-
                       if (result != null) {
-                        controller.setDisplayDate(
-                          startDate: result['startDate'],
-                          endDate: result['endDate'],
+                        final departDate = result['departDate'];
+                        final returnDate = result['returnDate'];
+
+                        controller.setTripDates(
+                          departDate: departDate!,
+                          returnDate: returnDate,
+                        );
+                        debugPrint(
+                          "📅 selected dates depart date : $departDate, end date : ${returnDate ?? "empty"}",
                         );
                       }
                     },
@@ -229,7 +233,8 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
                             top: Radius.circular(20),
                           ),
                         ),
-                        builder: (BuildContext ctx) => const RoomGuestSelectorSheet(),
+                        builder: (BuildContext ctx) =>
+                            const RoomGuestSelectorSheet(),
                       );
 
                       if (result != null) {
@@ -305,7 +310,8 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
                     onPressed: () async {
                       debugPrint(hotelState.toString());
                       final bool hasCity = hotelState.city.isNotEmpty;
-                      final bool hasDate = (hotelState.displayDate ?? '').isNotEmpty;
+                      final bool hasDate =
+                          (hotelState.displayDate ?? '').isNotEmpty;
                       final bool hasGuests =
                           ((int.tryParse(hotelState.adultCnt) ?? 0) +
                               (int.tryParse(hotelState.childCnt) ?? 0)) >
@@ -431,7 +437,12 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
                                         fontSize: Theme.of(
                                           context,
                                         ).textTheme.bodyMedium?.fontSize,
-                                        color: const Color.fromRGBO(99, 99, 99, 1),
+                                        color: const Color.fromRGBO(
+                                          99,
+                                          99,
+                                          99,
+                                          1,
+                                        ),
                                       ),
                                     ),
                                     Text(
@@ -440,7 +451,12 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
                                         fontSize: Theme.of(
                                           context,
                                         ).textTheme.bodySmall?.fontSize,
-                                        color: const Color.fromRGBO(99, 99, 99, 1),
+                                        color: const Color.fromRGBO(
+                                          99,
+                                          99,
+                                          99,
+                                          1,
+                                        ),
                                       ),
                                     ),
                                   ],

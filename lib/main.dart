@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'firebase_options.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
@@ -36,15 +37,18 @@ class App extends StatelessWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      supportedLocales: const <Locale>[Locale('en')], // or [Locale('ko')] for Korean
+      supportedLocales: const <Locale>[
+        Locale('en'),
+      ], // or [Locale('ko')] for Korean
+
       home: StreamBuilder(
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: (BuildContext ctx, AsyncSnapshot<User?> snapshot) {
           if (snapshot.hasData) {
-            return const MenuScreen();
+            return const CupertinoScaffold(body: MenuScreen());
           }
 
-          return const AuthScreen();
+          return const CupertinoScaffold(body: AuthScreen());
           // return const MenuScreen();
         },
       ),

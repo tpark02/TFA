@@ -9,7 +9,10 @@ class CarSearchController extends StateNotifier<CarSearchState> {
   CarSearchController() : super(const CarSearchState());
 
   Future<void> initRecentSearch(RecentSearch search) async {
-    final List<RecentSearch> updated = <RecentSearch>[search, ...state.recentSearches];
+    final List<RecentSearch> updated = <RecentSearch>[
+      search,
+      ...state.recentSearches,
+    ];
     if (updated.length > 5) updated.removeLast();
     state = state.copyWith(recentSearches: updated);
   }
@@ -27,7 +30,10 @@ class CarSearchController extends StateNotifier<CarSearchState> {
   }
 
   Future<bool> addRecentSearch(RecentSearch search, String jwtToken) async {
-    final List<RecentSearch> updated = <RecentSearch>[search, ...state.recentSearches];
+    final List<RecentSearch> updated = <RecentSearch>[
+      search,
+      ...state.recentSearches,
+    ];
     if (updated.length > 5) updated.removeLast(); // optional: cap at 5 items
     state = state.copyWith(recentSearches: updated);
     // ❌ Only send to backend if not placeholder
@@ -59,26 +65,56 @@ class CarSearchController extends StateNotifier<CarSearchState> {
     state = const CarSearchState();
   }
 
-  void setBeginDate(DateTime? selectedDate) {
-    if (selectedDate == null) {
-      state = state.copyWith(beginDate: null);
+  void setTripDates({
+    required DateTime departDate, // non-null
+    DateTime? returnDate, // nullable for one-way
+  }) {
+    final iso = DateFormat('yyyy-MM-dd');
+    final pretty = DateFormat('MMM d');
+
+    final String dIso = iso.format(departDate);
+    final String? rIso = (returnDate == null) ? null : iso.format(returnDate);
+
+    final displayDt = pretty.format(departDate);
+
+    final displayRt = (returnDate != null) ? pretty.format(returnDate) : '';
+
+    if (state.departDate == dIso &&
+        state.returnDate == rIso &&
+        state.displayDepartDate == displayDt &&
+        state.displayReturnDate == displayRt) {
       return;
     }
-    final String formatted = DateFormat('yyyy-MM-dd').format(selectedDate);
-    final String display = DateFormat('EEE MMM d').format(selectedDate);
 
-    state = state.copyWith(beginDate: formatted, displayBeginDate: display);
+    state = state.copyWith(
+      departDate: dIso,
+      returnDate: rIso,
+      displayDepartDate: displayDt,
+      displayReturnDate: displayRt,
+      clearReturnDate: returnDate == null ? true : false,
+    );
   }
 
-  void setEndDate(DateTime? selectedDate) {
+  void setDepartDate(DateTime? selectedDate) {
     if (selectedDate == null) {
-      state = state.copyWith(endDate: null);
+      state = state.copyWith(departDate: null);
       return;
     }
     final String formatted = DateFormat('yyyy-MM-dd').format(selectedDate);
     final String display = DateFormat('EEE MMM d').format(selectedDate);
 
-    state = state.copyWith(endDate: formatted, displayEndDate: display);
+    state = state.copyWith(departDate: formatted, displayDepartDate: display);
+  }
+
+  void setReturnDate(DateTime? selectedDate) {
+    if (selectedDate == null) {
+      state = state.copyWith(returnDate: null);
+      return;
+    }
+    final String formatted = DateFormat('yyyy-MM-dd').format(selectedDate);
+    final String display = DateFormat('EEE MMM d').format(selectedDate);
+
+    state = state.copyWith(returnDate: formatted, displayReturnDate: display);
   }
 
   void setBeginTime(String selectedTime) {
@@ -91,7 +127,8 @@ class CarSearchController extends StateNotifier<CarSearchState> {
 
   Future<void> loadRecentSearchesFromApi() async {
     try {
-      final List<Map<String, dynamic>> results = await RecentSearchApiService.fetchRecentSearches('car');
+      final List<Map<String, dynamic>> results =
+          await RecentSearchApiService.fetchRecentSearches('car');
       state = state.copyWith(recentSearches: <RecentSearch>[]);
 
       for (final Map<String, dynamic> r in results) {
@@ -124,7 +161,8 @@ class CarSearchController extends StateNotifier<CarSearchState> {
   }
 }
 
-final StateNotifierProvider<CarSearchController, CarSearchState> carSearchProvider =
-    StateNotifierProvider<CarSearchController, CarSearchState>(
-      (StateNotifierProviderRef<CarSearchController, CarSearchState> ref) => CarSearchController(),
-    );
+final StateNotifierProvider<CarSearchController, CarSearchState>
+carSearchProvider = StateNotifierProvider<CarSearchController, CarSearchState>(
+  (StateNotifierProviderRef<CarSearchController, CarSearchState> ref) =>
+      CarSearchController(),
+);
