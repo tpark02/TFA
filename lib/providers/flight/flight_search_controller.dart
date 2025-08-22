@@ -444,7 +444,7 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
     if (search.destination.trim().isEmpty ||
         search.tripDateRange.trim().isEmpty ||
         search.destinationCode.trim().isEmpty ||
-        search.guests == 0) {
+        search.passengerCnt == 0) {
       debugPrint("⚠️ Skipped sending empty search to backend");
       return false;
     }
@@ -454,13 +454,18 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
       destination: search.destination,
       tripDateRange: search.tripDateRange,
       destinationCode: search.destinationCode,
-      guests: search.guests,
+      passengerCnt: search.passengerCnt,
       rooms: search.rooms,
       kind: search.kind,
       departCode: search.departCode,
       arrivalCode: search.arrivalCode,
       departDate: search.departDate,
       returnDate: search.returnDate,
+      adult: search.adult,
+      children: search.children,
+      infantLap: search.infantLap,
+      infantSeat: search.infantSeat,
+      cabinIdx: search.cabinIdx,
       jwtToken: jwtToken,
     );
   }
@@ -559,7 +564,14 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
   //   state = state.copyWith(hasReturnFlight: b);
   // }
 
-  void setPassengers({required int count, required int cabinIndex}) {
+  void setPassengers({
+    required int count,
+    required int cabinIndex,
+    required int adult,
+    required int children,
+    required int infantLap,
+    required int infantSeat,
+  }) {
     String cabin;
     switch (cabinIndex) {
       case 0:
@@ -578,7 +590,15 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
         cabin = 'Economy';
     }
 
-    state = state.copyWith(passengerCount: count, cabinClass: cabin);
+    state = state.copyWith(
+      passengerCount: count,
+      cabinClass: cabin,
+      adultCnt: adult,
+      childrenCnt: children,
+      infantLapCnt: infantLap,
+      infantSeatCnt: infantSeat,
+      cabinIdx: cabinIndex,
+    );
   }
 
   void clearRecentSearches() {
@@ -602,9 +622,15 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
       final DateTime today = _dOnly(DateTime.now());
 
       for (final Map<String, dynamic> r in results) {
-        // guests
-        final gv = r['guests'];
-        final int guests = gv is int ? gv : int.tryParse(gv.toString()) ?? 1;
+        // passenger cnt
+        final passengerCnt = r['passenger_cnt'] as int;
+        final adult = r['adult'] as int;
+        final children = r['children'] as int;
+        final infantLap = r['infant_lap'] as int;
+        final infantSeat = r['infant_seat'] as int;
+
+        // cabin idx
+        final cabinIdx = r['cabin_idx'] as int;
 
         // parse strings
         final String? depStr = r['depart_date']?.toString();
@@ -662,16 +688,21 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
             icons: <Widget>[
               const SizedBox(width: 10),
               Icon(Icons.person, color: Colors.grey[500], size: 20.0),
-              Text(guests.toString()),
+              Text(passengerCnt.toString()),
             ],
             destinationCode: r['destination_code'],
-            guests: guests,
+            passengerCnt: passengerCnt,
             rooms: 0,
             kind: 'flight',
             departCode: r['depart_code'],
             arrivalCode: r['arrival_code'],
-            departDate: departureDate, // 🟢 no '!' needed
-            returnDate: returnDate, // 🟢 no '!' needed
+            departDate: departureDate,
+            returnDate: returnDate,
+            adult: adult,
+            children: children,
+            infantLap: infantLap,
+            infantSeat: infantSeat,
+            cabinIdx: cabinIdx,
           ),
         );
       }
@@ -770,6 +801,12 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
       ];
     }
   }
+
+  int get cabinIdx => state.cabinIdx;
+  int get adultCnt => state.adultCnt;
+  int get childrenCnt => state.childrenCnt;
+  int get infantLapCnt => state.infantLapCnt;
+  int get infantSeatCnt => state.infantSeatCnt;
 
   String? get departDate => state.departDate;
   String? get returnDate => state.returnDate;

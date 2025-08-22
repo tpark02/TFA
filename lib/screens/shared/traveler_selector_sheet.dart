@@ -2,19 +2,30 @@ import 'package:TFA/widgets/counter_control.dart';
 import 'package:flutter/material.dart';
 
 class TravelerSelectorSheet extends StatefulWidget {
-  const TravelerSelectorSheet({super.key});
-
+  TravelerSelectorSheet({
+    super.key,
+    required this.adult,
+    required this.children,
+    required this.infantLap,
+    required this.infantSeat,
+    required this.cabinIdx,
+  });
+  int adult;
+  int children;
+  int infantLap;
+  int infantSeat;
+  int cabinIdx;
   @override
   State<StatefulWidget> createState() => _TravelerSelectorState();
 }
 
 class _TravelerSelectorState extends State<TravelerSelectorSheet> {
   int _selectedIndex = 0;
-  int _selectedClassIdx = 0;
-  int _adultCount = 1;
-  int _childCount = 0;
-  int _infantLapCount = 0;
-  int _infantSeatCount = 0;
+  // int _selectedClassIdx = 0;
+  // int _adultCount = 1;
+  // int _childCount = 0;
+  // int _infantLapCount = 0;
+  // int _infantSeatCount = 0;
 
   @override
   void initState() {
@@ -118,9 +129,9 @@ class _TravelerSelectorState extends State<TravelerSelectorSheet> {
                                 child: Align(
                                   alignment: Alignment.centerRight,
                                   child: CounterControl(
-                                    count: _adultCount,
+                                    count: widget.adult,
                                     onChanged: (int val) =>
-                                        setState(() => _adultCount = val),
+                                        setState(() => widget.adult = val),
                                   ),
                                 ),
                               ),
@@ -157,9 +168,9 @@ class _TravelerSelectorState extends State<TravelerSelectorSheet> {
                                 child: Align(
                                   alignment: Alignment.centerRight,
                                   child: CounterControl(
-                                    count: _childCount,
+                                    count: widget.children,
                                     onChanged: (int val) =>
-                                        setState(() => _childCount = val),
+                                        setState(() => widget.children = val),
                                   ),
                                 ),
                               ),
@@ -183,9 +194,9 @@ class _TravelerSelectorState extends State<TravelerSelectorSheet> {
                                 child: Align(
                                   alignment: Alignment.centerRight,
                                   child: CounterControl(
-                                    count: _infantLapCount,
+                                    count: widget.infantLap,
                                     onChanged: (int val) =>
-                                        setState(() => _infantLapCount = val),
+                                        setState(() => widget.infantLap = val),
                                   ),
                                 ),
                               ),
@@ -209,9 +220,9 @@ class _TravelerSelectorState extends State<TravelerSelectorSheet> {
                                 child: Align(
                                   alignment: Alignment.centerRight,
                                   child: CounterControl(
-                                    count: _infantSeatCount,
+                                    count: widget.infantSeat,
                                     onChanged: (int val) =>
-                                        setState(() => _infantSeatCount = val),
+                                        setState(() => widget.infantSeat = val),
                                   ),
                                 ),
                               ),
@@ -235,13 +246,13 @@ class _TravelerSelectorState extends State<TravelerSelectorSheet> {
                                     ),
                                     onPressed: () {
                                       setState(() {
-                                        _selectedClassIdx = 0;
+                                        widget.cabinIdx = 0;
                                       });
                                     },
                                     child: Text(
                                       "Economy",
                                       style: TextStyle(
-                                        color: _selectedClassIdx == 0
+                                        color: widget.cabinIdx == 0
                                             ? Theme.of(
                                                 context,
                                               ).colorScheme.primary
@@ -255,7 +266,7 @@ class _TravelerSelectorState extends State<TravelerSelectorSheet> {
                                   ),
                                 ),
                               ),
-                              _selectedClassIdx == 0
+                              widget.cabinIdx == 0
                                   ? const Icon(Icons.check)
                                   : const SizedBox.shrink(),
                             ],
@@ -273,13 +284,13 @@ class _TravelerSelectorState extends State<TravelerSelectorSheet> {
                                     ),
                                     onPressed: () {
                                       setState(() {
-                                        _selectedClassIdx = 1;
+                                        widget.cabinIdx = 1;
                                       });
                                     },
                                     child: Text(
                                       "Premium Economy",
                                       style: TextStyle(
-                                        color: _selectedClassIdx == 1
+                                        color: widget.cabinIdx == 1
                                             ? Theme.of(
                                                 context,
                                               ).colorScheme.primary
@@ -293,7 +304,7 @@ class _TravelerSelectorState extends State<TravelerSelectorSheet> {
                                   ),
                                 ),
                               ),
-                              _selectedClassIdx == 1
+                              widget.cabinIdx == 1
                                   ? const Icon(Icons.check)
                                   : const SizedBox.shrink(),
                             ],
@@ -311,13 +322,13 @@ class _TravelerSelectorState extends State<TravelerSelectorSheet> {
                                     ),
                                     onPressed: () {
                                       setState(() {
-                                        _selectedClassIdx = 2;
+                                        widget.cabinIdx = 2;
                                       });
                                     },
                                     child: Text(
                                       "Business",
                                       style: TextStyle(
-                                        color: _selectedClassIdx == 2
+                                        color: widget.cabinIdx == 2
                                             ? Theme.of(
                                                 context,
                                               ).colorScheme.primary
@@ -331,7 +342,7 @@ class _TravelerSelectorState extends State<TravelerSelectorSheet> {
                                   ),
                                 ),
                               ),
-                              _selectedClassIdx == 2
+                              widget.cabinIdx == 2
                                   ? const Icon(Icons.check)
                                   : const SizedBox.shrink(),
                             ],
@@ -349,13 +360,13 @@ class _TravelerSelectorState extends State<TravelerSelectorSheet> {
                                     ),
                                     onPressed: () {
                                       setState(() {
-                                        _selectedClassIdx = 3;
+                                        widget.cabinIdx = 3;
                                       });
                                     },
                                     child: Text(
                                       "First",
                                       style: TextStyle(
-                                        color: _selectedClassIdx == 3
+                                        color: widget.cabinIdx == 3
                                             ? Theme.of(
                                                 context,
                                               ).colorScheme.primary
@@ -369,7 +380,7 @@ class _TravelerSelectorState extends State<TravelerSelectorSheet> {
                                   ),
                                 ),
                               ),
-                              _selectedClassIdx == 3
+                              widget.cabinIdx == 3
                                   ? const Icon(Icons.check)
                                   : const SizedBox.shrink(),
                             ],
@@ -380,14 +391,18 @@ class _TravelerSelectorState extends State<TravelerSelectorSheet> {
               ElevatedButton(
                 onPressed: () {
                   final int total =
-                      _adultCount +
-                      _childCount +
-                      _infantLapCount +
-                      _infantSeatCount;
+                      widget.adult +
+                      widget.children +
+                      widget.infantLap +
+                      widget.infantSeat;
 
                   Navigator.pop(context, <String, int>{
                     'passengerCount': total,
-                    'cabinClass': _selectedClassIdx,
+                    'cabinIdx': widget.cabinIdx,
+                    'adult': widget.adult,
+                    'children': widget.children,
+                    'infantLap': widget.infantLap,
+                    'infantSeat': widget.infantSeat,
                   });
                 },
                 style: ElevatedButton.styleFrom(

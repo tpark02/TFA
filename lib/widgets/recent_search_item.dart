@@ -35,7 +35,14 @@ class RecentSearchItem extends ConsumerWidget {
             final DateTime rt = DateTime.parse(search.returnDate);
             controller.setTripDates(departDate: dt, returnDate: rt);
           }
-          controller.setPassengers(count: search.guests, cabinIndex: 1);
+          controller.setPassengers(
+            count: search.passengerCnt,
+            cabinIndex: search.cabinIdx,
+            adult: search.adult,
+            children: search.children,
+            infantLap: search.infantLap,
+            infantSeat: search.infantSeat,
+          );
         }
         Navigator.of(
           context,

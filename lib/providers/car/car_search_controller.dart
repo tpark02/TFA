@@ -40,7 +40,8 @@ class CarSearchController extends StateNotifier<CarSearchState> {
     if (search.destination.trim().isEmpty ||
         search.tripDateRange.trim().isEmpty ||
         (search.kind != 'car' &&
-            (search.destinationCode.trim().isEmpty || search.guests == 0))) {
+            (search.destinationCode.trim().isEmpty ||
+                search.passengerCnt == 0))) {
       debugPrint("⚠️ Skipped sending empty search to backend");
       return false;
     }
@@ -50,7 +51,7 @@ class CarSearchController extends StateNotifier<CarSearchState> {
       destination: search.destination,
       tripDateRange: search.tripDateRange,
       destinationCode: search.destinationCode,
-      guests: search.guests,
+      passengerCnt: search.passengerCnt,
       rooms: search.rooms,
       kind: search.kind,
       departCode: search.departCode,
@@ -143,7 +144,7 @@ class CarSearchController extends StateNotifier<CarSearchState> {
             tripDateRange: r['trip_date_range'],
             icons: <Widget>[],
             destinationCode: r['destination_code'],
-            guests: guests,
+            passengerCnt: guests,
             rooms: 0,
             kind: 'car',
             departCode: r['depart_code'],

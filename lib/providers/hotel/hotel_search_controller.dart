@@ -29,7 +29,7 @@ class HotelSearchController extends StateNotifier<HotelSearchState> {
     if (search.destination.trim().isEmpty ||
         search.tripDateRange.trim().isEmpty ||
         search.rooms <= 0 ||
-        search.guests <= 0) {
+        search.passengerCnt <= 0) {
       debugPrint("⚠️ Skipped sending empty search to backend");
       return false;
     }
@@ -39,7 +39,7 @@ class HotelSearchController extends StateNotifier<HotelSearchState> {
       destination: search.destination,
       tripDateRange: search.tripDateRange,
       destinationCode: search.destinationCode,
-      guests: search.guests,
+      passengerCnt: search.passengerCnt,
       rooms: search.rooms,
       kind: search.kind,
       departCode: search.departCode,
@@ -184,7 +184,7 @@ class HotelSearchController extends StateNotifier<HotelSearchState> {
               Text(guests.toString()),
             ],
             destinationCode: r['destination_code'],
-            guests: guests,
+            passengerCnt: guests,
             rooms: rooms,
             kind: 'car',
             departCode: r['depart_code'],

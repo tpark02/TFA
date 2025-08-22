@@ -65,13 +65,14 @@ class FlightSearchButton extends ConsumerWidget {
                         ],
                         destinationCode:
                             '${flightState.departureAirportCode} - ${flightState.arrivalAirportCode}',
-                        guests: flightState.passengerCount,
+                        passengerCnt: flightState.passengerCount,
                         rooms: 0,
                         kind: 'flight',
                         departCode: flightState.departureAirportCode,
                         arrivalCode: flightState.arrivalAirportCode,
                         departDate: flightState.departDate,
                         returnDate: flightState.returnDate ?? '',
+                        
                       ),
                       idToken,
                     );

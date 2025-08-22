@@ -9,13 +9,18 @@ class RecentSearchApiService {
     required String destination,
     required String tripDateRange,
     required String destinationCode,
-    required int guests,
+    required int passengerCnt,
     required int rooms,
     required String kind,
     required String departCode,
     required String arrivalCode,
     required String departDate, // "yyyy-MM-dd"
     required String? returnDate, // "yyyy-MM-dd"
+    int cabinIdx = 0,
+    int adult = 1,
+    int children = 0,
+    int infantLap = 0,
+    int infantSeat = 0,
     required String jwtToken,
   }) async {
     final Uri url = Uri.parse("$baseUrl/api/v1/recent-searches/");
@@ -31,7 +36,12 @@ class RecentSearchApiService {
           'destination': destination,
           'trip_date_range': tripDateRange,
           'destination_code': destinationCode,
-          'guests': guests,
+          'passenger_cnt': passengerCnt,
+          'adult': adult,
+          'children': children,
+          'infant_lap': infantLap,
+          'infant_seat': infantSeat,
+          'cabin_idx': cabinIdx,
           'rooms': rooms,
           'kind': kind,
           'depart_code': departCode,
@@ -44,6 +54,10 @@ class RecentSearchApiService {
       if (response.statusCode == 200) {
         print("✅ Sent: ${response.body}");
         return true;
+      } else if (response.statusCode == 422) {
+        print(
+          "422 detail: ${response.body}",
+        ); // <-- shows the exact field failing
       } else {
         print("❌ Failed: ${response.statusCode} ${response.body}");
         return false;

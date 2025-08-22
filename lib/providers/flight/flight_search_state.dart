@@ -26,6 +26,11 @@ class FlightSearchState {
   final int searchNonce;
 
   final bool isSearchConfirmed;
+  final int adultCnt;
+  final int childrenCnt;
+  final int infantLapCnt;
+  final int infantSeatCnt;
+  final int cabinIdx;
   // final bool hasReturnFlight;
 
   static const List<RecentSearch> _defaultRecentSearches = <RecentSearch>[
@@ -34,7 +39,7 @@ class FlightSearchState {
       tripDateRange: '',
       icons: <Widget>[],
       destinationCode: '',
-      guests: 0,
+      passengerCnt: 0,
       rooms: 0,
       kind: 'flight',
       departCode: '',
@@ -47,7 +52,7 @@ class FlightSearchState {
       tripDateRange: '',
       icons: <Widget>[],
       destinationCode: '',
-      guests: 0,
+      passengerCnt: 0,
       rooms: 0,
       kind: 'flight',
       departCode: '',
@@ -60,7 +65,7 @@ class FlightSearchState {
       tripDateRange: '',
       icons: <Widget>[],
       destinationCode: '',
-      guests: 0,
+      passengerCnt: 0,
       rooms: 0,
       kind: 'flight',
       departCode: '',
@@ -73,7 +78,7 @@ class FlightSearchState {
       tripDateRange: '',
       icons: <Widget>[],
       destinationCode: '',
-      guests: 0,
+      passengerCnt: 0,
       rooms: 0,
       kind: 'flight',
       departCode: '',
@@ -86,7 +91,7 @@ class FlightSearchState {
       tripDateRange: '',
       icons: <Widget>[],
       destinationCode: '',
-      guests: 0,
+      passengerCnt: 0,
       rooms: 0,
       kind: 'flight',
       departCode: '',
@@ -109,6 +114,7 @@ class FlightSearchState {
     this.departDate = '',
     this.returnDate = '',
     this.cabinClass = 'Economy',
+    this.cabinIdx = 0,
     this.passengerCount = 1,
     this.flightResults = const AsyncValue.data(<String, dynamic>{}),
     this.inBoundFlightResults = const AsyncValue.data(<String, dynamic>{}),
@@ -118,6 +124,10 @@ class FlightSearchState {
     this.searchNonce = 0,
     this.hiddenAirporCodeList = const <String>[],
     this.isSearchConfirmed = false,
+    this.adultCnt = 0,
+    this.childrenCnt = 0,
+    this.infantLapCnt = 0,
+    this.infantSeatCnt = 0,
     // this.hasReturnFlight = false,
   });
 
@@ -138,7 +148,12 @@ class FlightSearchState {
     String? arrivalCity,
     String? displayDate,
     String? cabinClass,
+    int? cabinIdx,
     int? passengerCount,
+    int? adultCnt,
+    int? childrenCnt,
+    int? infantLapCnt,
+    int? infantSeatCnt,
     String? departDate,
     String? returnDate,
     bool clearReturnDate = false,
@@ -166,6 +181,11 @@ class FlightSearchState {
       isLoading: isLoading ?? this.isLoading,
       searchNonce: searchNonce ?? this.searchNonce,
       hiddenAirporCodeList: hiddenAirporCodeList ?? this.hiddenAirporCodeList,
+      adultCnt: adultCnt ?? this.adultCnt,
+      childrenCnt: childrenCnt ?? this.childrenCnt,
+      infantLapCnt: infantLapCnt ?? this.infantLapCnt,
+      infantSeatCnt: infantSeatCnt ?? this.infantSeatCnt,
+      cabinIdx: cabinIdx ?? this.cabinIdx,
     );
   }
 

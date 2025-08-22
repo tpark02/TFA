@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:TFA/providers/car/car_search_controller.dart';
 import 'package:TFA/providers/car/car_search_state.dart';
 import 'package:TFA/providers/recent_search.dart';
-import 'package:TFA/screens/shared/calendar_sheet.dart';
 import 'package:TFA/screens/shared/recent_search_panel.dart';
 import 'package:TFA/screens/shared/search_car_sheet.dart';
 import 'package:TFA/screens/shared/show_adaptive_time_picker.dart';
@@ -16,14 +15,14 @@ import 'package:flutter_switch/flutter_switch.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator_platform_interface/src/models/position.dart';
 
-class CarSearchPanel extends ConsumerStatefulWidget {
-  const CarSearchPanel({super.key});
+class CarPage extends ConsumerStatefulWidget {
+  const CarPage({super.key});
 
   @override
-  ConsumerState<CarSearchPanel> createState() => _CarSearchPanelState();
+  ConsumerState<CarPage> createState() => _CarPageState();
 }
 
-class _CarSearchPanelState extends ConsumerState<CarSearchPanel> {
+class _CarPageState extends ConsumerState<CarPage> {
   static const int startDays = 0;
   static const int endDays = 2;
 
@@ -485,7 +484,7 @@ class _CarSearchPanelState extends ConsumerState<CarSearchPanel> {
                           tripDateRange: displayDate,
                           icons: <Widget>[],
                           destinationCode: '',
-                          guests: -1,
+                          passengerCnt: -1,
                           rooms: 0,
                           kind: 'car',
                           departCode: 'n/a',

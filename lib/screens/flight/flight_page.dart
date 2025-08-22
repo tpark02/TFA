@@ -10,13 +10,13 @@ import 'package:TFA/widgets/flight/flight_search_inputs.dart';
 import 'package:TFA/widgets/flight/flight_search_button.dart';
 import 'package:geolocator_platform_interface/src/models/position.dart';
 
-class FlightSearchPanel extends ConsumerStatefulWidget {
-  const FlightSearchPanel({super.key});
+class FlightPage extends ConsumerStatefulWidget {
+  const FlightPage({super.key});
   @override
-  ConsumerState<FlightSearchPanel> createState() => _FlightSearchPanelState();
+  ConsumerState<FlightPage> createState() => _FlightPageState();
 }
 
-class _FlightSearchPanelState extends ConsumerState<FlightSearchPanel> {
+class _FlightPageState extends ConsumerState<FlightPage> {
   static const double _padding = 20.0;
   bool _isLoadingCity = true;
   bool _initialized = false;

@@ -5,26 +5,36 @@ class RecentSearch {
   final String tripDateRange;
   final List<Widget> icons;
   final String destinationCode;
-  final int guests;
+  final int passengerCnt;
   final int rooms;
   final String kind;
   final String departCode;
   final String arrivalCode;
   final String departDate;
   final String returnDate;
+  final int adult;
+  final int children;
+  final int infantLap;
+  final int infantSeat;
+  final int cabinIdx;
 
   const RecentSearch({
     required this.destination,
     required this.tripDateRange,
     required this.icons,
     required this.destinationCode,
-    required this.guests,
+    required this.passengerCnt,
     required this.rooms,
     required this.kind,
     required this.departCode,
     required this.arrivalCode,
     required this.returnDate,
     required this.departDate,
+    this.adult = 1,
+    this.children = 0,
+    this.infantLap = 0,
+    this.infantSeat = 0,
+    this.cabinIdx = 0,
   });
 
   @override
@@ -32,7 +42,7 @@ class RecentSearch {
     return 'RecentSearch(destination: $destination, '
         'tripDateRange: $tripDateRange, '
         'destinationCode: $destinationCode, '
-        'guests: $guests, '
+        'guests: $passengerCnt, '
         'rooms: $rooms, '
         'kind: $kind, '
         'departCode: $departCode, '
@@ -49,7 +59,7 @@ class RecentSearch {
           destination == other.destination &&
           tripDateRange == other.tripDateRange &&
           destinationCode == other.destinationCode &&
-          guests == other.guests &&
+          passengerCnt == other.passengerCnt &&
           rooms == other.rooms &&
           kind == other.kind &&
           departCode == other.departCode &&
@@ -62,7 +72,7 @@ class RecentSearch {
       destination.hashCode ^
       tripDateRange.hashCode ^
       destinationCode.hashCode ^
-      guests.hashCode ^
+      passengerCnt.hashCode ^
       rooms.hashCode ^
       kind.hashCode ^
       departCode.hashCode ^

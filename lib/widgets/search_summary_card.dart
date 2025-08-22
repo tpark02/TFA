@@ -214,14 +214,31 @@ class SearchSummaryCard extends ConsumerWidget {
                           top: Radius.circular(20),
                         ),
                       ),
-                      builder: (BuildContext ctx) =>
-                          const TravelerSelectorSheet(),
+                      builder: (BuildContext ctx) => TravelerSelectorSheet(
+                        adult: controller.adultCnt,
+                        children: controller.childrenCnt,
+                        infantLap: controller.infantLapCnt,
+                        infantSeat: controller.infantSeatCnt,
+                        cabinIdx: controller.cabinIdx,
+                      ),
                     );
 
                     if (result != null) {
                       final pax = result['passengerCount'] ?? 1;
-                      final cabin = result['cabinClass'] ?? 0;
-                      controller.setPassengers(count: pax, cabinIndex: cabin);
+                      final cabin = result['cabinIdx'] ?? 0;
+                      final adult = result['adult'] ?? 0;
+                      final children = result['children'] ?? 0;
+                      final infantLap = result['infantLap'] ?? 0;
+                      final infantSeat = result['infantSeat'] ?? 0;
+
+                      controller.setPassengers(
+                        count: pax,
+                        cabinIndex: cabin,
+                        adult: adult,
+                        children: children,
+                        infantLap: infantLap,
+                        infantSeat: infantSeat,
+                      );
                     }
                   },
                   child: Row(

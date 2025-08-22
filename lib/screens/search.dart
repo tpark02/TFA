@@ -1,7 +1,7 @@
 import 'package:TFA/providers/flight/flight_search_controller.dart';
-import 'package:TFA/screens/car/car_search_panel.dart';
-import 'package:TFA/screens/flight/flight_search_panel.dart';
-import 'package:TFA/screens/hotel/hotel_search_panel.dart';
+import 'package:TFA/screens/car/car_page.dart';
+import 'package:TFA/screens/flight/flight_page.dart';
+import 'package:TFA/screens/hotel/hotel_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -63,21 +63,22 @@ class _SearchContentState extends ConsumerState<_SearchContent> {
           Expanded(
             child: AnimatedSwitcher(
               duration: const Duration(milliseconds: 300),
-              transitionBuilder: (Widget child, Animation<double> animation) => FadeTransition(
-                opacity: animation,
-                child: SlideTransition(
-                  position: Tween<Offset>(
-                    begin: const Offset(0.0, 0.1),
-                    end: Offset.zero,
-                  ).animate(animation),
-                  child: child,
-                ),
-              ),
+              transitionBuilder: (Widget child, Animation<double> animation) =>
+                  FadeTransition(
+                    opacity: animation,
+                    child: SlideTransition(
+                      position: Tween<Offset>(
+                        begin: const Offset(0.0, 0.1),
+                        end: Offset.zero,
+                      ).animate(animation),
+                      child: child,
+                    ),
+                  ),
               child: _selectedIndex == 0
-                  ? const FlightSearchPanel(key: ValueKey(0))
+                  ? const FlightPage(key: ValueKey(0))
                   : _selectedIndex == 1
-                  ? const HotelSearchPanel(key: ValueKey(1))
-                  : const CarSearchPanel(key: ValueKey(2)),
+                  ? const HotelPage(key: ValueKey(1))
+                  : const CarPage(key: ValueKey(2)),
             ),
           ),
           const SizedBox(height: 50), // dummy bottom spacing

@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:TFA/providers/hotel/hotel_search_controller.dart';
 import 'package:TFA/providers/hotel/hotel_search_state.dart';
 import 'package:TFA/providers/recent_search.dart';
-import 'package:TFA/screens/shared/calendar_sheet.dart';
 import 'package:TFA/screens/shared/recent_search_panel.dart';
 import 'package:TFA/screens/shared/room_guest_selector_sheet.dart';
 import 'package:TFA/screens/shared/search_hotel_sheet.dart';
@@ -15,13 +14,13 @@ import 'package:TFA/services/location_service.dart'; // ✅ your service
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator_platform_interface/src/models/position.dart';
 
-class HotelSearchPanel extends ConsumerStatefulWidget {
-  const HotelSearchPanel({super.key});
+class HotelPage extends ConsumerStatefulWidget {
+  const HotelPage({super.key});
   @override
-  ConsumerState<HotelSearchPanel> createState() => _HotelSearchPanelState();
+  ConsumerState<HotelPage> createState() => _HotelPageState();
 }
 
-class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
+class _HotelPageState extends ConsumerState<HotelPage> {
   static const double _padding = 20.0;
   bool _isLoadingCity = true;
   bool _initialized = false;
@@ -350,7 +349,7 @@ class _HotelSearchPanelState extends ConsumerState<HotelSearchPanel> {
                             Text(totalGuest.toString()),
                           ],
                           destinationCode: '',
-                          guests: totalGuest,
+                          passengerCnt: totalGuest,
                           rooms: int.tryParse(hotelState.roomCnt)!,
                           kind: 'hotel',
                           departCode: 'n/a',
