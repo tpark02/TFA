@@ -153,7 +153,9 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
                   to: flightState.arrivalAirportCode,
                   dateRange: flightState.displayDate ?? '',
                   passengerCount: flightState.passengerCount,
-                  cabinClass: 'Economy',
+                  cabinClass: getCabinClassByIdx(
+                    cabinIndex: flightState.cabinIdx,
+                  ),
                 ),
               ),
               Container(

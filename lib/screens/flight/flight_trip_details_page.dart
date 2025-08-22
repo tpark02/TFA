@@ -1,4 +1,5 @@
 import 'package:TFA/screens/flight/flight_trip_details_item.dart';
+import 'package:TFA/utils/utils.dart';
 import 'package:TFA/widgets/dotted_divider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -21,20 +22,45 @@ class FlightTripDetailsPage extends ConsumerWidget {
     final Color primary = Theme.of(context).colorScheme.primary;
     final Color onPrimary = Theme.of(context).colorScheme.onPrimary;
     final double? textSize = Theme.of(context).textTheme.displaySmall?.fontSize;
-    final passengerCount = departData['passengerCount'] ?? 1;
-    final String passengerCntStr = passengerCount > 1
-        ? '$passengerCount Adults'
-        : '$passengerCount Adult';
+    final passengerCount = departData['pax']['passengerCount'] ?? 1;
+
+    final int adults = departData['pax']['adults'] as int;
+    final int children = departData['pax']['children'] as int;
+    final int infantsHeld = departData['pax']['infantsHeld'] as int;
+    final int infantsSeated = departData['pax']['infantsSeated'] as int;
+    final lst = <String>[];
+
+    if (adults > 0) lst.add('$adults ${pluralize('adult', adults)}');
+    if (children > 0) {
+      lst.add(
+        '$children ${pluralize('child', children, irregularPlural: 'children')}',
+      );
+    }
+    if (infantsHeld > 0) {
+      lst.add('$infantsHeld ${pluralize('Infant', adults)} (Lap)');
+    }
+    if (infantsSeated > 0) {
+      lst.add('$infantsSeated ${pluralize('adult', adults)} (Seated)');
+    }
+
+    String passengerLabel = "";
+    for (final s in lst) {
+      passengerLabel += '$s | ';
+    }
+
     final pricingMode = departData['pricingMode'];
 
     final String currency = (departData['price'] as String).substring(0, 1);
 
-    final String dtp = (departData['price'] as String).substring(1);
-    final String rtp = returnData != null
-        ? (returnData!['price'] as String).substring(1)
-        : '0';
+    final dtp = parseCurrencyString(
+      departData['price'],
+      currencySymbol: currency,
+    );
+    final rtp = returnData != null
+        ? parseCurrencyString(returnData!['price'], currencySymbol: currency)
+        : 0;
 
-    final p = ((double.tryParse(dtp) ?? 0) + (double.tryParse(rtp) ?? 0));
+    final p = dtp + rtp;
 
     final fmt = NumberFormat.currency(symbol: currency, decimalDigits: 2);
     final ticketTotalPrice = fmt.format(p); // "€238.04"
@@ -110,7 +136,7 @@ class FlightTripDetailsPage extends ConsumerWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    passengerCntStr,
+                    passengerLabel.substring(0, passengerLabel.length - 2),
                     style: const TextStyle(color: Colors.white70),
                   ),
                   if (!isReturnPage || pricingMode == 'combined') ...<Widget>[

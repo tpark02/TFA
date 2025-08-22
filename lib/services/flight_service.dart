@@ -6,7 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:TFA/utils/api_config.dart';
 
-class FlightApiService {
+class FlightService {
   void _checkNulls(Map<String, dynamic> map, [String path = ""]) {
     map.forEach((String key, value) {
       final String fullPath = path.isEmpty ? key : "$path.$key";
@@ -31,6 +31,9 @@ class FlightApiService {
     required String departureDate,
     required String? returnDate,
     int adults = 1,
+    int children = 0,
+    int infants = 0,
+    String travelClass = 'ECONOMY',
     int maxResults = 5,
   }) async {
     try {
@@ -43,6 +46,9 @@ class FlightApiService {
           'departure_date': departureDate,
           if (returnDate != null) 'return_date': returnDate,
           'adults': adults.toString(),
+          'children': children.toString(),
+          'infants': infants.toString(),
+          'travelClass': travelClass,
           'max_results': maxResults.toString(),
         },
       );
@@ -130,7 +136,7 @@ class FlightApiService {
   }
 }
 
-final Provider<FlightApiService> flightApiServiceProvider =
-    Provider<FlightApiService>((ProviderRef<FlightApiService> ref) {
-      return FlightApiService();
+final Provider<FlightService> flightApiServiceProvider =
+    Provider<FlightService>((ProviderRef<FlightService> ref) {
+      return FlightService();
     });

@@ -1,3 +1,4 @@
+import 'package:TFA/models/flight_search_out.dart';
 import 'package:TFA/screens/shared/calendar_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -231,3 +232,117 @@ Future<Map<String, DateTime?>?> showCalender(
     ),
   );
 }
+
+String getCabinClassByIdx({required int cabinIndex}) {
+  String cabin = 'Economy';
+  switch (cabinIndex) {
+    case 0:
+      cabin = 'Economy';
+      break;
+    case 1:
+      cabin = 'Premium Economy';
+      break;
+    case 2:
+      cabin = 'Business';
+      break;
+    case 3:
+      cabin = 'First';
+      break;
+    default:
+      cabin = 'Economy';
+  }
+  return cabin;
+}
+
+String getTravelClassByIdx({required int cabinIndex}) {
+  String cabin = 'Economy';
+  switch (cabinIndex) {
+    case 0:
+      cabin = 'ECONOMY';
+      break;
+    case 1:
+      cabin = 'PREMIUM_ECONOMY';
+      break;
+    case 2:
+      cabin = 'BUSINESS';
+      break;
+    case 3:
+      cabin = 'FIRST';
+      break;
+    default:
+      cabin = 'ECONOMY';
+  }
+  return cabin;
+}
+
+const Map<String, String> cabinMap = {
+  'PREMIUM_ECONOMY': 'Premium Economy',
+  'ECONOMY': 'Economy',
+  'BUSINESS': 'Business',
+  'FIRST': 'First',
+};
+
+String pluralize(String word, int n, {String? irregularPlural}) =>
+    n == 1 ? word : (irregularPlural ?? '${word}s');
+
+double parseCurrencyString(
+  String s, {
+  String locale = 'en_US',
+  String? currencyName, // e.g. 'EUR' (optional)
+  String? currencySymbol, // e.g. '€' (optional)
+}) {
+  // 1) Try locale/currency aware parse first
+  try {
+    final f = NumberFormat.currency(
+      locale: locale,
+      name: currencyName, // currency code
+      symbol: currencySymbol, // symbol; leave null to use locale default
+    );
+    return f.parse(s).toDouble();
+  } catch (_) {
+    // 2) Fallback: strip noise, remove group sep, normalize decimal sep
+    final dp = NumberFormat.decimalPattern(locale);
+    final dec = dp.symbols.DECIMAL_SEP; // e.g. "." or ","
+    final grp = dp.symbols.GROUP_SEP; // e.g. "," or " "
+
+    // Keep only digits, minus, decimal/group separators
+    var t = s.replaceAll(
+      RegExp(r'[^0-9\-\Q' + dec + r'\E\Q' + grp + r'\E]'),
+      '',
+    );
+
+    // Remove grouping
+    if (grp.isNotEmpty) t = t.replaceAll(grp, '');
+
+    // Normalize decimal separator to "."
+    if (dec != '.') t = t.replaceAll(dec, '.');
+
+    return double.tryParse(t) ?? 0.0;
+  }
+}
+
+// compact ISO → yyyymmddHHMM for stable keys
+String _ts(String? iso) {
+  if (iso == null || iso.isEmpty) return '';
+  final dt = DateTime.parse(iso); // your API gives ISO without TZ
+  return DateFormat('yyyyMMddHHmm').format(dt);
+}
+
+// One segment → key part: OPERATOR/FLIGHT DEP-TS->ARR-TS
+String _segKey(Segment s) {
+  final op = (s.operating?.carrierCode ?? s.carrierCode ?? '').toUpperCase();
+  final num = (s.number ?? '').trim();
+  final dep = s.departure?.iataCode ?? '';
+  final arr = s.arrival?.iataCode ?? '';
+  final depAt = _ts(s.departure?.at);
+  final arrAt = _ts(s.arrival?.at);
+  return '$op/$num $dep-$depAt->$arr-$arrAt';
+}
+
+// Whole itinerary (list of segments) → leg key
+String itineraryKey(List<Segment> segs) =>
+    (segs.isEmpty) ? '' : segs.map(_segKey).join('|');
+
+// Outbound leg key for a flight offer (itineraries[0])
+String outboundKey(FlightOffer offer) =>
+    itineraryKey(offer.itineraries?.first.segments ?? const []);

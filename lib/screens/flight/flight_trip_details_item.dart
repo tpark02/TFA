@@ -65,9 +65,12 @@ class FlightTripDetailsItem extends ConsumerWidget {
     final String metaAir =
         (flightData['air'] ?? flightData['duration'] ?? '') as String;
     final String metaStops = (flightData['stops'] ?? '') as String;
-    final int paxCount = (flightData['passengerCount'] ?? 1) as int;
+    final int passengerTotal = (flightData['passengerTotal'] ?? 0) as int;
     final String cabin = (flightData['cabinClass'] ?? '') as String;
     final String airlineName = (flightData['airline'] ?? '') as String;
+
+    final String passngerCntLabel =
+        "$passengerTotal${passengerTotal > 1 ? " travelers" : " traveler"}";
 
     // ── Build segment tiles + layovers ─────────────────────────────────────────
     final List<Widget> sectionChildren = <Widget>[
@@ -203,7 +206,7 @@ class FlightTripDetailsItem extends ConsumerWidget {
                     ),
                   ),
                 Text(
-                  '$metaAir | $metaStops | $paxCount | $cabin',
+                  '$metaAir | $metaStops | $passngerCntLabel | $cabin',
                   style: TextStyle(color: secondaryFontColor, fontSize: 12),
                 ),
               ],
