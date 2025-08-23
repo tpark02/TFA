@@ -1,25 +1,18 @@
+import 'package:TFA/providers/flight/flight_search_controller.dart';
 import 'package:TFA/widgets/counter_control.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class TravelerSelectorSheet extends StatefulWidget {
-  TravelerSelectorSheet({
-    super.key,
-    required this.adult,
-    required this.children,
-    required this.infantLap,
-    required this.infantSeat,
-    required this.cabinIdx,
-  });
-  int adult;
-  int children;
-  int infantLap;
-  int infantSeat;
-  int cabinIdx;
+class TravelerSelectorSheet extends ConsumerStatefulWidget {
+  TravelerSelectorSheet({super.key, required this.cabinIdx});
+  int cabinIdx = 0;
+
   @override
-  State<StatefulWidget> createState() => _TravelerSelectorState();
+  ConsumerState<ConsumerStatefulWidget> createState() =>
+      _TravelerSelectorState();
 }
 
-class _TravelerSelectorState extends State<TravelerSelectorSheet> {
+class _TravelerSelectorState extends ConsumerState<TravelerSelectorSheet> {
   int _selectedIndex = 0;
   // int _selectedClassIdx = 0;
   // int _adultCount = 1;
@@ -36,6 +29,11 @@ class _TravelerSelectorState extends State<TravelerSelectorSheet> {
   Widget build(BuildContext context) {
     final double height =
         MediaQuery.of(context).size.height * 0.40; // 65% of screen height
+    final FlightSearchController controller = ref.read(
+      flightSearchProvider.notifier,
+    );
+    final provider = ref.watch(flightSearchProvider);
+
     return SafeArea(
       child: Padding(
         padding: EdgeInsets.only(
@@ -129,9 +127,9 @@ class _TravelerSelectorState extends State<TravelerSelectorSheet> {
                                 child: Align(
                                   alignment: Alignment.centerRight,
                                   child: CounterControl(
-                                    count: widget.adult,
+                                    count: provider.adultCnt,
                                     onChanged: (int val) =>
-                                        setState(() => widget.adult = val),
+                                        controller.adultCnt = val,
                                   ),
                                 ),
                               ),
@@ -168,9 +166,9 @@ class _TravelerSelectorState extends State<TravelerSelectorSheet> {
                                 child: Align(
                                   alignment: Alignment.centerRight,
                                   child: CounterControl(
-                                    count: widget.children,
+                                    count: provider.childrenCnt,
                                     onChanged: (int val) =>
-                                        setState(() => widget.children = val),
+                                        controller.childrenCnt = val,
                                   ),
                                 ),
                               ),
@@ -194,9 +192,9 @@ class _TravelerSelectorState extends State<TravelerSelectorSheet> {
                                 child: Align(
                                   alignment: Alignment.centerRight,
                                   child: CounterControl(
-                                    count: widget.infantLap,
+                                    count: provider.infantLapCnt,
                                     onChanged: (int val) =>
-                                        setState(() => widget.infantLap = val),
+                                        controller.infantLapCnt = val,
                                   ),
                                 ),
                               ),
@@ -220,9 +218,9 @@ class _TravelerSelectorState extends State<TravelerSelectorSheet> {
                                 child: Align(
                                   alignment: Alignment.centerRight,
                                   child: CounterControl(
-                                    count: widget.infantSeat,
+                                    count: provider.infantSeatCnt,
                                     onChanged: (int val) =>
-                                        setState(() => widget.infantSeat = val),
+                                        controller.infantSeatCnt = val,
                                   ),
                                 ),
                               ),
@@ -391,19 +389,20 @@ class _TravelerSelectorState extends State<TravelerSelectorSheet> {
               ElevatedButton(
                 onPressed: () {
                   final int total =
-                      widget.adult +
-                      widget.children +
-                      widget.infantLap +
-                      widget.infantSeat;
+                      provider.adultCnt +
+                      provider.childrenCnt +
+                      provider.infantLapCnt +
+                      provider.infantSeatCnt;
 
-                  Navigator.pop(context, <String, int>{
-                    'passengerCount': total,
-                    'cabinIdx': widget.cabinIdx,
-                    'adult': widget.adult,
-                    'children': widget.children,
-                    'infantLap': widget.infantLap,
-                    'infantSeat': widget.infantSeat,
-                  });
+                  controller.setPassengers(
+                    count: total,
+                    cabinIndex: widget.cabinIdx,
+                    adult: provider.adultCnt,
+                    children: provider.childrenCnt,
+                    infantLap: provider.infantLapCnt,
+                    infantSeat: provider.infantSeatCnt,
+                  );
+                  Navigator.pop(context);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Theme.of(context).colorScheme.primary,

@@ -1,6 +1,7 @@
 import 'package:TFA/providers/airport/airport_lookup.dart';
 import 'package:TFA/providers/flight/flight_search_controller.dart';
 import 'package:TFA/screens/flight/flight_list_page.dart';
+import 'package:TFA/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:TFA/providers/recent_search.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -35,6 +36,7 @@ class RecentSearchItem extends ConsumerWidget {
             final DateTime rt = DateTime.parse(search.returnDate);
             controller.setTripDates(departDate: dt, returnDate: rt);
           }
+
           controller.setPassengers(
             count: search.passengerCnt,
             cabinIndex: search.cabinIdx,

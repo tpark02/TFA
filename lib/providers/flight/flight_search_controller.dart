@@ -176,35 +176,35 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
     return tp.where((e) => e['travelerType'] != 'HELD_INFANT').length;
   }
 
-  Map<String, int> paxBreakdown(Map<String, dynamic> offer) {
-    final List tp =
-        (offer['travelerPricings'] as List<dynamic>? ?? const <dynamic>[]);
-    int adults = 0, children = 0, heldInfants = 0, seatedInfants = 0;
-    for (final e in tp) {
-      switch (e['travelerType'] as String) {
-        case 'ADULT':
-          adults++;
-          break;
-        case 'CHILD':
-          children++;
-          break;
-        case 'HELD_INFANT':
-          heldInfants++;
-          break;
-        case 'SEATED_INFANT':
-          seatedInfants++;
-          break;
-      }
-    }
-    return <String, int>{
-      'adults': adults,
-      'children': children,
-      'heldInfants': heldInfants,
-      'seatedInfants': seatedInfants,
-      'total': tp.length,
-      'seatPax': adults + children + seatedInfants, // excludes HELD_INFANT
-    };
-  }
+  // Map<String, int> paxBreakdown(Map<String, dynamic> offer) {
+  //   final List tp =
+  //       (offer['travelerPricings'] as List<dynamic>? ?? const <dynamic>[]);
+  //   int adults = 0, children = 0, heldInfants = 0, seatedInfants = 0;
+  //   for (final e in tp) {
+  //     switch (e['travelerType'] as String) {
+  //       case 'ADULT':
+  //         adults++;
+  //         break;
+  //       case 'CHILD':
+  //         children++;
+  //         break;
+  //       case 'HELD_INFANT':
+  //         heldInfants++;
+  //         break;
+  //       case 'SEATED_INFANT':
+  //         seatedInfants++;
+  //         break;
+  //     }
+  //   }
+  //   return <String, int>{
+  //     'adults': adults,
+  //     'children': children,
+  //     'heldInfants': heldInfants,
+  //     'seatedInfants': seatedInfants,
+  //     'total': tp.length,
+  //     'seatPax': adults + children + seatedInfants, // excludes HELD_INFANT
+  //   };
+  // }
 
   List<Map<String, dynamic>> processFlights(
     FlightSearchOut latestFlights,
@@ -286,32 +286,15 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
           }
         }
       }
-      // 🟢 FIX: derive passenger counts from travelerPricings (seat vs total + breakdown)
-      int paxAdults = 0,
-          paxChildren = 0,
-          paxHeldInfants = 0,
-          paxSeatedInfants = 0;
-      for (final TravelerPricing tp in tps) {
-        switch ((tp.travelerType ?? '').toUpperCase()) {
-          case 'ADULT':
-            paxAdults++;
-            break;
-          case 'CHILD':
-            paxChildren++;
-            break;
-          case 'HELD_INFANT':
-            paxHeldInfants++;
-            break;
-          case 'SEATED_INFANT':
-            paxSeatedInfants++;
-            break;
-        }
-      }
-      final int passengerSeatCnt =
-          paxAdults + paxChildren + paxSeatedInfants; // excludes lap infants
-      final int passengerTotalCnt = tps.length; // includes lap infants
 
-      final int passengerCnt = passengerSeatCnt;
+      final int paxAdults = state.adultCnt;
+      final int paxChildren = state.childrenCnt;
+      final int paxHeldInfants = state.infantLapCnt;
+      final int paxSeatedInfants = state.infantSeatCnt;
+
+      final int passengerSeatCnt = paxAdults + paxChildren + paxSeatedInfants;
+      final int passengerTotalCnt =
+          paxAdults + paxChildren + paxHeldInfants + paxSeatedInfants;
 
       // Iterate itineraries
       for (int i = 0; i < itineraries.length; i++) {
@@ -518,7 +501,6 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
           'pricingMode': pricingMode,
           'isInBoundFlight': isInBoundFlight,
           'isHiddenCityFlight': isHiddenCityFlight,
-          "passengerCnt": passengerCnt,
           "passengerTotal": passengerTotalCnt, // optional: includes HELD_INFANT
           "pax": <String, int>{
             "adults": paxAdults,
@@ -688,15 +670,14 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
     required int infantLap,
     required int infantSeat,
   }) {
-    final String cabin = getCabinClassByIdx(cabinIndex: cabinIndex);
     state = state.copyWith(
       passengerCount: count,
-      cabinClass: cabin,
       adultCnt: adult,
       childrenCnt: children,
       infantLapCnt: infantLap,
       infantSeatCnt: infantSeat,
       cabinIdx: cabinIndex,
+      cabinClass: getCabinClassByIdx(cabinIndex: cabinIndex),
     );
   }
 
@@ -923,10 +904,24 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
   }
 
   int get cabinIdx => state.cabinIdx;
+  set cabinIdx(int value) {
+    state = state.copyWith(
+      cabinIdx: value,
+      cabinClass: getCabinClassByIdx(cabinIndex: value),
+    );
+  }
+
   int get adultCnt => state.adultCnt;
+  set adultCnt(int value) => state = state.copyWith(adultCnt: value);
+
   int get childrenCnt => state.childrenCnt;
+  set childrenCnt(int value) => state = state.copyWith(childrenCnt: value);
+
   int get infantLapCnt => state.infantLapCnt;
+  set infantLapCnt(int value) => state = state.copyWith(infantLapCnt: value);
+
   int get infantSeatCnt => state.infantSeatCnt;
+  set infantSeatCnt(int value) => state = state.copyWith(infantSeatCnt: value);
 
   String? get departDate => state.departDate;
   String? get returnDate => state.returnDate;

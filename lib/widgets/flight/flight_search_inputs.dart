@@ -232,32 +232,32 @@ class FlightSearchInputs extends ConsumerWidget {
                           top: Radius.circular(20),
                         ),
                       ),
-                      builder: (BuildContext ctx) => TravelerSelectorSheet(
-                        adult: controller.adultCnt,
-                        children: controller.childrenCnt,
-                        infantLap: controller.infantLapCnt,
-                        infantSeat: controller.infantSeatCnt,
-                        cabinIdx: controller.cabinIdx,
-                      ),
+                      builder: (BuildContext ctx) =>
+                          TravelerSelectorSheet(cabinIdx: flightState.cabinIdx),
                     );
 
-                    if (result != null) {
-                      final pax = result['passengerCount'] ?? 1;
-                      final cabin = result['cabinIdx'] ?? 0;
-                      final adult = result['adult'] ?? 0;
-                      final children = result['children'] ?? 0;
-                      final infantLap = result['infantLap'] ?? 0;
-                      final infantSeat = result['infantSeat'] ?? 0;
+                    // if (result != null) {
+                    //   final pax = result['passengerCount'] ?? 1;
+                    //   final cabinIdx = result['cabinIdx'] ?? 0;
+                    //   final adult = result['adult'] ?? 0;
+                    //   final children = result['children'] ?? 0;
+                    //   final infantLap = result['infantLap'] ?? 0;
+                    //   final infantSeat = result['infantSeat'] ?? 0;
 
-                      controller.setPassengers(
-                        count: pax,
-                        cabinIndex: cabin,
-                        adult: adult,
-                        children: children,
-                        infantLap: infantLap,
-                        infantSeat: infantSeat,
-                      );
-                    }
+                    //   final String cabinClass = getCabinClassByIdx(
+                    //     cabinIndex: cabinIdx,
+                    //   );
+
+                    //   controller.setPassengers(
+                    //     count: pax,
+                    //     cabinIndex: cabinIdx,
+                    //     adult: adult,
+                    //     children: children,
+                    //     infantLap: infantLap,
+                    //     infantSeat: infantSeat,
+                    //     cabinClass: cabinClass,
+                    //   );
+                    // }
                   },
                   style: outlinedButtonStyle(context),
                   child: Row(

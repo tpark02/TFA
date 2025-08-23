@@ -124,7 +124,7 @@ class FlightSearchState {
     this.searchNonce = 0,
     this.hiddenAirporCodeList = const <String>[],
     this.isSearchConfirmed = false,
-    this.adultCnt = 0,
+    this.adultCnt = 1,
     this.childrenCnt = 0,
     this.infantLapCnt = 0,
     this.infantSeatCnt = 0,
