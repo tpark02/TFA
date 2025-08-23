@@ -134,7 +134,7 @@ class FlightTripDetailsItem extends ConsumerWidget {
 
     // ── UI ─────────────────────────────────────────────────────────────────────
     return Container(
-      decoration: BoxDecoration(color: Colors.transparent),
+      decoration: const BoxDecoration(color: Colors.transparent),
 
       padding: const EdgeInsets.fromLTRB(0, 16, 0, 16),
       child: Column(

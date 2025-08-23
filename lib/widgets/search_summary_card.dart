@@ -143,7 +143,7 @@ class SearchSummaryCard extends ConsumerWidget {
             children: <Widget>[
               TextButton(
                 onPressed: () async {
-                  final result =
+                  final Map<String, DateTime?>? result =
                       await Navigator.of(
                         context,
                         rootNavigator: true,
@@ -180,8 +180,8 @@ class SearchSummaryCard extends ConsumerWidget {
                   // );
 
                   if (result != null) {
-                    final departDate = result['departDate'];
-                    final returnDate = result['returnDate'];
+                    final DateTime? departDate = result['departDate'];
+                    final DateTime? returnDate = result['returnDate'];
 
                     controller.setTripDates(
                       departDate: departDate!,

@@ -113,8 +113,8 @@ class HotelSearchController extends StateNotifier<HotelSearchState> {
     required DateTime departDate, // non-null
     DateTime? returnDate, // nullable for one-way
   }) {
-    final iso = DateFormat('yyyy-MM-dd');
-    final pretty = DateFormat('MMM d');
+    final DateFormat iso = DateFormat('yyyy-MM-dd');
+    final DateFormat pretty = DateFormat('MMM d');
 
     final String dIso = iso.format(departDate);
     final String? rIso = (returnDate == null) ? null : iso.format(returnDate);

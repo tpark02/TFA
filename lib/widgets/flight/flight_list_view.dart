@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:TFA/providers/flight/flight_search_controller.dart';
 import 'package:TFA/providers/flight/flight_search_state.dart';
 import 'package:TFA/screens/flight/flight_trip_details_page.dart';
@@ -42,7 +40,7 @@ class _FlightListViewState extends ConsumerState<FlightListView>
   late Animation<Offset> _returnSlideAnimation;
   late Map<String, dynamic> _departData;
   Map<String, dynamic>? _returnData;
-
+  List<FlightListViewItem> returnFlightWidgets = [];
   // Call this instead of Navigator.of(...).push(...)
   void openTripDetails({
     required BuildContext context,
@@ -215,7 +213,8 @@ class _FlightListViewState extends ConsumerState<FlightListView>
     final List<Map<String, dynamic>> departureFlights = sortedAllFlights
         .where(
           (Map<String, dynamic> f) =>
-              f['isReturn'] == false && f['isInBoundFlight'] == false,
+              (f['pricingMode'] == 'combined' && f['isReturn'] == false) ||
+              (f['pricingMode'] == 'perleg' && f['isInBoundFlight'] == false),
         )
         .toList();
     // final List<Map<String, dynamic>> returnFlights =
@@ -249,25 +248,21 @@ class _FlightListViewState extends ConsumerState<FlightListView>
         ? selectedDepartureIndex
         : null;
 
-    final List<FlightListViewItem> returnFlightWidgets =
-        List<FlightListViewItem>.generate(
-          returnFlights.length,
-          (int i) => FlightListViewItem(
-            onClick: () async {
-              debugPrint("👍 returnFlightWidgets clicked");
-              _returnData = returnFlights[i];
-              openTripDetails(context: context, isReturnPage: true);
-            },
-            index: i,
-            flight: returnFlights[i],
-            hasReturnFlights: hasReturnFlights,
-          ),
-        );
+    returnFlightWidgets = List<FlightListViewItem>.generate(
+      returnFlights.length,
+      (int i) => FlightListViewItem(
+        onClick: () async {
+          debugPrint("👍 returnFlightWidgets clicked");
+          _returnData = returnFlights[i];
+          openTripDetails(context: context, isReturnPage: true);
+        },
+        index: i,
+        flight: returnFlights[i],
+        hasReturnFlights: hasReturnFlights,
+      ),
+    );
 
-    // if (allInBoundFlights != null && allInBoundFlights.isNotEmpty) {
-    //   debugPrint("🔴 all inbound flight empty ? ${allInBoundFlights.length}");
-    // }
-    debugPrint("🟠 return flight empty ? ${returnFlights.length}");
+    debugPrint("🔴 returnFlightWidgets length : ${returnFlightWidgets.length}");
 
     final List<Widget> departureFlightWidgets =
         List<FlightListViewItem>.generate(
@@ -276,7 +271,7 @@ class _FlightListViewState extends ConsumerState<FlightListView>
             onClick: returnFlightWidgets.isNotEmpty
                 ? () {
                     debugPrint(
-                      '☑️ departureFlightWidgets - round trip flight clicked'
+                      '👍 departureFlightWidgets - round trip flight clicked'
                       ' -> must choose return flight',
                     );
                     _departData = departureFlights[i];
@@ -428,13 +423,7 @@ class _FlightListViewState extends ConsumerState<FlightListView>
                             : ListView(
                                 key: const ValueKey('return-list'),
                                 controller: _returnScrollController,
-                                children: returnFlightWidgets
-                                    .where(
-                                      (FlightListViewItem f) =>
-                                          f.flight['pricingMode'] ==
-                                          _departData['pricingMode'],
-                                    )
-                                    .toList(),
+                                children: filterReturnFlightWidgets(),
                               ),
                       ),
                     ),
@@ -446,5 +435,34 @@ class _FlightListViewState extends ConsumerState<FlightListView>
         ],
       ],
     );
+  }
+
+  List<Widget> filterReturnFlightWidgets() {
+    String mode = _departData['pricingMode'] as String;
+
+    if (mode == 'perleg') {
+      return returnFlightWidgets
+          .where((FlightListViewItem f) => f.flight['pricingMode'] == 'perleg')
+          .toList();
+    }
+
+    debugPrint("💕 depart flight number :${_departData['myFlightNumber']}");
+    int cnt = 0;
+    for (final f in returnFlightWidgets) {
+      if (f.flight['pricingMode'] == 'combined') cnt++;
+
+      if ((f.flight['pricingMode'] == 'combined') &&
+          f.flight['parentFlightNumber'] == _departData['myFlightNumber']) {
+        debugPrint("📍 child flight number : ${f.flight["myFlightNumber"]}");
+      }
+    }
+    debugPrint("😉 return flight count : $cnt");
+    return returnFlightWidgets
+        .where(
+          (FlightListViewItem f) =>
+              (f.flight['pricingMode'] == 'combined') &&
+              f.flight['parentFlightNumber'] == _departData['myFlightNumber'],
+        )
+        .toList();
   }
 }

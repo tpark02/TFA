@@ -181,7 +181,7 @@ class FlightSearchInputs extends ConsumerWidget {
                 flex: 5,
                 child: OutlinedButton(
                   onPressed: () async {
-                    final result = await showCalender(
+                    final Map<String, DateTime?>? result = await showCalender(
                       context,
                       ref,
                       'One way',
@@ -192,8 +192,8 @@ class FlightSearchInputs extends ConsumerWidget {
                       0,
                     );
                     if (result != null) {
-                      final departDate = result['departDate'];
-                      final returnDate = result['returnDate'];
+                      final DateTime? departDate = result['departDate'];
+                      final DateTime? returnDate = result['returnDate'];
 
                       controller.setTripDates(
                         departDate: departDate!,

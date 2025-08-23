@@ -70,15 +70,15 @@ class CarSearchController extends StateNotifier<CarSearchState> {
     required DateTime departDate, // non-null
     DateTime? returnDate, // nullable for one-way
   }) {
-    final iso = DateFormat('yyyy-MM-dd');
-    final pretty = DateFormat('MMM d');
+    final DateFormat iso = DateFormat('yyyy-MM-dd');
+    final DateFormat pretty = DateFormat('MMM d');
 
     final String dIso = iso.format(departDate);
     final String? rIso = (returnDate == null) ? null : iso.format(returnDate);
 
-    final displayDt = pretty.format(departDate);
+    final String displayDt = pretty.format(departDate);
 
-    final displayRt = (returnDate != null) ? pretty.format(returnDate) : '';
+    final String displayRt = (returnDate != null) ? pretty.format(returnDate) : '';
 
     if (state.departDate == dIso &&
         state.returnDate == rIso &&

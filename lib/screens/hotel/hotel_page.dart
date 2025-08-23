@@ -169,7 +169,7 @@ class _HotelPageState extends ConsumerState<HotelPage> {
                   flex: 6,
                   child: OutlinedButton(
                     onPressed: () async {
-                      final result = await showCalender(
+                      final Map<String, DateTime?>? result = await showCalender(
                         context,
                         ref,
                         '',
@@ -180,8 +180,8 @@ class _HotelPageState extends ConsumerState<HotelPage> {
                         endDays,
                       );
                       if (result != null) {
-                        final departDate = result['departDate'];
-                        final returnDate = result['returnDate'];
+                        final DateTime? departDate = result['departDate'];
+                        final DateTime? returnDate = result['returnDate'];
 
                         controller.setTripDates(
                           departDate: departDate!,

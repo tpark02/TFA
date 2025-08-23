@@ -1,3 +1,4 @@
+import 'package:TFA/screens/flight/flight_book_complete_page.dart';
 import 'package:TFA/screens/flight/flight_trip_details_item.dart';
 import 'package:TFA/utils/utils.dart';
 import 'package:TFA/widgets/dotted_divider.dart';
@@ -28,7 +29,7 @@ class FlightTripDetailsPage extends ConsumerWidget {
     final int children = departData['pax']['children'] as int;
     final int infantsHeld = departData['pax']['infantsHeld'] as int;
     final int infantsSeated = departData['pax']['infantsSeated'] as int;
-    final lst = <String>[];
+    final List<String> lst = <String>[];
 
     if (adults > 0) lst.add('$adults ${pluralize('adult', adults)}');
     if (children > 0) {
@@ -44,7 +45,7 @@ class FlightTripDetailsPage extends ConsumerWidget {
     }
 
     String passengerLabel = "";
-    for (final s in lst) {
+    for (final String s in lst) {
       passengerLabel += '$s | ';
     }
 
@@ -52,18 +53,21 @@ class FlightTripDetailsPage extends ConsumerWidget {
 
     final String currency = (departData['price'] as String).substring(0, 1);
 
-    final dtp = parseCurrencyString(
+    final double dtp = parseCurrencyString(
       departData['price'],
       currencySymbol: currency,
     );
-    final rtp = returnData != null
+    final num rtp = returnData != null
         ? parseCurrencyString(returnData!['price'], currencySymbol: currency)
         : 0;
 
-    final p = dtp + rtp;
+    final double p = dtp + rtp;
 
-    final fmt = NumberFormat.currency(symbol: currency, decimalDigits: 2);
-    final ticketTotalPrice = fmt.format(p); // "€238.04"
+    final NumberFormat fmt = NumberFormat.currency(
+      symbol: currency,
+      decimalDigits: 2,
+    );
+    final String ticketTotalPrice = fmt.format(p); // "€238.04"
 
     return Scaffold(
       backgroundColor: appBackgroundColor,
@@ -152,7 +156,13 @@ class FlightTripDetailsPage extends ConsumerWidget {
                           ),
                           elevation: 0,
                         ),
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => const FlightBookCompletePage(),
+                            ),
+                          );
+                        },
                         child: Text(
                           'Book Now',
                           style: TextStyle(

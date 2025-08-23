@@ -275,7 +275,7 @@ String getTravelClassByIdx({required int cabinIndex}) {
   return cabin;
 }
 
-const Map<String, String> cabinMap = {
+const Map<String, String> cabinMap = <String, String>{
   'PREMIUM_ECONOMY': 'Premium Economy',
   'ECONOMY': 'Economy',
   'BUSINESS': 'Business',
@@ -293,7 +293,7 @@ double parseCurrencyString(
 }) {
   // 1) Try locale/currency aware parse first
   try {
-    final f = NumberFormat.currency(
+    final NumberFormat f = NumberFormat.currency(
       locale: locale,
       name: currencyName, // currency code
       symbol: currencySymbol, // symbol; leave null to use locale default
@@ -301,12 +301,12 @@ double parseCurrencyString(
     return f.parse(s).toDouble();
   } catch (_) {
     // 2) Fallback: strip noise, remove group sep, normalize decimal sep
-    final dp = NumberFormat.decimalPattern(locale);
-    final dec = dp.symbols.DECIMAL_SEP; // e.g. "." or ","
-    final grp = dp.symbols.GROUP_SEP; // e.g. "," or " "
+    final NumberFormat dp = NumberFormat.decimalPattern(locale);
+    final String dec = dp.symbols.DECIMAL_SEP; // e.g. "." or ","
+    final String grp = dp.symbols.GROUP_SEP; // e.g. "," or " "
 
     // Keep only digits, minus, decimal/group separators
-    var t = s.replaceAll(
+    String t = s.replaceAll(
       RegExp(r'[^0-9\-\Q' + dec + r'\E\Q' + grp + r'\E]'),
       '',
     );
@@ -324,18 +324,18 @@ double parseCurrencyString(
 // compact ISO → yyyymmddHHMM for stable keys
 String _ts(String? iso) {
   if (iso == null || iso.isEmpty) return '';
-  final dt = DateTime.parse(iso); // your API gives ISO without TZ
+  final DateTime dt = DateTime.parse(iso); // your API gives ISO without TZ
   return DateFormat('yyyyMMddHHmm').format(dt);
 }
 
 // One segment → key part: OPERATOR/FLIGHT DEP-TS->ARR-TS
 String _segKey(Segment s) {
-  final op = (s.operating?.carrierCode ?? s.carrierCode ?? '').toUpperCase();
-  final num = (s.number ?? '').trim();
-  final dep = s.departure?.iataCode ?? '';
-  final arr = s.arrival?.iataCode ?? '';
-  final depAt = _ts(s.departure?.at);
-  final arrAt = _ts(s.arrival?.at);
+  final String op = (s.operating?.carrierCode ?? s.carrierCode ?? '').toUpperCase();
+  final String num = (s.number ?? '').trim();
+  final String dep = s.departure?.iataCode ?? '';
+  final String arr = s.arrival?.iataCode ?? '';
+  final String depAt = _ts(s.departure?.at);
+  final String arrAt = _ts(s.arrival?.at);
   return '$op/$num $dep-$depAt->$arr-$arrAt';
 }
 
@@ -345,4 +345,4 @@ String itineraryKey(List<Segment> segs) =>
 
 // Outbound leg key for a flight offer (itineraries[0])
 String outboundKey(FlightOffer offer) =>
-    itineraryKey(offer.itineraries?.first.segments ?? const []);
+    itineraryKey(offer.itineraries?.first.segments ?? const <Segment>[]);

@@ -549,11 +549,11 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
 
   bool _paramsReady(FlightSearchState s) {
     // 🟢 treat null/"" return as one-way
-    final hasDep = s.departureAirportCode.isNotEmpty;
-    final hasArr = s.arrivalAirportCode.isNotEmpty;
-    final hasOut = _normStr(s.departDate).isNotEmpty;
-    final hasRet = _normStr(s.returnDate).isNotEmpty;
-    final isOneWay = !hasRet;
+    final bool hasDep = s.departureAirportCode.isNotEmpty;
+    final bool hasArr = s.arrivalAirportCode.isNotEmpty;
+    final bool hasOut = _normStr(s.departDate).isNotEmpty;
+    final bool hasRet = _normStr(s.returnDate).isNotEmpty;
+    final bool isOneWay = !hasRet;
     return hasDep && hasArr && hasOut && (isOneWay || hasRet);
   }
 
@@ -563,15 +563,15 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
     _searchDebounce = Timer(const Duration(milliseconds: 150), () {
       if (!mounted) return;
 
-      final s = ref.read(flightSearchProvider); // 🟢 read fresh state
+      final FlightSearchState s = ref.read(flightSearchProvider); // 🟢 read fresh state
       if (!_paramsReady(s)) return;
 
       // 🟢 recompute signature at fire time and dedupe here
-      final sigNow = _buildSig(s);
+      final String sigNow = _buildSig(s);
       if (_lastParamsSig == sigNow) return;
       _lastParamsSig = sigNow;
 
-      final next = (
+      final (String, String, String?, String?, int) next = (
         s.departureAirportCode,
         s.arrivalAirportCode,
         _normStr(s.departDate).isEmpty ? null : s.departDate,
@@ -657,7 +657,7 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
         }
 
         // 🟢 detect any param change (dep/arr/out/ret/pax) and debounce
-        final sig = _buildSig(next);
+        final String sig = _buildSig(next);
         if (_lastParamsSig == sig) return; // same values → ignore
         // ⚠️ do NOT set _lastParamsSig here; set it inside _scheduleSearchLatest()
         _scheduleSearchLatest();

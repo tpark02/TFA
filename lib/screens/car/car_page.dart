@@ -280,7 +280,7 @@ class _CarPageState extends ConsumerState<CarPage> {
                   flex: 6,
                   child: OutlinedButton(
                     onPressed: () async {
-                      final result = await showCalender(
+                      final Map<String, DateTime?>? result = await showCalender(
                         context,
                         ref,
                         '',
@@ -291,7 +291,7 @@ class _CarPageState extends ConsumerState<CarPage> {
                         endDays,
                       );
                       if (result != null) {
-                        final departDate = result['departDate'];
+                        final DateTime? departDate = result['departDate'];
                         controller.setDepartDate(departDate);
                       }
                     },
@@ -370,7 +370,7 @@ class _CarPageState extends ConsumerState<CarPage> {
                   flex: 6,
                   child: OutlinedButton(
                     onPressed: () async {
-                      final result = await showCalender(
+                      final Map<String, DateTime?>? result = await showCalender(
                         context,
                         ref,
                         '',
@@ -382,7 +382,7 @@ class _CarPageState extends ConsumerState<CarPage> {
                       );
 
                       if (result != null) {
-                        final returnDate = result['departDate'];
+                        final DateTime? returnDate = result['departDate'];
                         controller.setReturnDate(returnDate);
                       }
                     },

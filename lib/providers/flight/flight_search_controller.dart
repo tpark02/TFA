@@ -165,17 +165,20 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
 
   // 🟢 Helpers for an Amadeus flight-offer Map<String, dynamic>
   int totalTravelers(Map<String, dynamic> offer) {
-    final tp = offer['travelerPricings'] as List<dynamic>? ?? const [];
+    final List tp =
+        offer['travelerPricings'] as List<dynamic>? ?? const <dynamic>[];
     return tp.length;
   }
 
   int seatOccupyingPax(Map<String, dynamic> offer) {
-    final tp = (offer['travelerPricings'] as List<dynamic>? ?? const []);
+    final List tp =
+        (offer['travelerPricings'] as List<dynamic>? ?? const <dynamic>[]);
     return tp.where((e) => e['travelerType'] != 'HELD_INFANT').length;
   }
 
   Map<String, int> paxBreakdown(Map<String, dynamic> offer) {
-    final tp = (offer['travelerPricings'] as List<dynamic>? ?? const []);
+    final List tp =
+        (offer['travelerPricings'] as List<dynamic>? ?? const <dynamic>[]);
     int adults = 0, children = 0, heldInfants = 0, seatedInfants = 0;
     for (final e in tp) {
       switch (e['travelerType'] as String) {
@@ -193,7 +196,7 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
           break;
       }
     }
-    return {
+    return <String, int>{
       'adults': adults,
       'children': children,
       'heldInfants': heldInfants,
@@ -210,8 +213,6 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
     required bool isHiddenCityFlight,
   }) {
     final List<Map<String, dynamic>> results = <Map<String, dynamic>>[];
-    final Set<String> seenOutbounds = <String>{};
-    final Set<String> seenInbounds = <String>{};
 
     // Typed access
     final List<FlightOffer> offers = latestFlights.data!;
@@ -225,7 +226,8 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
 
     // Useful lookups
     final Map<String, String> aircraftDict = dict.aircraft!;
-    final Set<String> seenLegKeys = <String>{};
+    final Set<String> departFlightNumbers = <String>{};
+    String parentFlightNumber = "";
 
     for (final FlightOffer offer in offers) {
       final List<Itinerary> itineraries = offer.itineraries ?? <Itinerary>[];
@@ -289,7 +291,7 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
           paxChildren = 0,
           paxHeldInfants = 0,
           paxSeatedInfants = 0;
-      for (final tp in tps) {
+      for (final TravelerPricing tp in tps) {
         switch ((tp.travelerType ?? '').toUpperCase()) {
           case 'ADULT':
             paxAdults++;
@@ -320,8 +322,22 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
 
         if (segments.isEmpty) continue;
 
-        final String legKey = itineraryKey(segments); // uses all segments
-        if (!seenLegKeys.add(legKey)) continue; // ⬅️ skip duplicates
+        // final String legKey = itineraryKey(segments); // uses all segments
+        // if (!seenLegKeys.add(legKey)) continue; // ⬅️ skip duplicates
+
+        String myFlightNumber = "";
+        final n = (segments[0].number ?? "");
+        final f = segments[0].carrierCode ?? "";
+
+        if (n != "" && f != "") myFlightNumber = f + n;
+
+        if (i == 0) {
+          if (departFlightNumbers.contains(myFlightNumber)) continue;
+          departFlightNumbers.add(myFlightNumber);
+          parentFlightNumber = myFlightNumber;
+        }
+
+        // if (!seenLegKeys.add(parentFlightNumber)) continue;
 
         // Primary marketing info (first segment)
         final Segment firstSeg = segments.first;
@@ -407,7 +423,8 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
           final String segId = (s.id ?? '').toString();
           final String? acCode = s.aircraft?.code;
           final String? operatingCode = s.operating?.carrierCode;
-          final flightNumber = '${s.carrierCode ?? ''} ${s.number ?? ''}';
+          final String flightNumber =
+              '${s.carrierCode ?? ''} ${s.number ?? ''}';
 
           // if (s.carrierCode != null) {
           //   debugPrint("✈️ carrier code : ${s.carrierCode}");
@@ -451,6 +468,10 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
             ? 'combined'
             : 'perleg';
 
+        debugPrint("‼️ itinerry len : ${itineraries.length}");
+        debugPrint("‼️ $i");
+        debugPrint("‼️ my flight number : $myFlightNumber");
+        debugPrint("‼️ parent flight number : $parentFlightNumber");
         results.add(<String, dynamic>{
           // summary
           'depAirport': depAirport,
@@ -499,7 +520,7 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
           'isHiddenCityFlight': isHiddenCityFlight,
           "passengerCnt": passengerCnt,
           "passengerTotal": passengerTotalCnt, // optional: includes HELD_INFANT
-          "pax": {
+          "pax": <String, int>{
             "adults": paxAdults,
             "children": paxChildren,
             "infantsHeld": paxHeldInfants,
@@ -507,6 +528,8 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
             "seatPax": passengerSeatCnt,
             "total": passengerTotalCnt,
           },
+          'parentFlightNumber': parentFlightNumber,
+          'myFlightNumber': myFlightNumber,
           // 'isSelfTransfer': airlinesCnt.length > 1 ? true : false,
         });
       }
@@ -571,8 +594,8 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
     required DateTime departDate, // non-null
     DateTime? returnDate, // nullable for one-way
   }) {
-    final iso = DateFormat('yyyy-MM-dd');
-    final pretty = DateFormat('MMM d');
+    final DateFormat iso = DateFormat('yyyy-MM-dd');
+    final DateFormat pretty = DateFormat('MMM d');
 
     final String dIso = iso.format(departDate);
     final String? rIso = (returnDate == null) ? null : iso.format(returnDate);
@@ -665,7 +688,7 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
     required int infantLap,
     required int infantSeat,
   }) {
-    String cabin = getCabinClassByIdx(cabinIndex: cabinIndex);
+    final String cabin = getCabinClassByIdx(cabinIndex: cabinIndex);
     state = state.copyWith(
       passengerCount: count,
       cabinClass: cabin,
@@ -699,14 +722,14 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
 
       for (final Map<String, dynamic> r in results) {
         // passenger cnt
-        final passengerCnt = r['passenger_cnt'] as int;
-        final adult = r['adult'] as int;
-        final children = r['children'] as int;
-        final infantLap = r['infant_lap'] as int;
-        final infantSeat = r['infant_seat'] as int;
+        final int passengerCnt = r['passenger_cnt'] as int;
+        final int adult = r['adult'] as int;
+        final int children = r['children'] as int;
+        final int infantLap = r['infant_lap'] as int;
+        final int infantSeat = r['infant_seat'] as int;
 
         // cabin idx
-        final cabinIdx = r['cabin_idx'] as int;
+        final int cabinIdx = r['cabin_idx'] as int;
 
         // parse strings
         final String? depStr = r['depart_date']?.toString();
@@ -839,32 +862,32 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
           infants: state.infantLapCnt + state.infantSeatCnt,
           travelClass: getTravelClassByIdx(cabinIndex: state.cabinIdx),
         ),
-        () => searchHiddenFlights(
-          origin: state.departureAirportCode,
-          destination: state.arrivalAirportCode,
-          departureDate: state.departDate,
-          returnDate: null,
-          isInboundFlight: false,
-          mode: PricingMode.perLeg,
-          candidates: state.hiddenAirporCodeList,
-          adults: state.adultCnt,
-          children: state.childrenCnt,
-          infants: state.infantLapCnt + state.infantSeatCnt,
-          travelClass: getTravelClassByIdx(cabinIndex: state.cabinIdx),
-        ),
-        () => searchHiddenFlights(
-          origin: state.arrivalAirportCode,
-          destination: state.departureAirportCode,
-          departureDate: state.returnDate!,
-          returnDate: null,
-          isInboundFlight: true,
-          mode: PricingMode.perLeg,
-          candidates: state.hiddenAirporCodeList,
-          adults: state.adultCnt,
-          children: state.childrenCnt,
-          infants: state.infantLapCnt + state.infantSeatCnt,
-          travelClass: getTravelClassByIdx(cabinIndex: state.cabinIdx),
-        ),
+
+        // () => searchHiddenFlights(
+        //   origin: state.departureAirportCode,
+        //   destination: state.arrivalAirportCode,
+        //   departureDate: state.departDate,
+        //   returnDate: null,
+        //   isInboundFlight: false,
+        //   mode: PricingMode.perLeg,
+        //   candidates: state.hiddenAirporCodeList,
+        //   adults: state.adultCnt,
+        //   children: state.childrenCnt,
+        //   infants: state.infantLapCnt + state.infantSeatCnt,
+        //   travelClass: getTravelClassByIdx(cabinIndex: state.cabinIdx),
+        // ),
+        // () => searchHiddenFlights(
+        //   origin: state.arrivalAirportCode,
+        //   destination: state.departureAirportCode,
+        //   departureDate: state.returnDate!,
+        //   returnDate: null,
+        //   isInboundFlight: true,
+        //   mode: PricingMode.perLeg,
+        //   candidates: state.hiddenAirporCodeList,
+        //   adults: state.adultCnt,
+        //   children: state.childrenCnt,
+        //   infants: state.infantLapCnt + state.infantSeatCnt,
+        //   travelClass: getTravelClassByIdx(cabinIndex: state.cabinIdx),
       ];
     } else {
       debugPrint("✈️ One-way");
@@ -882,19 +905,19 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
           infants: state.infantLapCnt + state.infantSeatCnt,
           travelClass: getTravelClassByIdx(cabinIndex: state.cabinIdx),
         ),
-        () => searchHiddenFlights(
-          origin: state.departureAirportCode,
-          destination: state.arrivalAirportCode,
-          departureDate: state.departDate,
-          returnDate: null,
-          isInboundFlight: false,
-          mode: PricingMode.perLeg,
-          candidates: state.hiddenAirporCodeList,
-          adults: state.adultCnt,
-          children: state.childrenCnt,
-          infants: state.infantLapCnt + state.infantSeatCnt,
-          travelClass: getTravelClassByIdx(cabinIndex: state.cabinIdx),
-        ),
+        // () => searchHiddenFlights(
+        //   origin: state.departureAirportCode,
+        //   destination: state.arrivalAirportCode,
+        //   departureDate: state.departDate,
+        //   returnDate: null,
+        //   isInboundFlight: false,
+        //   mode: PricingMode.perLeg,
+        //   candidates: state.hiddenAirporCodeList,
+        //   adults: state.adultCnt,
+        //   children: state.childrenCnt,
+        //   infants: state.infantLapCnt + state.infantSeatCnt,
+        //   travelClass: getTravelClassByIdx(cabinIndex: state.cabinIdx),
+        // ),
       ];
     }
   }

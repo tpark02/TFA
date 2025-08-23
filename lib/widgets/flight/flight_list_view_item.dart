@@ -193,7 +193,7 @@ class FlightListViewItem extends ConsumerWidget {
         : <String>[];
     final double? fs = headlineMedium;
 
-    Color textColor = Theme.of(context).colorScheme.primary;
+    final Color textColor = Theme.of(context).colorScheme.primary;
     Color labelColor = Colors.transparent;
     Color frontLabelColor = Colors.transparent;
     String label = "";
@@ -208,7 +208,7 @@ class FlightListViewItem extends ConsumerWidget {
       frontLabelColor = Theme.of(context).colorScheme.primary;
     }
 
-    bool isSeperateTicket = flight['pricingMode'] == 'perleg' ? true : false;
+    final bool isSeperateTicket = flight['pricingMode'] == 'perleg' ? true : false;
 
     return Material(
       color: flight['pricingMode'] == 'perleg'
@@ -217,7 +217,7 @@ class FlightListViewItem extends ConsumerWidget {
                 : Colors.red
           : Colors.blue,
       child: Column(
-        children: [
+        children: <Widget>[
           Container(
             decoration: BoxDecoration(
               color: Colors.white,
@@ -227,8 +227,8 @@ class FlightListViewItem extends ConsumerWidget {
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (isSeperateTicket) ...[
+              children: <Widget>[
+                if (isSeperateTicket) ...<Widget>[
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 8,
