@@ -2,6 +2,7 @@ import 'package:TFA/models/airport.dart';
 import 'package:TFA/providers/airport/airport_selection.dart';
 import 'package:TFA/providers/airport/airport_provider.dart';
 import 'package:TFA/providers/flight/flight_search_controller.dart';
+// import 'package:TFA/screens/flight/anywhere_list_page.dart';
 import 'package:TFA/services/airport_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -116,6 +117,124 @@ class _AirportSheetState extends ConsumerState<SearchAirportSheet> {
     );
   }
 
+  Widget buildAirportListItems(final List filteredAirports, int index) {
+    final controller = ref.read(airportSearchQueryProvider.notifier);
+    final Airport airport = filteredAirports[index] as Airport;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Row(
+        children: <Widget>[
+          const Icon(Icons.local_airport),
+          const SizedBox(width: 8),
+          Expanded(
+            child: TextButton(
+              onPressed: _isFetchingHidden
+                  ? null
+                  : () async {
+                      debugPrint("✅ Selected: ${airport.iataCode}");
+                      setState(() {
+                        _selectedIataCode = airport.iataCode;
+                        _isFetchingHidden = true;
+                      });
+
+                      final String selected = airport.iataCode;
+
+                      try {
+                        bool ok = true;
+                        if (widget.isDeparture == false) {
+                          ok = await fetchHiddenAirports(iata: selected);
+                        }
+
+                        if (!mounted) return;
+
+                        if (widget.isDeparture || ok) {
+                          Navigator.pop(
+                            context,
+                            AirportSelection(
+                              name: airport.airportName,
+                              code: selected,
+                              city: airport.city,
+                            ),
+                          );
+                        }
+                      } finally {
+                        if (mounted) {
+                          setState(() {
+                            _isFetchingHidden = false;
+                            ref.invalidate(airportSearchQueryProvider);
+                          });
+                        }
+                      }
+                    },
+              style: TextButton.styleFrom(
+                padding: EdgeInsets.zero,
+                alignment: Alignment.centerLeft,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Flexible(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text(
+                          airport.airportName,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: Theme.of(
+                              context,
+                            ).textTheme.headlineMedium?.fontSize,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          '${airport.city}, ${airport.country}',
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      Text(
+                        airport.iataCode,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: Theme.of(
+                            context,
+                          ).textTheme.bodyMedium?.fontSize,
+                          color: const Color.fromRGBO(48, 48, 48, 1),
+                        ),
+                      ),
+                      if (_isFetchingHidden &&
+                          _selectedIataCode == airport.iataCode)
+                        const Padding(
+                          padding: EdgeInsets.only(left: 8),
+                          child: SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
+                        ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // @override
+  // void dispose() {
+  //   // _confettiController.dispose();
+  //   super.dispose();
+  //   filteredai
+  // }
+
   @override
   Widget build(BuildContext context) {
     final double height = MediaQuery.of(context).size.height * 0.7;
@@ -210,135 +329,18 @@ class _AirportSheetState extends ConsumerState<SearchAirportSheet> {
                     const SizedBox(height: 20),
                     Expanded(
                       child: ListView.builder(
-                        itemCount: filteredAirports.length,
+                        itemCount: filteredAirports.isNotEmpty
+                            ? filteredAirports.length
+                            : 1,
                         itemBuilder: (BuildContext context, int index) {
-                          final Airport airport = filteredAirports[index] as Airport;
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 10),
-                            child: Row(
-                              children: <Widget>[
-                                const Icon(Icons.local_airport),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: TextButton(
-                                    onPressed: _isFetchingHidden
-                                        ? null
-                                        : () async {
-                                            debugPrint(
-                                              "Selected: ${airport.iataCode}",
-                                            );
-                                            setState(() {
-                                              _selectedIataCode =
-                                                  airport.iataCode;
-                                              _isFetchingHidden = true;
-                                            });
-
-                                            final String selected =
-                                                airport.iataCode;
-
-                                            try {
-                                              bool ok = true;
-                                              if (widget.isDeparture == false) {
-                                                ok = await fetchHiddenAirports(
-                                                  iata: selected,
-                                                );
-                                              }
-
-                                              if (!mounted) return;
-
-                                              if (widget.isDeparture || ok) {
-                                                Navigator.pop(
-                                                  context,
-                                                  AirportSelection(
-                                                    name: airport.airportName,
-                                                    code: selected,
-                                                    city: airport.city,
-                                                  ),
-                                                );
-                                              }
-                                            } finally {
-                                              if (mounted) {
-                                                setState(() {
-                                                  _isFetchingHidden = false;
-                                                });
-                                              }
-                                            }
-                                          },
-                                    style: TextButton.styleFrom(
-                                      padding: EdgeInsets.zero,
-                                      alignment: Alignment.centerLeft,
-                                    ),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: <Widget>[
-                                        Flexible(
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: <Widget>[
-                                              Text(
-                                                airport.airportName,
-                                                overflow: TextOverflow.ellipsis,
-                                                style: TextStyle(
-                                                  fontSize: Theme.of(context)
-                                                      .textTheme
-                                                      .headlineMedium
-                                                      ?.fontSize,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
-                                              Text(
-                                                '${airport.city}, ${airport.country}',
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: <Widget>[
-                                            Text(
-                                              airport.iataCode,
-                                              overflow: TextOverflow.ellipsis,
-                                              style: TextStyle(
-                                                fontSize: Theme.of(context)
-                                                    .textTheme
-                                                    .bodyMedium
-                                                    ?.fontSize,
-                                                color: const Color.fromRGBO(
-                                                  48,
-                                                  48,
-                                                  48,
-                                                  1,
-                                                ),
-                                              ),
-                                            ),
-                                            if (_isFetchingHidden &&
-                                                _selectedIataCode ==
-                                                    airport.iataCode)
-                                              const Padding(
-                                                padding: EdgeInsets.only(
-                                                  left: 8,
-                                                ),
-                                                child: SizedBox(
-                                                  width: 16,
-                                                  height: 16,
-                                                  child:
-                                                      CircularProgressIndicator(
-                                                        strokeWidth: 2,
-                                                      ),
-                                                ),
-                                              ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
+                          if (filteredAirports.isEmpty) {
+                            return const AnyWhereButton();
+                          } else {
+                            return buildAirportListItems(
+                              filteredAirports,
+                              index,
+                            );
+                          }
                         },
                       ),
                     ),
@@ -353,6 +355,73 @@ class _AirportSheetState extends ConsumerState<SearchAirportSheet> {
                 right: 0,
                 child: LinearProgressIndicator(minHeight: 2),
               ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class AnyWhereButton extends ConsumerWidget {
+  const AnyWhereButton({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final controller = ref.read(flightSearchProvider.notifier);
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: InkWell(
+        onTap: () {
+          controller.setArrivalAnyWhere = "anywhere";
+          Navigator.pop(
+            context,
+            const AirportSelection(
+              name: "anywhere",
+              code: "anywhere",
+              city: "anywhere",
+            ),
+          );
+        },
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: <Widget>[
+            Icon(
+              Icons.public,
+              size: 32,
+              color: Theme.of(context).colorScheme.secondary,
+            ),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  "Anywhere",
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.primary,
+                    fontSize: Theme.of(context).textTheme.bodyLarge?.fontSize,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  "See the best deals from your departure",
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.secondary,
+                    fontSize: Theme.of(context).textTheme.bodySmall?.fontSize,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(width: 30),
+            Text(
+              "ANY",
+              style: TextStyle(
+                fontSize: Theme.of(context).textTheme.bodyLarge?.fontSize,
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.secondary,
+              ),
+            ),
           ],
         ),
       ),

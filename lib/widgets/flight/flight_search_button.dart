@@ -1,7 +1,7 @@
 // lib/screens/flight/widgets/search_button.dart
 
 import 'package:TFA/providers/flight/flight_search_state.dart';
-import 'package:TFA/screens/flight/flight_book_complete_page.dart';
+import 'package:TFA/screens/flight/anywhere_list_page.dart';
 import 'package:TFA/screens/flight/flight_list_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,7 +10,7 @@ import 'package:TFA/providers/recent_search.dart';
 import 'package:TFA/screens/shared/recent_search_panel.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-class FlightSearchButton extends ConsumerWidget {
+class FlightSearchButton extends ConsumerStatefulWidget {
   const FlightSearchButton({
     super.key,
     required this.padding,
@@ -21,14 +21,19 @@ class FlightSearchButton extends ConsumerWidget {
   final User? user;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<FlightSearchButton> createState() => _FlightSearchButtonState();
+}
+
+class _FlightSearchButtonState extends ConsumerState<FlightSearchButton> {
+  @override
+  Widget build(BuildContext context) {
     final FlightSearchController controller = ref.read(
       flightSearchProvider.notifier,
     );
     final FlightSearchState flightState = ref.watch(flightSearchProvider);
 
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: padding),
+      padding: EdgeInsets.symmetric(horizontal: widget.padding),
       child: Column(
         children: <Widget>[
           Row(
@@ -43,15 +48,29 @@ class FlightSearchButton extends ConsumerWidget {
                     final bool hasDate =
                         (flightState.displayDate ?? '').isNotEmpty;
 
-                    if (!hasPassengers || !hasAirports || !hasDate) return;
+                    if (!hasPassengers || !hasDate) return;
 
-                    final String? idToken = await user?.getIdToken();
-                    if (idToken == null) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('❌ Unable to retrieve user token'),
+                    if (!hasAirports ||
+                        flightState.arrivalAirportCode == 'anywhere') {
+                      controller.setArrivalAnyWhere = 'anywhere';
+                      controller.setLoading(true);
+                      Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (_) => const AnywhereListPage(),
                         ),
                       );
+                      return;
+                    }
+                    final String? idToken = await widget.user?.getIdToken();
+
+                    if (idToken == null) {
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('❌ Unable to retrieve user token'),
+                          ),
+                        );
+                      });
                       return;
                     }
                     final bool success = await controller.addRecentSearch(
@@ -83,18 +102,24 @@ class FlightSearchButton extends ConsumerWidget {
                     );
 
                     if (!success) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text(
-                            '❌ Failed to save flight recent search',
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              '❌ Failed to save flight recent search',
+                            ),
                           ),
-                        ),
-                      );
+                        );
+                      });
                     }
                     controller.clearProcessedFlights();
-                    Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const FlightListPage()),
-                    );
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (_) => const FlightListPage(),
+                        ),
+                      );
+                    });
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Theme.of(context).colorScheme.primary,

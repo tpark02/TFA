@@ -1,9 +1,9 @@
 import 'package:TFA/providers/recent_search.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+// import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class FlightSearchState {
-  final AsyncValue<Map<String, dynamic>> flightResults, inBoundFlightResults;
+  // final AsyncValue<Map<String, dynamic>> flightResults, inBoundFlightResults;
   final List<RecentSearch> recentSearches;
   final List<Map<String, dynamic>> processedFlights;
   final List<Map<String, dynamic>>? processedInBoundFlights;
@@ -116,9 +116,9 @@ class FlightSearchState {
     this.cabinClass = 'Economy',
     this.cabinIdx = 0,
     this.passengerCount = 1,
-    this.flightResults = const AsyncValue.data(<String, dynamic>{}),
-    this.inBoundFlightResults = const AsyncValue.data(<String, dynamic>{}),
 
+    // this.flightResults = const AsyncValue.data(<String, dynamic>{}),
+    // this.inBoundFlightResults = const AsyncValue.data(<String, dynamic>{}),
     this.processedFlights = const <Map<String, dynamic>>[],
     this.processedInBoundFlights = const <Map<String, dynamic>>[],
     this.searchNonce = 0,

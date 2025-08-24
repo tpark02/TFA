@@ -121,8 +121,7 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
   }
 
   Widget _pageBody(BuildContext context, FlightSearchState flightState) {
-    final bool isLoading =
-        flightState.isLoading || (flightState.flightResults.isLoading);
+    final bool isLoading = flightState.isLoading;
     return Column(
       children: <Widget>[
         Container(
@@ -143,7 +142,7 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
                   onTap: () {
                     Navigator.of(context).pop();
                   },
-                  child: const Icon(Icons.arrow_back, color: Colors.white),
+                  child: const Icon(Icons.arrow_back_ios, color: Colors.white),
                 ),
               ),
               SizedBox(
@@ -499,34 +498,34 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
     }
 
     // outbound carriers
-    Map<String, dynamic> results = ref
-        .read(flightSearchProvider)
-        .flightResults
-        .maybeWhen(
-          data: (Map<String, dynamic> v) => v,
-          orElse: () => const <String, dynamic>{},
-        );
-    _makeCarrier(
-      airlines: airlines,
-      layovers: layovers,
-      flights: flights,
-      results: results,
-    );
+    // Map<String, dynamic> results = ref
+    //     .read(flightSearchProvider)
+    //     .flightResults
+    //     .maybeWhen(
+    //       data: (Map<String, dynamic> v) => v,
+    //       orElse: () => const <String, dynamic>{},
+    //     );
+    // _makeCarrier(
+    //   airlines: airlines,
+    //   layovers: layovers,
+    //   flights: flights,
+    //   results: results,
+    // );
 
     // inbound carriers
-    results = ref
-        .read(flightSearchProvider)
-        .inBoundFlightResults
-        .maybeWhen(
-          data: (Map<String, dynamic> v) => v,
-          orElse: () => const <String, dynamic>{},
-        );
-    _makeCarrier(
-      airlines: airlines,
-      layovers: layovers,
-      flights: flights,
-      results: results,
-    );
+    // results = ref
+    //     .read(flightSearchProvider)
+    //     .inBoundFlightResults
+    //     .maybeWhen(
+    //       data: (Map<String, dynamic> v) => v,
+    //       orElse: () => const <String, dynamic>{},
+    //     );
+    // _makeCarrier(
+    //   airlines: airlines,
+    //   layovers: layovers,
+    //   flights: flights,
+    //   results: results,
+    // );
   }
 
   // 🟢 ADD: fields (top of State class)

@@ -911,6 +911,16 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
     );
   }
 
+  set setArrivalAnyWhere(String value) => state = state.copyWith(
+    arrivalAirportCode: value,
+    arrivalAirportName: value,
+    arrivalCity: value,
+  );
+
+  void setLoading(bool value) {
+    state = state.copyWith(isLoading: value);
+  }
+
   int get adultCnt => state.adultCnt;
   set adultCnt(int value) => state = state.copyWith(adultCnt: value);
 

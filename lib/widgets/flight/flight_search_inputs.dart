@@ -160,7 +160,7 @@ class FlightSearchInputs extends ConsumerWidget {
                       alignment: Alignment.centerLeft,
                       child: Text(
                         flightState.arrivalAirportCode.isEmpty
-                            ? 'Arrival'
+                            ? 'Anywhere'
                             : flightState.arrivalAirportCode,
                         style: boldBodyTextStyle(context),
                       ),

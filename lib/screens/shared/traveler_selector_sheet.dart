@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class TravelerSelectorSheet extends ConsumerStatefulWidget {
-  TravelerSelectorSheet({super.key, required this.cabinIdx});
-  int cabinIdx = 0;
+  const TravelerSelectorSheet({super.key, required this.cabinIdx});
+  final int cabinIdx;
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() =>
@@ -14,15 +14,12 @@ class TravelerSelectorSheet extends ConsumerStatefulWidget {
 
 class _TravelerSelectorState extends ConsumerState<TravelerSelectorSheet> {
   int _selectedIndex = 0;
-  // int _selectedClassIdx = 0;
-  // int _adultCount = 1;
-  // int _childCount = 0;
-  // int _infantLapCount = 0;
-  // int _infantSeatCount = 0;
+  late int _cabinIdx; // ✅ mutable copy
 
   @override
   void initState() {
     super.initState();
+    _cabinIdx = widget.cabinIdx; // ✅ copy initial value
   }
 
   @override
@@ -244,7 +241,7 @@ class _TravelerSelectorState extends ConsumerState<TravelerSelectorSheet> {
                                     ),
                                     onPressed: () {
                                       setState(() {
-                                        widget.cabinIdx = 0;
+                                        _cabinIdx = 0;
                                       });
                                     },
                                     child: Text(
@@ -264,7 +261,7 @@ class _TravelerSelectorState extends ConsumerState<TravelerSelectorSheet> {
                                   ),
                                 ),
                               ),
-                              widget.cabinIdx == 0
+                              _cabinIdx == 0
                                   ? const Icon(Icons.check)
                                   : const SizedBox.shrink(),
                             ],
@@ -282,7 +279,7 @@ class _TravelerSelectorState extends ConsumerState<TravelerSelectorSheet> {
                                     ),
                                     onPressed: () {
                                       setState(() {
-                                        widget.cabinIdx = 1;
+                                        _cabinIdx = 1;
                                       });
                                     },
                                     child: Text(
@@ -302,7 +299,7 @@ class _TravelerSelectorState extends ConsumerState<TravelerSelectorSheet> {
                                   ),
                                 ),
                               ),
-                              widget.cabinIdx == 1
+                              _cabinIdx == 1
                                   ? const Icon(Icons.check)
                                   : const SizedBox.shrink(),
                             ],
@@ -320,7 +317,7 @@ class _TravelerSelectorState extends ConsumerState<TravelerSelectorSheet> {
                                     ),
                                     onPressed: () {
                                       setState(() {
-                                        widget.cabinIdx = 2;
+                                        _cabinIdx = 2;
                                       });
                                     },
                                     child: Text(
@@ -340,7 +337,7 @@ class _TravelerSelectorState extends ConsumerState<TravelerSelectorSheet> {
                                   ),
                                 ),
                               ),
-                              widget.cabinIdx == 2
+                              _cabinIdx == 2
                                   ? const Icon(Icons.check)
                                   : const SizedBox.shrink(),
                             ],
@@ -358,7 +355,7 @@ class _TravelerSelectorState extends ConsumerState<TravelerSelectorSheet> {
                                     ),
                                     onPressed: () {
                                       setState(() {
-                                        widget.cabinIdx = 3;
+                                        _cabinIdx = 3;
                                       });
                                     },
                                     child: Text(
@@ -378,7 +375,7 @@ class _TravelerSelectorState extends ConsumerState<TravelerSelectorSheet> {
                                   ),
                                 ),
                               ),
-                              widget.cabinIdx == 3
+                              _cabinIdx == 3
                                   ? const Icon(Icons.check)
                                   : const SizedBox.shrink(),
                             ],
@@ -396,7 +393,7 @@ class _TravelerSelectorState extends ConsumerState<TravelerSelectorSheet> {
 
                   controller.setPassengers(
                     count: total,
-                    cabinIndex: widget.cabinIdx,
+                    cabinIndex: _cabinIdx,
                     adult: provider.adultCnt,
                     children: provider.childrenCnt,
                     infantLap: provider.infantLapCnt,
