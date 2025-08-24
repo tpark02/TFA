@@ -237,7 +237,7 @@ class _AirportSheetState extends ConsumerState<SearchAirportSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final double height = MediaQuery.of(context).size.height * 0.7;
+    final double height = MediaQuery.of(context).size.height;
     final String query = ref.watch(airportSearchQueryProvider);
     final AsyncValue<List<Airport>> airportData = ref.watch(
       airportDataProvider,
@@ -257,105 +257,126 @@ class _AirportSheetState extends ConsumerState<SearchAirportSheet> {
       orElse: () => <dynamic>[],
     );
 
-    return SafeArea(
-      child: Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-        ),
-        child: Stack(
-          children: <Widget>[
-            AbsorbPointer(
-              absorbing: _isFetchingHidden,
-              child: Container(
-                constraints: BoxConstraints(maxHeight: height),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
-                ),
-                decoration: const BoxDecoration(
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-                  color: Colors.white,
-                ),
-                child: Column(
-                  children: <Widget>[
-                    Text(
-                      widget.title,
-                      style: TextStyle(
-                        fontSize: Theme.of(
-                          context,
-                        ).textTheme.headlineMedium?.fontSize,
-                        fontWeight: FontWeight.bold,
-                      ),
+    return Material(
+      child: SafeArea(
+        child: Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: Stack(
+            children: <Widget>[
+              AbsorbPointer(
+                absorbing: _isFetchingHidden,
+                child: Container(
+                  constraints: BoxConstraints(maxHeight: height),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
+                  decoration: const BoxDecoration(
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(20),
                     ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: <Widget>[
-                        Expanded(
-                          child: TextField(
-                            onChanged: (String value) =>
-                                ref
-                                        .read(
-                                          airportSearchQueryProvider.notifier,
-                                        )
-                                        .state =
-                                    value,
-                            decoration: InputDecoration(
-                              hintText: widget.isDeparture ? "From" : "To",
-                              hintStyle: const TextStyle(color: Colors.grey),
-                              prefixIcon: Icon(
-                                Icons.search,
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: Theme.of(context).colorScheme.primary,
-                                  width: 1,
-                                ),
-                                borderRadius: BorderRadius.circular(0),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: Theme.of(context).colorScheme.primary,
-                                  width: 2,
-                                ),
-                                borderRadius: BorderRadius.circular(0),
-                              ),
-                            ),
-                            style: const TextStyle(color: Colors.black),
-                          ),
+                    color: Colors.white,
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 0,
+                          vertical: 0,
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-                    Expanded(
-                      child: ListView.builder(
-                        itemCount: filteredAirports.isNotEmpty
-                            ? filteredAirports.length
-                            : 1,
-                        itemBuilder: (BuildContext context, int index) {
-                          if (filteredAirports.isEmpty) {
-                            return const AnyWhereButton();
-                          } else {
-                            return buildAirportListItems(
-                              filteredAirports,
-                              index,
-                            );
-                          }
-                        },
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.close, size: 24),
+                              onPressed: () => Navigator.of(context).pop(),
+                            ),
+                            Text(
+                              widget.title,
+                              style: Theme.of(context).textTheme.titleLarge
+                                  ?.copyWith(fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(width: 48), // keeps title centered
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 8),
+                      Row(
+                        children: <Widget>[
+                          Expanded(
+                            child: TextField(
+                              onChanged: (String value) =>
+                                  ref
+                                          .read(
+                                            airportSearchQueryProvider.notifier,
+                                          )
+                                          .state =
+                                      value,
+                              decoration: InputDecoration(
+                                hintText: widget.isDeparture ? "From" : "To",
+                                hintStyle: const TextStyle(color: Colors.grey),
+                                prefixIcon: Icon(
+                                  Icons.search,
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.primary,
+                                    width: 1,
+                                  ),
+                                  borderRadius: BorderRadius.circular(0),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.primary,
+                                    width: 2,
+                                  ),
+                                  borderRadius: BorderRadius.circular(0),
+                                ),
+                              ),
+                              style: const TextStyle(color: Colors.black),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+                      Expanded(
+                        child: ListView.builder(
+                          itemCount: filteredAirports.isNotEmpty
+                              ? filteredAirports.length
+                              : 1,
+                          itemBuilder: (BuildContext context, int index) {
+                            if (filteredAirports.isEmpty) {
+                              return const AnyWhereButton();
+                            } else {
+                              return buildAirportListItems(
+                                filteredAirports,
+                                index,
+                              );
+                            }
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            if (_isFetchingHidden)
-              const Positioned(
-                top: 0,
-                left: 0,
-                right: 0,
-                child: LinearProgressIndicator(minHeight: 2),
-              ),
-          ],
+              if (_isFetchingHidden)
+                const Positioned(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  child: LinearProgressIndicator(minHeight: 2),
+                ),
+            ],
+          ),
         ),
       ),
     );

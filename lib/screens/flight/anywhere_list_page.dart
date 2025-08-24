@@ -1,6 +1,7 @@
 // lib/screens/flight/anywhere_list_page.dart
 import 'dart:async';
 
+import 'package:TFA/models/anywhere_destination.dart';
 import 'package:TFA/providers/flight/anywhere_provider.dart';
 import 'package:TFA/providers/flight/flight_search_controller.dart';
 import 'package:TFA/providers/flight/flight_search_state.dart';
@@ -139,20 +140,21 @@ class _AnywhereListState extends ConsumerState<AnywhereListPage> {
                     dateText: flightState.displayDate ?? '',
                   )
                 : data.when(
-                    data: (items) => ListView.separated(
+                    data: (List<AnywhereDestination> items) => ListView.separated(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 12,
                         vertical: 8,
                       ),
                       itemCount: items.length,
-                      separatorBuilder: (_, __) => const SizedBox(height: 10),
-                      itemBuilder: (context, i) => AnywhereDestinationTile(
-                        item: items[i],
-                        onTap: () {
-                          // TODO: navigate to flight list with origin/dates prefilled
-                          debugPrint('Tapped: ${items[i].name}');
-                        },
-                      ),
+                      separatorBuilder: (_, _) => const SizedBox(height: 10),
+                      itemBuilder: (BuildContext context, int i) =>
+                          AnywhereDestinationTile(
+                            item: items[i],
+                            onTap: () {
+                              // TODO: navigate to flight list with origin/dates prefilled
+                              debugPrint('Tapped: ${items[i].name}');
+                            },
+                          ),
                     ),
                     loading: () => ListView.separated(
                       padding: const EdgeInsets.symmetric(

@@ -5,6 +5,7 @@ import 'package:TFA/screens/shared/search_airport_sheet.dart';
 import 'package:TFA/screens/shared/traveler_selector_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class SearchSummaryCard extends ConsumerWidget {
   final String from;
@@ -41,20 +42,29 @@ class SearchSummaryCard extends ConsumerWidget {
                 child: InkWell(
                   onTap: () async {
                     final AirportSelection? result =
-                        await showModalBottomSheet<AirportSelection>(
+                        await CupertinoScaffold.showCupertinoModalBottomSheet(
                           context: context,
-                          isScrollControlled: true,
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.vertical(
-                              top: Radius.circular(20),
-                            ),
+                          useRootNavigator: true,
+                          expand: false, // page sheet instead of full screen
+                          builder: (_) => const SearchAirportSheet(
+                            title: 'Origin',
+                            isDeparture: true,
                           ),
-                          builder: (BuildContext ctx) =>
-                              const SearchAirportSheet(
-                                title: 'Origin',
-                                isDeparture: true,
-                              ),
                         );
+                    // await showModalBottomSheet<AirportSelection>(
+                    //   context: context,
+                    //   isScrollControlled: true,
+                    //   shape: const RoundedRectangleBorder(
+                    //     borderRadius: BorderRadius.vertical(
+                    //       top: Radius.circular(20),
+                    //     ),
+                    //   ),
+                    //   builder: (BuildContext ctx) =>
+                    //       const SearchAirportSheet(
+                    //         title: 'Origin',
+                    //         isDeparture: true,
+                    //       ),
+                    // );
 
                     if (result != null) {
                       controller.setDepartureCode(result.code);
@@ -97,20 +107,29 @@ class SearchSummaryCard extends ConsumerWidget {
                 child: InkWell(
                   onTap: () async {
                     final AirportSelection? result =
-                        await showModalBottomSheet<AirportSelection>(
+                        await CupertinoScaffold.showCupertinoModalBottomSheet(
                           context: context,
-                          isScrollControlled: true,
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.vertical(
-                              top: Radius.circular(20),
-                            ),
+                          useRootNavigator: true,
+                          expand: false, // page sheet instead of full screen
+                          builder: (_) => const SearchAirportSheet(
+                            title: 'Destination',
+                            isDeparture: false,
                           ),
-                          builder: (BuildContext ctx) =>
-                              const SearchAirportSheet(
-                                title: 'Destination',
-                                isDeparture: false,
-                              ),
                         );
+                    // await showModalBottomSheet<AirportSelection>(
+                    //   context: context,
+                    //   isScrollControlled: true,
+                    //   shape: const RoundedRectangleBorder(
+                    //     borderRadius: BorderRadius.vertical(
+                    //       top: Radius.circular(20),
+                    //     ),
+                    //   ),
+                    //   builder: (BuildContext ctx) =>
+                    //       const SearchAirportSheet(
+                    //         title: 'Destination',
+                    //         isDeparture: false,
+                    //       ),
+                    // );
 
                     if (result != null) {
                       controller.setArrivalCode(result.code);

@@ -1,6 +1,5 @@
 // lib/screens/flight/widgets/search_inputs.dart
 
-import 'dart:io';
 import 'dart:math' as math;
 
 import 'package:TFA/providers/flight/flight_search_state.dart';
@@ -12,6 +11,7 @@ import 'package:TFA/providers/flight/flight_search_controller.dart';
 import 'package:TFA/screens/shared/search_airport_sheet.dart';
 import 'package:TFA/screens/shared/traveler_selector_sheet.dart';
 import 'package:TFA/theme/button_styles.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class FlightSearchInputs extends ConsumerWidget {
   const FlightSearchInputs({
@@ -81,19 +81,14 @@ class FlightSearchInputs extends ConsumerWidget {
                     style: flatSegmentStyle(context),
                     onPressed: () async {
                       final AirportSelection? result =
-                          await showModalBottomSheet<AirportSelection>(
+                          await CupertinoScaffold.showCupertinoModalBottomSheet(
                             context: context,
-                            isScrollControlled: true,
-                            shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.vertical(
-                                top: Radius.circular(20),
-                              ),
+                            useRootNavigator: true,
+                            expand: false, // page sheet instead of full screen
+                            builder: (_) => const SearchAirportSheet(
+                              title: 'Origin',
+                              isDeparture: true,
                             ),
-                            builder: (BuildContext ctx) =>
-                                const SearchAirportSheet(
-                                  title: 'Airport',
-                                  isDeparture: true,
-                                ),
                           );
 
                       if (result != null) {
@@ -135,20 +130,29 @@ class FlightSearchInputs extends ConsumerWidget {
                     style: flatSegmentStyle(context),
                     onPressed: () async {
                       final AirportSelection? result =
-                          await showModalBottomSheet<AirportSelection>(
+                          await CupertinoScaffold.showCupertinoModalBottomSheet(
                             context: context,
-                            isScrollControlled: true,
-                            shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.vertical(
-                                top: Radius.circular(20),
-                              ),
+                            useRootNavigator: true,
+                            expand: false, // page sheet instead of full screen
+                            builder: (_) => const SearchAirportSheet(
+                              title: 'Destination',
+                              isDeparture: false,
                             ),
-                            builder: (BuildContext ctx) =>
-                                const SearchAirportSheet(
-                                  title: 'Arrival Airport',
-                                  isDeparture: false,
-                                ),
                           );
+                      // await showModalBottomSheet<AirportSelection>(
+                      //   context: context,
+                      //   isScrollControlled: true,
+                      //   shape: const RoundedRectangleBorder(
+                      //     borderRadius: BorderRadius.vertical(
+                      //       top: Radius.circular(20),
+                      //     ),
+                      //   ),
+                      //   builder: (BuildContext ctx) =>
+                      //       const SearchAirportSheet(
+                      //         title: 'Arrival Airport',
+                      //         isDeparture: false,
+                      //       ),
+                      // );
 
                       if (result != null) {
                         controller.setArrivalCode(result.code);

@@ -1,12 +1,13 @@
 // lib/widgets/anywhere/anywhere_destination_tile.dart
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:TFA/models/anywhere_destination.dart';
 
-class _ThumbFallback extends StatelessWidget {
+class _ThumbFallback extends ConsumerWidget {
   const _ThumbFallback({super.key});
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Container(
       color: Colors.black12,
       alignment: Alignment.center,
@@ -15,7 +16,7 @@ class _ThumbFallback extends StatelessWidget {
   }
 }
 
-class AnywhereDestinationTile extends StatelessWidget {
+class AnywhereDestinationTile extends ConsumerWidget {
   const AnywhereDestinationTile({super.key, required this.item, this.onTap});
 
   final AnywhereDestination item;
@@ -24,17 +25,17 @@ class AnywhereDestinationTile extends StatelessWidget {
   String _krw(int v) => '₩${NumberFormat('#,###', 'ko_KR').format(v)}';
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final cardColor = Theme.of(context).colorScheme.surface;
     final onSurface = Theme.of(context).colorScheme.onSurface;
 
     return InkWell(
-      borderRadius: BorderRadius.circular(14),
+      borderRadius: BorderRadius.circular(0),
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
           color: cardColor,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(4),
           boxShadow: const [
             BoxShadow(
               blurRadius: 8,
@@ -43,13 +44,16 @@ class AnywhereDestinationTile extends StatelessWidget {
             ),
           ],
         ),
-        padding: const EdgeInsets.all(12),
+        // padding: const EdgeInsets.all(12),
         child: Row(
-          children: [
+          children: <Widget>[
             SizedBox.square(
-              dimension: 84,
+              dimension: 100,
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(4),
+                  bottomLeft: Radius.circular(4),
+                ),
                 child: Image.network(
                   item.imageUrl,
                   fit: BoxFit.cover,
@@ -72,31 +76,55 @@ class AnywhereDestinationTile extends StatelessWidget {
             ),
             const SizedBox(width: 12),
             Expanded(
-              child: Text(
-                item.name,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  color: onSurface,
-                  fontSize: 20,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: -0.2,
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                'FROM ${_krw(item.minPriceKrw)}',
-                style: TextStyle(
-                  color: onSurface.withAlpha((0.9 * 255).toInt()),
-                  fontWeight: FontWeight.w800,
-                  fontSize: 12.5,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Text(
+                          textAlign: TextAlign.start,
+                          item.name,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: onSurface,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: -0.2,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: <Widget>[
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade200,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            'FROM ${_krw(item.minPriceKrw)}',
+                            style: TextStyle(
+                              color: onSurface.withAlpha((0.9 * 255).toInt()),
+                              fontWeight: FontWeight.w800,
+                              fontSize: Theme.of(
+                                context,
+                              ).textTheme.bodyMedium?.fontSize,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
             ),

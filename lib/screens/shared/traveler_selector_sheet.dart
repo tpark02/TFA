@@ -38,7 +38,7 @@ class _TravelerSelectorState extends ConsumerState<TravelerSelectorSheet> {
         ),
         child: Container(
           decoration: const BoxDecoration(
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(0)),
             color: Colors.white,
           ),
           padding: const EdgeInsets.symmetric(horizontal: 20),
