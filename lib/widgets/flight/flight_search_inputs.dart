@@ -3,6 +3,7 @@
 import 'dart:math' as math;
 
 import 'package:TFA/providers/flight/flight_search_state.dart';
+import 'package:TFA/utils/platform_modal_sheet.dart';
 import 'package:TFA/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -81,14 +82,10 @@ class FlightSearchInputs extends ConsumerWidget {
                     style: flatSegmentStyle(context),
                     onPressed: () async {
                       final AirportSelection? result =
-                          await CupertinoScaffold.showCupertinoModalBottomSheet(
+                          await showAirportSelectionSheet(
                             context: context,
-                            useRootNavigator: true,
-                            expand: false, // page sheet instead of full screen
-                            builder: (_) => const SearchAirportSheet(
-                              title: 'Origin',
-                              isDeparture: true,
-                            ),
+                            title: 'Origin',
+                            isDeparture: true,
                           );
 
                       if (result != null) {
@@ -148,15 +145,12 @@ class FlightSearchInputs extends ConsumerWidget {
                     style: flatSegmentStyle(context),
                     onPressed: () async {
                       final AirportSelection? result =
-                          await CupertinoScaffold.showCupertinoModalBottomSheet(
+                          await showAirportSelectionSheet(
                             context: context,
-                            useRootNavigator: true,
-                            expand: false, // page sheet instead of full screen
-                            builder: (_) => const SearchAirportSheet(
-                              title: 'Destination',
-                              isDeparture: false,
-                            ),
+                            title: 'Destination',
+                            isDeparture: true,
                           );
+
                       // await showModalBottomSheet<AirportSelection>(
                       //   context: context,
                       //   isScrollControlled: true,

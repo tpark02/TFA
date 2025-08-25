@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:TFA/screens/auth.dart';
 import 'package:TFA/screens/menu.dart';
 import 'package:TFA/theme/app_theme.dart';
@@ -45,10 +47,16 @@ class App extends StatelessWidget {
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: (BuildContext ctx, AsyncSnapshot<User?> snapshot) {
           if (snapshot.hasData) {
-            return const CupertinoScaffold(body: MenuScreen());
+            return Platform.isAndroid
+                ? const MenuScreen() // just the screen for Android
+                : const CupertinoScaffold(
+                    body: MenuScreen(),
+                  ); // Cupertino on iOS
           }
 
-          return const CupertinoScaffold(body: AuthScreen());
+          return Platform.isAndroid
+              ? const AuthScreen() // just the screen for Android
+              : const CupertinoScaffold(body: AuthScreen()); // Cupertino on iOS
           // return const MenuScreen();
         },
       ),

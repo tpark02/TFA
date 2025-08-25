@@ -4,6 +4,7 @@ import 'package:TFA/providers/flight/flight_search_state.dart';
 import 'package:TFA/screens/shared/calendar_sheet.dart';
 import 'package:TFA/screens/shared/search_airport_sheet.dart';
 import 'package:TFA/screens/shared/traveler_selector_sheet.dart';
+import 'package:TFA/utils/platform_modal_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
@@ -42,11 +43,9 @@ class SearchSummaryCard extends ConsumerWidget {
               Flexible(
                 child: InkWell(
                   onTap: () async {
-                    final AirportSelection? result =
-                        await CupertinoScaffold.showCupertinoModalBottomSheet(
+                    final result =
+                        await showPlatformModalSheet<AirportSelection>(
                           context: context,
-                          useRootNavigator: true,
-                          expand: false, // page sheet instead of full screen
                           builder: (_) => const SearchAirportSheet(
                             title: 'Origin',
                             isDeparture: true,
@@ -124,14 +123,12 @@ class SearchSummaryCard extends ConsumerWidget {
               Flexible(
                 child: InkWell(
                   onTap: () async {
-                    final AirportSelection? result =
-                        await CupertinoScaffold.showCupertinoModalBottomSheet(
+                    final result =
+                        await showPlatformModalSheet<AirportSelection>(
                           context: context,
-                          useRootNavigator: true,
-                          expand: false, // page sheet instead of full screen
                           builder: (_) => const SearchAirportSheet(
-                            title: 'Destination',
-                            isDeparture: false,
+                            title: 'Origin',
+                            isDeparture: true,
                           ),
                         );
 

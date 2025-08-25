@@ -1,6 +1,7 @@
 import 'package:TFA/providers/flight/flight_search_controller.dart';
 import 'package:TFA/providers/flight/flight_search_state.dart';
 import 'package:TFA/screens/flight/flight_trip_details_page.dart';
+import 'package:TFA/utils/platform_modal_sheet.dart';
 import 'package:TFA/utils/utils.dart';
 import 'package:TFA/widgets/flight/flight_list_view_item.dart';
 import 'package:TFA/widgets/search_summary_loading_card.dart';
@@ -45,16 +46,12 @@ class _FlightListViewState extends ConsumerState<FlightListView>
   void openTripDetails({
     required BuildContext context,
     required bool isReturnPage,
-  }) {
-    CupertinoScaffold.showCupertinoModalBottomSheet(
+  }) async {
+    await showTripDetailsModal(
       context: context,
-      useRootNavigator: true,
-      expand: false, // page sheet instead of full screen
-      builder: (_) => FlightTripDetailsPage(
-        isReturnPage: isReturnPage,
-        departData: _departData,
-        returnData: _returnData,
-      ),
+      isReturnPage: isReturnPage,
+      departData: _departData,
+      returnData: _returnData,
     );
   }
 

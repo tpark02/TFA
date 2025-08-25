@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:TFA/models/flight_search_out.dart';
 import 'package:TFA/screens/shared/calendar_sheet.dart';
 import 'package:flutter/material.dart';
@@ -215,22 +217,38 @@ Future<Map<String, DateTime?>?> showCalender(
   int stDays,
   int edDays,
 ) {
-  return CupertinoScaffold.showCupertinoModalBottomSheet<
-    Map<String, DateTime?>
-  >(
-    context: context,
-    useRootNavigator: true,
-    expand: true,
-    builder: (_) => CalendarSheet(
-      key: UniqueKey(),
-      firstTitle: firstTitle,
-      secondTitle: secondTitle,
-      isOnlyTab: isOnlyTab,
-      isRange: isRange,
-      startDays: stDays,
-      endDays: edDays,
-    ),
-  );
+  if (Platform.isAndroid) {
+    return showModalBottomSheet<Map<String, DateTime?>>(
+      context: context,
+      isScrollControlled: true,
+      builder: (_) => CalendarSheet(
+        key: UniqueKey(),
+        firstTitle: firstTitle,
+        secondTitle: secondTitle,
+        isOnlyTab: isOnlyTab,
+        isRange: isRange,
+        startDays: stDays,
+        endDays: edDays,
+      ),
+    );
+  } else {
+    return CupertinoScaffold.showCupertinoModalBottomSheet<
+      Map<String, DateTime?>
+    >(
+      context: context,
+      useRootNavigator: true,
+      expand: true,
+      builder: (_) => CalendarSheet(
+        key: UniqueKey(),
+        firstTitle: firstTitle,
+        secondTitle: secondTitle,
+        isOnlyTab: isOnlyTab,
+        isRange: isRange,
+        startDays: stDays,
+        endDays: edDays,
+      ),
+    );
+  }
 }
 
 String getCabinClassByIdx({required int cabinIndex}) {
@@ -330,7 +348,8 @@ String _ts(String? iso) {
 
 // One segment → key part: OPERATOR/FLIGHT DEP-TS->ARR-TS
 String _segKey(Segment s) {
-  final String op = (s.operating?.carrierCode ?? s.carrierCode ?? '').toUpperCase();
+  final String op = (s.operating?.carrierCode ?? s.carrierCode ?? '')
+      .toUpperCase();
   final String num = (s.number ?? '').trim();
   final String dep = s.departure?.iataCode ?? '';
   final String arr = s.arrival?.iataCode ?? '';

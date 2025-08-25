@@ -451,10 +451,10 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
             ? 'combined'
             : 'perleg';
 
-        debugPrint("‼️ itinerry len : ${itineraries.length}");
-        debugPrint("‼️ $i");
-        debugPrint("‼️ my flight number : $myFlightNumber");
-        debugPrint("‼️ parent flight number : $parentFlightNumber");
+        // debugPrint("‼️ itinerry len : ${itineraries.length}");
+        // debugPrint("‼️ $i");
+        // debugPrint("‼️ my flight number : $myFlightNumber");
+        // debugPrint("‼️ parent flight number : $parentFlightNumber");
         results.add(<String, dynamic>{
           // summary
           'depAirport': depAirport,

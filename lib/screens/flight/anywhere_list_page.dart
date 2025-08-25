@@ -83,7 +83,6 @@ class _AnywhereListState extends ConsumerState<AnywhereListPage> {
       FlightSearchState? prev,
       FlightSearchState next,
     ) {
-      debugPrint('🎯 listenManual fired: $prev → $next');
       if (prev != null &&
           ((prev.arrivalAirportCode != next.arrivalAirportCode) ||
               (prev.departureAirportCode != next.departureAirportCode) ||
@@ -96,11 +95,12 @@ class _AnywhereListState extends ConsumerState<AnywhereListPage> {
               (prev.infantSeatCnt != next.infantSeatCnt))) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (!mounted) return;
+          debugPrint('🎯 listenManual fired');
 
           if (next.arrivalAirportCode == 'anywhere') {
             return;
           }
-          Navigator.of(context).push(
+          Navigator.of(context).pushReplacement(
             MaterialPageRoute<void>(builder: (_) => const FlightListPage()),
           );
         });
