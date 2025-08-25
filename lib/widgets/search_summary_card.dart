@@ -1,5 +1,6 @@
 import 'package:TFA/providers/airport/airport_selection.dart';
 import 'package:TFA/providers/flight/flight_search_controller.dart';
+import 'package:TFA/providers/flight/flight_search_state.dart';
 import 'package:TFA/screens/shared/calendar_sheet.dart';
 import 'package:TFA/screens/shared/search_airport_sheet.dart';
 import 'package:TFA/screens/shared/traveler_selector_sheet.dart';
@@ -28,7 +29,7 @@ class SearchSummaryCard extends ConsumerWidget {
     final FlightSearchController controller = ref.read(
       flightSearchProvider.notifier,
     );
-    final flightState = ref.watch(flightSearchProvider);
+    final FlightSearchState flightState = ref.watch(flightSearchProvider);
 
     return Container(
       padding: const EdgeInsets.all(8),
@@ -51,24 +52,21 @@ class SearchSummaryCard extends ConsumerWidget {
                             isDeparture: true,
                           ),
                         );
-                    // await showModalBottomSheet<AirportSelection>(
-                    //   context: context,
-                    //   isScrollControlled: true,
-                    //   shape: const RoundedRectangleBorder(
-                    //     borderRadius: BorderRadius.vertical(
-                    //       top: Radius.circular(20),
-                    //     ),
-                    //   ),
-                    //   builder: (BuildContext ctx) =>
-                    //       const SearchAirportSheet(
-                    //         title: 'Origin',
-                    //         isDeparture: true,
-                    //       ),
-                    // );
 
                     if (result != null) {
+                      if (result.code == flightState.arrivalAirportCode) {
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                "❌ Departure airport cannot be the same as the arrival airport.",
+                              ),
+                            ),
+                          );
+                        });
+                        return;
+                      }
                       controller.setDepartureCode(result.code);
-                      // controller.setDepartureName(result.name);
                       controller.setDepartureCity(result.city);
                     }
                   },
@@ -96,10 +94,30 @@ class SearchSummaryCard extends ConsumerWidget {
                         color: Colors.white,
                         size: Theme.of(context).textTheme.bodyMedium?.fontSize,
                       )
-                    : Icon(
-                        Icons.compare_arrows,
-                        color: Colors.white,
-                        size: Theme.of(context).textTheme.bodyMedium?.fontSize,
+                    : InkWell(
+                        onTap: () {
+                          final String d = flightState.departureAirportCode;
+                          final String a = flightState.arrivalAirportCode;
+
+                          final String dcity = flightState.departureCity;
+                          final String acity = flightState.arrivalCity;
+
+                          debugPrint(
+                            "☘️ search_summary.dart - before swap departure : $d, arrival : $a",
+                          );
+                          controller.setArrivalCode(d);
+                          controller.setDepartureCode(a);
+
+                          controller.setArrivalCity(dcity);
+                          controller.setDepartureCity(acity);
+                        },
+                        child: Icon(
+                          Icons.compare_arrows,
+                          color: Colors.white,
+                          size: Theme.of(
+                            context,
+                          ).textTheme.bodyMedium?.fontSize,
+                        ),
                       ),
               ),
               const SizedBox(width: 10),
@@ -116,25 +134,21 @@ class SearchSummaryCard extends ConsumerWidget {
                             isDeparture: false,
                           ),
                         );
-                    // await showModalBottomSheet<AirportSelection>(
-                    //   context: context,
-                    //   isScrollControlled: true,
-                    //   shape: const RoundedRectangleBorder(
-                    //     borderRadius: BorderRadius.vertical(
-                    //       top: Radius.circular(20),
-                    //     ),
-                    //   ),
-                    //   builder: (BuildContext ctx) =>
-                    //       const SearchAirportSheet(
-                    //         title: 'Destination',
-                    //         isDeparture: false,
-                    //       ),
-                    // );
 
                     if (result != null) {
-                      controller.setArrivalCode(result.code);
-                      // controller.setArrivalName(result.name);
-                      controller.setArrivalCity(result.city);
+                      if (result.code == flightState.departureAirportCode) {
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                "❌ Arrival airport cannot be the same as the departure airport.",
+                              ),
+                            ),
+                          );
+                        });
+                        controller.setArrivalCode(result.code);
+                        controller.setArrivalCity(result.city);
+                      }
                     }
                   },
                   child: Text(
@@ -163,7 +177,7 @@ class SearchSummaryCard extends ConsumerWidget {
                         context,
                         rootNavigator: true,
                       ).push<Map<String, DateTime?>>(
-                        MaterialPageRoute(
+                        MaterialPageRoute<Map<String, DateTime?>>(
                           builder: (_) => CalendarSheet(
                             key: UniqueKey(),
                             firstTitle: 'One Way',
@@ -175,24 +189,6 @@ class SearchSummaryCard extends ConsumerWidget {
                           ),
                         ),
                       );
-                  // final result = await showModalBottomSheet(
-                  //   context: context,
-                  //   isScrollControlled: true,
-                  //   shape: const RoundedRectangleBorder(
-                  //     borderRadius: BorderRadius.vertical(
-                  //       top: Radius.circular(20),
-                  //     ),
-                  //   ),
-                  //   builder: (BuildContext ctx) => CalendarSheet(
-                  //     key: UniqueKey(),
-                  //     firstTitle: 'One Way',
-                  //     secondTitle: 'Round Trip',
-                  //     isOnlyTab: false,
-                  //     isRange: false,
-                  //     startDays: 0,
-                  //     endDays: 0,
-                  //   ),
-                  // );
 
                   if (result != null) {
                     final DateTime? departDate = result['departDate'];
@@ -221,7 +217,7 @@ class SearchSummaryCard extends ConsumerWidget {
               Flexible(
                 child: InkWell(
                   onTap: () async {
-                    final result = await showModalBottomSheet(
+                    showModalBottomSheet(
                       context: context,
                       isScrollControlled: true,
                       shape: const RoundedRectangleBorder(

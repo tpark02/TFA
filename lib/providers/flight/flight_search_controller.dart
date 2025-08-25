@@ -309,8 +309,8 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
         // if (!seenLegKeys.add(legKey)) continue; // ⬅️ skip duplicates
 
         String myFlightNumber = "";
-        final n = (segments[0].number ?? "");
-        final f = segments[0].carrierCode ?? "";
+        final String n = (segments[0].number ?? "");
+        final String f = segments[0].carrierCode ?? "";
 
         if (n != "" && f != "") myFlightNumber = f + n;
 

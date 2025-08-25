@@ -1,7 +1,6 @@
 import 'package:TFA/providers/airport/airport_lookup.dart';
 import 'package:TFA/providers/flight/flight_search_controller.dart';
 import 'package:TFA/screens/flight/flight_list_page.dart';
-import 'package:TFA/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:TFA/providers/recent_search.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -48,7 +47,7 @@ class RecentSearchItem extends ConsumerWidget {
         }
         Navigator.of(
           context,
-        ).push(MaterialPageRoute(builder: (_) => const FlightListPage()));
+        ).push(MaterialPageRoute<void>(builder: (_) => const FlightListPage()));
       },
       child: Row(
         children: <Widget>[

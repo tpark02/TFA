@@ -118,7 +118,6 @@ class _AirportSheetState extends ConsumerState<SearchAirportSheet> {
   }
 
   Widget buildAirportListItems(final List filteredAirports, int index) {
-    final controller = ref.read(airportSearchQueryProvider.notifier);
     final Airport airport = filteredAirports[index] as Airport;
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
@@ -275,7 +274,7 @@ class _AirportSheetState extends ConsumerState<SearchAirportSheet> {
                   ),
                   decoration: const BoxDecoration(
                     borderRadius: BorderRadius.vertical(
-                      top: Radius.circular(20),
+                      top: Radius.circular(0),
                     ),
                     color: Colors.white,
                   ),
@@ -289,7 +288,7 @@ class _AirportSheetState extends ConsumerState<SearchAirportSheet> {
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
+                          children: <Widget>[
                             IconButton(
                               icon: const Icon(Icons.close, size: 24),
                               onPressed: () => Navigator.of(context).pop(),
@@ -388,7 +387,9 @@ class AnyWhereButton extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final controller = ref.read(flightSearchProvider.notifier);
+    final FlightSearchController controller = ref.read(
+      flightSearchProvider.notifier,
+    );
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),

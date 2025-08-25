@@ -1,4 +1,5 @@
 import 'package:TFA/providers/flight/flight_search_controller.dart';
+import 'package:TFA/providers/flight/flight_search_state.dart';
 import 'package:TFA/widgets/counter_control.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -29,7 +30,7 @@ class _TravelerSelectorState extends ConsumerState<TravelerSelectorSheet> {
     final FlightSearchController controller = ref.read(
       flightSearchProvider.notifier,
     );
-    final provider = ref.watch(flightSearchProvider);
+    final FlightSearchState provider = ref.watch(flightSearchProvider);
 
     return SafeArea(
       child: Padding(
@@ -247,7 +248,7 @@ class _TravelerSelectorState extends ConsumerState<TravelerSelectorSheet> {
                                     child: Text(
                                       "Economy",
                                       style: TextStyle(
-                                        color: widget.cabinIdx == 0
+                                        color: _cabinIdx == 0
                                             ? Theme.of(
                                                 context,
                                               ).colorScheme.primary
@@ -262,7 +263,12 @@ class _TravelerSelectorState extends ConsumerState<TravelerSelectorSheet> {
                                 ),
                               ),
                               _cabinIdx == 0
-                                  ? const Icon(Icons.check)
+                                  ? Icon(
+                                      Icons.check,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.primary,
+                                    )
                                   : const SizedBox.shrink(),
                             ],
                           ),
@@ -285,7 +291,7 @@ class _TravelerSelectorState extends ConsumerState<TravelerSelectorSheet> {
                                     child: Text(
                                       "Premium Economy",
                                       style: TextStyle(
-                                        color: widget.cabinIdx == 1
+                                        color: _cabinIdx == 1
                                             ? Theme.of(
                                                 context,
                                               ).colorScheme.primary
@@ -300,7 +306,12 @@ class _TravelerSelectorState extends ConsumerState<TravelerSelectorSheet> {
                                 ),
                               ),
                               _cabinIdx == 1
-                                  ? const Icon(Icons.check)
+                                  ? Icon(
+                                      Icons.check,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.primary,
+                                    )
                                   : const SizedBox.shrink(),
                             ],
                           ),
@@ -323,7 +334,7 @@ class _TravelerSelectorState extends ConsumerState<TravelerSelectorSheet> {
                                     child: Text(
                                       "Business",
                                       style: TextStyle(
-                                        color: widget.cabinIdx == 2
+                                        color: _cabinIdx == 2
                                             ? Theme.of(
                                                 context,
                                               ).colorScheme.primary
@@ -338,7 +349,12 @@ class _TravelerSelectorState extends ConsumerState<TravelerSelectorSheet> {
                                 ),
                               ),
                               _cabinIdx == 2
-                                  ? const Icon(Icons.check)
+                                  ? Icon(
+                                      Icons.check,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.primary,
+                                    )
                                   : const SizedBox.shrink(),
                             ],
                           ),
@@ -361,7 +377,7 @@ class _TravelerSelectorState extends ConsumerState<TravelerSelectorSheet> {
                                     child: Text(
                                       "First",
                                       style: TextStyle(
-                                        color: widget.cabinIdx == 3
+                                        color: _cabinIdx == 3
                                             ? Theme.of(
                                                 context,
                                               ).colorScheme.primary
@@ -376,7 +392,12 @@ class _TravelerSelectorState extends ConsumerState<TravelerSelectorSheet> {
                                 ),
                               ),
                               _cabinIdx == 3
-                                  ? const Icon(Icons.check)
+                                  ? Icon(
+                                      Icons.check,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.primary,
+                                    )
                                   : const SizedBox.shrink(),
                             ],
                           ),

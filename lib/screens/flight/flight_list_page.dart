@@ -21,7 +21,6 @@ import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class FlightListPage extends ConsumerStatefulWidget {
   const FlightListPage({super.key});
-
   @override
   ConsumerState<FlightListPage> createState() => _FlightListPageState();
 }
@@ -79,46 +78,46 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
     return RangeValues(minV.toDouble(), maxV.toDouble());
   }
 
-  void _makeCarrier({
-    required Set<String> airlines,
-    required Set<String> layovers,
-    required List<Map<String, dynamic>> flights,
-    required Map<String, dynamic> results,
-  }) {
-    // ---- carriers dict: read from top-level dictionaries
-    // Adjust this access to whatever your FlightSearchState exposes.
-    // If it's nested differently, point to the right place.
-    Map<String, String> carriers = <String, String>{};
-    // 🟢 CHANGE carriers dict extraction (still inside _sub)
+  // void _makeCarrier({
+  //   required Set<String> airlines,
+  //   required Set<String> layovers,
+  //   required List<Map<String, dynamic>> flights,
+  //   required Map<String, dynamic> results,
+  // }) {
+  //   // ---- carriers dict: read from top-level dictionaries
+  //   // Adjust this access to whatever your FlightSearchState exposes.
+  //   // If it's nested differently, point to the right place.
+  //   Map<String, String> carriers = <String, String>{};
+  //   // 🟢 CHANGE carriers dict extraction (still inside _sub)
 
-    final Map<String, dynamic> dict = _asMap(results['dictionaries']);
-    final Map<String, dynamic> carriersRaw = _asMap(dict['carriers']);
-    carriers = carriersRaw.map((String k, v) => MapEntry(k, v.toString()));
+  //   final Map<String, dynamic> dict = _asMap(results['dictionaries']);
+  //   final Map<String, dynamic> carriersRaw = _asMap(dict['carriers']);
+  //   carriers = carriersRaw.map((String k, v) => MapEntry(k, v.toString()));
 
-    setState(() {
-      // master lists
-      kAirlines = airlines.toList()..sort();
-      kLayoverCities = layovers.toList()..sort();
+  //   setState(() {
+  //     // master lists
+  //     kAirlines = airlines.toList()..sort();
+  //     kLayoverCities = layovers.toList()..sort();
 
-      // initialize selections to everything (adjust if you want persist)
-      selectedAirlines
-        ..clear()
-        ..addAll(airlines);
-      selectedLayovers
-        ..clear()
-        ..addAll(layovers);
+  //     // initialize selections to everything (adjust if you want persist)
+  //     selectedAirlines
+  //       ..clear()
+  //       ..addAll(airlines);
+  //     selectedLayovers
+  //       ..clear()
+  //       ..addAll(layovers);
 
-      carriersDict = carriers; // used only for display in the sheet
+  //     carriersDict = carriers; // used only for display in the sheet
 
-      // ranges
-      flightDurationRange = rangeFromFlights(flights, 'durationMin');
-      layOverDurationRange = rangeFromFlights(flights, 'layoverMin');
-      flightDurationSt = flightDurationRange.start.toInt();
-      flightDurationEnd = flightDurationRange.end.toInt() + 1;
-      layOverDurationSt = layOverDurationRange.start.toInt();
-      layOverDurationEnd = layOverDurationRange.end.toInt() + 1;
-    });
-  }
+  //     // ranges
+  //     flightDurationRange = rangeFromFlights(flights, 'durationMin');
+  //     layOverDurationRange = rangeFromFlights(flights, 'layoverMin');
+  //     flightDurationSt = flightDurationRange.start.toInt();
+  //     flightDurationEnd = flightDurationRange.end.toInt() + 1;
+  //     layOverDurationSt = layOverDurationRange.start.toInt();
+  //     layOverDurationEnd = layOverDurationRange.end.toInt() + 1;
+  //   });
+  // }
 
   Widget _pageBody(BuildContext context, FlightSearchState flightState) {
     final bool isLoading = flightState.isLoading;
@@ -200,7 +199,7 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
                             context,
                             rootNavigator: true,
                           ).push<Map<String, List<String>>>(
-                            MaterialPageRoute(
+                            MaterialPageRoute<Map<String, List<String>>>(
                               fullscreenDialog: true,
                               builder: (_) => FlightFilterScreen(
                                 selectedAirlines: selectedAirlines,
@@ -589,6 +588,7 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
     _sub = ref.listenManual<FlightSearchState>(
       flightSearchProvider,
       (FlightSearchState? prev, FlightSearchState next) {
+        if (prev == next) return;
         // 🟢 first setState deferred to avoid “modify provider during build”
         if (!_filtersBootstrapped && prev == null) {
           _filtersBootstrapped = true;

@@ -121,7 +121,25 @@ class FlightSearchInputs extends ConsumerWidget {
                 ),
                 Transform.rotate(
                   angle: math.pi / 2, // 180 degrees
-                  child: const Icon(Icons.swap_calls),
+                  child: InkWell(
+                    onTap: () {
+                      final String d = flightState.departureAirportCode;
+                      final String a = flightState.arrivalAirportCode;
+
+                      final String dcity = flightState.departureCity;
+                      final String acity = flightState.arrivalCity;
+
+                      debugPrint(
+                        "☘️ flight_search_input.dart - before swap departure : $d, arrival : $a",
+                      );
+                      controller.setArrivalCode(d);
+                      controller.setDepartureCode(a);
+
+                      controller.setArrivalCity(dcity);
+                      controller.setDepartureCity(acity);
+                    },
+                    child: const Icon(Icons.swap_calls),
+                  ),
                 ),
                 const SizedBox(width: 8),
                 // Arrival

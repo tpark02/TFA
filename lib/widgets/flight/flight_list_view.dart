@@ -40,7 +40,7 @@ class _FlightListViewState extends ConsumerState<FlightListView>
   late Animation<Offset> _returnSlideAnimation;
   late Map<String, dynamic> _departData;
   Map<String, dynamic>? _returnData;
-  List<FlightListViewItem> returnFlightWidgets = [];
+  List<FlightListViewItem> returnFlightWidgets = <FlightListViewItem>[];
   // Call this instead of Navigator.of(...).push(...)
   void openTripDetails({
     required BuildContext context,
@@ -61,7 +61,7 @@ class _FlightListViewState extends ConsumerState<FlightListView>
   void onDepartureClicked(int index) async {
     if (selectedDepartureIndex == index) {
       await _returnAnimController.reverse();
-      await Future.delayed(const Duration(milliseconds: 50));
+      await Future<void>.delayed(const Duration(milliseconds: 50));
 
       final int? indexToScroll = selectedDepartureIndex;
       setState(() {
@@ -69,7 +69,7 @@ class _FlightListViewState extends ConsumerState<FlightListView>
         isLoading = true;
       });
 
-      await Future.delayed(const Duration(milliseconds: 50));
+      await Future<void>.delayed(const Duration(milliseconds: 50));
 
       if (indexToScroll != null) {
         final double offset = indexToScroll * 100.0;
@@ -88,17 +88,20 @@ class _FlightListViewState extends ConsumerState<FlightListView>
     });
 
     // ✅ Trigger slide immediately while still loading
-    await Future.delayed(const Duration(milliseconds: 10));
+    await Future<void>.delayed(const Duration(milliseconds: 10));
     _returnAnimController.forward(from: 0);
 
     // Simulate loading
-    await Future.delayed(const Duration(milliseconds: 500));
+    await Future<void>.delayed(const Duration(milliseconds: 500));
 
-    if (!mounted) return;
-
-    setState(() {
-      isLoading = false;
-    });
+    // if (!mounted) return;
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   if (!mounted) return;
+    //   setState(() {
+    //     // isLoading = false; // ✅ Ensure it's set AFTER animation/frame
+    //   });
+    //   debugPrint("🛑 Done loading return flights, isLoading = false");
+    // });
   }
 
   @override
@@ -130,7 +133,7 @@ class _FlightListViewState extends ConsumerState<FlightListView>
     // final List<Map<String, dynamic>>? allInBoundFlights = ref
     //     .watch(flightSearchProvider)
     //     .processedInBoundFlights;
-    int maxStops = maxStopsFor(widget.sortType);
+    final int maxStops = maxStopsFor(widget.sortType);
 
     for (final String s in widget.selectedAirlines) {
       debugPrint('selected Airlines - $s');
@@ -152,13 +155,14 @@ class _FlightListViewState extends ConsumerState<FlightListView>
       if (stops > maxStops) return false;
 
       // --- flight duration ---
-      final durMin = f['durationMin'] ?? 0;
+      // ignore: always_specify_types
+      final int durMin = f['durationMin'] ?? 0;
       final int dStart = widget.flightDuration.start.round();
       final int dEnd = widget.flightDuration.end.round();
       if (durMin < dStart || durMin > dEnd) return false;
 
       // layover duration
-      final layOverMin = f['layoverMin'] ?? 0;
+      final int layOverMin = f['layoverMin'] ?? 0;
       final int lStart = widget.layOverDuration.start.round();
       final int lEnd = widget.layOverDuration.end.round();
       if (layOverMin < lStart || layOverMin > lEnd) return false;
@@ -196,19 +200,20 @@ class _FlightListViewState extends ConsumerState<FlightListView>
 
     final String sortKey = widget.sortType;
     final List<Map<String, dynamic>> sortedAllFlights =
-        <Map<String, dynamic>>[...filteredFlights]..sort((Map a, Map b) {
-          switch (sortKey) {
-            case 'duration':
-              return parseDurationMins(
-                a['duration'],
-              ).compareTo(parseDurationMins(b['duration']));
-            case 'value':
-              return valueScore(a).compareTo(valueScore(b));
-            case 'cost':
-            default:
-              return parsePrice(a['price']).compareTo(parsePrice(b['price']));
-          }
-        });
+        <Map<String, dynamic>>[...filteredFlights]
+          ..sort((Map<String, dynamic> a, Map<String, dynamic> b) {
+            switch (sortKey) {
+              case 'duration':
+                return parseDurationMins(
+                  a['duration'],
+                ).compareTo(parseDurationMins(b['duration']));
+              case 'value':
+                return valueScore(a).compareTo(valueScore(b));
+              case 'cost':
+              default:
+                return parsePrice(a['price']).compareTo(parsePrice(b['price']));
+            }
+          });
 
     final List<Map<String, dynamic>> departureFlights = sortedAllFlights
         .where(
@@ -291,6 +296,18 @@ class _FlightListViewState extends ConsumerState<FlightListView>
           ),
         );
 
+    // 🟢 Stop shimmer once list is built
+    if (isLoading && departureFlightWidgets.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        setState(() {
+          isLoading = false;
+        });
+        debugPrint(
+          "🛑 Done building departure flight widgets → isLoading = false",
+        );
+      });
+    }
     return Column(
       children: <Widget>[
         // Departure flight row (static)
@@ -302,10 +319,42 @@ class _FlightListViewState extends ConsumerState<FlightListView>
               controller: _returnScrollController,
               // padding: const EdgeInsets.all(16),
               children: <Widget>[
+                // ✅ Optional: Departing flight header
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  color: Colors.grey[100],
+                  child: Stack(
+                    children: <Widget>[
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          const Text(
+                            "Choose Departing flight",
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          Text(
+                            "Total Cost",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).colorScheme.secondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                      if (isLoading)
+                        const Positioned(
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          child: LinearProgressIndicator(minHeight: 2),
+                        ),
+                    ],
+                  ),
+                ),
                 // ✅ Banner at the top of the scrollable list
                 Container(
                   color: Colors.amber[50],
-                  padding: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.all(10),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
@@ -348,25 +397,6 @@ class _FlightListViewState extends ConsumerState<FlightListView>
                   ),
                 ),
 
-                // ✅ Optional: Departing flight header
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  color: Colors.grey[100],
-                  child: const Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      Text(
-                        "Choose Departing flight",
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      Text(
-                        "Total Cost",
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                ),
-
                 // ✅ Actual flight items
                 ...departureFlightWidgets,
               ],
@@ -380,30 +410,44 @@ class _FlightListViewState extends ConsumerState<FlightListView>
               child: SlideTransition(
                 position: _returnSlideAnimation,
                 child: Column(
-                  key: const ValueKey('return-list'),
+                  key: const ValueKey<String>('return-list'),
                   children: <Widget>[
-                    Container(
-                      padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[100]!,
-                        border: Border(
-                          top: BorderSide(color: Colors.grey[400]!, width: 1.0),
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: <Widget>[
-                          Text(
-                            "Choose returning flight",
-                            style: TextStyle(
-                              fontSize: Theme.of(
-                                context,
-                              ).textTheme.bodyMedium?.fontSize,
-                              fontWeight: FontWeight.bold,
+                    Stack(
+                      children: <Widget>[
+                        Container(
+                          padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+                          decoration: BoxDecoration(
+                            color: Colors.grey[100]!,
+                            border: Border(
+                              top: BorderSide(
+                                color: Colors.grey[400]!,
+                                width: 1.0,
+                              ),
                             ),
                           ),
-                        ],
-                      ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: <Widget>[
+                              Text(
+                                "Choose returning flight",
+                                style: TextStyle(
+                                  fontSize: Theme.of(
+                                    context,
+                                  ).textTheme.bodyMedium?.fontSize,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        if (isLoading)
+                          const Positioned(
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            child: LinearProgressIndicator(minHeight: 2),
+                          ),
+                      ],
                     ),
 
                     Expanded(
@@ -411,7 +455,7 @@ class _FlightListViewState extends ConsumerState<FlightListView>
                         duration: const Duration(milliseconds: 300),
                         child: isLoading
                             ? SearchSummaryLoadingCard(
-                                key: const ValueKey('shimmer'),
+                                key: const ValueKey<String>('shimmer'),
                                 routeText:
                                     (activeIndex < departureFlights.length)
                                     ? (departureFlights[activeIndex]['airportPath']
@@ -421,7 +465,7 @@ class _FlightListViewState extends ConsumerState<FlightListView>
                                 dateText: flightState.displayDate!,
                               )
                             : ListView(
-                                key: const ValueKey('return-list'),
+                                key: const ValueKey<String>('return-list'),
                                 controller: _returnScrollController,
                                 children: filterReturnFlightWidgets(),
                               ),
@@ -438,7 +482,7 @@ class _FlightListViewState extends ConsumerState<FlightListView>
   }
 
   List<Widget> filterReturnFlightWidgets() {
-    String mode = _departData['pricingMode'] as String;
+    final String mode = _departData['pricingMode'] as String;
 
     if (mode == 'perleg') {
       return returnFlightWidgets
@@ -448,7 +492,7 @@ class _FlightListViewState extends ConsumerState<FlightListView>
 
     debugPrint("💕 depart flight number :${_departData['myFlightNumber']}");
     int cnt = 0;
-    for (final f in returnFlightWidgets) {
+    for (final FlightListViewItem f in returnFlightWidgets) {
       if (f.flight['pricingMode'] == 'combined') cnt++;
 
       if ((f.flight['pricingMode'] == 'combined') &&

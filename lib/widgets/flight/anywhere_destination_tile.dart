@@ -5,7 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:TFA/models/anywhere_destination.dart';
 
 class _ThumbFallback extends ConsumerWidget {
-  const _ThumbFallback({super.key});
+  const _ThumbFallback();
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Container(
@@ -18,7 +18,9 @@ class _ThumbFallback extends ConsumerWidget {
 
 class AnywhereDestinationTile extends ConsumerWidget {
   const AnywhereDestinationTile({super.key, required this.item, this.onTap});
-
+  static double pictureDimension = 100;
+  static double picturePadding = 8;
+  static double height = pictureDimension + (2 * picturePadding) + 1;
   final AnywhereDestination item;
   final VoidCallback? onTap;
 
@@ -26,8 +28,8 @@ class AnywhereDestinationTile extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final cardColor = Theme.of(context).colorScheme.surface;
-    final onSurface = Theme.of(context).colorScheme.onSurface;
+    final Color cardColor = Theme.of(context).colorScheme.surface;
+    final Color onSurface = Theme.of(context).colorScheme.onSurface;
 
     return InkWell(
       borderRadius: BorderRadius.circular(0),
@@ -36,7 +38,7 @@ class AnywhereDestinationTile extends ConsumerWidget {
         decoration: BoxDecoration(
           color: cardColor,
           borderRadius: BorderRadius.circular(4),
-          boxShadow: const [
+          boxShadow: const <BoxShadow>[
             BoxShadow(
               blurRadius: 8,
               offset: Offset(0, 2),
@@ -48,7 +50,7 @@ class AnywhereDestinationTile extends ConsumerWidget {
         child: Row(
           children: <Widget>[
             SizedBox.square(
-              dimension: 100,
+              dimension: pictureDimension,
               child: ClipRRect(
                 borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(4),
@@ -75,15 +77,16 @@ class AnywhereDestinationTile extends ConsumerWidget {
               ),
             ),
             const SizedBox(width: 12),
-            Expanded(
+            Flexible(
+              fit: FlexFit.loose,
               child: Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: EdgeInsets.all(picturePadding),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
                     Row(
                       mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
+                      children: <Widget>[
                         Text(
                           textAlign: TextAlign.start,
                           item.name,

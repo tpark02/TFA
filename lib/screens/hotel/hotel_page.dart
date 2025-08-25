@@ -1,4 +1,3 @@
-import 'dart:io';
 
 import 'package:TFA/providers/hotel/hotel_search_controller.dart';
 import 'package:TFA/providers/hotel/hotel_search_state.dart';

@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:TFA/providers/car/car_search_controller.dart';
 import 'package:TFA/providers/car/car_search_state.dart';
 import 'package:TFA/providers/recent_search.dart';
@@ -495,11 +493,15 @@ class _CarPageState extends ConsumerState<CarPage> {
                         idToken!,
                       );
                       if (!success) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('❌ Failed to save car recent search'),
-                          ),
-                        );
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                '❌ Failed to save car recent search',
+                              ),
+                            ),
+                          );
+                        });
                       }
                     },
                     style: ElevatedButton.styleFrom(

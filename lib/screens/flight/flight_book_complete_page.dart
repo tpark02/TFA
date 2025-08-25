@@ -1,6 +1,5 @@
 // import 'dart:math' as math;
 import 'package:flutter/material.dart';
-import 'package:confetti/confetti.dart';
 
 class FlightBookCompletePage extends StatefulWidget {
   const FlightBookCompletePage({super.key});
@@ -40,12 +39,12 @@ class _FlightBookCompletePageState extends State<FlightBookCompletePage> {
     return Scaffold(
       backgroundColor: const Color(0xFFF7FAF8),
       body: Stack(
-        children: [
+        children: <Widget>[
           // ✅ Centered success content
           Center(
             child: Column(
               mainAxisSize: MainAxisSize.min,
-              children: [
+              children: <Widget>[
                 const Text('✅', style: TextStyle(fontSize: 96)),
                 const SizedBox(height: 12),
                 Text(

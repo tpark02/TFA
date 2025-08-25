@@ -61,15 +61,19 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
         );
 
         if (response.statusCode != 200) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('❌ Server rejected token')),
-          );
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('❌ Server rejected token')),
+            );
+          });
         }
       } catch (e) {
         debugPrint("❌ Token fetch or server call failed: $e");
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to verify with backend')),
-        );
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Failed to verify with backend')),
+          );
+        });
       }
     } on FirebaseAuthException catch (error) {
       String message = 'Authentication failed.';
