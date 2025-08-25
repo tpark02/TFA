@@ -1,13 +1,13 @@
 import 'package:TFA/providers/airport/airport_selection.dart';
 import 'package:TFA/providers/flight/flight_search_controller.dart';
 import 'package:TFA/providers/flight/flight_search_state.dart';
+import 'package:TFA/screens/flight/anywhere_list_page.dart';
 import 'package:TFA/screens/shared/calendar_sheet.dart';
 import 'package:TFA/screens/shared/search_airport_sheet.dart';
 import 'package:TFA/screens/shared/traveler_selector_sheet.dart';
 import 'package:TFA/utils/platform_modal_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class SearchSummaryCard extends ConsumerWidget {
   final String from;
@@ -43,7 +43,7 @@ class SearchSummaryCard extends ConsumerWidget {
               Flexible(
                 child: InkWell(
                   onTap: () async {
-                    final result =
+                    final AirportSelection? result =
                         await showPlatformModalSheet<AirportSelection>(
                           context: context,
                           builder: (_) => const SearchAirportSheet(
@@ -65,8 +65,8 @@ class SearchSummaryCard extends ConsumerWidget {
                         });
                         return;
                       }
-                      controller.setDepartureCode(result.code);
-                      controller.setDepartureCity(result.city);
+                      controller.setDepartureCode(result.code, result.city);
+                      // controller.setDepartureCity(result.city);
                     }
                   },
                   child: Text(
@@ -104,11 +104,11 @@ class SearchSummaryCard extends ConsumerWidget {
                           debugPrint(
                             "☘️ search_summary.dart - before swap departure : $d, arrival : $a",
                           );
-                          controller.setArrivalCode(d);
-                          controller.setDepartureCode(a);
+                          controller.setDepartureCode(d, dcity);
+                          controller.setArrivalCode(a, acity);
 
-                          controller.setArrivalCity(dcity);
-                          controller.setDepartureCity(acity);
+                          // controller.setArrivalCity(dcity);
+                          // controller.setDepartureCity(acity);
                         },
                         child: Icon(
                           Icons.compare_arrows,
@@ -123,11 +123,11 @@ class SearchSummaryCard extends ConsumerWidget {
               Flexible(
                 child: InkWell(
                   onTap: () async {
-                    final result =
+                    final AirportSelection? result =
                         await showPlatformModalSheet<AirportSelection>(
                           context: context,
                           builder: (_) => const SearchAirportSheet(
-                            title: 'Origin',
+                            title: 'Destination',
                             isDeparture: true,
                           ),
                         );
@@ -143,9 +143,20 @@ class SearchSummaryCard extends ConsumerWidget {
                             ),
                           );
                         });
-                        controller.setArrivalCode(result.code);
-                        controller.setArrivalCity(result.city);
                       }
+                      if (result.code == 'anywhere') {
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          Navigator.of(context).push(
+                            MaterialPageRoute<void>(
+                              builder: (_) => const AnywhereListPage(),
+                            ),
+                          );
+                        });
+                        return;
+                      }
+
+                      controller.setArrivalCode(result.code, result.city);
+                      // controller.setArrivalCity(result.city);
                     }
                   },
                   child: Text(

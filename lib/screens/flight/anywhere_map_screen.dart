@@ -345,8 +345,11 @@ class _AnyWhereMapState extends ConsumerState<AnywhereMapScreen>
                             debugPrint(
                               '☘️ anywhere_map_screen.dart - Tapped: ${items[i].name}',
                             );
-                            controller.setArrivalCode(items[i].iata);
-                            controller.setArrivalCity(items[i].name);
+                            controller.setArrivalCode(
+                              items[i].iata,
+                              items[i].name,
+                            );
+                            // controller.setArrivalCity(items[i].name);
                           },
                         ),
                       ),

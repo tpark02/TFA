@@ -25,10 +25,10 @@ class RecentSearchItem extends ConsumerWidget {
         if (kind == 'flight') {
           if (search.departCode == '') return;
           controller.setDepartureCity(depCity);
-          controller.setArrivalCity(arrCity);
+          // controller.setArrivalCity(arrCity);
 
-          controller.setArrivalCode(search.arrivalCode);
-          controller.setDepartureCode(search.departCode);
+          controller.setArrivalCode(search.arrivalCode, arrCity);
+          controller.setDepartureCode(search.departCode, depCity);
 
           if (search.departDate.isNotEmpty && search.returnDate.isNotEmpty) {
             final DateTime dt = DateTime.parse(search.departDate);

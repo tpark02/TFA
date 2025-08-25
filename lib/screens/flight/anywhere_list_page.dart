@@ -6,7 +6,6 @@ import 'package:TFA/providers/flight/anywhere_provider.dart';
 import 'package:TFA/providers/flight/flight_search_controller.dart';
 import 'package:TFA/providers/flight/flight_search_state.dart';
 import 'package:TFA/screens/flight/anywhere_map_screen.dart';
-import 'package:TFA/screens/flight/flight_list_page.dart';
 import 'package:TFA/widgets/flight/anywhere_destination_tile.dart';
 import 'package:TFA/widgets/search_summary_card.dart';
 import 'package:TFA/widgets/search_summary_loading_card.dart';
@@ -23,7 +22,7 @@ class _AnywhereListState extends ConsumerState<AnywhereListPage> {
   Timer? _t;
   bool _show = false;
   late final ProviderSubscription<bool> _sub;
-  late final ProviderSubscription<FlightSearchState> _stateSub;
+  // late final ProviderSubscription<FlightSearchState> _stateSub;
 
   bool _isMapSelected = false;
 
@@ -79,40 +78,40 @@ class _AnywhereListState extends ConsumerState<AnywhereListPage> {
       fireImmediately: true,
     );
 
-    _stateSub = ref.listenManual<FlightSearchState>(flightSearchProvider, (
-      FlightSearchState? prev,
-      FlightSearchState next,
-    ) {
-      if (prev != null &&
-          ((prev.arrivalAirportCode != next.arrivalAirportCode) ||
-              (prev.departureAirportCode != next.departureAirportCode) ||
-              (prev.departDate != next.departDate) ||
-              (prev.returnDate != next.returnDate) ||
-              (prev.cabinIdx != next.cabinIdx) ||
-              (prev.adultCnt != next.adultCnt) ||
-              (prev.childrenCnt != next.childrenCnt) ||
-              (prev.infantLapCnt != next.infantLapCnt) ||
-              (prev.infantSeatCnt != next.infantSeatCnt))) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (!mounted) return;
-          debugPrint('🎯 listenManual fired');
+    //   _stateSub = ref.listenManual<FlightSearchState>(flightSearchProvider, (
+    //     FlightSearchState? prev,
+    //     FlightSearchState next,
+    //   ) {
+    //     if (prev != null &&
+    //         ((prev.arrivalAirportCode != next.arrivalAirportCode) ||
+    //             (prev.departureAirportCode != next.departureAirportCode) ||
+    //             (prev.departDate != next.departDate) ||
+    //             (prev.returnDate != next.returnDate) ||
+    //             (prev.cabinIdx != next.cabinIdx) ||
+    //             (prev.adultCnt != next.adultCnt) ||
+    //             (prev.childrenCnt != next.childrenCnt) ||
+    //             (prev.infantLapCnt != next.infantLapCnt) ||
+    //             (prev.infantSeatCnt != next.infantSeatCnt))) {
+    //       WidgetsBinding.instance.addPostFrameCallback((_) {
+    //         if (!mounted) return;
+    //         debugPrint('🎯 listenManual fired');
 
-          if (next.arrivalAirportCode == 'anywhere') {
-            return;
-          }
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute<void>(builder: (_) => const FlightListPage()),
-          );
-        });
-      }
-    }, fireImmediately: false);
+    //         if (next.arrivalAirportCode == 'anywhere') {
+    //           return;
+    //         }
+    //         Navigator.of(context).push(
+    //           MaterialPageRoute<void>(builder: (_) => const FlightListPage()),
+    //         );
+    //       });
+    //     }
+    //   }, fireImmediately: false);
   }
 
   @override
   void dispose() {
     _t?.cancel();
     _sub.close();
-    _stateSub.close();
+    // _stateSub.close();
     super.dispose();
   }
 
@@ -239,8 +238,11 @@ class _AnywhereListState extends ConsumerState<AnywhereListPage> {
                                 debugPrint(
                                   '☘️ anywhere_list_page.dart - Tapped: ${items[i].name}',
                                 );
-                                controller.setArrivalCode(items[i].iata);
-                                controller.setArrivalCity(items[i].name);
+                                controller.setArrivalCode(
+                                  items[i].iata,
+                                  items[i].name,
+                                );
+                                // controller.setArrivalCity(items[i].name);
                               },
                             ),
                       ),

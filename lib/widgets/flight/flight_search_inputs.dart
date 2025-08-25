@@ -9,10 +9,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:TFA/providers/airport/airport_selection.dart';
 import 'package:TFA/providers/flight/flight_search_controller.dart';
-import 'package:TFA/screens/shared/search_airport_sheet.dart';
 import 'package:TFA/screens/shared/traveler_selector_sheet.dart';
 import 'package:TFA/theme/button_styles.dart';
-import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class FlightSearchInputs extends ConsumerWidget {
   const FlightSearchInputs({
@@ -89,9 +87,9 @@ class FlightSearchInputs extends ConsumerWidget {
                           );
 
                       if (result != null) {
-                        controller.setDepartureCode(result.code);
+                        controller.setDepartureCode(result.code, result.city);
                         // controller.setDepartureName(result.name);
-                        controller.setDepartureCity(result.city);
+                        // controller.setDepartureCity(result.city);
                       }
                     },
                     child: Row(
@@ -129,11 +127,11 @@ class FlightSearchInputs extends ConsumerWidget {
                       debugPrint(
                         "☘️ flight_search_input.dart - before swap departure : $d, arrival : $a",
                       );
-                      controller.setArrivalCode(d);
-                      controller.setDepartureCode(a);
+                      controller.setArrivalCode(d, dcity);
+                      controller.setDepartureCode(a, acity);
 
-                      controller.setArrivalCity(dcity);
-                      controller.setDepartureCity(acity);
+                      // controller.setArrivalCity(dcity);
+                      // controller.setDepartureCity(acity);
                     },
                     child: const Icon(Icons.swap_calls),
                   ),
@@ -167,9 +165,9 @@ class FlightSearchInputs extends ConsumerWidget {
                       // );
 
                       if (result != null) {
-                        controller.setArrivalCode(result.code);
+                        controller.setArrivalCode(result.code, result.city);
                         // controller.setArrivalName(result.name);
-                        controller.setArrivalCity(result.city);
+                        // controller.setArrivalCity(result.city);
                       }
                     },
                     child: Align(

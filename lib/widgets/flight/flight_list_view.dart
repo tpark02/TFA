@@ -1,13 +1,11 @@
 import 'package:TFA/providers/flight/flight_search_controller.dart';
 import 'package:TFA/providers/flight/flight_search_state.dart';
-import 'package:TFA/screens/flight/flight_trip_details_page.dart';
 import 'package:TFA/utils/platform_modal_sheet.dart';
 import 'package:TFA/utils/utils.dart';
 import 'package:TFA/widgets/flight/flight_list_view_item.dart';
 import 'package:TFA/widgets/search_summary_loading_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class FlightListView extends ConsumerStatefulWidget {
   const FlightListView({
@@ -91,14 +89,14 @@ class _FlightListViewState extends ConsumerState<FlightListView>
     // Simulate loading
     await Future<void>.delayed(const Duration(milliseconds: 500));
 
-    // if (!mounted) return;
-    // WidgetsBinding.instance.addPostFrameCallback((_) {
-    //   if (!mounted) return;
-    //   setState(() {
-    //     // isLoading = false; // ✅ Ensure it's set AFTER animation/frame
-    //   });
-    //   debugPrint("🛑 Done loading return flights, isLoading = false");
-    // });
+    if (!mounted) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      setState(() {
+        isLoading = false; // ✅ Ensure it's set AFTER animation/frame
+      });
+      debugPrint("🛑 Done loading return flights, isLoading = false");
+    });
   }
 
   @override
@@ -294,17 +292,17 @@ class _FlightListViewState extends ConsumerState<FlightListView>
         );
 
     // 🟢 Stop shimmer once list is built
-    if (isLoading && departureFlightWidgets.isNotEmpty) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted) return;
-        setState(() {
-          isLoading = false;
-        });
-        debugPrint(
-          "🛑 Done building departure flight widgets → isLoading = false",
-        );
-      });
-    }
+    // if (isLoading && departureFlightWidgets.isNotEmpty) {
+    //   WidgetsBinding.instance.addPostFrameCallback((_) {
+    //     if (!mounted) return;
+    //     setState(() {
+    //       isLoading = false;
+    //     });
+    //     debugPrint(
+    //       "🛑 Done building departure flight widgets → isLoading = false",
+    //     );
+    //   });
+    // }
     return Column(
       children: <Widget>[
         // Departure flight row (static)
@@ -338,13 +336,13 @@ class _FlightListViewState extends ConsumerState<FlightListView>
                           ),
                         ],
                       ),
-                      if (isLoading)
-                        const Positioned(
-                          top: 0,
-                          left: 0,
-                          right: 0,
-                          child: LinearProgressIndicator(minHeight: 2),
-                        ),
+                      // if (isLoading)
+                      //   const Positioned(
+                      //     top: 0,
+                      //     left: 0,
+                      //     right: 0,
+                      //     child: LinearProgressIndicator(minHeight: 2),
+                      //   ),
                     ],
                   ),
                 ),
@@ -437,13 +435,13 @@ class _FlightListViewState extends ConsumerState<FlightListView>
                             ],
                           ),
                         ),
-                        if (isLoading)
-                          const Positioned(
-                            top: 0,
-                            left: 0,
-                            right: 0,
-                            child: LinearProgressIndicator(minHeight: 2),
-                          ),
+                        // if (isLoading)
+                        //   const Positioned(
+                        //     top: 0,
+                        //     left: 0,
+                        //     right: 0,
+                        //     child: LinearProgressIndicator(minHeight: 2),
+                        //   ),
                       ],
                     ),
 

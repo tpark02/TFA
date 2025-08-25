@@ -625,8 +625,8 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
     state = state.copyWith(arrivalCity: city);
   }
 
-  void setDepartureCode(String code) {
-    state = state.copyWith(departureAirportCode: code);
+  void setDepartureCode(String code, String city) {
+    state = state.copyWith(departureAirportCode: code, departureCity: city);
   }
 
   void clearProcessedFlights() {
@@ -646,8 +646,8 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
   //   state = state.copyWith(departureAirportName: name);
   // }
 
-  void setArrivalCode(String code) {
-    state = state.copyWith(arrivalAirportCode: code);
+  void setArrivalCode(String code, String city) {
+    state = state.copyWith(arrivalAirportCode: code, arrivalCity: city);
   }
 
   // void setArrivalName(String name) {
@@ -799,12 +799,8 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
   //   debugPrint('🔔 nonce $before -> ${state.searchNonce}');
   // }
 
-  List<Future<(bool, String)> Function()> executeFlightSearch({
-    required bool hasReturn,
-  }) {
-    clearProcessedFlights();
-
-    if (hasReturn) {
+  List<Future<(bool, String)> Function()> executeFlightSearch() {
+    if (returnDate?.isNotEmpty ?? false) {
       debugPrint("✈️ Round Trip");
       return <Future<(bool, String)> Function()>[
         () => searchFlights(

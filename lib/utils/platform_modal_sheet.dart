@@ -65,7 +65,7 @@ Future<AirportSelection?> showAirportSelectionSheet({
   required String title,
   required bool isDeparture,
 }) {
-  final sheet = SearchAirportSheet(title: title, isDeparture: isDeparture);
+  final SearchAirportSheet sheet = SearchAirportSheet(title: title, isDeparture: isDeparture);
 
   if (Platform.isIOS) {
     return CupertinoScaffold.showCupertinoModalBottomSheet<AirportSelection>(

@@ -2,7 +2,6 @@
 
 import 'package:TFA/providers/flight/flight_search_state.dart';
 import 'package:TFA/screens/flight/anywhere_list_page.dart';
-import 'package:TFA/screens/flight/flight_list_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:TFA/providers/flight/flight_search_controller.dart';
@@ -112,14 +111,6 @@ class _FlightSearchButtonState extends ConsumerState<FlightSearchButton> {
                         );
                       });
                     }
-                    controller.clearProcessedFlights();
-                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                      Navigator.of(context).push(
-                        MaterialPageRoute<void>(
-                          builder: (_) => const FlightListPage(),
-                        ),
-                      );
-                    });
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Theme.of(context).colorScheme.primary,
