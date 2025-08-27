@@ -18,6 +18,9 @@ Future<void> showSortBottomSheet({
       List<String> options;
 
       switch (sortType) {
+        case SortTab.hotelSort:
+          options = <String>['Price', 'Discount', 'Ranking'];
+          break;
         case SortTab.sort:
           options = <String>['Duration', 'Cost', 'Value'];
           break;

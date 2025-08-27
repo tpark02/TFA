@@ -86,56 +86,57 @@ int maxStopsFor(String stopsLabel) {
     case 'Up to 1 stop':
       return 1;
     case 'Up to 2 stops':
+      return 2;
     default:
       return 2;
   }
 }
 
 // --- helpers for filters ---
-Set<String> layoverCityCodesOf(Map f) {
-  final String path = (f['airportPath'] as String? ?? '');
-  final List<String> parts = path
-      .split('→')
-      .map((String s) => s.trim())
-      .toList();
-  if (parts.length <= 2) return <String>{}; // nonstop
+// Set<String> layoverCityCodesOf(Map f) {
+//   final String path = (f['airportPath'] as String? ?? '');
+//   final List<String> parts = path
+//       .split('→')
+//       .map((String s) => s.trim())
+//       .toList();
+//   if (parts.length <= 2) return <String>{}; // nonstop
 
-  final List<String> middleIATAs = parts.sublist(1, parts.length - 1);
-  final Map<String, dynamic> locMap =
-      (f['locations'] as Map?)?.cast<String, dynamic>() ?? <String, dynamic>{};
+//   final List<String> middleIATAs = parts.sublist(1, parts.length - 1);
+//   final Map<String, dynamic> locMap =
+//       (f['locations'] as Map?)?.cast<String, dynamic>() ?? <String, dynamic>{};
 
-  final Set<String> out = <String>{};
-  for (final String iata in middleIATAs) {
-    final Map<String, dynamic>? details = (locMap[iata] as Map?)
-        ?.cast<String, dynamic>();
-    final String? city = details?['cityCode'] as String?;
-    if (city != null && city.isNotEmpty) out.add(city);
-  }
-  return out;
-}
+//   final Set<String> out = <String>{};
+//   for (final String iata in middleIATAs) {
+//     final Map<String, dynamic>? details = (locMap[iata] as Map?)
+//         ?.cast<String, dynamic>();
+//     final String? city = details?['cityCode'] as String?;
+//     if (city != null && city.isNotEmpty) out.add(city);
+//   }
+//   return out;
+// }
 
-bool passesAirlineFilter(Map f, Set<String> selected) {
-  if (selected.isEmpty) return true; // or false, depending on your UX
+// bool passesAirlineFilter(Map f, Set<String> selected) {
+//   if (selected.isEmpty) return true; // or false, depending on your UX
 
-  String norm(String s) => s.toUpperCase().trim();
+//   String norm(String s) => s.toUpperCase().trim();
 
-  final Set<String> flightAir =
-      ((f['airlines'] as Iterable?) ?? const <dynamic>[])
-          .map((e) => norm(e.toString()))
-          .toSet();
+//   final Set<String> flightAir =
+//       ((f['airlines'] as Iterable?) ?? const <dynamic>[])
+//           .map((e) => norm(e.toString()))
+//           .toSet();
 
-  final Set<String> selectedNorm = selected.map(norm).toSet();
+//   final Set<String> selectedNorm = selected.map(norm).toSet();
 
-  // ✅ Show only if EVERY carrier in the itinerary is selected
-  return selectedNorm.containsAll(flightAir);
-  // (equivalent: return flightAir.difference(selectedNorm).isEmpty;)
-}
+//   // ✅ Show only if EVERY carrier in the itinerary is selected
+//   return selectedNorm.containsAll(flightAir);
+//   // (equivalent: return flightAir.difference(selectedNorm).isEmpty;)
+// }
 
-bool passesLayoverCityFilter(Map f, Set<String> selected) {
-  if (selected.isEmpty) return true;
-  final Set<String> layoverCities = layoverCityCodesOf(f);
-  return layoverCities.any(selected.contains);
-}
+// bool passesLayoverCityFilter(Map f, Set<String> selected) {
+//   if (selected.isEmpty) return true;
+//   final Set<String> layoverCities = layoverCityCodesOf(f);
+//   return layoverCities.any(selected.contains);
+// }
 
 /// Parse ISO-8601 duration like "PT5H41M" into minutes.
 int parseIsoDurMin(String? iso) {
@@ -249,6 +250,21 @@ Future<Map<String, DateTime?>?> showCalender(
       ),
     );
   }
+}
+
+/// Format any currency as a string with optional '+' at the end.
+/// - [amount]: integer value
+/// - [currencySymbol]: e.g. ₩, $, €, ¥
+/// - [addPlusForMax]: append '+' for max bound (for "and above")
+String formatCurrency(
+  int amount, {
+  String currencySymbol = '₩',
+  bool addPlusForMax = false,
+  int? maxValue,
+}) {
+  final String formatted = NumberFormat('#,###').format(amount);
+  final bool showPlus = addPlusForMax && maxValue != null && amount == maxValue;
+  return '$currencySymbol$formatted${showPlus ? '+' : ''}';
 }
 
 String getCabinClassByIdx({required int cabinIndex}) {
@@ -365,3 +381,33 @@ String itineraryKey(List<Segment> segs) =>
 // Outbound leg key for a flight offer (itineraries[0])
 String outboundKey(FlightOffer offer) =>
     itineraryKey(offer.itineraries?.first.segments ?? const <Segment>[]);
+
+List<double> saturationMatrix(double s) {
+  // s: 1.0 = original, 0.0 = grayscale
+  final inv = 1 - s;
+  final r = 0.2126 * inv;
+  final g = 0.7152 * inv;
+  final b = 0.0722 * inv;
+  return <double>[
+    r + s,
+    g,
+    b,
+    0,
+    0,
+    r,
+    g + s,
+    b,
+    0,
+    0,
+    r,
+    g,
+    b + s,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+  ];
+}

@@ -50,16 +50,27 @@ class HotelSearchController extends StateNotifier<HotelSearchState> {
     );
   }
 
-  void setRoomCnt(String cnt) {
-    state = state.copyWith(roomCnt: cnt);
-  }
+  // void setRoomCnt(String cnt) {
+  //   state = state.copyWith(roomCnt: cnt);
+  // }
 
-  void setAdultCnt(String cnt) {
-    state = state.copyWith(adultCnt: cnt);
-  }
+  // void setAdultCnt(String cnt) {
+  //   state = state.copyWith(adultCnt: cnt);
+  // }
 
-  void setChildCnt(String cnt) {
-    state = state.copyWith(childCnt: cnt);
+  // void setChildCnt(String cnt) {
+  //   state = state.copyWith(childCnt: cnt);
+  // }
+  void updateGuestCounts({
+    String? roomCnt,
+    String? adultCnt,
+    String? childCnt,
+  }) {
+    state = state.copyWith(
+      roomCnt: roomCnt ?? state.roomCnt,
+      adultCnt: adultCnt ?? state.adultCnt,
+      childCnt: childCnt ?? state.childCnt,
+    );
   }
 
   void setName(String name) {
@@ -154,7 +165,7 @@ class HotelSearchController extends StateNotifier<HotelSearchState> {
     state = const HotelSearchState();
   }
 
-  Future<void> loadRecentSearchesFromApi() async {
+  Future<void> loadRecentSearches() async {
     try {
       final List<Map<String, dynamic>> results =
           await RecentSearchApiService.fetchRecentSearches('hotel');

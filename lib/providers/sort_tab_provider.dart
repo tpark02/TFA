@@ -11,6 +11,9 @@ enum SortTab {
   layoverDuration,
   airlines,
   layoverCities,
+  hotelSort,
 }
 
-final StateProvider<SortTab> sortTabProvider = StateProvider<SortTab>((StateProviderRef<SortTab> ref) => SortTab.sort);
+final StateProvider<SortTab> sortTabProvider = StateProvider<SortTab>(
+  (StateProviderRef<SortTab> ref) => SortTab.sort,
+);

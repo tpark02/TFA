@@ -1,4 +1,5 @@
 import 'package:TFA/providers/menu_tab_provider.dart';
+import 'package:TFA/screens/profiile/profile_settings_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:TFA/screens/search.dart';
@@ -23,7 +24,7 @@ class MenuScreen extends ConsumerWidget {
         body = const Center(child: Text('여행'));
         break;
       case MenuTab.account:
-        body = const Center(child: Text('계정'));
+        body = const ProfileSettingsPage();
         break;
     }
 
@@ -54,8 +55,8 @@ class MenuScreen extends ConsumerWidget {
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
           BottomNavigationBarItem(
-            icon: Icon(Icons.card_travel),
-            label: 'Travel',
+            icon: Icon(Icons.watch_later_outlined),
+            label: 'Schedule',
           ),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Account'),
         ],

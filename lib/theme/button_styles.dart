@@ -12,7 +12,7 @@ ButtonStyle primaryButtonStyle(BuildContext context) =>
 ButtonStyle outlinedButtonStyle(BuildContext context) =>
     OutlinedButton.styleFrom(
       padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
-      side: BorderSide(color: Theme.of(context).colorScheme.primary, width: 1),
+      side: const BorderSide(color: Colors.transparent, width: 1),
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
     );
 

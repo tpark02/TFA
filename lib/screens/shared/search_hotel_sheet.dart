@@ -15,7 +15,9 @@ class _SearchHotelSheetState extends ConsumerState<SearchHotelSheet> {
   @override
   Widget build(BuildContext context) {
     final double height = MediaQuery.of(context).size.height * 0.7;
-    final AsyncValue<Map<String, List<Hotel>>> filteredHotels = ref.watch(filteredHotelProvider);
+    final AsyncValue<Map<String, List<Hotel>>> filteredHotels = ref.watch(
+      filteredHotelProvider,
+    );
 
     return SafeArea(
       child: Padding(
@@ -85,7 +87,9 @@ class _SearchHotelSheetState extends ConsumerState<SearchHotelSheet> {
                     }
 
                     return ListView(
-                      children: grouped.entries.map((MapEntry<String, List<Hotel>> entry) {
+                      children: grouped.entries.map((
+                        MapEntry<String, List<Hotel>> entry,
+                      ) {
                         final String city = entry.key;
                         final List<Hotel> hotels = entry.value;
 
@@ -93,7 +97,9 @@ class _SearchHotelSheetState extends ConsumerState<SearchHotelSheet> {
                           children: <Widget>[
                             TextButton(
                               onPressed: () {
-                                Navigator.pop(context, <String, String>{'city': city});
+                                Navigator.pop(context, <String, String>{
+                                  'city': city,
+                                });
                               },
                               child: Row(
                                 mainAxisAlignment:
@@ -115,7 +121,7 @@ class _SearchHotelSheetState extends ConsumerState<SearchHotelSheet> {
                                       ),
                                       Text(
                                         hotels[0].country,
-                                        style:  TextStyle(
+                                        style: TextStyle(
                                           fontSize: Theme.of(
                                             context,
                                           ).textTheme.bodySmall?.fontSize,

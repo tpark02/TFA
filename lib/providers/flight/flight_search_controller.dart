@@ -351,7 +351,7 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
         final String plusDay = dayDiff > 0 ? '+$dayDiff' : '';
 
         // Stops / layovers between segments
-        final List<String> stopAirports = <String>[];
+        final List<String> layOverAirports = <String>[];
         int totalLayoverMin = 0;
         final List<Map<String, dynamic>> connections = <Map<String, dynamic>>[];
 
@@ -369,7 +369,7 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
 
             final String? connCode = cur.arrival?.iataCode;
             if (connCode != null && connCode.isNotEmpty) {
-              stopAirports.add(connCode);
+              layOverAirports.add(connCode);
             }
 
             connections.add(<String, dynamic>{
@@ -384,11 +384,11 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
           }
         }
 
-        final String airportPath = stopAirports.isNotEmpty
-            ? '$depAirport → ${stopAirports.join(" → ")} → $arrAirport'
+        final String airportPath = layOverAirports.isNotEmpty
+            ? '$depAirport → ${layOverAirports.join(" → ")} → $arrAirport'
             : '$depAirport → $arrAirport';
 
-        final int stopCount = stopAirports.length;
+        final int stopCount = layOverAirports.length;
         final String stopLabel = stopCount == 0
             ? 'nonstop'
             : '$stopCount ${stopCount == 1 ? "stop" : "stops"}';
@@ -474,7 +474,7 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
           'layoverMin': totalLayoverMin,
           'layover': fmtHM(totalLayoverMin),
           'stops': stopLabel,
-          'stopAirports': stopAirports,
+          'layOverAirports': layOverAirports,
           'connections': connections,
 
           // airline labels
@@ -568,10 +568,6 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
     );
   }
 
-  // void setClearReturnDate(bool b) {
-  //   state = state.copyWith(clearReturnDate: b);
-  // }
-
   void setTripDates({
     required DateTime departDate, // non-null
     DateTime? returnDate, // nullable for one-way
@@ -616,6 +612,91 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
   //   final String formatted = DateFormat('yyyy-MM-dd').format(d);
   //   state = state.copyWith(returnDate: formatted);
   // }
+
+  // In your FlightSearchController
+  void updateSearch({
+    // airports
+    String? departureCode,
+    String? departureCity,
+    String? arrivalCode,
+    String? arrivalCity,
+
+    // dates
+    DateTime? departDate, // set outbound
+    DateTime? returnDate, // set return
+    bool clearReturnDate = false, // set to true to remove return date
+    // pax / cabin
+    int? passengerCount,
+    int? cabinIndex,
+    int? adult,
+    int? children,
+    int? infantLap,
+    int? infantSeat,
+  }) {
+    // --- start from current values
+    String depCode = departureCode ?? state.departureAirportCode;
+    String depCity = departureCity ?? state.departureCity;
+    String arrCode = arrivalCode ?? state.arrivalAirportCode;
+    String arrCity = arrivalCity ?? state.arrivalCity;
+
+    // --- dates
+    final iso = DateFormat('yyyy-MM-dd');
+    final pretty = DateFormat('MMM d');
+
+    final String newDepartIso = (departDate != null)
+        ? iso.format(departDate)
+        : state.departDate;
+
+    String? newReturnIso;
+    if (clearReturnDate) {
+      newReturnIso = null;
+    } else if (returnDate != null) {
+      newReturnIso = iso.format(returnDate);
+    } else {
+      newReturnIso = state.returnDate;
+    }
+
+    // recompute displayDate only if anything date-related changed
+    final bool datesChanged =
+        departDate != null || returnDate != null || clearReturnDate;
+    final String? newDisplayDate = datesChanged
+        ? (newReturnIso != null
+              ? '${pretty.format(departDate ?? iso.parse(state.departDate))} - '
+                    '${pretty.format(returnDate ?? iso.parse(state.returnDate!))}'
+              : pretty.format(departDate ?? iso.parse(state.departDate)))
+        : state.displayDate;
+
+    // --- pax / cabin
+    final int newCabinIdx = cabinIndex ?? state.cabinIdx;
+    final String newCabinClass = (cabinIndex != null)
+        ? getCabinClassByIdx(cabinIndex: newCabinIdx)
+        : state.cabinClass;
+
+    final next = state.copyWith(
+      // airports
+      departureAirportCode: depCode,
+      departureCity: depCity,
+      arrivalAirportCode: arrCode,
+      arrivalCity: arrCity,
+
+      // dates
+      departDate: newDepartIso,
+      returnDate: newReturnIso,
+      displayDate: newDisplayDate,
+      clearReturnDate: clearReturnDate,
+
+      // pax
+      passengerCount: passengerCount ?? state.passengerCount,
+      adultCnt: adult ?? state.adultCnt,
+      childrenCnt: children ?? state.childrenCnt,
+      infantLapCnt: infantLap ?? state.infantLapCnt,
+      infantSeatCnt: infantSeat ?? state.infantSeatCnt,
+      cabinIdx: newCabinIdx,
+      cabinClass: newCabinClass,
+    );
+
+    if (next != state) state = next;
+  }
 
   void setDepartureCity(String city) {
     state = state.copyWith(departureCity: city);

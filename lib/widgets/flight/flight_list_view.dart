@@ -128,7 +128,7 @@ class _FlightListViewState extends ConsumerState<FlightListView>
     // final List<Map<String, dynamic>>? allInBoundFlights = ref
     //     .watch(flightSearchProvider)
     //     .processedInBoundFlights;
-    final int maxStops = maxStopsFor(widget.sortType);
+    final int maxStops = maxStopsFor(widget.stopType);
 
     for (final String s in widget.selectedAirlines) {
       debugPrint('selected Airlines - $s');
@@ -140,10 +140,20 @@ class _FlightListViewState extends ConsumerState<FlightListView>
     ) {
       debugPrint("🧳 all flights - pricing mode : ${f['pricingMode']}");
       // airlines filter
-      if (!passesAirlineFilter(f, widget.selectedAirlines)) return false;
+      // if (!passesAirlineFilter(f, widget.selectedAirlines)) return false;
+
+      if (widget.selectedAirlines.isNotEmpty &&
+          !widget.selectedAirlines.contains(f['airline']))
+        return false;
 
       // layover city filter (by cityCode like "TYO", "SEL")
-      if (!passesLayoverCityFilter(f, widget.selectedLayovers)) return false;
+      // if (!passesLayoverCityFilter(f, widget.selectedLayovers)) return false;
+      for (final l in f['layOverAirports'] as List<String>) {
+        if (widget.selectedLayovers.isNotEmpty &&
+            !widget.selectedLayovers.contains(l)) {
+          return false;
+        }
+      }
 
       final int stops =
           int.tryParse(f['stops'].toString().split(' ').first) ?? 0;
@@ -303,137 +313,40 @@ class _FlightListViewState extends ConsumerState<FlightListView>
     //     );
     //   });
     // }
-    return Column(
-      children: <Widget>[
-        // Departure flight row (static)
-        if (activeIndex != null)
-          departureFlightWidgets[activeIndex]
-        else
-          Expanded(
-            child: ListView(
-              controller: _returnScrollController,
-              // padding: const EdgeInsets.all(16),
-              children: <Widget>[
-                // ✅ Optional: Departing flight header
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  color: Colors.grey[100],
-                  child: Stack(
-                    children: <Widget>[
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: <Widget>[
-                          const Text(
-                            "Choose Departing flight",
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          Text(
-                            "Total Cost",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Theme.of(context).colorScheme.secondary,
-                            ),
-                          ),
-                        ],
-                      ),
-                      // if (isLoading)
-                      //   const Positioned(
-                      //     top: 0,
-                      //     left: 0,
-                      //     right: 0,
-                      //     child: LinearProgressIndicator(minHeight: 2),
-                      //   ),
-                    ],
-                  ),
-                ),
-                // ✅ Banner at the top of the scrollable list
-                Container(
-                  color: Colors.amber[50],
-                  padding: const EdgeInsets.all(10),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      Expanded(
-                        child: RichText(
-                          text: TextSpan(
-                            style: TextStyle(
-                              fontSize: Theme.of(
-                                context,
-                              ).textTheme.bodyLarge?.fontSize,
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
-                            children: const <InlineSpan>[
-                              TextSpan(
-                                text: 'Automatic protection on every flight. ',
-                              ),
-                              TextSpan(
-                                text: 'The Skiplagged Guarantee.',
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      ElevatedButton(
-                        onPressed: () {},
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Theme.of(
-                            context,
-                          ).colorScheme.primary,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(4.0),
-                          ),
-                          padding: const EdgeInsets.all(10.0),
-                        ),
-                        child: const Text("Learn More"),
-                      ),
-                    ],
-                  ),
-                ),
-
-                // ✅ Actual flight items
-                ...departureFlightWidgets,
-              ],
-            ),
-          ),
-
-        // Return flight list below
-        if (activeIndex != null && returnFlightWidgets.isNotEmpty) ...<Widget>[
-          Flexible(
-            child: SizedBox.expand(
-              child: SlideTransition(
-                position: _returnSlideAnimation,
-                child: Column(
-                  key: const ValueKey<String>('return-list'),
-                  children: <Widget>[
-                    Stack(
+    return Container(
+      color: Theme.of(context).colorScheme.surface,
+      child: Column(
+        children: <Widget>[
+          // Departure flight row (static)
+          if (activeIndex != null)
+            departureFlightWidgets[activeIndex]
+          else
+            Expanded(
+              child: ListView(
+                controller: _returnScrollController,
+                // padding: const EdgeInsets.all(16),
+                children: <Widget>[
+                  // ✅ Optional: Departing flight header
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    color: Colors.grey[100],
+                    child: Stack(
                       children: <Widget>[
-                        Container(
-                          padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-                          decoration: BoxDecoration(
-                            color: Colors.grey[100]!,
-                            border: Border(
-                              top: BorderSide(
-                                color: Colors.grey[400]!,
-                                width: 1.0,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            const Text(
+                              "Choose Departing flight",
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            Text(
+                              "Total Cost",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context).colorScheme.secondary,
                               ),
                             ),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
-                              Text(
-                                "Choose returning flight",
-                                style: TextStyle(
-                                  fontSize: Theme.of(
-                                    context,
-                                  ).textTheme.bodyMedium?.fontSize,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
+                          ],
                         ),
                         // if (isLoading)
                         //   const Positioned(
@@ -444,35 +357,137 @@ class _FlightListViewState extends ConsumerState<FlightListView>
                         //   ),
                       ],
                     ),
+                  ),
+                  // ✅ Banner at the top of the scrollable list
+                  // Container(
+                  //   color: Colors.amber[50],
+                  //   padding: const EdgeInsets.all(10),
+                  //   child: Row(
+                  //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  //     children: <Widget>[
+                  //       Expanded(
+                  //         child: RichText(
+                  //           text: TextSpan(
+                  //             style: TextStyle(
+                  //               fontSize: Theme.of(
+                  //                 context,
+                  //               ).textTheme.bodyLarge?.fontSize,
+                  //               color: Theme.of(context).colorScheme.primary,
+                  //             ),
+                  //             children: const <InlineSpan>[
+                  //               TextSpan(
+                  //                 text:
+                  //                     'Automatic protection on every flight. ',
+                  //               ),
+                  //               TextSpan(
+                  //                 text: 'The Skiplagged Guarantee.',
+                  //                 style: TextStyle(fontWeight: FontWeight.bold),
+                  //               ),
+                  //             ],
+                  //           ),
+                  //         ),
+                  //       ),
+                  //       ElevatedButton(
+                  //         onPressed: () {},
+                  //         style: ElevatedButton.styleFrom(
+                  //           backgroundColor: Theme.of(
+                  //             context,
+                  //           ).colorScheme.primary,
+                  //           foregroundColor: Colors.white,
+                  //           shape: RoundedRectangleBorder(
+                  //             borderRadius: BorderRadius.circular(4.0),
+                  //           ),
+                  //           padding: const EdgeInsets.all(10.0),
+                  //         ),
+                  //         child: const Text("Learn More"),
+                  //       ),
+                  //     ],
+                  //   ),
+                  // ),
 
-                    Expanded(
-                      child: AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 300),
-                        child: isLoading
-                            ? SearchSummaryLoadingCard(
-                                key: const ValueKey<String>('shimmer'),
-                                routeText:
-                                    (activeIndex < departureFlights.length)
-                                    ? (departureFlights[activeIndex]['airportPath']
-                                              as String? ??
-                                          '')
-                                    : '',
-                                dateText: flightState.displayDate!,
-                              )
-                            : ListView(
-                                key: const ValueKey<String>('return-list'),
-                                controller: _returnScrollController,
-                                children: filterReturnFlightWidgets(),
+                  // ✅ Actual flight items
+                  ...departureFlightWidgets,
+                ],
+              ),
+            ),
+
+          // Return flight list below
+          if (activeIndex != null &&
+              returnFlightWidgets.isNotEmpty) ...<Widget>[
+            Flexible(
+              child: SizedBox.expand(
+                child: SlideTransition(
+                  position: _returnSlideAnimation,
+                  child: Column(
+                    key: const ValueKey<String>('return-list'),
+                    children: <Widget>[
+                      Stack(
+                        children: <Widget>[
+                          Container(
+                            padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+                            decoration: BoxDecoration(
+                              color: Colors.grey[100]!,
+                              border: Border(
+                                top: BorderSide(
+                                  color: Colors.grey[400]!,
+                                  width: 1.0,
+                                ),
                               ),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: <Widget>[
+                                Text(
+                                  "Choose returning flight",
+                                  style: TextStyle(
+                                    fontSize: Theme.of(
+                                      context,
+                                    ).textTheme.bodyMedium?.fontSize,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          // if (isLoading)
+                          //   const Positioned(
+                          //     top: 0,
+                          //     left: 0,
+                          //     right: 0,
+                          //     child: LinearProgressIndicator(minHeight: 2),
+                          //   ),
+                        ],
                       ),
-                    ),
-                  ],
+
+                      Expanded(
+                        child: AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 300),
+                          child: isLoading
+                              ? SearchSummaryLoadingCard(
+                                  key: const ValueKey<String>('shimmer'),
+                                  routeText:
+                                      (activeIndex < departureFlights.length)
+                                      ? (departureFlights[activeIndex]['airportPath']
+                                                as String? ??
+                                            '')
+                                      : '',
+                                  dateText: flightState.displayDate!,
+                                )
+                              : ListView(
+                                  key: const ValueKey<String>('return-list'),
+                                  controller: _returnScrollController,
+                                  children: filterReturnFlightWidgets(),
+                                ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
+          ],
         ],
-      ],
+      ),
     );
   }
 

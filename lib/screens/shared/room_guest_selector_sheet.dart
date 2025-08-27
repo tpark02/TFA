@@ -1,16 +1,26 @@
+import 'package:TFA/providers/hotel/hotel_search_controller.dart';
 import 'package:TFA/widgets/counter_control.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class RoomGuestSelectorSheet extends StatefulWidget {
+class RoomGuestSelectorSheet extends ConsumerStatefulWidget {
   const RoomGuestSelectorSheet({super.key});
   @override
-  State<RoomGuestSelectorSheet> createState() => _RoomGuestSelectorSheet();
+  ConsumerState<RoomGuestSelectorSheet> createState() =>
+      _RoomGuestSelectorSheet();
 }
 
-class _RoomGuestSelectorSheet extends State<RoomGuestSelectorSheet> {
+class _RoomGuestSelectorSheet extends ConsumerState<RoomGuestSelectorSheet> {
   int _rooms = 1;
-  int _adultCount = 0;
+  int _adultCount = 1;
   int _childCount = 0;
+  late final HotelSearchController controller;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = ref.read(hotelSearchProvider.notifier);
+  }
 
   @override
   Widget build(BuildContext content) {
@@ -75,7 +85,8 @@ class _RoomGuestSelectorSheet extends State<RoomGuestSelectorSheet> {
                             alignment: Alignment.centerRight,
                             child: CounterControl(
                               count: _rooms,
-                              onChanged: (int val) => setState(() => _rooms = val),
+                              onChanged: (int val) =>
+                                  setState(() => _rooms = val),
                             ),
                           ),
                         ),
@@ -145,13 +156,12 @@ class _RoomGuestSelectorSheet extends State<RoomGuestSelectorSheet> {
                 height: 50,
                 child: ElevatedButton(
                   onPressed: () {
-                    final int total = _adultCount + _childCount;
-                    Navigator.pop(context, <String, int>{
-                      'roomCnt': _rooms,
-                      'guestsCnt': total,
-                      'childCnt': _childCount,
-                      'adultCnt': _adultCount,
-                    });
+                    controller.updateGuestCounts(
+                      roomCnt: _rooms.toString(),
+                      adultCnt: _adultCount.toString(),
+                      childCnt: _childCount.toString(),
+                    );
+                    Navigator.pop(context);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Theme.of(context).colorScheme.primary,

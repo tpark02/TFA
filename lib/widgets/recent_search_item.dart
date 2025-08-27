@@ -4,10 +4,10 @@ import 'package:TFA/screens/flight/flight_list_page.dart';
 import 'package:flutter/material.dart';
 import 'package:TFA/providers/recent_search.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 
 class RecentSearchItem extends ConsumerWidget {
   const RecentSearchItem({super.key, required this.search});
-
   final RecentSearch search;
 
   @override
@@ -19,23 +19,19 @@ class RecentSearchItem extends ConsumerWidget {
         ref.watch(cityByIataProvider(search.departCode)) ?? search.departCode;
     final String arrCity =
         ref.watch(cityByIataProvider(search.arrivalCode)) ?? search.arrivalCode;
-    return InkWell(
-      onTap: () {
-        final String kind = search.kind;
-        if (kind == 'flight') {
-          if (search.departCode == '') return;
-          controller.setDepartureCity(depCity);
-          // controller.setArrivalCity(arrCity);
 
+    return InkWell(
+      onTap: () async {
+        if (search.kind == 'flight' && search.departCode.isNotEmpty) {
+          controller.setDepartureCity(depCity);
           controller.setArrivalCode(search.arrivalCode, arrCity);
           controller.setDepartureCode(search.departCode, depCity);
-
           if (search.departDate.isNotEmpty && search.returnDate.isNotEmpty) {
-            final DateTime dt = DateTime.parse(search.departDate);
-            final DateTime rt = DateTime.parse(search.returnDate);
-            controller.setTripDates(departDate: dt, returnDate: rt);
+            controller.setTripDates(
+              departDate: DateTime.parse(search.departDate),
+              returnDate: DateTime.parse(search.returnDate),
+            );
           }
-
           controller.setPassengers(
             count: search.passengerCnt,
             cabinIndex: search.cabinIdx,
@@ -44,70 +40,108 @@ class RecentSearchItem extends ConsumerWidget {
             infantLap: search.infantLap,
             infantSeat: search.infantSeat,
           );
+          // controller.updateSearch(
+          //   // airports
+          //   departureCode: search.departCode,
+          //   departureCity: depCity,
+          //   arrivalCode: search.arrivalCode,
+          //   arrivalCity: arrCity,
+
+          //   // dates: if returnDate is empty → clear it (one-way)
+          //   departDate: search.departDate.isNotEmpty
+          //       ? DateTime.parse(search.departDate)
+          //       : null,
+          //   returnDate: search.returnDate.isNotEmpty
+          //       ? DateTime.parse(search.returnDate)
+          //       : null,
+          //   clearReturnDate: search.returnDate.isEmpty, // one-way toggle
+          //   // pax / cabin
+          //   passengerCount: search.passengerCnt,
+          //   cabinIndex: search.cabinIdx,
+          //   adult: search.adult,
+          //   children: search.children,
+          //   infantLap: search.infantLap,
+          //   infantSeat: search.infantSeat,
+          // );
         }
-        Navigator.of(
-          context,
-        ).push(MaterialPageRoute<void>(builder: (_) => const FlightListPage()));
+        // Navigator.of(
+        //   context,
+        // ).push(MaterialPageRoute<void>(builder: (_) => const FlightListPage()));
       },
-      child: Row(
-        children: <Widget>[
-          Expanded(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                const SizedBox(height: 10.0),
-                Text(
-                  search.destination,
-                  maxLines: 1,
-                  style: TextStyle(
-                    overflow: TextOverflow.ellipsis,
-                    fontSize: Theme.of(context).textTheme.bodyMedium?.fontSize,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.grey[800],
-                  ),
-                ),
-                Row(
-                  children: <Widget>[
-                    Text(
-                      search.tripDateRange,
-                      maxLines: 1,
-                      style: TextStyle(
-                        overflow: TextOverflow.ellipsis,
-                        fontSize: Theme.of(
-                          context,
-                        ).textTheme.bodySmall?.fontSize,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.grey[500],
-                      ),
-                    ),
-                    ...search.icons,
-                  ],
-                ),
-                const SizedBox(height: 10.0),
-              ],
-            ),
-          ),
-          Expanded(
-            child: Align(
-              alignment: Alignment.centerRight,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 5),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            // LEFT (Destination + Date+Icons)
+            Expanded(
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Text(
-                    search.destinationCode,
+                    search.destination,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       fontSize: Theme.of(
                         context,
                       ).textTheme.bodyMedium?.fontSize,
                       fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
-                  const SizedBox(height: 20.0),
+                  const SizedBox(height: 4),
+
+                  // Date + icons (grouped together)
+                  Row(
+                    mainAxisSize: MainAxisSize.min, // 🟢 Keep it tight
+                    children: <Widget>[
+                      Text(
+                        search.tripDateRange,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: Theme.of(
+                            context,
+                          ).textTheme.bodySmall?.fontSize,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey[500],
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      ...search.icons, // 🟢 Icons now hug the text
+                    ],
+                  ),
                 ],
               ),
             ),
-          ),
-        ],
+
+            const SizedBox(width: 8),
+
+            // RIGHT (Code + Arrow)
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Text(
+                  search.destinationCode,
+                  style: TextStyle(
+                    fontSize: Theme.of(context).textTheme.bodyMedium?.fontSize,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(width: 4),
+                search.destinationCode.isEmpty
+                    ? const SizedBox.shrink()
+                    : const Icon(
+                        Icons.chevron_right,
+                        size: 20,
+                        color: Colors.grey,
+                      ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

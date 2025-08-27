@@ -87,6 +87,12 @@ flutter:
     - assets/data/airports.csv
     - assets/data/hotels.csv
     - assets/data/cars.csv
+    - assets/images/hotel_1.webp
+    - assets/images/hotel_2.webp
+    - assets/images/hotel_3.webp
+    - assets/images/room_1.jpg
+    - assets/images/room_2.jpg
+    - assets/images/room_3.webp
 
   #   - images/a_dot_ham.jpeg
 

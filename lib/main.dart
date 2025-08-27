@@ -1,5 +1,12 @@
+import 'dart:async';
 import 'dart:io';
 
+import 'package:TFA/providers/auth_provider.dart';
+import 'package:TFA/providers/flight/flight_search_controller.dart';
+import 'package:TFA/providers/flight/flight_search_state.dart';
+import 'package:TFA/providers/navigation.dart';
+import 'package:TFA/providers/search_runner.dart';
+import 'package:TFA/providers/startup_bootstrap.dart';
 import 'package:TFA/screens/auth.dart';
 import 'package:TFA/screens/menu.dart';
 import 'package:TFA/theme/app_theme.dart';
@@ -12,16 +19,63 @@ import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'firebase_options.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  final String raw = await rootBundle.loadString('assets/data/airports.csv');
-  debugPrint("🧪 CSV line count: ${raw.split('\n').length}");
+  // // (Optional) warmup
+  // final raw = await rootBundle.loadString('assets/data/airports.csv');
+  // debugPrint("🧪 CSV line count: ${raw.split('\n').length}");
 
-  WidgetsFlutterBinding.ensureInitialized(); // ✅ required for plugins
+  // Create ONE container for the whole app
+  final container = ProviderContainer();
 
-  runApp(const ProviderScope(child: App()));
+  // ✅ Use `listen` (not `listenManual`) on the container you’ll pass to the app
+  container.listen<FlightSearchState>(flightSearchProvider, (prev, next) async {
+    // if (prev == next) return;
+    if (next.arrivalAirportCode.toLowerCase() == 'anywhere') return;
+    if (!stateReady(next)) return;
+
+    debugPrint('🌍 Global listener → running search…');
+    await SearchRunner(container).runFromState(next);
+  }, fireImmediately: false);
+  unawaited(runStartupBootstrap(container));
+
+  container.listen<AsyncValue<User?>>(
+    authStateProvider,
+    (prev, next) async {
+      final was = prev?.asData?.value;
+      final now = next.asData?.value;
+
+      // ✅ LOGIN: run bootstrap + enable FlightSearch listener
+      if (was == null && now != null) {
+        debugPrint('👤 Logged in → run bootstrap + enable listeners');
+
+        // run bootstrap
+        await runStartupBootstrap(container);
+
+        // attach global flight search listener
+        container.listen<FlightSearchState>(flightSearchProvider, (
+          prev,
+          next,
+        ) async {
+          if (next.arrivalAirportCode.toLowerCase() == 'anywhere') return;
+          if (!stateReady(next)) return;
+          debugPrint('🌍 Global listener → running search…');
+          await SearchRunner(container).runFromState(next);
+        }, fireImmediately: false);
+      }
+
+      // ✅ LOGOUT: clear state
+      if (was != null && now == null) {
+        debugPrint('👤 Logged out → clear flight state');
+        container.read(flightSearchProvider.notifier).clearProcessedFlights();
+      }
+    },
+    fireImmediately: true, // handles cold start when already logged in
+  );
+  // ✅ Pass the SAME container into the widget tree
+  runApp(UncontrolledProviderScope(container: container, child: const App()));
 }
 
 class App extends StatelessWidget {
@@ -30,34 +84,31 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: rootNavigatorKey, // for global navigation
       title: 'TFA',
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.system, // light/dark based on OS
-      localizationsDelegates: const <LocalizationsDelegate>[
+      themeMode: ThemeMode.system,
+      localizationsDelegates: [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      supportedLocales: const <Locale>[
-        Locale('en'),
-      ], // or [Locale('ko')] for Korean
+      supportedLocales: <Locale>[const Locale('en')],
 
-      home: StreamBuilder(
+      // Define a route for flight list if you used pushNamed above
+      // routes: {'/flight_list': (_) => const FlightListPage()},
+      home: StreamBuilder<User?>(
         stream: FirebaseAuth.instance.authStateChanges(),
-        builder: (BuildContext ctx, AsyncSnapshot<User?> snapshot) {
-          if (snapshot.hasData) {
+        builder: (ctx, snap) {
+          if (snap.hasData) {
             return Platform.isAndroid
-                ? const MenuScreen() // just the screen for Android
-                : const CupertinoScaffold(
-                    body: MenuScreen(),
-                  ); // Cupertino on iOS
+                ? const MenuScreen()
+                : const CupertinoScaffold(body: MenuScreen());
           }
-
           return Platform.isAndroid
-              ? const AuthScreen() // just the screen for Android
-              : const CupertinoScaffold(body: AuthScreen()); // Cupertino on iOS
-          // return const MenuScreen();
+              ? const AuthScreen()
+              : const CupertinoScaffold(body: AuthScreen());
         },
       ),
     );

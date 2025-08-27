@@ -1,7 +1,7 @@
 import 'package:TFA/providers/car/car_search_controller.dart';
 import 'package:TFA/providers/car/car_search_state.dart';
 import 'package:TFA/providers/recent_search.dart';
-import 'package:TFA/screens/shared/recent_search_panel.dart';
+import 'package:TFA/screens/shared/recent_search_list.dart';
 import 'package:TFA/screens/shared/search_car_sheet.dart';
 import 'package:TFA/screens/shared/show_adaptive_time_picker.dart';
 import 'package:TFA/services/location_service.dart';
@@ -525,7 +525,7 @@ class _CarPageState extends ConsumerState<CarPage> {
             child: Column(
               children: <Widget>[
                 SizedBox(height: _padding),
-                RecentSearchPanel(panelName: 'car'),
+                RecentSearchList(panelName: 'car'),
               ],
             ),
           ),

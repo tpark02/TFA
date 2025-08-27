@@ -20,8 +20,10 @@ class HotelSearchState {
   // final String? endDate;
   final String departDate;
   final String? returnDate;
+  final bool isLoading;
 
   const HotelSearchState({
+    this.isLoading = false,
     this.recentSearches = _defaultRecentSearches,
     this.departDate = '',
     this.returnDate = '',
@@ -34,9 +36,9 @@ class HotelSearchState {
     this.city = '',
     this.country = '',
     this.displayDate,
-    this.roomCnt = '',
-    this.adultCnt = '',
-    this.childCnt = '',
+    this.roomCnt = '1',
+    this.adultCnt = '1',
+    this.childCnt = '0',
     // this.startDate = '',
     // this.endDate = '',
   });
@@ -110,6 +112,7 @@ class HotelSearchState {
   ];
 
   HotelSearchState copyWith({
+    bool? isLoading,
     List<RecentSearch>? recentSearches,
     String? name,
     String? rating,
@@ -145,6 +148,8 @@ class HotelSearchState {
       childCnt: childCnt ?? this.childCnt,
       departDate: departDate ?? this.departDate,
       returnDate: clearReturnDate ? null : returnDate ?? this.returnDate,
+      isLoading: isLoading ?? this.isLoading,
+
       // startDate: startDate ?? this.startDate,
       // endDate: endDate ?? this.endDate,
     );

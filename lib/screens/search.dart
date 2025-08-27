@@ -27,59 +27,39 @@ class _SearchContent extends ConsumerStatefulWidget {
 }
 
 class _SearchContentState extends ConsumerState<_SearchContent> {
-  static const double _padding = 20.0;
+  // static const double _padding = 20.0;
   int _selectedIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        foregroundColor: Colors.white,
-        title: const Text('Search'),
+        title: const Text('Search', style: TextStyle(color: Colors.white)),
         centerTitle: true,
-        actions: <Widget>[
-          IconButton(
-            onPressed: () {
-              ref.read(flightSearchProvider.notifier).clearRecentSearches();
-              FirebaseAuth.instance.signOut();
-            },
-            icon: const Icon(Icons.exit_to_app, color: Colors.white),
-          ),
-        ],
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        elevation: 0,
       ),
       body: Column(
         children: <Widget>[
-          const SizedBox(height: _padding),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: <Widget>[
-              _buildTabIcon(context, 0, Icons.flight_takeoff, "Flight"),
-              _buildTabIcon(context, 1, Icons.hotel, "Hotel"),
-              _buildTabIcon(context, 2, Icons.directions_car_filled, "Cars"),
-            ],
-          ),
-          SizedBox(height: _selectedIndex != 2 ? _padding * 2 : _padding),
-          Expanded(
-            child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 300),
-              transitionBuilder: (Widget child, Animation<double> animation) =>
-                  FadeTransition(
-                    opacity: animation,
-                    child: SlideTransition(
-                      position: Tween<Offset>(
-                        begin: const Offset(0.0, 0.1),
-                        end: Offset.zero,
-                      ).animate(animation),
-                      child: child,
-                    ),
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 300),
+            transitionBuilder: (Widget child, Animation<double> animation) =>
+                FadeTransition(
+                  opacity: animation,
+                  child: SlideTransition(
+                    position: Tween<Offset>(
+                      begin: const Offset(0.0, 0.1),
+                      end: Offset.zero,
+                    ).animate(animation),
+                    child: child,
                   ),
-              child: _selectedIndex == 0
-                  ? const FlightPage(key: ValueKey(0))
-                  : _selectedIndex == 1
-                  ? const HotelPage(key: ValueKey(1))
-                  : const CarPage(key: ValueKey(2)),
-            ),
+                ),
+            child: const FlightPage(key: ValueKey(0)),
           ),
           const SizedBox(height: 50), // dummy bottom spacing
         ],
@@ -87,34 +67,34 @@ class _SearchContentState extends ConsumerState<_SearchContent> {
     );
   }
 
-  Widget _buildTabIcon(
-    BuildContext context,
-    int index,
-    IconData icon,
-    String label,
-  ) {
-    final bool isSelected = _selectedIndex == index;
+  //   Widget _buildTabIcon(
+  //     BuildContext context,
+  //     int index,
+  //     IconData icon,
+  //     String label,
+  //   ) {
+  //     final bool isSelected = _selectedIndex == index;
 
-    return Column(
-      children: <Widget>[
-        IconButton(
-          onPressed: () => setState(() => _selectedIndex = index),
-          icon: Icon(icon),
-          iconSize: 50,
-          style: IconButton.styleFrom(
-            shape: const CircleBorder(),
-            backgroundColor: Colors.grey[200],
-            foregroundColor: isSelected
-                ? Theme.of(context).colorScheme.primary
-                : Colors.grey[500]!,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          label,
-          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-        ),
-      ],
-    );
-  }
+  //     return Column(
+  //       children: <Widget>[
+  //         IconButton(
+  //           onPressed: () => setState(() => _selectedIndex = index),
+  //           icon: Icon(icon),
+  //           iconSize: 50,
+  //           style: IconButton.styleFrom(
+  //             shape: const CircleBorder(),
+  //             backgroundColor: Colors.grey[200],
+  //             foregroundColor: isSelected
+  //                 ? Theme.of(context).colorScheme.primary
+  //                 : Colors.grey[500]!,
+  //           ),
+  //         ),
+  //         const SizedBox(height: 8),
+  //         Text(
+  //           label,
+  //           style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+  //         ),
+  //       ],
+  //     );
+  //   }
 }

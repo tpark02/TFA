@@ -9,8 +9,8 @@ import 'package:TFA/widgets/recent_search_item.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class RecentSearchPanel extends ConsumerWidget {
-  const RecentSearchPanel({super.key, required this.panelName});
+class RecentSearchList extends ConsumerWidget {
+  const RecentSearchList({super.key, required this.panelName});
 
   final String panelName;
   @override
@@ -61,6 +61,7 @@ class RecentSearchPanel extends ConsumerWidget {
           style: TextStyle(
             fontSize: Theme.of(context).textTheme.headlineMedium?.fontSize,
             fontWeight: FontWeight.bold,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
         const SizedBox(height: 20),

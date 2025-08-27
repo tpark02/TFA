@@ -9,14 +9,14 @@ import 'package:TFA/utils/platform_modal_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class SearchSummaryCard extends ConsumerWidget {
+class FlightSearchSummaryCard extends ConsumerWidget {
   final String from;
   final String to;
   final String dateRange;
-  final int passengerCount;
+  final String passengerCount;
   final String cabinClass;
 
-  const SearchSummaryCard({
+  const FlightSearchSummaryCard({
     super.key,
     required this.from,
     required this.to,
@@ -34,7 +34,7 @@ class SearchSummaryCard extends ConsumerWidget {
 
     return Container(
       padding: const EdgeInsets.all(8),
-      color: Theme.of(context).colorScheme.secondary,
+      color: Theme.of(context).colorScheme.onPrimaryContainer,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
@@ -268,7 +268,7 @@ class SearchSummaryCard extends ConsumerWidget {
                       const Icon(Icons.person, color: Colors.white, size: 16),
                       const SizedBox(width: 5),
                       Text(
-                        passengerCount.toString(),
+                        passengerCount,
                         style: const TextStyle(color: Colors.white),
                       ),
                       const SizedBox(width: 5),

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
-/// A generic selection bottom sheet with checkboxes and an optional "only" action per item.
-/// Works with any data type T.
+/// ✅ Make your generic sheet work for the Stars case:
+/// - singleSelect: behaves like radio (keeps exactly one selected)
+/// - trailingOf: lets you render star icons on the right
 Future<void> showSelectionBottomSheet<T>({
   required BuildContext context,
   required String title,
@@ -10,7 +11,8 @@ Future<void> showSelectionBottomSheet<T>({
   required String Function(T) labelOf,
   required void Function(Set<T> newSelection) onDone,
   bool showOnlyAction = true,
-  double maxHeightFraction = 0.6,
+  // double maxHeightFraction = 0.6,
+  Widget Function(T item)? trailingOf,
 }) {
   return showModalBottomSheet(
     context: context,
@@ -27,21 +29,14 @@ Future<void> showSelectionBottomSheet<T>({
         labelOf: labelOf,
         onDone: onDone,
         showOnlyAction: showOnlyAction,
-        maxHeightFraction: maxHeightFraction,
+        // maxHeightFraction: maxHeightFraction,
+        trailingOf: trailingOf,
       );
     },
   );
 }
 
 class _SelectionContent<T> extends StatefulWidget {
-  final String title;
-  final List<T> items;
-  final Set<T> initialSelected;
-  final String Function(T) labelOf;
-  final void Function(Set<T>) onDone;
-  final bool showOnlyAction;
-  final double maxHeightFraction;
-
   const _SelectionContent({
     required this.title,
     required this.items,
@@ -49,8 +44,18 @@ class _SelectionContent<T> extends StatefulWidget {
     required this.labelOf,
     required this.onDone,
     required this.showOnlyAction,
-    required this.maxHeightFraction,
+    // required this.maxHeightFraction,
+    required this.trailingOf,
   });
+
+  final String title;
+  final List<T> items;
+  final Set<T> initialSelected;
+  final String Function(T) labelOf;
+  final void Function(Set<T>) onDone;
+  final bool showOnlyAction;
+  // final double maxHeightFraction;
+  final Widget Function(T item)? trailingOf; // 🟢 NEW
 
   @override
   State<_SelectionContent<T>> createState() => _SelectionContentState<T>();
@@ -65,10 +70,26 @@ class _SelectionContentState<T> extends State<_SelectionContent<T>> {
     _selected = <T>{...widget.initialSelected};
   }
 
+  void _toggle(T item, bool checked, bool isOnlyClicked) {
+    setState(() {
+      if (isOnlyClicked) {
+        _selected
+          ..clear()
+          ..add(item);
+      } else {
+        if (checked) {
+          _selected.add(item);
+        } else {
+          _selected.remove(item);
+        }
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    final double maxHeight =
-        MediaQuery.of(context).size.height * widget.maxHeightFraction;
+    final double h = MediaQuery.of(context).size.height;
+    final double maxHeight = widget.trailingOf == null ? h * 0.6 : h * 0.5;
 
     return SafeArea(
       child: ConstrainedBox(
@@ -81,8 +102,8 @@ class _SelectionContentState<T> extends State<_SelectionContent<T>> {
             Padding(
               padding: const EdgeInsets.fromLTRB(20.0, 20.0, 0, 0),
               child: Text(
-                textAlign: TextAlign.left,
                 widget.title,
+                textAlign: TextAlign.left,
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -91,7 +112,6 @@ class _SelectionContentState<T> extends State<_SelectionContent<T>> {
               ),
             ),
             const SizedBox(height: 8),
-            // const Divider(height: 1),
             Expanded(
               child: ListView.separated(
                 itemCount: widget.items.length,
@@ -110,45 +130,38 @@ class _SelectionContentState<T> extends State<_SelectionContent<T>> {
                       shape: const CircleBorder(),
                       side: BorderSide.none,
                       value: isSelected,
-                      onChanged: (bool? v) {
-                        setState(() {
-                          if (v == true) {
-                            _selected.add(item);
-                          } else {
-                            _selected.remove(item);
-                          }
-                        });
-                      },
+                      onChanged: (bool? v) => _toggle(item, v ?? false, false),
                     ),
                     title: Text(
                       label,
                       style: TextStyle(
                         fontWeight: isSelected
                             ? FontWeight.bold
-                            : FontWeight.normal,
+                            : FontWeight.w300,
+                        fontSize: 16,
                       ),
                     ),
-                    trailing: widget.showOnlyAction
-                        ? InkWell(
-                            onTap: () {
-                              setState(() {
-                                _selected
-                                  ..clear()
-                                  ..add(item);
-                              });
-                            },
-                            child: const Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 8.0),
-                              child: Text(
-                                'only',
-                                style: TextStyle(
-                                  color: Colors.lightBlue,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
-                          )
-                        : null,
+                    trailing: widget.trailingOf != null
+                        ? widget.trailingOf!(item)
+                        : (widget.showOnlyAction
+                              ? InkWell(
+                                  onTap: () => _toggle(item, true, true),
+                                  child: const Padding(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 8.0,
+                                    ),
+                                    child: Text(
+                                      'only',
+                                      style: TextStyle(
+                                        color: Colors.lightBlue,
+                                        fontWeight: FontWeight.w400,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                  ),
+                                )
+                              : null),
+                    onTap: () => _toggle(item, !isSelected, false),
                   );
                 },
               ),

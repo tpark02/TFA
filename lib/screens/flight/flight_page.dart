@@ -1,6 +1,5 @@
 import 'package:TFA/providers/flight/flight_search_controller.dart';
 import 'package:TFA/providers/flight/flight_search_state.dart';
-import 'package:TFA/screens/flight/flight_list_page.dart';
 import 'package:TFA/services/airport_service.dart';
 import 'package:TFA/services/location_service.dart';
 import 'package:TFA/utils/dev_logger.dart';
@@ -27,6 +26,7 @@ class _FlightPageState extends ConsumerState<FlightPage> {
   final AirportService _airportSvc = AirportService();
   late final ProviderSubscription<FlightSearchState> _stateSub;
   bool _rtFetching = false;
+  bool _suppressListener = true;
 
   Future<void> fetchCurrentCountry() async {
     if (!mounted) return;
@@ -88,96 +88,84 @@ class _FlightPageState extends ConsumerState<FlightPage> {
   }
 
   // ---------------------- add these helpers ----------------------
-  bool _stateReady(FlightSearchState s) {
-    final bool hasDep = s.departureAirportCode.isNotEmpty;
-    final bool hasArr = s.arrivalAirportCode.isNotEmpty;
-    final bool hasOut = s.departDate.isNotEmpty;
-    // return date optional (allow one-way)
-    return hasDep && hasArr && hasOut;
-  }
+  // bool _stateReady(FlightSearchState s) {
+  //   final bool hasDep = s.departureAirportCode.isNotEmpty;
+  //   final bool hasArr = s.arrivalAirportCode.isNotEmpty;
+  //   final bool hasOut = s.departDate.isNotEmpty;
+  //   // return date optional (allow one-way)
+  //   return hasDep && hasArr && hasOut;
+  // }
 
-  Future<void> _runSearchFrom(FlightSearchState s) async {
-    if (_rtFetching) return;
-    _rtFetching = true;
+  // Future<void> _runSearchFrom(FlightSearchState s) async {
+  //   if (_rtFetching) return;
+  //   _rtFetching = true;
 
-    final FlightSearchController controller = ref.read(
-      flightSearchProvider.notifier,
-    );
+  //   final FlightSearchController controller = ref.read(
+  //     flightSearchProvider.notifier,
+  //   );
 
-    try {
-      // optional: clear existing results before new search
-      controller.clearProcessedFlights();
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        Navigator.of(
-          context,
-        ).push(MaterialPageRoute<void>(builder: (_) => const FlightListPage()));
-      });
-      // IMPORTANT: executeFlightSearch returns a list of closures.
-      final List<Future<(bool, String)> Function()> ops = controller
-          .executeFlightSearch();
+  //   try {
+  //     // optional: clear existing results before new search
+  //     controller.clearProcessedFlights();
+  //     WidgetsBinding.instance.addPostFrameCallback((_) {
+  //       Navigator.of(
+  //         context,
+  //       ).push(MaterialPageRoute<void>(builder: (_) => const FlightListPage()));
+  //     });
+  //     // IMPORTANT: executeFlightSearch returns a list of closures.
+  //     final List<Future<(bool, String)> Function()> ops = controller
+  //         .executeFlightSearch();
 
-      for (final Future<(bool, String)> Function() op in ops) {
-        final (bool ok, String msg) = await op(); // <-- invoke each closure
-        if (!ok) {
-          debugPrint('❌ Search failed: $msg');
-          // you can throw or show a snackbar here, then break/return
-          break;
-        }
-        debugPrint('✅ Search step: $msg');
-      }
-    } catch (e, st) {
-      debugPrint('❌ runSearch error: $e\n$st');
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(e.toString())));
-      }
-    } finally {
-      _rtFetching = false;
-    }
-  }
+  //     for (final Future<(bool, String)> Function() op in ops) {
+  //       final (bool ok, String msg) = await op(); // <-- invoke each closure
+  //       if (!ok) {
+  //         debugPrint('❌ Search failed: $msg');
+  //         // you can throw or show a snackbar here, then break/return
+  //         break;
+  //       }
+  //       debugPrint('✅ Search step: $msg');
+  //     }
+  //   } catch (e, st) {
+  //     debugPrint('❌ runSearch error: $e\n$st');
+  //     if (mounted) {
+  //       ScaffoldMessenger.of(
+  //         context,
+  //       ).showSnackBar(SnackBar(content: Text(e.toString())));
+  //     }
+  //   } finally {
+  //     _rtFetching = false;
+  //   }
+  // }
 
   // ---------------------- init & dispose ----------------------
   @override
   void initState() {
     super.initState();
     controller = ref.read(flightSearchProvider.notifier);
-    // Listen to flightSearchProvider and trigger searches on meaningful changes
-    _stateSub = ref.listenManual<FlightSearchState>(
-      flightSearchProvider,
-      (FlightSearchState? prev, FlightSearchState next) async {
-        // identical object → ignore
-        if (prev == next) return;
+    // // Listen to flightSearchProvider and trigger searches on meaningful changes
+    // _stateSub = ref.listenManual<FlightSearchState>(
+    //   flightSearchProvider,
+    //   (FlightSearchState? prev, FlightSearchState next) async {
+    //     // identical object → ignore
+    //     if (!FlightPage.enableAutoListen) return;
+    //     // if (_suppressListener) return;
+    //     if (prev == next) return;
 
-        // ignore “anywhere” (handled by your Anywhere UI)
-        if (next.arrivalAirportCode.toLowerCase() == 'anywhere') return;
+    //     // ignore “anywhere” (handled by your Anywhere UI)
+    //     if (next.arrivalAirportCode.toLowerCase() == 'anywhere') return;
 
-        // only run when NEW state is ready (don’t gate on prev)
-        if (!_stateReady(next)) return;
-
-        // optionally: skip if none of the key params changed
-        // final bool changed =
-        //     prev == null ||
-        //     prev.departureAirportCode != next.departureAirportCode ||
-        //     prev.arrivalAirportCode != next.arrivalAirportCode ||
-        //     prev.departDate != next.departDate ||
-        //     (prev.returnDate ?? '') != (next.returnDate ?? '') ||
-        //     prev.cabinIdx != next.cabinIdx ||
-        //     prev.adultCnt != next.adultCnt ||
-        //     prev.childrenCnt != next.childrenCnt ||
-        //     prev.infantLapCnt != next.infantLapCnt ||
-        //     prev.infantSeatCnt != next.infantSeatCnt;
-
-        debugPrint('🎯 listenManual fired → running search…');
-        await _runSearchFrom(next);
-      },
-      fireImmediately: false, // first run will wait until a change arrives
-    );
+    //     // only run when NEW state is ready (don’t gate on prev)
+    //     if (!_stateReady(next)) return;
+    //     debugPrint('🎯 listenManual fired → running search…');
+    //     await _runSearchFrom(next);
+    //   },
+    //   fireImmediately: false, // first run will wait until a change arrives
+    // );
   }
 
   @override
   void dispose() {
-    _stateSub.close();
+    // _stateSub.close();
     super.dispose();
   }
 
@@ -196,21 +184,30 @@ class _FlightPageState extends ConsumerState<FlightPage> {
         }
       });
 
-      Future.microtask(() async {
-        await fetchCurrentCountry();
-      });
+      // Future<void>.microtask(() async {
+      //   if (!mounted) return;
+      //   await fetchCurrentCountry();
+
+      //   if (controller.mounted) {
+      //     await controller.loadRecentSearches();
+      //   }
+      //   _suppressListener = false;
+      // });
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      child: Column(
-        children: <Widget>[
-          FlightSearchInputs(isLoadingCity: _isLoadingCity, padding: _padding),
-          const SizedBox(height: 8),
-          FlightSearchButton(padding: _padding, user: user),
-        ],
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(0, 30, 0, 0),
+        child: Column(
+          children: <Widget>[
+            const FlightSearchInputs(isLoadingCity: false, padding: _padding),
+            const SizedBox(height: 12),
+            FlightSearchButton(padding: _padding, user: user),
+          ],
+        ),
       ),
     );
   }

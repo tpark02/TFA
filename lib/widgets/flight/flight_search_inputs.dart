@@ -67,10 +67,17 @@ class FlightSearchInputs extends ConsumerWidget {
           padding: EdgeInsets.symmetric(horizontal: padding),
           child: Container(
             decoration: BoxDecoration(
-              border: Border.all(
-                color: Theme.of(context).colorScheme.primary,
-                width: 1,
-              ),
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.transparent, width: 1),
+              boxShadow: const [
+                BoxShadow(
+                  color: Colors.black12, // subtle shadow color
+                  blurRadius: 8, // softness of shadow
+                  spreadRadius: 1, // how far it spreads
+                  offset: Offset(0, 3), // x,y shift of shadow
+                ),
+              ],
             ),
             child: Row(
               children: <Widget>[
@@ -193,42 +200,57 @@ class FlightSearchInputs extends ConsumerWidget {
               // Date picker
               Expanded(
                 flex: 5,
-                child: OutlinedButton(
-                  onPressed: () async {
-                    final Map<String, DateTime?>? result = await showCalender(
-                      context,
-                      ref,
-                      'One way',
-                      'Round-Trip',
-                      false,
-                      false,
-                      0,
-                      0,
-                    );
-                    if (result != null) {
-                      final DateTime? departDate = result['departDate'];
-                      final DateTime? returnDate = result['returnDate'];
-
-                      controller.setTripDates(
-                        departDate: departDate!,
-                        returnDate: returnDate,
-                      );
-                      debugPrint(
-                        "📅 selected dates depart date : $departDate, end date : ${returnDate ?? "empty"}",
-                      );
-                    }
-                  },
-                  style: outlinedButtonStyle(context),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: <Widget>[
-                      const Icon(Icons.calendar_month),
-                      const SizedBox(width: 8),
-                      Text(
-                        flightState.displayDate ?? 'Select',
-                        style: boldBodyTextStyle(context),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.transparent, width: 1),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Colors.black12, // subtle shadow color
+                        blurRadius: 2, // softness of shadow
+                        spreadRadius: 1, // how far it spreads
+                        offset: Offset(0, 3), // x,y shift of shadow
                       ),
                     ],
+                  ),
+                  child: TextButton(
+                    onPressed: () async {
+                      final Map<String, DateTime?>? result = await showCalender(
+                        context,
+                        ref,
+                        'One way',
+                        'Round-Trip',
+                        false,
+                        false,
+                        0,
+                        0,
+                      );
+                      if (result != null) {
+                        final DateTime? departDate = result['departDate'];
+                        final DateTime? returnDate = result['returnDate'];
+
+                        controller.setTripDates(
+                          departDate: departDate!,
+                          returnDate: returnDate,
+                        );
+                        debugPrint(
+                          "📅 selected dates depart date : $departDate, end date : ${returnDate ?? "empty"}",
+                        );
+                      }
+                    },
+                    // style: outlinedButtonStyle(context),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: <Widget>[
+                        const Icon(Icons.calendar_month),
+                        const SizedBox(width: 8),
+                        Text(
+                          flightState.displayDate ?? 'Select',
+                          style: boldBodyTextStyle(context),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -236,65 +258,58 @@ class FlightSearchInputs extends ConsumerWidget {
               // Travelers
               Expanded(
                 flex: 5,
-                child: OutlinedButton(
-                  onPressed: () async {
-                    final result = await showModalBottomSheet(
-                      context: context,
-                      isScrollControlled: true,
-                      shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.vertical(
-                          top: Radius.circular(20),
-                        ),
-                      ),
-                      builder: (BuildContext ctx) =>
-                          TravelerSelectorSheet(cabinIdx: flightState.cabinIdx),
-                    );
-
-                    // if (result != null) {
-                    //   final pax = result['passengerCount'] ?? 1;
-                    //   final cabinIdx = result['cabinIdx'] ?? 0;
-                    //   final adult = result['adult'] ?? 0;
-                    //   final children = result['children'] ?? 0;
-                    //   final infantLap = result['infantLap'] ?? 0;
-                    //   final infantSeat = result['infantSeat'] ?? 0;
-
-                    //   final String cabinClass = getCabinClassByIdx(
-                    //     cabinIndex: cabinIdx,
-                    //   );
-
-                    //   controller.setPassengers(
-                    //     count: pax,
-                    //     cabinIndex: cabinIdx,
-                    //     adult: adult,
-                    //     children: children,
-                    //     infantLap: infantLap,
-                    //     infantSeat: infantSeat,
-                    //     cabinClass: cabinClass,
-                    //   );
-                    // }
-                  },
-                  style: outlinedButtonStyle(context),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: <Widget>[
-                      const Icon(Icons.person),
-                      Text(
-                        flightState.passengerCount.toString(),
-                        style: boldBodyTextStyle(context),
-                      ),
-                      const SizedBox(width: 5),
-                      const Text('|'),
-                      const SizedBox(width: 5),
-                      const Icon(Icons.airline_seat_recline_normal),
-                      Flexible(
-                        child: Text(
-                          flightState.cabinClass,
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                          style: boldBodyTextStyle(context),
-                        ),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.transparent, width: 1),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Colors.black12, // subtle shadow color
+                        blurRadius: 8, // softness of shadow
+                        spreadRadius: 1, // how far it spreads
+                        offset: Offset(0, 3), // x,y shift of shadow
                       ),
                     ],
+                  ),
+                  child: TextButton(
+                    onPressed: () async {
+                      await showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.vertical(
+                            top: Radius.circular(20),
+                          ),
+                        ),
+                        builder: (BuildContext ctx) => TravelerSelectorSheet(
+                          cabinIdx: flightState.cabinIdx,
+                        ),
+                      );
+                    },
+                    // style: outlinedButtonStyle(context),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: <Widget>[
+                        const Icon(Icons.person),
+                        Text(
+                          flightState.passengerCount.toString(),
+                          style: boldBodyTextStyle(context),
+                        ),
+                        const SizedBox(width: 5),
+                        const Text('|'),
+                        const SizedBox(width: 5),
+                        const Icon(Icons.airline_seat_recline_normal),
+                        Flexible(
+                          child: Text(
+                            flightState.cabinClass,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                            style: boldBodyTextStyle(context),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),

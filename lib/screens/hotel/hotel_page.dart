@@ -1,8 +1,8 @@
-
 import 'package:TFA/providers/hotel/hotel_search_controller.dart';
 import 'package:TFA/providers/hotel/hotel_search_state.dart';
 import 'package:TFA/providers/recent_search.dart';
-import 'package:TFA/screens/shared/recent_search_panel.dart';
+import 'package:TFA/screens/hotel/hotel_list_page.dart';
+import 'package:TFA/screens/shared/recent_search_list.dart';
 import 'package:TFA/screens/shared/room_guest_selector_sheet.dart';
 import 'package:TFA/screens/shared/search_hotel_sheet.dart';
 import 'package:TFA/utils/utils.dart';
@@ -64,7 +64,7 @@ class _HotelPageState extends ConsumerState<HotelPage> {
     });
 
     Future.microtask(() {
-      ref.read(hotelSearchProvider.notifier).loadRecentSearchesFromApi();
+      ref.read(hotelSearchProvider.notifier).loadRecentSearches();
     });
   }
 
@@ -75,7 +75,7 @@ class _HotelPageState extends ConsumerState<HotelPage> {
     if (!_initialized) {
       _initialized = true;
 
-      Future.microtask(() async {
+      Future<void>.microtask(() async {
         await fetchCurrentCountry();
       });
     }
@@ -122,7 +122,7 @@ class _HotelPageState extends ConsumerState<HotelPage> {
                             ),
                           ),
                           builder: (BuildContext ctx) =>
-                              const SearchHotelSheet(title: "Hotel"),
+                              const SearchHotelSheet(title: "Hotels"),
                         );
                         if (result != null) {
                           final String city = result['city'];
@@ -222,8 +222,8 @@ class _HotelPageState extends ConsumerState<HotelPage> {
                 Expanded(
                   flex: 4,
                   child: OutlinedButton(
-                    onPressed: () async {
-                      final result = await showModalBottomSheet(
+                    onPressed: () {
+                      showModalBottomSheet(
                         context: context,
                         isScrollControlled: true,
                         shape: const RoundedRectangleBorder(
@@ -234,23 +234,6 @@ class _HotelPageState extends ConsumerState<HotelPage> {
                         builder: (BuildContext ctx) =>
                             const RoomGuestSelectorSheet(),
                       );
-
-                      if (result != null) {
-                        final roomCnt = result['roomCnt'];
-                        final guestsCnt = result['guestsCnt'];
-                        final adultCnt = result['adultCnt'];
-                        final childCnt = result['childCnt'];
-
-                        final int rooms = roomCnt is int ? roomCnt : 1;
-
-                        debugPrint(
-                          'guestCnt: $guestsCnt (${guestsCnt.runtimeType})',
-                        );
-
-                        controller.setRoomCnt(rooms.toString());
-                        controller.setAdultCnt(adultCnt.toString());
-                        controller.setChildCnt(childCnt.toString());
-                      }
                     },
                     style: OutlinedButton.styleFrom(
                       // padding: EdgeInsets.only(
@@ -358,14 +341,23 @@ class _HotelPageState extends ConsumerState<HotelPage> {
                         ),
                         idToken!,
                       );
-                      if (!success) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text(
-                              '❌ Failed to save horel recent search',
-                            ),
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        Navigator.of(context).push(
+                          MaterialPageRoute<void>(
+                            builder: (_) => const HotelListPage(),
                           ),
                         );
+                      });
+                      if (!success) {
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                '❌ Failed to save horel recent search',
+                              ),
+                            ),
+                          );
+                        });
                       }
                     },
                     style: ElevatedButton.styleFrom(
@@ -488,7 +480,7 @@ class _HotelPageState extends ConsumerState<HotelPage> {
                   ],
                 ),
                 const SizedBox(height: _padding),
-                const RecentSearchPanel(panelName: 'hotel'),
+                const RecentSearchList(panelName: 'hotel'),
               ],
             ),
           ),

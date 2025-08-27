@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 
 const ColorScheme lightColorScheme = ColorScheme(
   brightness: Brightness.light,
-
-  primary: Color(0xFF3E5B49), // Deep moss green
+  primary: Color(0xFF002D6B), // 🔵 Deep Blue
   onPrimary: Color(0xFFFFFFFF),
-  primaryContainer: Color(0xFFBBD2C4), // Soft sage green
-  onPrimaryContainer: Color(0xFF1E3227),
+  primaryContainer: Color(0xFF90CAF9), // lighter blue
+  onPrimaryContainer: Color(0xFF1565C0),
 
-  secondary: Color(0xFF6A8677), // Muted teal-green
-  onSecondary: Color(0xFFFFFFFF),
-  secondaryContainer: Color(0xFFDDE7E2),
-  onSecondaryContainer: Color(0xFF2A3D35),
+  // 🟦 Secondary: Light Blue Accent (matches primary nicely)
+  secondary: Color(0xFF64B5F6), // Light Blue 300
+  onSecondary: Color(0xFF0D47A1),
+  secondaryContainer: Color(0xFFBBDEFB),
+  onSecondaryContainer: Color(0xFF00274D),
 
   error: Color(0xFFB3261E),
   onError: Color(0xFFFFFFFF),
@@ -24,13 +24,12 @@ const ColorScheme lightColorScheme = ColorScheme(
 
 const ColorScheme darkColorScheme = ColorScheme(
   brightness: Brightness.dark,
+  primary: Color(0xFF1565C0), // 🔵 Deep Blue
+  onPrimary: Color(0xFFFFFFFF),
+  primaryContainer: Color(0xFF0D47A1), // darker tone
+  onPrimaryContainer: Color(0xFFE3F2FD),
 
-  primary: Color(0xFF3E5B49), // Base deep green
-  onPrimary: Color(0xFFDDE7E2),
-  primaryContainer: Color(0xFF567463), // Mid-tone moss green
-  onPrimaryContainer: Color(0xFFF0FAF4),
-
-  secondary: Color(0xFF8BA59A), // Gentle minty tone
+  secondary: Color(0xFF8BA59A),
   onSecondary: Color(0xFF22302B),
   secondaryContainer: Color(0xFFA8BFB4),
   onSecondaryContainer: Color(0xFF0D1412),

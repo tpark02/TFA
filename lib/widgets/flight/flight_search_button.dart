@@ -2,11 +2,12 @@
 
 import 'package:TFA/providers/flight/flight_search_state.dart';
 import 'package:TFA/screens/flight/anywhere_list_page.dart';
+import 'package:TFA/screens/flight/flight_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:TFA/providers/flight/flight_search_controller.dart';
 import 'package:TFA/providers/recent_search.dart';
-import 'package:TFA/screens/shared/recent_search_panel.dart';
+import 'package:TFA/screens/shared/recent_search_list.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class FlightSearchButton extends ConsumerStatefulWidget {
@@ -25,6 +26,11 @@ class FlightSearchButton extends ConsumerStatefulWidget {
 
 class _FlightSearchButtonState extends ConsumerState<FlightSearchButton> {
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final FlightSearchController controller = ref.read(
       flightSearchProvider.notifier,
@@ -37,108 +43,115 @@ class _FlightSearchButtonState extends ConsumerState<FlightSearchButton> {
         children: <Widget>[
           Row(
             children: <Widget>[
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: () async {
-                    final bool hasPassengers = flightState.passengerCount > 0;
-                    final bool hasAirports =
-                        flightState.departureAirportCode.isNotEmpty &&
-                        flightState.arrivalAirportCode.isNotEmpty;
-                    final bool hasDate =
-                        (flightState.displayDate ?? '').isNotEmpty;
+              Container(
+                child: Expanded(
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      final bool hasPassengers = flightState.passengerCount > 0;
+                      final bool hasAirports =
+                          flightState.departureAirportCode.isNotEmpty &&
+                          flightState.arrivalAirportCode.isNotEmpty;
+                      final bool hasDate =
+                          (flightState.displayDate ?? '').isNotEmpty;
 
-                    if (!hasPassengers || !hasDate) return;
+                      if (!hasPassengers || !hasDate) return;
 
-                    if (!hasAirports ||
-                        flightState.arrivalAirportCode == 'anywhere') {
-                      controller.setArrivalAnyWhere = 'anywhere';
-                      controller.setLoading(true);
-                      Navigator.of(context).push(
-                        MaterialPageRoute<void>(
-                          builder: (_) => const AnywhereListPage(),
-                        ),
-                      );
-                      return;
-                    }
-                    final String? idToken = await widget.user?.getIdToken();
-
-                    if (idToken == null) {
-                      WidgetsBinding.instance.addPostFrameCallback((_) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('❌ Unable to retrieve user token'),
+                      if (!hasAirports ||
+                          flightState.arrivalAirportCode == 'anywhere') {
+                        controller.setArrivalAnyWhere = 'anywhere';
+                        controller.setLoading(true);
+                        Navigator.of(context).push(
+                          MaterialPageRoute<void>(
+                            builder: (_) => const AnywhereListPage(),
                           ),
                         );
-                      });
-                      return;
-                    }
-                    final bool success = await controller.addRecentSearch(
-                      RecentSearch(
-                        destination:
-                            '${flightState.departureCity} - ${flightState.arrivalCity}',
-                        tripDateRange: flightState.displayDate ?? '',
-                        icons: <Widget>[
-                          const SizedBox(width: 10),
-                          Icon(Icons.person, color: Colors.grey[500], size: 20),
-                          Text(flightState.passengerCount.toString()),
-                        ],
-                        destinationCode:
-                            '${flightState.departureAirportCode} - ${flightState.arrivalAirportCode}',
-                        passengerCnt: flightState.passengerCount,
-                        adult: flightState.adultCnt,
-                        children: flightState.childrenCnt,
-                        infantLap: flightState.infantLapCnt,
-                        infantSeat: flightState.infantSeatCnt,
-                        cabinIdx: flightState.cabinIdx,
-                        rooms: 0,
-                        kind: 'flight',
-                        departCode: flightState.departureAirportCode,
-                        arrivalCode: flightState.arrivalAirportCode,
-                        departDate: flightState.departDate,
-                        returnDate: flightState.returnDate ?? '',
-                      ),
-                      idToken,
-                    );
+                        return;
+                      }
+                      final String? idToken = await widget.user?.getIdToken();
 
-                    if (!success) {
-                      WidgetsBinding.instance.addPostFrameCallback((_) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text(
-                              '❌ Failed to save flight recent search',
+                      if (idToken == null) {
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('❌ Unable to retrieve user token'),
                             ),
-                          ),
-                        );
-                      });
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.primary,
-                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.zero,
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Text(
-                        'Search Flight',
-                        style: TextStyle(
-                          fontSize: Theme.of(
-                            context,
-                          ).textTheme.headlineMedium?.fontSize,
-                          fontWeight: FontWeight.bold,
+                          );
+                        });
+                        return;
+                      }
+                      final bool success = await controller.addRecentSearch(
+                        RecentSearch(
+                          destination:
+                              '${flightState.departureCity} - ${flightState.arrivalCity}',
+                          tripDateRange: flightState.displayDate ?? '',
+                          icons: <Widget>[
+                            const SizedBox(width: 10),
+                            Icon(
+                              Icons.person,
+                              color: Colors.grey[500],
+                              size: 20,
+                            ),
+                            Text(flightState.passengerCount.toString()),
+                          ],
+                          destinationCode:
+                              '${flightState.departureAirportCode} - ${flightState.arrivalAirportCode}',
+                          passengerCnt: flightState.passengerCount,
+                          adult: flightState.adultCnt,
+                          children: flightState.childrenCnt,
+                          infantLap: flightState.infantLapCnt,
+                          infantSeat: flightState.infantSeatCnt,
+                          cabinIdx: flightState.cabinIdx,
+                          rooms: 0,
+                          kind: 'flight',
+                          departCode: flightState.departureAirportCode,
+                          arrivalCode: flightState.arrivalAirportCode,
+                          departDate: flightState.departDate,
+                          returnDate: flightState.returnDate ?? '',
                         ),
+                        idToken,
+                      );
+
+                      if (!success) {
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                '❌ Failed to save flight recent search',
+                              ),
+                            ),
+                          );
+                        });
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Theme.of(context).colorScheme.primary,
+                      foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(8)),
                       ),
-                    ],
+                      elevation: 5,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Text(
+                          'Search Flight',
+                          style: TextStyle(
+                            fontSize: Theme.of(
+                              context,
+                            ).textTheme.headlineMedium?.fontSize,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
             ],
           ),
           const SizedBox(height: 20.0),
-          const RecentSearchPanel(panelName: 'flight'),
+          const RecentSearchList(panelName: 'flight'),
         ],
       ),
     );

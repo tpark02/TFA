@@ -1,5 +1,6 @@
 // lib/screens/flight/anywhere_list_page.dart
 import 'dart:async';
+import 'dart:io';
 
 import 'package:TFA/models/anywhere_destination.dart';
 import 'package:TFA/providers/flight/anywhere_provider.dart';
@@ -7,7 +8,7 @@ import 'package:TFA/providers/flight/flight_search_controller.dart';
 import 'package:TFA/providers/flight/flight_search_state.dart';
 import 'package:TFA/screens/flight/anywhere_map_screen.dart';
 import 'package:TFA/widgets/flight/anywhere_destination_tile.dart';
-import 'package:TFA/widgets/search_summary_card.dart';
+import 'package:TFA/screens/flight/flight_search_summary_card.dart';
 import 'package:TFA/widgets/search_summary_loading_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -162,11 +163,11 @@ class _AnywhereListState extends ConsumerState<AnywhereListPage> {
                 ),
                 SizedBox(
                   width: 250,
-                  child: SearchSummaryCard(
+                  child: FlightSearchSummaryCard(
                     from: flightState.departureAirportCode,
                     to: flightState.arrivalAirportCode,
                     dateRange: flightState.displayDate ?? '',
-                    passengerCount: flightState.passengerCount,
+                    passengerCount: flightState.passengerCount.toString(),
                     cabinClass: flightState.cabinClass,
                   ),
                 ),
@@ -196,7 +197,9 @@ class _AnywhereListState extends ConsumerState<AnywhereListPage> {
 
                   child: InkWell(
                     onTap: () {},
-                    child: const Icon(Icons.share, color: Colors.white),
+                    child: Platform.isIOS
+                        ? const Icon(Icons.ios_share, color: Colors.white)
+                        : const Icon(Icons.share, color: Colors.white),
                   ),
                 ),
               ],
