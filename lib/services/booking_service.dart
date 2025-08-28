@@ -36,7 +36,7 @@ class BookingService {
   }
 
   /// Fetch a booking by ID
-  static Future<BookingOut> getBooking(String kind) async {
+  static Future<List<BookingOut>> getBooking(String kind) async {
     final Uri url = Uri.parse("$baseUrl/api/v1/bookings/$kind");
     final User? user = FirebaseAuth.instance.currentUser;
     final String? idToken = await user?.getIdToken();
@@ -45,7 +45,7 @@ class BookingService {
       throw Exception("User not authenticated.");
     }
 
-    final http.Response response = await http.get(
+    final http.Response res = await http.get(
       url,
       headers: <String, String>{
         'Authorization': 'Bearer $idToken',
@@ -53,11 +53,25 @@ class BookingService {
       },
     );
 
-    if (response.statusCode == 200) {
-      return BookingOut.fromJson(jsonDecode(response.body));
+    if (res.statusCode == 200) {
+      final dynamic body = jsonDecode(res.body);
+      if (body is List) {
+        return body
+            .map<BookingOut>(
+              (e) => BookingOut.fromJson(e as Map<String, dynamic>),
+            )
+            .toList();
+      } else {
+        throw Exception(
+          'Unexpected response format (expected list): ${res.body}',
+        );
+      }
+    } else if (res.statusCode == 204) {
+      // No content -> no bookings
+      return <BookingOut>[];
     } else {
       throw Exception(
-        "Failed to fetch booking: ${response.statusCode} ${response.body}",
+        'Failed to fetch bookings: ${res.statusCode} ${res.body}',
       );
     }
   }

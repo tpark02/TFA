@@ -21,7 +21,6 @@ BookingOut _$BookingOutFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$BookingOut {
-  int get id => throw _privateConstructorUsedError;
   @JsonKey(name: 'user_id')
   int get userId => throw _privateConstructorUsedError;
   String get destination => throw _privateConstructorUsedError;
@@ -51,11 +50,8 @@ mixin _$BookingOut {
   String? get returnDate => throw _privateConstructorUsedError;
 
   /// Server returns an int (total price in minor units or currency’s base)
-  int get prices => throw _privateConstructorUsedError;
-
-  /// ISO8601 -> DateTime
-  @JsonKey(name: 'created_at')
-  DateTime get createdAt => throw _privateConstructorUsedError;
+  @JsonKey(name: 'prices')
+  String get prices => throw _privateConstructorUsedError;
 
   /// Serializes this BookingOut to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -75,7 +71,6 @@ abstract class $BookingOutCopyWith<$Res> {
   ) = _$BookingOutCopyWithImpl<$Res, BookingOut>;
   @useResult
   $Res call({
-    int id,
     @JsonKey(name: 'user_id') int userId,
     String destination,
     @JsonKey(name: 'trip_date_range') String tripDateRange,
@@ -92,8 +87,7 @@ abstract class $BookingOutCopyWith<$Res> {
     @JsonKey(name: 'arrival_code') String arrivalCode,
     @JsonKey(name: 'depart_date') String departDate,
     @JsonKey(name: 'return_date') String? returnDate,
-    int prices,
-    @JsonKey(name: 'created_at') DateTime createdAt,
+    @JsonKey(name: 'prices') String prices,
   });
 }
 
@@ -112,7 +106,6 @@ class _$BookingOutCopyWithImpl<$Res, $Val extends BookingOut>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? id = null,
     Object? userId = null,
     Object? destination = null,
     Object? tripDateRange = null,
@@ -130,14 +123,9 @@ class _$BookingOutCopyWithImpl<$Res, $Val extends BookingOut>
     Object? departDate = null,
     Object? returnDate = freezed,
     Object? prices = null,
-    Object? createdAt = null,
   }) {
     return _then(
       _value.copyWith(
-            id: null == id
-                ? _value.id
-                : id // ignore: cast_nullable_to_non_nullable
-                      as int,
             userId: null == userId
                 ? _value.userId
                 : userId // ignore: cast_nullable_to_non_nullable
@@ -205,11 +193,7 @@ class _$BookingOutCopyWithImpl<$Res, $Val extends BookingOut>
             prices: null == prices
                 ? _value.prices
                 : prices // ignore: cast_nullable_to_non_nullable
-                      as int,
-            createdAt: null == createdAt
-                ? _value.createdAt
-                : createdAt // ignore: cast_nullable_to_non_nullable
-                      as DateTime,
+                      as String,
           )
           as $Val,
     );
@@ -226,7 +210,6 @@ abstract class _$$BookingOutImplCopyWith<$Res>
   @override
   @useResult
   $Res call({
-    int id,
     @JsonKey(name: 'user_id') int userId,
     String destination,
     @JsonKey(name: 'trip_date_range') String tripDateRange,
@@ -243,8 +226,7 @@ abstract class _$$BookingOutImplCopyWith<$Res>
     @JsonKey(name: 'arrival_code') String arrivalCode,
     @JsonKey(name: 'depart_date') String departDate,
     @JsonKey(name: 'return_date') String? returnDate,
-    int prices,
-    @JsonKey(name: 'created_at') DateTime createdAt,
+    @JsonKey(name: 'prices') String prices,
   });
 }
 
@@ -262,7 +244,6 @@ class __$$BookingOutImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? id = null,
     Object? userId = null,
     Object? destination = null,
     Object? tripDateRange = null,
@@ -280,14 +261,9 @@ class __$$BookingOutImplCopyWithImpl<$Res>
     Object? departDate = null,
     Object? returnDate = freezed,
     Object? prices = null,
-    Object? createdAt = null,
   }) {
     return _then(
       _$BookingOutImpl(
-        id: null == id
-            ? _value.id
-            : id // ignore: cast_nullable_to_non_nullable
-                  as int,
         userId: null == userId
             ? _value.userId
             : userId // ignore: cast_nullable_to_non_nullable
@@ -355,11 +331,7 @@ class __$$BookingOutImplCopyWithImpl<$Res>
         prices: null == prices
             ? _value.prices
             : prices // ignore: cast_nullable_to_non_nullable
-                  as int,
-        createdAt: null == createdAt
-            ? _value.createdAt
-            : createdAt // ignore: cast_nullable_to_non_nullable
-                  as DateTime,
+                  as String,
       ),
     );
   }
@@ -369,7 +341,6 @@ class __$$BookingOutImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$BookingOutImpl implements _BookingOut {
   const _$BookingOutImpl({
-    required this.id,
     @JsonKey(name: 'user_id') required this.userId,
     required this.destination,
     @JsonKey(name: 'trip_date_range') required this.tripDateRange,
@@ -386,15 +357,12 @@ class _$BookingOutImpl implements _BookingOut {
     @JsonKey(name: 'arrival_code') required this.arrivalCode,
     @JsonKey(name: 'depart_date') required this.departDate,
     @JsonKey(name: 'return_date') this.returnDate,
-    required this.prices,
-    @JsonKey(name: 'created_at') required this.createdAt,
+    @JsonKey(name: 'prices') required this.prices,
   });
 
   factory _$BookingOutImpl.fromJson(Map<String, dynamic> json) =>
       _$$BookingOutImplFromJson(json);
 
-  @override
-  final int id;
   @override
   @JsonKey(name: 'user_id')
   final int userId;
@@ -441,16 +409,12 @@ class _$BookingOutImpl implements _BookingOut {
 
   /// Server returns an int (total price in minor units or currency’s base)
   @override
-  final int prices;
-
-  /// ISO8601 -> DateTime
-  @override
-  @JsonKey(name: 'created_at')
-  final DateTime createdAt;
+  @JsonKey(name: 'prices')
+  final String prices;
 
   @override
   String toString() {
-    return 'BookingOut(id: $id, userId: $userId, destination: $destination, tripDateRange: $tripDateRange, destinationCode: $destinationCode, passengerCnt: $passengerCnt, adult: $adult, children: $children, infantLap: $infantLap, infantSeat: $infantSeat, cabinIdx: $cabinIdx, rooms: $rooms, kind: $kind, departCode: $departCode, arrivalCode: $arrivalCode, departDate: $departDate, returnDate: $returnDate, prices: $prices, createdAt: $createdAt)';
+    return 'BookingOut(userId: $userId, destination: $destination, tripDateRange: $tripDateRange, destinationCode: $destinationCode, passengerCnt: $passengerCnt, adult: $adult, children: $children, infantLap: $infantLap, infantSeat: $infantSeat, cabinIdx: $cabinIdx, rooms: $rooms, kind: $kind, departCode: $departCode, arrivalCode: $arrivalCode, departDate: $departDate, returnDate: $returnDate, prices: $prices)';
   }
 
   @override
@@ -458,7 +422,6 @@ class _$BookingOutImpl implements _BookingOut {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$BookingOutImpl &&
-            (identical(other.id, id) || other.id == id) &&
             (identical(other.userId, userId) || other.userId == userId) &&
             (identical(other.destination, destination) ||
                 other.destination == destination) &&
@@ -487,16 +450,13 @@ class _$BookingOutImpl implements _BookingOut {
                 other.departDate == departDate) &&
             (identical(other.returnDate, returnDate) ||
                 other.returnDate == returnDate) &&
-            (identical(other.prices, prices) || other.prices == prices) &&
-            (identical(other.createdAt, createdAt) ||
-                other.createdAt == createdAt));
+            (identical(other.prices, prices) || other.prices == prices));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hashAll([
+  int get hashCode => Object.hash(
     runtimeType,
-    id,
     userId,
     destination,
     tripDateRange,
@@ -514,8 +474,7 @@ class _$BookingOutImpl implements _BookingOut {
     departDate,
     returnDate,
     prices,
-    createdAt,
-  ]);
+  );
 
   /// Create a copy of BookingOut
   /// with the given fields replaced by the non-null parameter values.
@@ -533,7 +492,6 @@ class _$BookingOutImpl implements _BookingOut {
 
 abstract class _BookingOut implements BookingOut {
   const factory _BookingOut({
-    required final int id,
     @JsonKey(name: 'user_id') required final int userId,
     required final String destination,
     @JsonKey(name: 'trip_date_range') required final String tripDateRange,
@@ -550,15 +508,12 @@ abstract class _BookingOut implements BookingOut {
     @JsonKey(name: 'arrival_code') required final String arrivalCode,
     @JsonKey(name: 'depart_date') required final String departDate,
     @JsonKey(name: 'return_date') final String? returnDate,
-    required final int prices,
-    @JsonKey(name: 'created_at') required final DateTime createdAt,
+    @JsonKey(name: 'prices') required final String prices,
   }) = _$BookingOutImpl;
 
   factory _BookingOut.fromJson(Map<String, dynamic> json) =
       _$BookingOutImpl.fromJson;
 
-  @override
-  int get id;
   @override
   @JsonKey(name: 'user_id')
   int get userId;
@@ -605,12 +560,8 @@ abstract class _BookingOut implements BookingOut {
 
   /// Server returns an int (total price in minor units or currency’s base)
   @override
-  int get prices;
-
-  /// ISO8601 -> DateTime
-  @override
-  @JsonKey(name: 'created_at')
-  DateTime get createdAt;
+  @JsonKey(name: 'prices')
+  String get prices;
 
   /// Create a copy of BookingOut
   /// with the given fields replaced by the non-null parameter values.

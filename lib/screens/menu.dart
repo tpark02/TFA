@@ -1,4 +1,5 @@
 import 'package:TFA/providers/menu_tab_provider.dart';
+import 'package:TFA/screens/flight/my_trips_page.dart';
 import 'package:TFA/screens/profiile/profile_settings_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -21,7 +22,7 @@ class MenuScreen extends ConsumerWidget {
         body = const SearchScreen();
         break;
       case MenuTab.travel:
-        body = const Center(child: Text('여행'));
+        body = const MyTripsPage();
         break;
       case MenuTab.account:
         body = const ProfileSettingsPage();

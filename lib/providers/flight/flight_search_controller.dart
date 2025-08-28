@@ -1074,7 +1074,30 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
     }
   }
 
-  Future<BookingOut?> createBooking({required BookingIn bIn}) async {
+  Future<List<BookingOut>?> fetchBooking({required String type}) async {
+    if (mounted) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) state = state.copyWith(isLoading: true);
+      });
+    }
+    final List<BookingOut> list = await BookingService.getBooking(type);
+    try {
+      // Optionally store booking info in state
+      debugPrint("✅ Booking received: $list");
+      return list;
+    } catch (e, st) {
+      debugPrint("❌ Booking creation failed: $e\n$st");
+      return null;
+    } finally {
+      if (mounted) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) state = state.copyWith(isLoading: false);
+        });
+      }
+    }
+  }
+
+  Future<BookingOut?> addBooking({required BookingIn bIn}) async {
     try {
       state = state.copyWith(isLoading: true);
 
@@ -1103,7 +1126,7 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
       );
 
       // Optionally store booking info in state
-      debugPrint("✅ Booking created: ${booking.id}");
+      debugPrint("✅ Booking created: ${booking.userId}");
       return booking;
     } catch (e, st) {
       debugPrint("❌ Booking creation failed: $e\n$st");

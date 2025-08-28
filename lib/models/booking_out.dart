@@ -7,7 +7,6 @@ part 'booking_out.g.dart';
 @freezed
 class BookingOut with _$BookingOut {
   const factory BookingOut({
-    required int id,
     @JsonKey(name: 'user_id') required int userId,
 
     required String destination,
@@ -31,10 +30,10 @@ class BookingOut with _$BookingOut {
     @JsonKey(name: 'return_date') String? returnDate,
 
     /// Server returns an int (total price in minor units or currency’s base)
-    required int prices,
+    @JsonKey(name: 'prices') required String prices,
 
     /// ISO8601 -> DateTime
-    @JsonKey(name: 'created_at') required DateTime createdAt,
+    // @JsonKey(name: 'created_at') required DateTime createdAt,
   }) = _BookingOut;
 
   factory BookingOut.fromJson(Map<String, dynamic> json) =>

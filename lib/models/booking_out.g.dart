@@ -8,7 +8,6 @@ part of 'booking_out.dart';
 
 _$BookingOutImpl _$$BookingOutImplFromJson(Map<String, dynamic> json) =>
     _$BookingOutImpl(
-      id: (json['id'] as num).toInt(),
       userId: (json['user_id'] as num).toInt(),
       destination: json['destination'] as String,
       tripDateRange: json['trip_date_range'] as String,
@@ -25,13 +24,11 @@ _$BookingOutImpl _$$BookingOutImplFromJson(Map<String, dynamic> json) =>
       arrivalCode: json['arrival_code'] as String,
       departDate: json['depart_date'] as String,
       returnDate: json['return_date'] as String?,
-      prices: (json['prices'] as num).toInt(),
-      createdAt: DateTime.parse(json['created_at'] as String),
+      prices: json['prices'] as String,
     );
 
 Map<String, dynamic> _$$BookingOutImplToJson(_$BookingOutImpl instance) =>
     <String, dynamic>{
-      'id': instance.id,
       'user_id': instance.userId,
       'destination': instance.destination,
       'trip_date_range': instance.tripDateRange,
@@ -49,5 +46,4 @@ Map<String, dynamic> _$$BookingOutImplToJson(_$BookingOutImpl instance) =>
       'depart_date': instance.departDate,
       'return_date': instance.returnDate,
       'prices': instance.prices,
-      'created_at': instance.createdAt.toIso8601String(),
     };

@@ -198,7 +198,7 @@ class _FlightTripDetailPageState extends ConsumerState<FlightTripDetailsPage> {
                             prices: ticketTotalPrice,
                           );
 
-                          controller.createBooking(bIn: bookingIn);
+                          controller.addBooking(bIn: bookingIn);
 
                           Navigator.of(context).push(
                             MaterialPageRoute<void>(

@@ -1,37 +1,25 @@
 import 'package:TFA/providers/car/car_search_controller.dart';
-import 'package:TFA/providers/car/car_search_state.dart';
-import 'package:TFA/providers/flight/flight_search_state.dart';
-import 'package:TFA/providers/hotel/hotel_search_controller.dart';
-import 'package:TFA/providers/hotel/hotel_search_state.dart';
-import 'package:TFA/providers/recent_search.dart';
 import 'package:TFA/providers/flight/flight_search_controller.dart';
+import 'package:TFA/providers/hotel/hotel_search_controller.dart';
+import 'package:TFA/providers/recent_search.dart';
 import 'package:TFA/widgets/recent_search_item.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class RecentSearchList extends ConsumerWidget {
   const RecentSearchList({super.key, required this.panelName});
-
   final String panelName;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    List<RecentSearch> searches = <RecentSearch>[];
-    String kind = '';
+    // pick the right recent searches
+    final List<RecentSearch> searches = switch (panelName) {
+      'flight' => ref.watch(flightSearchProvider).recentSearches,
+      'hotel' => ref.watch(hotelSearchProvider).recentSearches,
+      _ => ref.watch(carSearchProvider).recentSearches,
+    };
 
-    if (panelName == 'flight') {
-      final FlightSearchState fstate = ref.watch(flightSearchProvider);
-      searches = fstate.recentSearches;
-      kind = 'flight';
-    } else if (panelName == 'hotel') {
-      final HotelSearchState hstate = ref.watch(hotelSearchProvider);
-      searches = hstate.recentSearches;
-      kind = 'hotel';
-    } else {
-      final CarSearchState cstate = ref.watch(carSearchProvider);
-      searches = cstate.recentSearches;
-      kind = 'car';
-    }
-    // Always produce 5 items, fill with empty ones if needed
+    // pad to 5 rows for consistent layout
     final List<RecentSearch> paddedSearches = List<RecentSearch>.generate(
       5,
       (int i) => i < searches.length
@@ -51,33 +39,56 @@ class RecentSearchList extends ConsumerWidget {
             ),
     );
 
-    // if (searches.isEmpty) return const SizedBox.shrink();
+    final titleStyle = TextStyle(
+      fontSize: Theme.of(context).textTheme.headlineMedium?.fontSize,
+      fontWeight: FontWeight.bold,
+      color: Theme.of(context).colorScheme.onSurface,
+    );
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      // mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
-        Text(
-          "Recent searches",
-          style: TextStyle(
-            fontSize: Theme.of(context).textTheme.headlineMedium?.fontSize,
-            fontWeight: FontWeight.bold,
-            color: Theme.of(context).colorScheme.onSurface,
-          ),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: Text('Recent searches', style: titleStyle),
         ),
         const SizedBox(height: 20),
-        ListView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: paddedSearches.length,
-          itemBuilder: (BuildContext context, int index) {
-            return SizedBox(
-              width: double.infinity,
-              child: RecentSearchItem(search: paddedSearches[index]),
-            );
-          },
-          // separatorBuilder: (context, index) =>
-          // const Divider(color: Colors.grey, thickness: 0.5, height: 10),
-        ),
+        // ✅ Proper conditional branches
+        if (searches.isNotEmpty) ...[
+          const Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              SizedBox(height: 30),
+              Icon(Icons.image_outlined, size: 96, color: Colors.black12),
+              SizedBox(height: 30),
+              Text(
+                "No Recent searches found",
+                textAlign: TextAlign.left,
+                style: TextStyle(
+                  fontSize: 18,
+                  height: 1.35,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
+                ),
+              ),
+              // SizedBox(height: 20),
+            ],
+          ),
+        ] else ...<Widget>[
+          ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: paddedSearches.length,
+            itemBuilder: (BuildContext context, int index) {
+              return SizedBox(
+                width: double.infinity,
+                child: RecentSearchItem(search: paddedSearches[index]),
+              );
+            },
+          ),
+        ],
       ],
     );
   }

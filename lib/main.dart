@@ -5,6 +5,7 @@ import 'package:TFA/providers/auth_provider.dart';
 import 'package:TFA/providers/flight/flight_search_controller.dart';
 import 'package:TFA/providers/flight/flight_search_state.dart';
 import 'package:TFA/providers/navigation.dart';
+import 'package:TFA/providers/route_observer.dart';
 import 'package:TFA/providers/search_runner.dart';
 import 'package:TFA/providers/startup_bootstrap.dart';
 import 'package:TFA/screens/auth.dart';
@@ -97,7 +98,7 @@ class App extends StatelessWidget {
         GlobalCupertinoLocalizations.delegate,
       ],
       supportedLocales: <Locale>[const Locale('en')],
-
+      navigatorObservers: [appRouteObserver],
       // Define a route for flight list if you used pushNamed above
       // routes: {'/flight_list': (_) => const FlightListPage()},
       home: StreamBuilder<User?>(
