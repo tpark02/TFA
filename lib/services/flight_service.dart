@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:TFA/models/flight_search_int.dart';
+import 'package:TFA/models/flight_search_in.dart';
 import 'package:TFA/models/flight_search_out.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

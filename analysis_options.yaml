@@ -1,5 +1,9 @@
 include: package:flutter_lints/flutter.yaml
 
+analyzer:
+  errors:
+    invalid_annotation_target: ignore  # 🔥 Ignore bogus JsonKey warnings
+
 linter:
   rules:
     always_specify_types: true

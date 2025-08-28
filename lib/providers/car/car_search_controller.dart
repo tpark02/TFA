@@ -47,7 +47,7 @@ class CarSearchController extends StateNotifier<CarSearchState> {
     }
 
     // ✅ Send only valid searches
-    return await RecentSearchApiService.sendRecentSearch(
+    return await RecentSearchApiService.createRecentSearch(
       destination: search.destination,
       tripDateRange: search.tripDateRange,
       destinationCode: search.destinationCode,
@@ -78,7 +78,9 @@ class CarSearchController extends StateNotifier<CarSearchState> {
 
     final String displayDt = pretty.format(departDate);
 
-    final String displayRt = (returnDate != null) ? pretty.format(returnDate) : '';
+    final String displayRt = (returnDate != null)
+        ? pretty.format(returnDate)
+        : '';
 
     if (state.departDate == dIso &&
         state.returnDate == rIso &&

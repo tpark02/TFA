@@ -21,9 +21,9 @@ FlightSearchOut _$FlightSearchOutFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$FlightSearchOut {
-  Meta? get meta => throw _privateConstructorUsedError;
-  List<FlightOffer>? get data => throw _privateConstructorUsedError;
-  Dictionaries? get dictionaries => throw _privateConstructorUsedError;
+  Meta get meta => throw _privateConstructorUsedError;
+  List<FlightOffer> get data => throw _privateConstructorUsedError;
+  Dictionaries get dictionaries => throw _privateConstructorUsedError;
 
   /// Serializes this FlightSearchOut to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -42,10 +42,10 @@ abstract class $FlightSearchOutCopyWith<$Res> {
     $Res Function(FlightSearchOut) then,
   ) = _$FlightSearchOutCopyWithImpl<$Res, FlightSearchOut>;
   @useResult
-  $Res call({Meta? meta, List<FlightOffer>? data, Dictionaries? dictionaries});
+  $Res call({Meta meta, List<FlightOffer> data, Dictionaries dictionaries});
 
-  $MetaCopyWith<$Res>? get meta;
-  $DictionariesCopyWith<$Res>? get dictionaries;
+  $MetaCopyWith<$Res> get meta;
+  $DictionariesCopyWith<$Res> get dictionaries;
 }
 
 /// @nodoc
@@ -63,24 +63,24 @@ class _$FlightSearchOutCopyWithImpl<$Res, $Val extends FlightSearchOut>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? meta = freezed,
-    Object? data = freezed,
-    Object? dictionaries = freezed,
+    Object? meta = null,
+    Object? data = null,
+    Object? dictionaries = null,
   }) {
     return _then(
       _value.copyWith(
-            meta: freezed == meta
+            meta: null == meta
                 ? _value.meta
                 : meta // ignore: cast_nullable_to_non_nullable
-                      as Meta?,
-            data: freezed == data
+                      as Meta,
+            data: null == data
                 ? _value.data
                 : data // ignore: cast_nullable_to_non_nullable
-                      as List<FlightOffer>?,
-            dictionaries: freezed == dictionaries
+                      as List<FlightOffer>,
+            dictionaries: null == dictionaries
                 ? _value.dictionaries
                 : dictionaries // ignore: cast_nullable_to_non_nullable
-                      as Dictionaries?,
+                      as Dictionaries,
           )
           as $Val,
     );
@@ -90,12 +90,8 @@ class _$FlightSearchOutCopyWithImpl<$Res, $Val extends FlightSearchOut>
   /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
-  $MetaCopyWith<$Res>? get meta {
-    if (_value.meta == null) {
-      return null;
-    }
-
-    return $MetaCopyWith<$Res>(_value.meta!, (value) {
+  $MetaCopyWith<$Res> get meta {
+    return $MetaCopyWith<$Res>(_value.meta, (value) {
       return _then(_value.copyWith(meta: value) as $Val);
     });
   }
@@ -104,12 +100,8 @@ class _$FlightSearchOutCopyWithImpl<$Res, $Val extends FlightSearchOut>
   /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
-  $DictionariesCopyWith<$Res>? get dictionaries {
-    if (_value.dictionaries == null) {
-      return null;
-    }
-
-    return $DictionariesCopyWith<$Res>(_value.dictionaries!, (value) {
+  $DictionariesCopyWith<$Res> get dictionaries {
+    return $DictionariesCopyWith<$Res>(_value.dictionaries, (value) {
       return _then(_value.copyWith(dictionaries: value) as $Val);
     });
   }
@@ -124,12 +116,12 @@ abstract class _$$FlightSearchOutImplCopyWith<$Res>
   ) = __$$FlightSearchOutImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({Meta? meta, List<FlightOffer>? data, Dictionaries? dictionaries});
+  $Res call({Meta meta, List<FlightOffer> data, Dictionaries dictionaries});
 
   @override
-  $MetaCopyWith<$Res>? get meta;
+  $MetaCopyWith<$Res> get meta;
   @override
-  $DictionariesCopyWith<$Res>? get dictionaries;
+  $DictionariesCopyWith<$Res> get dictionaries;
 }
 
 /// @nodoc
@@ -146,24 +138,24 @@ class __$$FlightSearchOutImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? meta = freezed,
-    Object? data = freezed,
-    Object? dictionaries = freezed,
+    Object? meta = null,
+    Object? data = null,
+    Object? dictionaries = null,
   }) {
     return _then(
       _$FlightSearchOutImpl(
-        meta: freezed == meta
+        meta: null == meta
             ? _value.meta
             : meta // ignore: cast_nullable_to_non_nullable
-                  as Meta?,
-        data: freezed == data
+                  as Meta,
+        data: null == data
             ? _value._data
             : data // ignore: cast_nullable_to_non_nullable
-                  as List<FlightOffer>?,
-        dictionaries: freezed == dictionaries
+                  as List<FlightOffer>,
+        dictionaries: null == dictionaries
             ? _value.dictionaries
             : dictionaries // ignore: cast_nullable_to_non_nullable
-                  as Dictionaries?,
+                  as Dictionaries,
       ),
     );
   }
@@ -173,28 +165,26 @@ class __$$FlightSearchOutImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$FlightSearchOutImpl implements _FlightSearchOut {
   const _$FlightSearchOutImpl({
-    this.meta,
-    final List<FlightOffer>? data,
-    this.dictionaries,
+    required this.meta,
+    required final List<FlightOffer> data,
+    required this.dictionaries,
   }) : _data = data;
 
   factory _$FlightSearchOutImpl.fromJson(Map<String, dynamic> json) =>
       _$$FlightSearchOutImplFromJson(json);
 
   @override
-  final Meta? meta;
-  final List<FlightOffer>? _data;
+  final Meta meta;
+  final List<FlightOffer> _data;
   @override
-  List<FlightOffer>? get data {
-    final value = _data;
-    if (value == null) return null;
+  List<FlightOffer> get data {
     if (_data is EqualUnmodifiableListView) return _data;
     // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(value);
+    return EqualUnmodifiableListView(_data);
   }
 
   @override
-  final Dictionaries? dictionaries;
+  final Dictionaries dictionaries;
 
   @override
   String toString() {
@@ -240,20 +230,20 @@ class _$FlightSearchOutImpl implements _FlightSearchOut {
 
 abstract class _FlightSearchOut implements FlightSearchOut {
   const factory _FlightSearchOut({
-    final Meta? meta,
-    final List<FlightOffer>? data,
-    final Dictionaries? dictionaries,
+    required final Meta meta,
+    required final List<FlightOffer> data,
+    required final Dictionaries dictionaries,
   }) = _$FlightSearchOutImpl;
 
   factory _FlightSearchOut.fromJson(Map<String, dynamic> json) =
       _$FlightSearchOutImpl.fromJson;
 
   @override
-  Meta? get meta;
+  Meta get meta;
   @override
-  List<FlightOffer>? get data;
+  List<FlightOffer> get data;
   @override
-  Dictionaries? get dictionaries;
+  Dictionaries get dictionaries;
 
   /// Create a copy of FlightSearchOut
   /// with the given fields replaced by the non-null parameter values.
@@ -3856,10 +3846,10 @@ Dictionaries _$DictionariesFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$Dictionaries {
-  Map<String, Location>? get locations => throw _privateConstructorUsedError;
-  Map<String, String>? get aircraft => throw _privateConstructorUsedError;
-  Map<String, String>? get currencies => throw _privateConstructorUsedError;
-  Map<String, String>? get carriers => throw _privateConstructorUsedError;
+  Map<String, Location> get locations => throw _privateConstructorUsedError;
+  Map<String, String> get aircraft => throw _privateConstructorUsedError;
+  Map<String, String> get currencies => throw _privateConstructorUsedError;
+  Map<String, String> get carriers => throw _privateConstructorUsedError;
 
   /// Serializes this Dictionaries to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -3879,10 +3869,10 @@ abstract class $DictionariesCopyWith<$Res> {
   ) = _$DictionariesCopyWithImpl<$Res, Dictionaries>;
   @useResult
   $Res call({
-    Map<String, Location>? locations,
-    Map<String, String>? aircraft,
-    Map<String, String>? currencies,
-    Map<String, String>? carriers,
+    Map<String, Location> locations,
+    Map<String, String> aircraft,
+    Map<String, String> currencies,
+    Map<String, String> carriers,
   });
 }
 
@@ -3901,29 +3891,29 @@ class _$DictionariesCopyWithImpl<$Res, $Val extends Dictionaries>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? locations = freezed,
-    Object? aircraft = freezed,
-    Object? currencies = freezed,
-    Object? carriers = freezed,
+    Object? locations = null,
+    Object? aircraft = null,
+    Object? currencies = null,
+    Object? carriers = null,
   }) {
     return _then(
       _value.copyWith(
-            locations: freezed == locations
+            locations: null == locations
                 ? _value.locations
                 : locations // ignore: cast_nullable_to_non_nullable
-                      as Map<String, Location>?,
-            aircraft: freezed == aircraft
+                      as Map<String, Location>,
+            aircraft: null == aircraft
                 ? _value.aircraft
                 : aircraft // ignore: cast_nullable_to_non_nullable
-                      as Map<String, String>?,
-            currencies: freezed == currencies
+                      as Map<String, String>,
+            currencies: null == currencies
                 ? _value.currencies
                 : currencies // ignore: cast_nullable_to_non_nullable
-                      as Map<String, String>?,
-            carriers: freezed == carriers
+                      as Map<String, String>,
+            carriers: null == carriers
                 ? _value.carriers
                 : carriers // ignore: cast_nullable_to_non_nullable
-                      as Map<String, String>?,
+                      as Map<String, String>,
           )
           as $Val,
     );
@@ -3940,10 +3930,10 @@ abstract class _$$DictionariesImplCopyWith<$Res>
   @override
   @useResult
   $Res call({
-    Map<String, Location>? locations,
-    Map<String, String>? aircraft,
-    Map<String, String>? currencies,
-    Map<String, String>? carriers,
+    Map<String, Location> locations,
+    Map<String, String> aircraft,
+    Map<String, String> currencies,
+    Map<String, String> carriers,
   });
 }
 
@@ -3961,29 +3951,29 @@ class __$$DictionariesImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? locations = freezed,
-    Object? aircraft = freezed,
-    Object? currencies = freezed,
-    Object? carriers = freezed,
+    Object? locations = null,
+    Object? aircraft = null,
+    Object? currencies = null,
+    Object? carriers = null,
   }) {
     return _then(
       _$DictionariesImpl(
-        locations: freezed == locations
+        locations: null == locations
             ? _value._locations
             : locations // ignore: cast_nullable_to_non_nullable
-                  as Map<String, Location>?,
-        aircraft: freezed == aircraft
+                  as Map<String, Location>,
+        aircraft: null == aircraft
             ? _value._aircraft
             : aircraft // ignore: cast_nullable_to_non_nullable
-                  as Map<String, String>?,
-        currencies: freezed == currencies
+                  as Map<String, String>,
+        currencies: null == currencies
             ? _value._currencies
             : currencies // ignore: cast_nullable_to_non_nullable
-                  as Map<String, String>?,
-        carriers: freezed == carriers
+                  as Map<String, String>,
+        carriers: null == carriers
             ? _value._carriers
             : carriers // ignore: cast_nullable_to_non_nullable
-                  as Map<String, String>?,
+                  as Map<String, String>,
       ),
     );
   }
@@ -3993,10 +3983,10 @@ class __$$DictionariesImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$DictionariesImpl implements _Dictionaries {
   const _$DictionariesImpl({
-    final Map<String, Location>? locations,
-    final Map<String, String>? aircraft,
-    final Map<String, String>? currencies,
-    final Map<String, String>? carriers,
+    required final Map<String, Location> locations,
+    required final Map<String, String> aircraft,
+    required final Map<String, String> currencies,
+    required final Map<String, String> carriers,
   }) : _locations = locations,
        _aircraft = aircraft,
        _currencies = currencies,
@@ -4005,44 +3995,36 @@ class _$DictionariesImpl implements _Dictionaries {
   factory _$DictionariesImpl.fromJson(Map<String, dynamic> json) =>
       _$$DictionariesImplFromJson(json);
 
-  final Map<String, Location>? _locations;
+  final Map<String, Location> _locations;
   @override
-  Map<String, Location>? get locations {
-    final value = _locations;
-    if (value == null) return null;
+  Map<String, Location> get locations {
     if (_locations is EqualUnmodifiableMapView) return _locations;
     // ignore: implicit_dynamic_type
-    return EqualUnmodifiableMapView(value);
+    return EqualUnmodifiableMapView(_locations);
   }
 
-  final Map<String, String>? _aircraft;
+  final Map<String, String> _aircraft;
   @override
-  Map<String, String>? get aircraft {
-    final value = _aircraft;
-    if (value == null) return null;
+  Map<String, String> get aircraft {
     if (_aircraft is EqualUnmodifiableMapView) return _aircraft;
     // ignore: implicit_dynamic_type
-    return EqualUnmodifiableMapView(value);
+    return EqualUnmodifiableMapView(_aircraft);
   }
 
-  final Map<String, String>? _currencies;
+  final Map<String, String> _currencies;
   @override
-  Map<String, String>? get currencies {
-    final value = _currencies;
-    if (value == null) return null;
+  Map<String, String> get currencies {
     if (_currencies is EqualUnmodifiableMapView) return _currencies;
     // ignore: implicit_dynamic_type
-    return EqualUnmodifiableMapView(value);
+    return EqualUnmodifiableMapView(_currencies);
   }
 
-  final Map<String, String>? _carriers;
+  final Map<String, String> _carriers;
   @override
-  Map<String, String>? get carriers {
-    final value = _carriers;
-    if (value == null) return null;
+  Map<String, String> get carriers {
     if (_carriers is EqualUnmodifiableMapView) return _carriers;
     // ignore: implicit_dynamic_type
-    return EqualUnmodifiableMapView(value);
+    return EqualUnmodifiableMapView(_carriers);
   }
 
   @override
@@ -4093,23 +4075,23 @@ class _$DictionariesImpl implements _Dictionaries {
 
 abstract class _Dictionaries implements Dictionaries {
   const factory _Dictionaries({
-    final Map<String, Location>? locations,
-    final Map<String, String>? aircraft,
-    final Map<String, String>? currencies,
-    final Map<String, String>? carriers,
+    required final Map<String, Location> locations,
+    required final Map<String, String> aircraft,
+    required final Map<String, String> currencies,
+    required final Map<String, String> carriers,
   }) = _$DictionariesImpl;
 
   factory _Dictionaries.fromJson(Map<String, dynamic> json) =
       _$DictionariesImpl.fromJson;
 
   @override
-  Map<String, Location>? get locations;
+  Map<String, Location> get locations;
   @override
-  Map<String, String>? get aircraft;
+  Map<String, String> get aircraft;
   @override
-  Map<String, String>? get currencies;
+  Map<String, String> get currencies;
   @override
-  Map<String, String>? get carriers;
+  Map<String, String> get carriers;
 
   /// Create a copy of Dictionaries
   /// with the given fields replaced by the non-null parameter values.

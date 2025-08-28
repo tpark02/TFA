@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:TFA/utils/api_config.dart';
 
 class RecentSearchApiService {
-  static Future<bool> sendRecentSearch({
+  static Future<bool> createRecentSearch({
     required String destination,
     required String tripDateRange,
     required String destinationCode,

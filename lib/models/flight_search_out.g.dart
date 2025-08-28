@@ -9,15 +9,13 @@ part of 'flight_search_out.dart';
 _$FlightSearchOutImpl _$$FlightSearchOutImplFromJson(
   Map<String, dynamic> json,
 ) => _$FlightSearchOutImpl(
-  meta: json['meta'] == null
-      ? null
-      : Meta.fromJson(json['meta'] as Map<String, dynamic>),
-  data: (json['data'] as List<dynamic>?)
-      ?.map((e) => FlightOffer.fromJson(e as Map<String, dynamic>))
+  meta: Meta.fromJson(json['meta'] as Map<String, dynamic>),
+  data: (json['data'] as List<dynamic>)
+      .map((e) => FlightOffer.fromJson(e as Map<String, dynamic>))
       .toList(),
-  dictionaries: json['dictionaries'] == null
-      ? null
-      : Dictionaries.fromJson(json['dictionaries'] as Map<String, dynamic>),
+  dictionaries: Dictionaries.fromJson(
+    json['dictionaries'] as Map<String, dynamic>,
+  ),
 );
 
 Map<String, dynamic> _$$FlightSearchOutImplToJson(
@@ -303,18 +301,12 @@ Map<String, dynamic> _$$IncludedCheckedBagsImplToJson(
 
 _$DictionariesImpl _$$DictionariesImplFromJson(Map<String, dynamic> json) =>
     _$DictionariesImpl(
-      locations: (json['locations'] as Map<String, dynamic>?)?.map(
+      locations: (json['locations'] as Map<String, dynamic>).map(
         (k, e) => MapEntry(k, Location.fromJson(e as Map<String, dynamic>)),
       ),
-      aircraft: (json['aircraft'] as Map<String, dynamic>?)?.map(
-        (k, e) => MapEntry(k, e as String),
-      ),
-      currencies: (json['currencies'] as Map<String, dynamic>?)?.map(
-        (k, e) => MapEntry(k, e as String),
-      ),
-      carriers: (json['carriers'] as Map<String, dynamic>?)?.map(
-        (k, e) => MapEntry(k, e as String),
-      ),
+      aircraft: Map<String, String>.from(json['aircraft'] as Map),
+      currencies: Map<String, String>.from(json['currencies'] as Map),
+      carriers: Map<String, String>.from(json['carriers'] as Map),
     );
 
 Map<String, dynamic> _$$DictionariesImplToJson(_$DictionariesImpl instance) =>

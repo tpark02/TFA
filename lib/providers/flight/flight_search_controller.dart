@@ -1,7 +1,10 @@
-import 'package:TFA/models/flight_search_int.dart';
+import 'package:TFA/models/booking_in.dart';
+import 'package:TFA/models/booking_out.dart';
+import 'package:TFA/models/flight_search_in.dart';
 import 'package:TFA/models/flight_search_out.dart';
 import 'package:TFA/providers/iata_country_provider.dart';
 import 'package:TFA/providers/recent_search.dart';
+import 'package:TFA/services/booking_service.dart';
 import 'package:TFA/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -548,7 +551,7 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
     }
 
     // ✅ Send only valid searches
-    return await RecentSearchApiService.sendRecentSearch(
+    return await RecentSearchApiService.createRecentSearch(
       destination: search.destination,
       tripDateRange: search.tripDateRange,
       destinationCode: search.destinationCode,
@@ -613,7 +616,91 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
   //   state = state.copyWith(returnDate: formatted);
   // }
 
-  // In your FlightSearchController
+  void clearAllSearch() {
+    state =
+        FlightSearchState(); // assuming default ctor has your initial values
+  }
+
+  void clearDates() {
+    state = state.copyWith(
+      departDate: null,
+      returnDate: null,
+      displayDate: null,
+      clearReturnDate: true,
+      processedFlights: <Map<String, dynamic>>[], // optional: clear results
+    );
+  }
+
+  void clearAirports() {
+    state = state.copyWith(
+      departureAirportCode: '',
+      departureCity: '',
+      arrivalAirportCode: '',
+      arrivalCity: '',
+      processedFlights: <Map<String, dynamic>>[],
+      hiddenAirporCodeList: <String>[],
+    );
+  }
+
+  void clearPassengers() {
+    state = state.copyWith(
+      passengerCount: 1,
+      adultCnt: 1,
+      childrenCnt: 0,
+      infantLapCnt: 0,
+      infantSeatCnt: 0,
+      cabinIdx: 0,
+      cabinClass: getCabinClassByIdx(cabinIndex: 0),
+      processedFlights: <Map<String, dynamic>>[],
+    );
+  }
+
+  void clearSearch({
+    bool airports = true,
+    bool dates = true,
+    bool passengers = true,
+    bool results = true,
+  }) {
+    var next = state;
+
+    if (airports) {
+      next = next.copyWith(
+        departureAirportCode: '',
+        departureCity: '',
+        arrivalAirportCode: '',
+        arrivalCity: '',
+        hiddenAirporCodeList: <String>[],
+      );
+    }
+
+    if (dates) {
+      next = next.copyWith(
+        departDate: null,
+        returnDate: null,
+        displayDate: null,
+        clearReturnDate: true,
+      );
+    }
+
+    if (passengers) {
+      next = next.copyWith(
+        passengerCount: 1,
+        adultCnt: 1,
+        childrenCnt: 0,
+        infantLapCnt: 0,
+        infantSeatCnt: 0,
+        cabinIdx: 0,
+        cabinClass: getCabinClassByIdx(cabinIndex: 0),
+      );
+    }
+
+    if (results) {
+      next = next.copyWith(processedFlights: <Map<String, dynamic>>[]);
+    }
+
+    if (next != state) state = next;
+  }
+
   void updateSearch({
     // airports
     String? departureCode,
@@ -710,25 +797,32 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
     state = state.copyWith(departureAirportCode: code, departureCity: city);
   }
 
-  void clearProcessedFlights() {
-    debugPrint("🔴 clear processed flights");
-    state = state.copyWith(processedFlights: <Map<String, dynamic>>[]);
-  }
+  // void clearProcessedFlights() {
+  //   debugPrint("🔴 clear processed flights");
+  //   state = state.copyWith(processedFlights: <Map<String, dynamic>>[]);
+  // }
 
-  void clearHiddenAiportCodeList() {
-    debugPrint("🔴 clear hidden airport code list flights");
-    state = state.copyWith(hiddenAirporCodeList: <String>[]);
-  }
+  // void clearHiddenAiportCodeList() {
+  //   debugPrint("🔴 clear hidden airport code list flights");
+  //   state = state.copyWith(hiddenAirporCodeList: <String>[]);
+  // }
 
   void setHiddenAirporCodeList(List<String> lst) {
     state = state.copyWith(hiddenAirporCodeList: lst);
   }
+
   // void setDepartureName(String name) {
   //   state = state.copyWith(departureAirportName: name);
   // }
-
   void setArrivalCode(String code, String city) {
-    state = state.copyWith(arrivalAirportCode: code, arrivalCity: city);
+    // 🟢 Clear related data first
+    state = state.copyWith(
+      processedFlights: <Map<String, dynamic>>[], // clear flights
+      hiddenAirporCodeList: <String>[], // clear hidden airports
+      arrivalAirportCode: code,
+      arrivalCity: city,
+      searchNonce: state.searchNonce + 1,
+    );
   }
 
   // void setArrivalName(String name) {
@@ -977,6 +1071,45 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
         //   travelClass: getTravelClassByIdx(cabinIndex: state.cabinIdx),
         // ),
       ];
+    }
+  }
+
+  Future<BookingOut?> createBooking({required BookingIn bIn}) async {
+    try {
+      state = state.copyWith(isLoading: true);
+
+      // Build the BookingIn request payload
+      // final BookingIn bookingIn = BookingIn(
+      //   destination: state.arrivalCity,
+      //   tripDateRange: state.displayDate ?? '',
+      //   destinationCode: state.arrivalAirportCode,
+      //   passengerCnt: state.passengerCount,
+      //   adult: state.adultCnt,
+      //   children: state.childrenCnt,
+      //   infantLap: state.infantLapCnt,
+      //   infantSeat: state.infantSeatCnt,
+      //   cabinIdx: state.cabinIdx,
+      //   rooms: 1,
+      //   kind: 'flight',
+      //   departCode: state.departureAirportCode,
+      //   arrivalCode: state.arrivalAirportCode,
+      //   departDate: state.departDate ?? '',
+      //   returnDate: state.returnDate,
+      // );
+
+      // Call API service to create a booking
+      final BookingOut booking = await BookingService.createBooking(
+        booking: bIn,
+      );
+
+      // Optionally store booking info in state
+      debugPrint("✅ Booking created: ${booking.id}");
+      return booking;
+    } catch (e, st) {
+      debugPrint("❌ Booking creation failed: $e\n$st");
+      return null;
+    } finally {
+      state = state.copyWith(isLoading: false);
     }
   }
 

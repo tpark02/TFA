@@ -243,7 +243,8 @@ class FlightSearchState {
           departDate == other.departDate &&
           returnDate == other.returnDate &&
           cabinClass == other.cabinClass &&
-          passengerCount == other.passengerCount;
+          passengerCount == other.passengerCount &&
+          searchNonce == other.searchNonce;
 
   @override
   int get hashCode =>
@@ -256,7 +257,8 @@ class FlightSearchState {
       departDate.hashCode ^
       returnDate.hashCode ^
       cabinClass.hashCode ^
-      passengerCount.hashCode;
+      passengerCount.hashCode ^
+      searchNonce.hashCode;
 
   // FlightSearchState copyWithLoading(bool isLoading) {
   //   return copyWith(

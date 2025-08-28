@@ -1,4 +1,5 @@
 // lib/screens/profile/profile_settings_page.dart
+import 'package:TFA/providers/flight/flight_search_controller.dart';
 import 'package:TFA/providers/menu_tab_provider.dart';
 import 'package:TFA/screens/profiile/currency_selector_sheet.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -65,7 +66,6 @@ class _LoginState extends ConsumerState<_Login> {
           shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
         ),
         onPressed: () {
-          // ref.read(flightSearchProvider.notifier).clearRecentSearches();
           ref.read(menuTabProvider.notifier).state = MenuTab.home;
           FirebaseAuth.instance.signOut();
         },

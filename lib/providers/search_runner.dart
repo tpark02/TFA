@@ -27,15 +27,12 @@ class SearchRunner {
     try {
       final ctrl = container.read(flightSearchProvider.notifier);
 
-      // optional: clear existing results
-      ctrl.clearProcessedFlights();
-
       // navigate first (like your original code)
       rootNavigatorKey.currentState?.push(
         MaterialPageRoute<void>(builder: (_) => const FlightListPage()),
       );
 
-      // executeFlightSearch returns a list of closures
+      // ctrl.clearProcessedFlights();
       final ops = ctrl.executeFlightSearch();
       for (final op in ops) {
         final (ok, msg) = await op();

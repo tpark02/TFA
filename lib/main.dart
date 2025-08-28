@@ -32,11 +32,11 @@ Future<void> main() async {
 
   // ✅ Use `listen` (not `listenManual`) on the container you’ll pass to the app
   container.listen<FlightSearchState>(flightSearchProvider, (prev, next) async {
-    // if (prev == next) return;
+    if (prev == next) return;
     if (next.arrivalAirportCode.toLowerCase() == 'anywhere') return;
     if (!stateReady(next)) return;
 
-    debugPrint('🌍 Global listener → running search…');
+    debugPrint('onStart Up : 🌍 Global listener → running search…');
     await SearchRunner(container).runFromState(next);
   }, fireImmediately: false);
   unawaited(runStartupBootstrap(container));
@@ -59,6 +59,7 @@ Future<void> main() async {
           prev,
           next,
         ) async {
+          if (prev == next) return;
           if (next.arrivalAirportCode.toLowerCase() == 'anywhere') return;
           if (!stateReady(next)) return;
           debugPrint('🌍 Global listener → running search…');
@@ -69,7 +70,8 @@ Future<void> main() async {
       // ✅ LOGOUT: clear state
       if (was != null && now == null) {
         debugPrint('👤 Logged out → clear flight state');
-        container.read(flightSearchProvider.notifier).clearProcessedFlights();
+        // container.read(flightSearchProvider.notifier).clearProcessedFlights();
+        container.read(flightSearchProvider.notifier).clearAllSearch();
       }
     },
     fireImmediately: true, // handles cold start when already logged in

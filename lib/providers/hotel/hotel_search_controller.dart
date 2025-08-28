@@ -35,7 +35,7 @@ class HotelSearchController extends StateNotifier<HotelSearchState> {
     }
 
     // ✅ Send only valid searches
-    return await RecentSearchApiService.sendRecentSearch(
+    return await RecentSearchApiService.createRecentSearch(
       destination: search.destination,
       tripDateRange: search.tripDateRange,
       destinationCode: search.destinationCode,
