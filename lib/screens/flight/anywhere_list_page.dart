@@ -2,6 +2,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:TFA/l10n/app_localizations.dart';
 import 'package:TFA/models/anywhere_destination.dart';
 import 'package:TFA/providers/flight/anywhere_provider.dart';
 import 'package:TFA/providers/flight/flight_search_controller.dart';
@@ -125,6 +126,8 @@ class _AnywhereListState extends ConsumerState<AnywhereListPage> {
     final FlightSearchController controller = ref.read(
       flightSearchProvider.notifier,
     );
+    final text = AppLocalizations.of(context)!;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF6F7F9),
 
@@ -205,11 +208,11 @@ class _AnywhereListState extends ConsumerState<AnywhereListPage> {
               ],
             ),
           ),
-          const ColoredBox(
+          ColoredBox(
             color: Colors.white,
             child: Padding(
-              padding: EdgeInsets.symmetric(vertical: 8),
-              child: Center(child: Text('Prices are not real-time.')),
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Center(child: Text(text.prices_are_not)),
             ),
           ),
           const SizedBox(height: 8),

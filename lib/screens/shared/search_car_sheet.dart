@@ -1,3 +1,4 @@
+import 'package:TFA/l10n/app_localizations.dart';
 import 'package:TFA/models/cars.dart';
 import 'package:TFA/providers/car/car_provider.dart';
 import 'package:flutter/material.dart';
@@ -15,7 +16,9 @@ class _SearchCarSheetState extends ConsumerState<SearchCarSheet> {
   @override
   Widget build(BuildContext context) {
     final double height = MediaQuery.of(context).size.height * 0.7;
-    final AsyncValue<Map<String, List<Car>>> filteredCars = ref.watch(filteredCarProvider);
+    final AsyncValue<Map<String, List<Car>>> filteredCars = ref.watch(
+      filteredCarProvider,
+    );
 
     return SafeArea(
       child: Padding(
@@ -80,11 +83,17 @@ class _SearchCarSheetState extends ConsumerState<SearchCarSheet> {
                 child: filteredCars.when(
                   data: (Map<String, List<Car>> grouped) {
                     if (grouped.isEmpty) {
-                      return const Center(child: Text("No matching countries"));
+                      return Center(
+                        child: Text(
+                          AppLocalizations.of(context)!.no_matching_countries,
+                        ),
+                      );
                     }
 
                     return ListView(
-                      children: grouped.entries.map((MapEntry<String, List<Car>> entry) {
+                      children: grouped.entries.map((
+                        MapEntry<String, List<Car>> entry,
+                      ) {
                         final String city = entry.key;
                         final List<Car> cars = entry.value;
 
@@ -92,7 +101,9 @@ class _SearchCarSheetState extends ConsumerState<SearchCarSheet> {
                           children: <Widget>[
                             TextButton(
                               onPressed: () {
-                                Navigator.pop(context, <String, String>{'city': city});
+                                Navigator.pop(context, <String, String>{
+                                  'city': city,
+                                });
                               },
                               child: Row(
                                 mainAxisAlignment:
@@ -114,7 +125,7 @@ class _SearchCarSheetState extends ConsumerState<SearchCarSheet> {
                                       ),
                                       Text(
                                         cars[0].country,
-                                        style:  TextStyle(
+                                        style: TextStyle(
                                           fontSize: Theme.of(
                                             context,
                                           ).textTheme.bodySmall?.fontSize,

@@ -4,6 +4,7 @@
 // - Inserts layover chips between segments using `connections[]`
 // - Safe null handling everywhere
 
+import 'package:TFA/l10n/app_localizations.dart';
 import 'package:TFA/providers/airport/airport_lookup.dart';
 import 'package:TFA/utils/utils.dart';
 import 'package:flutter/material.dart';
@@ -25,6 +26,7 @@ class FlightTripDetailsItem extends ConsumerWidget {
     final Color primary = Theme.of(context).colorScheme.primary;
     final double textSize =
         Theme.of(context).textTheme.headlineMedium?.fontSize ?? 16.0;
+    final text = AppLocalizations.of(context)!;
 
     if (flightData.isEmpty) {
       return const SizedBox.shrink();
@@ -275,7 +277,7 @@ class FlightTripDetailsItem extends ConsumerWidget {
                           child: Align(
                             alignment: Alignment.center,
                             child: Text(
-                              'Book Departing for ${flightData['price']}',
+                              '${text.book_departing_for} ${flightData['price']}',
                               style: TextStyle(
                                 fontWeight: FontWeight.w700,
                                 color: primary,

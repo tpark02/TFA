@@ -1,3 +1,4 @@
+import 'package:TFA/l10n/app_localizations.dart';
 import 'package:TFA/providers/flight/flight_search_controller.dart';
 import 'package:TFA/providers/flight/flight_search_state.dart';
 import 'package:TFA/utils/platform_modal_sheet.dart';
@@ -313,6 +314,7 @@ class _FlightListViewState extends ConsumerState<FlightListView>
     //     );
     //   });
     // }
+    final text = AppLocalizations.of(context)!;
     return Container(
       color: Theme.of(context).colorScheme.surface,
       child: Column(
@@ -335,12 +337,12 @@ class _FlightListViewState extends ConsumerState<FlightListView>
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
-                            const Text(
-                              "Choose Departing flight",
+                            Text(
+                              text.choose_departing_flight,
                               style: TextStyle(fontWeight: FontWeight.bold),
                             ),
                             Text(
-                              "Total Cost",
+                              text.total_cost,
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: Theme.of(context).colorScheme.secondary,
@@ -438,7 +440,7 @@ class _FlightListViewState extends ConsumerState<FlightListView>
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: <Widget>[
                                 Text(
-                                  "Choose returning flight",
+                                  text.choose_returning_flight,
                                   style: TextStyle(
                                     fontSize: Theme.of(
                                       context,

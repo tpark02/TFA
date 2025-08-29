@@ -1,3 +1,4 @@
+import 'package:TFA/utils/utils.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:TFA/models/booking_out.dart';
@@ -65,7 +66,7 @@ class BookingCard extends StatelessWidget {
             const SizedBox(height: 6),
             // Pax + cabin
             Text(
-              'Passengers: $pax  •  Cabin idx: ${booking.cabinIdx}',
+              'Passengers: $pax  •  ${getTravelClassByIdx(cabinIndex: booking.cabinIdx)}',
               style: TextStyle(color: sub),
             ),
             const SizedBox(height: 6),

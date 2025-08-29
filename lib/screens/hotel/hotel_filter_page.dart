@@ -1,4 +1,5 @@
 // lib/screens/hotel/hotel_filter_page.dart
+import 'package:TFA/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:TFA/widgets/silvers/section_header.dart';
 
@@ -207,6 +208,7 @@ class _HotelFilterPageState extends State<HotelFilterPage> {
     final SliverToBoxAdapter divider = SliverToBoxAdapter(
       child: Container(height: 1, color: const Color(0xFFEAEAEA)),
     );
+    final text = AppLocalizations.of(context)!;
 
     return Scaffold(
       body: CustomScrollView(
@@ -223,7 +225,10 @@ class _HotelFilterPageState extends State<HotelFilterPage> {
           ),
 
           // ---- Sort
-          SliverPersistentHeader(pinned: true, delegate: SectionHeader('Sort')),
+          SliverPersistentHeader(
+            pinned: true,
+            delegate: SectionHeader(text.sort),
+          ),
           SliverList(
             delegate: SliverChildListDelegate(<Widget>[
               _padded(_radio('price', 'Price')),
@@ -361,20 +366,23 @@ class _HotelFilterPageState extends State<HotelFilterPage> {
                     ),
                   ),
                   onPressed: () {
-                    final Map<String, List<String>> map = <String, List<String>>{
-                      'sort': <String>[_sort],
-                      'priceStart': <String>[_price.start.toInt().toString()],
-                      'priceEnd': <String>[_price.end.toInt().toString()],
-                      'ratingStart': <String>[_rating.start.toString()],
-                      'ratingEnd': <String>[_rating.end.toString()],
-                      'star5': <String>[_star5.toString()],
-                      'star4plus': <String>[_star4plus.toString()],
-                      'hotelName': <String>[_hotelName],
-                      'amenities': _amenities.entries
-                          .where((MapEntry<String, bool> e) => e.value)
-                          .map((MapEntry<String, bool> e) => e.key)
-                          .toList(),
-                    };
+                    final Map<String, List<String>> map =
+                        <String, List<String>>{
+                          'sort': <String>[_sort],
+                          'priceStart': <String>[
+                            _price.start.toInt().toString(),
+                          ],
+                          'priceEnd': <String>[_price.end.toInt().toString()],
+                          'ratingStart': <String>[_rating.start.toString()],
+                          'ratingEnd': <String>[_rating.end.toString()],
+                          'star5': <String>[_star5.toString()],
+                          'star4plus': <String>[_star4plus.toString()],
+                          'hotelName': <String>[_hotelName],
+                          'amenities': _amenities.entries
+                              .where((MapEntry<String, bool> e) => e.value)
+                              .map((MapEntry<String, bool> e) => e.key)
+                              .toList(),
+                        };
 
                     Navigator.pop(context, map);
                   },

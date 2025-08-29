@@ -1,3 +1,4 @@
+import 'package:TFA/l10n/app_localizations.dart';
 import 'package:TFA/providers/flight/flight_search_controller.dart';
 import 'package:TFA/providers/flight/flight_search_state.dart';
 import 'package:TFA/widgets/counter_control.dart';
@@ -31,6 +32,7 @@ class _TravelerSelectorState extends ConsumerState<TravelerSelectorSheet> {
       flightSearchProvider.notifier,
     );
     final FlightSearchState provider = ref.watch(flightSearchProvider);
+    final text = AppLocalizations.of(context)!;
 
     return SafeArea(
       child: Padding(
@@ -66,7 +68,7 @@ class _TravelerSelectorState extends ConsumerState<TravelerSelectorSheet> {
                             : Colors.grey,
                       ),
                       child: Text(
-                        "Travelers",
+                        text.travelers,
                         style: TextStyle(
                           fontSize: Theme.of(
                             context,
@@ -89,7 +91,7 @@ class _TravelerSelectorState extends ConsumerState<TravelerSelectorSheet> {
                             : Colors.grey,
                       ),
                       child: Text(
-                        "Class",
+                        text.c_class,
                         style: TextStyle(
                           fontSize: Theme.of(
                             context,
@@ -112,7 +114,7 @@ class _TravelerSelectorState extends ConsumerState<TravelerSelectorSheet> {
                             children: <Widget>[
                               Expanded(
                                 child: Text(
-                                  "Adults",
+                                  text.adults,
                                   style: TextStyle(
                                     fontSize: Theme.of(
                                       context,
@@ -138,7 +140,7 @@ class _TravelerSelectorState extends ConsumerState<TravelerSelectorSheet> {
                               Align(
                                 alignment: Alignment.centerLeft,
                                 child: Text(
-                                  "Children",
+                                  text.children,
                                   style: TextStyle(
                                     fontSize: Theme.of(
                                       context,
@@ -177,7 +179,7 @@ class _TravelerSelectorState extends ConsumerState<TravelerSelectorSheet> {
                               Align(
                                 alignment: Alignment.centerLeft,
                                 child: Text(
-                                  "Infant (lap)",
+                                  text.infant_lap,
                                   style: TextStyle(
                                     fontSize: Theme.of(
                                       context,
@@ -203,7 +205,7 @@ class _TravelerSelectorState extends ConsumerState<TravelerSelectorSheet> {
                               Align(
                                 alignment: Alignment.centerLeft,
                                 child: Text(
-                                  "Infant (seat)",
+                                  text.infant_seat,
                                   style: TextStyle(
                                     fontSize: Theme.of(
                                       context,
@@ -246,7 +248,7 @@ class _TravelerSelectorState extends ConsumerState<TravelerSelectorSheet> {
                                       });
                                     },
                                     child: Text(
-                                      "Economy",
+                                      text.economy,
                                       style: TextStyle(
                                         color: _cabinIdx == 0
                                             ? Theme.of(
@@ -289,7 +291,7 @@ class _TravelerSelectorState extends ConsumerState<TravelerSelectorSheet> {
                                       });
                                     },
                                     child: Text(
-                                      "Premium Economy",
+                                      text.premium_economy,
                                       style: TextStyle(
                                         color: _cabinIdx == 1
                                             ? Theme.of(
@@ -332,7 +334,7 @@ class _TravelerSelectorState extends ConsumerState<TravelerSelectorSheet> {
                                       });
                                     },
                                     child: Text(
-                                      "Business",
+                                      text.business,
                                       style: TextStyle(
                                         color: _cabinIdx == 2
                                             ? Theme.of(
@@ -375,7 +377,7 @@ class _TravelerSelectorState extends ConsumerState<TravelerSelectorSheet> {
                                       });
                                     },
                                     child: Text(
-                                      "First",
+                                      text.first,
                                       style: TextStyle(
                                         color: _cabinIdx == 3
                                             ? Theme.of(
@@ -429,9 +431,9 @@ class _TravelerSelectorState extends ConsumerState<TravelerSelectorSheet> {
                     borderRadius: BorderRadius.zero,
                   ),
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[Text('Done')],
+                  children: <Widget>[Text(text.done)],
                 ),
               ),
             ],

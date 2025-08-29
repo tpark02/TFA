@@ -1,3 +1,4 @@
+import 'package:TFA/l10n/app_localizations.dart';
 import 'package:TFA/models/booking_out.dart';
 import 'package:TFA/providers/flight/flight_search_controller.dart';
 import 'package:TFA/providers/route_observer.dart';
@@ -23,35 +24,50 @@ class _MyTrpPageState extends ConsumerState<MyTripsPage> {
   Widget build(BuildContext context) {
     final primary = Theme.of(context).colorScheme.primary;
     final onPrimary = Theme.of(context).colorScheme.onPrimary;
-
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        appBar: AppBar(
-          backgroundColor: primary,
-          elevation: 0,
-          centerTitle: true,
-          title: Text(
-            'Trips',
-            style: TextStyle(color: onPrimary, fontWeight: FontWeight.w600),
-          ),
-          bottom: TabBar(
-            indicatorColor: onPrimary,
-            indicatorWeight: 3,
-            labelColor: onPrimary,
-            unselectedLabelColor: onPrimary.withOpacity(0.6),
-            tabs: const [
-              Tab(text: 'Favorites'),
-              Tab(text: 'Bookings'),
-            ],
-          ),
-        ),
-        body: const TabBarView(
-          children: [_FavoritesPlaceholder(), _BookingsEmpty()],
+    final text = AppLocalizations.of(context)!;
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: primary,
+        elevation: 0,
+        centerTitle: true,
+        title: Text(
+          text.my_trip,
+          style: TextStyle(color: onPrimary),
         ),
       ),
+      body: const _BookingsEmpty(),
     );
+    // final primary = Theme.of(context).colorScheme.primary;
+    // final onPrimary = Theme.of(context).colorScheme.onPrimary;
+
+    // return DefaultTabController(
+    //   length: 2,
+    //   child: Scaffold(
+    //     backgroundColor: Theme.of(context).colorScheme.surface,
+    //     appBar: AppBar(
+    //       backgroundColor: primary,
+    //       elevation: 0,
+    //       centerTitle: true,
+    //       title: Text(
+    //         'Trips',
+    //         style: TextStyle(color: onPrimary, fontWeight: FontWeight.w600),
+    //       ),
+    //       bottom: TabBar(
+    //         indicatorColor: onPrimary,
+    //         indicatorWeight: 3,
+    //         labelColor: onPrimary,
+    //         unselectedLabelColor: onPrimary.withOpacity(0.6),
+    //         tabs: const [
+    //           Tab(text: 'Favorites'),
+    //           Tab(text: 'Bookings'),
+    //         ],
+    //       ),
+    //     ),
+    //     body: const TabBarView(
+    //       children: [_FavoritesPlaceholder(), _BookingsEmpty()],
+    //     ),
+    //   ),
+    // );
   }
 }
 

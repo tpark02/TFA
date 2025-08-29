@@ -1,3 +1,4 @@
+import 'package:TFA/l10n/app_localizations.dart';
 import 'package:TFA/utils/utils.dart';
 import 'package:TFA/widgets/silvers/section_header.dart';
 import 'package:flutter/material.dart';
@@ -111,7 +112,7 @@ class _FlightFilterPageState extends State<FlightFilterPage> {
     );
   }
 
-  Widget _airlineTile(String airlineName) {
+  Widget _airlineTile(BuildContext context, String airlineName) {
     final bool isSelected = _airlinesSel.contains(airlineName);
     return Container(
       color: Colors.white,
@@ -139,7 +140,11 @@ class _FlightFilterPageState extends State<FlightFilterPage> {
                 ..add(airlineName);
             });
           },
-          child: const Text("only", style: TextStyle(color: Colors.lightBlue)),
+          // child: const Text(, style: TextStyle(color: Colors.lightBlue)),
+          child: Text(
+            AppLocalizations.of(context)!.only,
+            style: const TextStyle(color: Colors.lightBlue),
+          ),
         ),
       ),
     );
@@ -173,7 +178,10 @@ class _FlightFilterPageState extends State<FlightFilterPage> {
                 ..add(city);
             });
           },
-          child: const Text("only", style: TextStyle(color: Colors.lightBlue)),
+          child: Text(
+            AppLocalizations.of(context)!.only,
+            style: const TextStyle(color: Colors.lightBlue),
+          ),
         ),
       ),
     );
@@ -326,7 +334,7 @@ class _FlightFilterPageState extends State<FlightFilterPage> {
               ...((_showAllAirlines
                       ? widget.kAirlines
                       : widget.kAirlines.take(_visibleItemsCount)))
-                  .map((String a) => _padded(_airlineTile(a))),
+                  .map((String a) => _padded(_airlineTile(context, a))),
               if (widget.kAirlines.length > _visibleItemsCount)
                 Center(
                   child: TextButton(

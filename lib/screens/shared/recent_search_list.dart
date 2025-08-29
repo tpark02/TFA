@@ -1,3 +1,4 @@
+import 'package:TFA/l10n/app_localizations.dart';
 import 'package:TFA/providers/car/car_search_controller.dart';
 import 'package:TFA/providers/flight/flight_search_controller.dart';
 import 'package:TFA/providers/hotel/hotel_search_controller.dart';
@@ -12,7 +13,6 @@ class RecentSearchList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // pick the right recent searches
     final List<RecentSearch> searches = switch (panelName) {
       'flight' => ref.watch(flightSearchProvider).recentSearches,
       'hotel' => ref.watch(hotelSearchProvider).recentSearches,
@@ -44,6 +44,7 @@ class RecentSearchList extends ConsumerWidget {
       fontWeight: FontWeight.bold,
       color: Theme.of(context).colorScheme.onSurface,
     );
+    final text = AppLocalizations.of(context)!;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -51,22 +52,22 @@ class RecentSearchList extends ConsumerWidget {
       children: <Widget>[
         Align(
           alignment: Alignment.centerLeft,
-          child: Text('Recent searches', style: titleStyle),
+          child: Text(text.recent_searches, style: titleStyle),
         ),
         const SizedBox(height: 20),
         // ✅ Proper conditional branches
         if (searches.isNotEmpty) ...[
-          const Column(
+          Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              SizedBox(height: 30),
-              Icon(Icons.image_outlined, size: 96, color: Colors.black12),
-              SizedBox(height: 30),
+              const SizedBox(height: 30),
+              const Icon(Icons.image_outlined, size: 96, color: Colors.black12),
+              const SizedBox(height: 30),
               Text(
-                "No Recent searches found",
+                text.no_recent_searches,
                 textAlign: TextAlign.left,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 18,
                   height: 1.35,
                   fontWeight: FontWeight.w600,

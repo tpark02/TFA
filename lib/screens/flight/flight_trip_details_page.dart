@@ -1,3 +1,4 @@
+import 'package:TFA/l10n/app_localizations.dart';
 import 'package:TFA/models/booking_in.dart';
 import 'package:TFA/providers/flight/flight_search_controller.dart';
 import 'package:TFA/screens/flight/flight_book_complete_page.dart';
@@ -52,6 +53,7 @@ class _FlightTripDetailPageState extends ConsumerState<FlightTripDetailsPage> {
     final int infantsHeld = _departData['pax']['infantsHeld'] as int;
     final int infantsSeated = _departData['pax']['infantsSeated'] as int;
     final List<String> lst = <String>[];
+    final text = AppLocalizations.of(context)!;
 
     if (adults > 0) lst.add('$adults ${pluralize('adult', adults)}');
     if (children > 0) {
@@ -104,7 +106,7 @@ class _FlightTripDetailPageState extends ConsumerState<FlightTripDetailsPage> {
         title: Column(
           children: <Widget>[
             Text(
-              'Trip Details',
+              text.trip_details,
               style: TextStyle(color: onPrimary, fontWeight: FontWeight.w600),
             ),
           ],
@@ -207,7 +209,7 @@ class _FlightTripDetailPageState extends ConsumerState<FlightTripDetailsPage> {
                           );
                         },
                         child: Text(
-                          'Book Now',
+                          text.book_now,
                           style: TextStyle(
                             fontWeight: FontWeight.w700,
                             color: primary,

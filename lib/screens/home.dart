@@ -1,3 +1,4 @@
+import 'package:TFA/l10n/app_localizations.dart';
 import 'package:TFA/providers/flight/flight_search_controller.dart';
 import 'package:TFA/providers/flight/flight_search_state.dart';
 import 'package:TFA/providers/menu_tab_provider.dart';
@@ -25,6 +26,8 @@ class _HomeState extends ConsumerState<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final text = AppLocalizations.of(context)!;
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.primary,
@@ -52,7 +55,7 @@ class _HomeState extends ConsumerState<HomeScreen> {
                 size: 18,
                 color: Colors.black54,
               ),
-              hintText: 'Where do you want to go?',
+              hintText: text.where_do_you_want_to_go,
               hintStyle: const TextStyle(fontSize: 14, color: Colors.black54),
             ),
           ),
@@ -106,7 +109,7 @@ class _HomeState extends ConsumerState<HomeScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
                           Text(
-                            'Introducing',
+                            text.introducing,
                             style: TextStyle(
                               fontSize: Theme.of(
                                 context,
@@ -115,7 +118,7 @@ class _HomeState extends ConsumerState<HomeScreen> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            'Our Guarantee',
+                            text.our_guarantee,
                             style: TextStyle(
                               fontSize: Theme.of(
                                 context,
@@ -125,7 +128,7 @@ class _HomeState extends ConsumerState<HomeScreen> {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            'Automatic protection included with every ticket at no extra cost.',
+                            text.automatic,
                             style: TextStyle(
                               fontSize: Theme.of(
                                 context,
@@ -151,8 +154,8 @@ class _HomeState extends ConsumerState<HomeScreen> {
                                 builder: (_) => const GuaranteeSheet(),
                               );
                             },
-                            child: const Text(
-                              'Learn More',
+                            child: Text(
+                              text.learn_more,
                               style: TextStyle(color: Colors.white),
                             ),
                           ),
@@ -225,7 +228,7 @@ class _HomeState extends ConsumerState<HomeScreen> {
                           vertical: 8,
                         ),
                         child: Text(
-                          'Great Deals',
+                          text.great_deals,
                           style: TextStyle(
                             fontSize: Theme.of(
                               context,
@@ -358,11 +361,6 @@ class _HomeState extends ConsumerState<HomeScreen> {
     return TextButton(
       onPressed: () {
         controller.setArrivalCode(seed, title);
-        // WidgetsBinding.instance.addPostFrameCallback((_) {
-        // Navigator.of(context).push(
-        //   MaterialPageRoute<void>(builder: (_) => const FlightListPage()),
-        // );
-        // });
       },
       child: Container(
         decoration: BoxDecoration(

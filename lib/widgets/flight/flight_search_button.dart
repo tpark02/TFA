@@ -1,5 +1,6 @@
 // lib/screens/flight/widgets/search_button.dart
 
+import 'package:TFA/l10n/app_localizations.dart';
 import 'package:TFA/providers/flight/flight_search_state.dart';
 import 'package:TFA/screens/flight/anywhere_list_page.dart';
 import 'package:TFA/screens/flight/flight_page.dart';
@@ -36,6 +37,7 @@ class _FlightSearchButtonState extends ConsumerState<FlightSearchButton> {
       flightSearchProvider.notifier,
     );
     final FlightSearchState flightState = ref.watch(flightSearchProvider);
+    final text = AppLocalizations.of(context)!;
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: widget.padding),
@@ -135,7 +137,7 @@ class _FlightSearchButtonState extends ConsumerState<FlightSearchButton> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
                         Text(
-                          'Search Flight',
+                          text.search_flight,
                           style: TextStyle(
                             fontSize: Theme.of(
                               context,

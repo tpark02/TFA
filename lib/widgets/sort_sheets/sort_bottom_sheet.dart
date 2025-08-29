@@ -1,3 +1,4 @@
+import 'package:TFA/l10n/app_localizations.dart';
 import 'package:TFA/providers/sort_tab_provider.dart';
 import 'package:flutter/material.dart';
 
@@ -8,6 +9,7 @@ Future<void> showSortBottomSheet({
   required String selectedSort,
   required ValueChanged<String> onSortSelected,
 }) {
+  final text = AppLocalizations.of(context)!;
   return showModalBottomSheet(
     context: context,
     useRootNavigator: true,
@@ -22,10 +24,14 @@ Future<void> showSortBottomSheet({
           options = <String>['Price', 'Discount', 'Ranking'];
           break;
         case SortTab.sort:
-          options = <String>['Duration', 'Cost', 'Value'];
+          options = <String>[text.duration, text.cost, text.value];
           break;
         case SortTab.stops:
-          options = <String>['Nonstop', 'Up to 1 stop', 'Up to 2 stops'];
+          options = <String>[
+            text.non_stop,
+            text.up_to_1_stop,
+            text.up_to_2_stops,
+          ];
           break;
         case SortTab.travelHacks:
           // TODO: Handle this case.

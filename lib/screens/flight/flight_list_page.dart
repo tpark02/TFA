@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:math';
 
+import 'package:TFA/l10n/app_localizations.dart';
 import 'package:TFA/providers/flight/flight_search_controller.dart';
 import 'package:TFA/providers/flight/flight_search_state.dart';
 import 'package:TFA/providers/sort_tab_provider.dart';
@@ -13,7 +14,6 @@ import 'package:TFA/widgets/sort_sheets/selection_bottom_sheet.dart';
 import 'package:TFA/widgets/sort_sheets/sort_bottom_sheet.dart';
 import 'package:TFA/screens/flight/flight_search_summary_card.dart';
 import 'package:TFA/widgets/search_summary_loading_card.dart';
-import 'package:TFA/widgets/sort_sheets/travel_hack_bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
@@ -48,6 +48,7 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
     final bool isLoading = flightState.isLoading;
     int minDuration = 1000000, maxDuration = 0;
     int minLayOver = 1000000, maxLayOver = 0;
+    final text = AppLocalizations.of(context)!;
 
     for (Map<String, dynamic> e in flightState.processedFlights) {
       final List<String> lst = e['layOverAirports'] as List<String>;
@@ -173,41 +174,27 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
                 ),
               ),
               FilterButton(
-                label: "Sort: $selectedSort",
+                label: "${text.sort}: $selectedSort",
                 func: () {
                   showSortBottomSheet(
-                    title: "Sort",
+                    title: text.sort,
                     context: context,
                     selectedSort: selectedSort,
                     sortType: SortTab.sort,
                     onSortSelected: (String value) {
-                      setState(() => selectedSort = value);
+                      setState(() {
+                        selectedSort = value;
+                      });
                     },
                   );
                 },
               ),
+
               FilterButton(
-                label: "Travel Hacks",
-                func: () {
-                  showModalBottomSheet(
-                    context: context,
-                    useRootNavigator: true,
-                    isScrollControlled: true,
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.vertical(
-                        top: Radius.circular(16),
-                      ),
-                    ),
-                    builder: (BuildContext context) =>
-                        const TravelHackBottomSheet(),
-                  );
-                },
-              ),
-              FilterButton(
-                label: "Stops: $selectedStops",
+                label: "${text.stops}: $selectedStops",
                 func: () {
                   showSortBottomSheet(
-                    title: "Stops",
+                    title: text.stops,
                     context: context,
                     selectedSort: selectedStops,
                     sortType: SortTab.stops,
@@ -220,12 +207,12 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
                 },
               ),
               FilterButton(
-                label: "Take Off",
+                label: text.take_off,
                 func: () async {
                   await showRangePickerSheet(
                     context: context,
                     sheet: RangePickerSheet(
-                      title: 'Take Off',
+                      title: text.take_off,
                       min: 0, // min possible minutes
                       max: 1439, // max possible minutes
                       divisions: 1439,
@@ -239,12 +226,12 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
                 },
               ),
               FilterButton(
-                label: "Landing",
+                label: text.landing,
                 func: () async {
                   await showRangePickerSheet(
                     context: context,
                     sheet: RangePickerSheet(
-                      title: 'Landing',
+                      title: text.landing,
                       min: 0,
                       max: 1439,
                       divisions: 1439,
@@ -258,7 +245,7 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
                 },
               ),
               FilterButton(
-                label: "Flight Duration",
+                label: text.flight_duration,
                 func: () async {
                   final int dMin = flightDurationRange.start.floor();
                   final int dMax = flightDurationRange.end.ceil();
@@ -267,7 +254,7 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
                   await showRangePickerSheet(
                     context: context,
                     sheet: RangePickerSheet(
-                      title: 'Flight Duration',
+                      title: text.flight_duration,
                       min: 0,
                       max: 1440,
                       divisions: 1440.clamp(1, 100000),
@@ -280,7 +267,7 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
                 },
               ),
               FilterButton(
-                label: "Layover Duration",
+                label: text.layover_duration,
                 func: () async {
                   final int lMin = layOverDurationRange.start.floor();
                   final int lMax = layOverDurationRange.end.ceil();
@@ -289,7 +276,7 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
                   await showRangePickerSheet(
                     context: context,
                     sheet: RangePickerSheet(
-                      title: 'Layover Duration',
+                      title: text.layover_duration,
                       min: 0,
                       max: 1470,
                       divisions: divs,
@@ -302,11 +289,11 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
                 },
               ),
               FilterButton(
-                label: "Airlines",
+                label: text.airlines,
                 func: () {
                   showSelectionBottomSheet<String>(
                     context: context,
-                    title: 'Airlines',
+                    title: text.airlines,
                     items: kAirlines, // ← full list, not from selected
                     selected: selectedAirlines,
                     labelOf: (String s) => s,
@@ -320,11 +307,11 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
                 },
               ),
               FilterButton(
-                label: "Layover Cities",
+                label: text.layover_cities,
                 func: () {
                   showSelectionBottomSheet<String>(
                     context: context,
-                    title: 'Layover Cities',
+                    title: text.layover_cities,
                     items: kLayoverCities,
                     selected: selectedLayovers,
                     labelOf: (String s) => s,
@@ -368,24 +355,6 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
             ],
           ),
         ),
-
-        // Optional soft white scrim for extra "disabled" feel
-        // if (isLoading)
-        //   IgnorePointer(
-        //     child: AnimatedOpacity(
-        //       duration: const Duration(milliseconds: 200),
-        //       opacity: 0.08, // subtle
-        //       child: Container(color: Colors.white),
-        //     ),
-        //   ),
-
-        // // Optional spinner
-        // if (isLoading)
-        //   const Positioned.fill(
-        //     child: IgnorePointer(
-        //       child: Center(child: CircularProgressIndicator()),
-        //     ),
-        //   ),
       ],
     );
   }

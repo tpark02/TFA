@@ -1,3 +1,4 @@
+import 'package:TFA/l10n/app_localizations.dart';
 import 'package:TFA/providers/menu_tab_provider.dart';
 import 'package:TFA/screens/flight/my_trips_page.dart';
 import 'package:TFA/screens/profiile/profile_settings_page.dart';
@@ -8,10 +9,10 @@ import 'package:TFA/screens/home.dart';
 
 class MenuScreen extends ConsumerWidget {
   const MenuScreen({super.key});
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final MenuTab currentTab = ref.watch(menuTabProvider);
+    final text = AppLocalizations.of(context)!;
 
     Widget body;
     switch (currentTab) {
@@ -52,14 +53,23 @@ class MenuScreen extends ConsumerWidget {
         onTap: (int index) {
           ref.read(menuTabProvider.notifier).state = MenuTab.values[index];
         },
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
+        items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.watch_later_outlined),
-            label: 'Schedule',
+            icon: const Icon(Icons.home),
+            label: text.home,
           ),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Account'),
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.search),
+            label: text.search,
+          ),
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.watch_later_outlined),
+            label: text.my_trip,
+          ),
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.person),
+            label: text.account,
+          ),
         ],
       ),
     );

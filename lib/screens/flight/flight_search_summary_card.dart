@@ -1,3 +1,4 @@
+import 'package:TFA/l10n/app_localizations.dart';
 import 'package:TFA/providers/airport/airport_selection.dart';
 import 'package:TFA/providers/flight/flight_search_controller.dart';
 import 'package:TFA/providers/flight/flight_search_state.dart';
@@ -31,7 +32,7 @@ class FlightSearchSummaryCard extends ConsumerWidget {
       flightSearchProvider.notifier,
     );
     final FlightSearchState flightState = ref.watch(flightSearchProvider);
-
+    final text = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(8),
       color: Theme.of(context).colorScheme.onPrimaryContainer,
@@ -46,8 +47,8 @@ class FlightSearchSummaryCard extends ConsumerWidget {
                     final AirportSelection? result =
                         await showPlatformModalSheet<AirportSelection>(
                           context: context,
-                          builder: (_) => const SearchAirportSheet(
-                            title: 'Origin',
+                          builder: (_) => SearchAirportSheet(
+                            title: text.origin,
                             isDeparture: true,
                           ),
                         );
@@ -126,8 +127,8 @@ class FlightSearchSummaryCard extends ConsumerWidget {
                     final AirportSelection? result =
                         await showPlatformModalSheet<AirportSelection>(
                           context: context,
-                          builder: (_) => const SearchAirportSheet(
-                            title: 'Destination',
+                          builder: (_) => SearchAirportSheet(
+                            title: text.destination,
                             isDeparture: true,
                           ),
                         );
@@ -188,8 +189,8 @@ class FlightSearchSummaryCard extends ConsumerWidget {
                         MaterialPageRoute<Map<String, DateTime?>>(
                           builder: (_) => CalendarSheet(
                             key: UniqueKey(),
-                            firstTitle: 'One Way',
-                            secondTitle: 'Round Trip',
+                            firstTitle: text.one_way,
+                            secondTitle: text.round_trip,
                             isOnlyTab: false,
                             isRange: false,
                             startDays: 0,

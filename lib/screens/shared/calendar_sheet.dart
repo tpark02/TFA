@@ -1,4 +1,5 @@
 import 'package:TFA/constants/colors.dart';
+import 'package:TFA/l10n/app_localizations.dart';
 import 'package:TFA/providers/flight/flight_search_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -108,6 +109,8 @@ class _CalendarSheetState extends ConsumerState<CalendarSheet>
 
     final Color primary = Theme.of(context).colorScheme.primary;
     final Color onPrimary = Theme.of(context).colorScheme.onPrimary;
+    final text = AppLocalizations.of(context)!;
+
     return Scaffold(
       backgroundColor: appBackgroundColor,
       appBar: AppBar(
@@ -121,7 +124,7 @@ class _CalendarSheetState extends ConsumerState<CalendarSheet>
         title: Column(
           children: <Widget>[
             Text(
-              'Trip Details',
+              text.trip_details,
               style: TextStyle(color: onPrimary, fontWeight: FontWeight.w600),
             ),
           ],
@@ -264,7 +267,7 @@ class _CalendarSheetState extends ConsumerState<CalendarSheet>
                           'returnDate': returnDate,
                         });
                       },
-                      child: const Text("Confirm"),
+                      child: Text(AppLocalizations.of(context)!.confirm),
                     ),
                   ),
                 ],

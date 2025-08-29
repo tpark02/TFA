@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:TFA/l10n/app_localizations.dart';
 import 'package:TFA/providers/auth_provider.dart';
 import 'package:TFA/providers/flight/flight_search_controller.dart';
 import 'package:TFA/providers/flight/flight_search_state.dart';
@@ -8,13 +9,13 @@ import 'package:TFA/providers/navigation.dart';
 import 'package:TFA/providers/route_observer.dart';
 import 'package:TFA/providers/search_runner.dart';
 import 'package:TFA/providers/startup_bootstrap.dart';
+import 'package:TFA/providers/theme_provider.dart';
 import 'package:TFA/screens/auth.dart';
 import 'package:TFA/screens/menu.dart';
 import 'package:TFA/theme/app_theme.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'firebase_options.dart';
@@ -81,23 +82,32 @@ Future<void> main() async {
   runApp(UncontrolledProviderScope(container: container, child: const App()));
 }
 
-class App extends StatelessWidget {
+class App extends ConsumerStatefulWidget {
   const App({super.key});
+  @override
+  ConsumerState<App> createState() {
+    return _AppState();
+  }
+}
 
+class _AppState extends ConsumerState<App> {
   @override
   Widget build(BuildContext context) {
+    final mode = ref.watch(themeModeProvider); // or ref.watch if ConsumerWidget
+
     return MaterialApp(
       navigatorKey: rootNavigatorKey, // for global navigation
       title: 'TFA',
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.system,
+      themeMode: mode,
       localizationsDelegates: [
+        AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      supportedLocales: <Locale>[const Locale('en')],
+      supportedLocales: AppLocalizations.supportedLocales,
       navigatorObservers: [appRouteObserver],
       // Define a route for flight list if you used pushNamed above
       // routes: {'/flight_list': (_) => const FlightListPage()},

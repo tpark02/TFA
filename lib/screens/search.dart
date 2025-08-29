@@ -1,3 +1,4 @@
+import 'package:TFA/l10n/app_localizations.dart';
 import 'package:TFA/providers/flight/flight_search_controller.dart';
 import 'package:TFA/screens/car/car_page.dart';
 import 'package:TFA/screens/flight/flight_page.dart';
@@ -37,9 +38,10 @@ class _SearchContentState extends ConsumerState<_SearchContent> {
 
   @override
   Widget build(BuildContext context) {
+    final text = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Search', style: TextStyle(color: Colors.white)),
+        title: Text(text.search, style: TextStyle(color: Colors.white)),
         centerTitle: true,
         backgroundColor: Theme.of(context).colorScheme.primary,
         elevation: 0,
