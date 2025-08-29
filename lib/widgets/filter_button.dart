@@ -2,31 +2,47 @@ import 'package:flutter/material.dart';
 
 class FilterButton extends StatelessWidget {
   final String label;
-  const FilterButton({super.key, required this.label, required this.func});
   final VoidCallback func;
+
+  const FilterButton({super.key, required this.label, required this.func});
+
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+
     return Container(
       margin: const EdgeInsets.only(left: 8),
       child: OutlinedButton(
-        style: OutlinedButton.styleFrom(
-          padding: const EdgeInsets.all(10),
-          backgroundColor: Colors.white,
-          minimumSize: const Size(0, 32),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(4.0),
-          ),
-          side: BorderSide(color: Colors.grey[400]!, width: 1),
-        ),
-        onPressed: () {
-          func();
-        },
+        onPressed: func,
+        style:
+            OutlinedButton.styleFrom(
+              // Background that adapts to light/dark (keeps it subtle)
+              backgroundColor: cs.surface,
+              minimumSize: const Size(0, 36),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              side: BorderSide(color: cs.outlineVariant, width: 1),
+              // Ensure good contrast for ripple in both themes
+              foregroundColor: cs.onSurface,
+            ).copyWith(
+              overlayColor: WidgetStateProperty.resolveWith<Color?>(
+                (states) => states.contains(WidgetState.pressed)
+                    ? cs.primary.withValues(alpha: .08)
+                    : states.contains(WidgetState.hovered)
+                    ? cs.primary.withValues(alpha: .06)
+                    : null,
+              ),
+            ),
         child: Text(
           label,
-          style: TextStyle(
-            fontSize: Theme.of(context).textTheme.bodyMedium?.fontSize,
-            fontWeight: FontWeight.bold,
+          style: tt.bodyMedium?.copyWith(
+            fontWeight: FontWeight.w700,
+            color: cs.onSurface,
           ),
+          overflow: TextOverflow.ellipsis,
         ),
       ),
     );

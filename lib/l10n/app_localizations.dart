@@ -440,8 +440,62 @@ abstract class AppLocalizations {
   /// No description provided for @mode.
   ///
   /// In en, this message translates to:
-  /// **'Mode'**
+  /// **'Appearance Settings'**
   String get mode;
+
+  /// No description provided for @login_in.
+  ///
+  /// In en, this message translates to:
+  /// **'Log in'**
+  String get login_in;
+
+  /// No description provided for @email_addr.
+  ///
+  /// In en, this message translates to:
+  /// **'Email Address'**
+  String get email_addr;
+
+  /// No description provided for @create_account.
+  ///
+  /// In en, this message translates to:
+  /// **'Create account'**
+  String get create_account;
+
+  /// No description provided for @please_enter_email.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid email address.'**
+  String get please_enter_email;
+
+  /// No description provided for @password.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get password;
+
+  /// No description provided for @password_must_be.
+  ///
+  /// In en, this message translates to:
+  /// **'Password must be at least 6 characters long.'**
+  String get password_must_be;
+
+  /// No description provided for @login.
+  ///
+  /// In en, this message translates to:
+  /// **'Login'**
+  String get login;
+
+  /// No description provided for @sign_up.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign up'**
+  String get sign_up;
+
+  /// No description provided for @i_already.
+  ///
+  /// In en, this message translates to:
+  /// **'I already have an account'**
+  String get i_already;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

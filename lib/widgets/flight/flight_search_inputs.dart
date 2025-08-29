@@ -22,40 +22,11 @@ class FlightSearchInputs extends ConsumerWidget {
   final bool isLoadingCity;
   final double padding;
 
-  // void showCalender(BuildContext context, WidgetRef ref) async {
-  //   final controller = ref.read(flightSearchProvider.notifier);
-
-  //   final result =
-  //       await CupertinoScaffold.showCupertinoModalBottomSheet<
-  //         Map<String, DateTime?>
-  //       >(
-  //         context: context,
-  //         useRootNavigator: true,
-  //         expand: true,
-  //         builder: (_) => CalendarSheet(
-  //           key: UniqueKey(),
-  //           firstTitle: 'One Way',
-  //           secondTitle: 'Round Trip',
-  //           isOnlyTab: false,
-  //           isRange: false,
-  //           startDays: 0,
-  //           endDays: 0,
-  //         ),
-  //       );
-
-  //   if (result != null) {
-  //     final departDate = result['departDate'];
-  //     final returnDate = result['returnDate'];
-
-  //     controller.setTripDates(departDate: departDate!, returnDate: returnDate);
-  //     debugPrint(
-  //       "📅 selected dates depart date : $departDate, end date : ${returnDate ?? "empty"}",
-  //     );
-  //   }
-  // }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+
     final FlightSearchController controller = ref.read(
       flightSearchProvider.notifier,
     );
@@ -63,157 +34,136 @@ class FlightSearchInputs extends ConsumerWidget {
 
     return Column(
       children: <Widget>[
+        // ───────────────────────── Top row: Origin / Swap / Destination ─────────────────────────
         Padding(
           padding: EdgeInsets.symmetric(horizontal: padding),
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.transparent, width: 1),
-              boxShadow: const [
-                BoxShadow(
-                  color: Colors.black12, // subtle shadow color
-                  blurRadius: 8, // softness of shadow
-                  spreadRadius: 1, // how far it spreads
-                  offset: Offset(0, 3), // x,y shift of shadow
-                ),
-              ],
-            ),
-            child: Row(
-              children: <Widget>[
-                // Departure
-                Expanded(
-                  child: TextButton(
-                    style: flatSegmentStyle(context),
-                    onPressed: () async {
-                      final AirportSelection? result =
-                          await showAirportSelectionSheet(
-                            context: context,
-                            title: 'Origin',
-                            isDeparture: true,
-                          );
-
-                      if (result != null) {
-                        controller.setDepartureCode(result.code, result.city);
-                        // controller.setDepartureName(result.name);
-                        // controller.setDepartureCity(result.city);
-                      }
-                    },
-                    child: Row(
-                      children: <Widget>[
-                        const Icon(Icons.near_me),
-                        const SizedBox(width: 8),
-                        isLoadingCity
-                            ? const SizedBox(
-                                width: 16,
-                                height: 16,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2.0,
+          child: Material(
+            color: cs.surfaceContainerHighest,
+            elevation: 1,
+            borderRadius: BorderRadius.circular(12),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Row(
+                children: <Widget>[
+                  // Departure
+                  Expanded(
+                    child: TextButton(
+                      style: flatSegmentStyle(context),
+                      onPressed: () async {
+                        final AirportSelection? result =
+                            await showAirportSelectionSheet(
+                              context: context,
+                              title: 'Origin',
+                              isDeparture: true,
+                            );
+                        if (result != null) {
+                          controller.setDepartureCode(result.code, result.city);
+                        }
+                      },
+                      child: Row(
+                        children: <Widget>[
+                          Icon(Icons.near_me, color: cs.onSurfaceVariant),
+                          const SizedBox(width: 8),
+                          isLoadingCity
+                              ? SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2.0,
+                                    color: cs.primary,
+                                  ),
+                                )
+                              : Text(
+                                  flightState.departureAirportCode.isEmpty
+                                      ? 'Departure'
+                                      : flightState.departureAirportCode,
+                                  style: tt.bodyMedium?.copyWith(
+                                    fontWeight: FontWeight.w700,
+                                    color: cs.onSurface,
+                                  ),
                                 ),
-                              )
-                            : Text(
-                                flightState.departureAirportCode.isEmpty
-                                    ? 'Departure'
-                                    : flightState.departureAirportCode,
-                                style: boldBodyTextStyle(context),
-                              ),
-                      ],
-                    ),
-                  ),
-                ),
-                Transform.rotate(
-                  angle: math.pi / 2, // 180 degrees
-                  child: InkWell(
-                    onTap: () {
-                      final String d = flightState.departureAirportCode;
-                      final String a = flightState.arrivalAirportCode;
-
-                      final String dcity = flightState.departureCity;
-                      final String acity = flightState.arrivalCity;
-
-                      debugPrint(
-                        "☘️ flight_search_input.dart - before swap departure : $d, arrival : $a",
-                      );
-                      controller.setArrivalCode(d, dcity);
-                      controller.setDepartureCode(a, acity);
-
-                      // controller.setArrivalCity(dcity);
-                      // controller.setDepartureCity(acity);
-                    },
-                    child: const Icon(Icons.swap_calls),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                // Arrival
-                Expanded(
-                  child: TextButton(
-                    style: flatSegmentStyle(context),
-                    onPressed: () async {
-                      final AirportSelection? result =
-                          await showAirportSelectionSheet(
-                            context: context,
-                            title: 'Destination',
-                            isDeparture: true,
-                          );
-
-                      // await showModalBottomSheet<AirportSelection>(
-                      //   context: context,
-                      //   isScrollControlled: true,
-                      //   shape: const RoundedRectangleBorder(
-                      //     borderRadius: BorderRadius.vertical(
-                      //       top: Radius.circular(20),
-                      //     ),
-                      //   ),
-                      //   builder: (BuildContext ctx) =>
-                      //       const SearchAirportSheet(
-                      //         title: 'Arrival Airport',
-                      //         isDeparture: false,
-                      //       ),
-                      // );
-
-                      if (result != null) {
-                        controller.setArrivalCode(result.code, result.city);
-                        // controller.setArrivalName(result.name);
-                        // controller.setArrivalCity(result.city);
-                      }
-                    },
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        flightState.arrivalAirportCode.isEmpty
-                            ? 'Anywhere'
-                            : flightState.arrivalAirportCode,
-                        style: boldBodyTextStyle(context),
+                        ],
                       ),
                     ),
                   ),
-                ),
-              ],
+
+                  // Swap
+                  Transform.rotate(
+                    angle: math.pi / 2,
+                    child: InkWell(
+                      onTap: () {
+                        final String d = flightState.departureAirportCode;
+                        final String a = flightState.arrivalAirportCode;
+                        final String dcity = flightState.departureCity;
+                        final String acity = flightState.arrivalCity;
+
+                        controller.setArrivalCode(d, dcity);
+                        controller.setDepartureCode(a, acity);
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 10,
+                        ),
+                        child: Icon(
+                          Icons.swap_calls,
+                          color: cs.onSurfaceVariant,
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  // Arrival
+                  Expanded(
+                    child: TextButton(
+                      style: flatSegmentStyle(context),
+                      onPressed: () async {
+                        final AirportSelection? result =
+                            await showAirportSelectionSheet(
+                              context: context,
+                              title: 'Destination',
+                              isDeparture: true,
+                            );
+                        if (result != null) {
+                          controller.setArrivalCode(result.code, result.city);
+                        }
+                      },
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          flightState.arrivalAirportCode.isEmpty
+                              ? 'Anywhere'
+                              : flightState.arrivalAirportCode,
+                          style: tt.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.w700,
+                            color: cs.onSurface,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
+
         const SizedBox(height: 8),
+
+        // ───────────────────────── Bottom row: Dates / Travelers ─────────────────────────
         Padding(
           padding: EdgeInsets.symmetric(horizontal: padding),
           child: Row(
             children: <Widget>[
-              // Date picker
+              // Dates
               Expanded(
                 flex: 5,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.transparent, width: 1),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Colors.black12, // subtle shadow color
-                        blurRadius: 2, // softness of shadow
-                        spreadRadius: 1, // how far it spreads
-                        offset: Offset(0, 3), // x,y shift of shadow
-                      ),
-                    ],
-                  ),
+                child: Material(
+                  color: cs.surfaceContainerHighest,
+                  elevation: 1,
+                  borderRadius: BorderRadius.circular(12),
                   child: TextButton(
                     onPressed: () async {
                       final Map<String, DateTime?>? result = await showCalender(
@@ -229,49 +179,47 @@ class FlightSearchInputs extends ConsumerWidget {
                       if (result != null) {
                         final DateTime? departDate = result['departDate'];
                         final DateTime? returnDate = result['returnDate'];
-
-                        controller.setTripDates(
-                          departDate: departDate!,
-                          returnDate: returnDate,
-                        );
-                        debugPrint(
-                          "📅 selected dates depart date : $departDate, end date : ${returnDate ?? "empty"}",
-                        );
+                        if (departDate != null) {
+                          controller.setTripDates(
+                            departDate: departDate,
+                            returnDate: returnDate,
+                          );
+                        }
                       }
                     },
-                    // style: outlinedButtonStyle(context),
+                    style: TextButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      foregroundColor: cs.onSurface,
+                    ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: <Widget>[
-                        const Icon(Icons.calendar_month),
+                        Icon(Icons.calendar_month, color: cs.onSurfaceVariant),
                         const SizedBox(width: 8),
                         Text(
                           flightState.displayDate ?? 'Select',
-                          style: boldBodyTextStyle(context),
+                          style: tt.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.w700,
+                            color: cs.onSurface,
+                          ),
                         ),
                       ],
                     ),
                   ),
                 ),
               ),
+
               const SizedBox(width: 8),
+
               // Travelers
               Expanded(
                 flex: 5,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.transparent, width: 1),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Colors.black12, // subtle shadow color
-                        blurRadius: 8, // softness of shadow
-                        spreadRadius: 1, // how far it spreads
-                        offset: Offset(0, 3), // x,y shift of shadow
-                      ),
-                    ],
-                  ),
+                child: Material(
+                  color: cs.surfaceContainerHighest,
+                  elevation: 1,
+                  borderRadius: BorderRadius.circular(12),
                   child: TextButton(
                     onPressed: () async {
                       await showModalBottomSheet(
@@ -287,25 +235,41 @@ class FlightSearchInputs extends ConsumerWidget {
                         ),
                       );
                     },
-                    // style: outlinedButtonStyle(context),
+                    style: TextButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      foregroundColor: cs.onSurface,
+                    ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: <Widget>[
-                        const Icon(Icons.person),
+                        Icon(Icons.person, color: cs.onSurfaceVariant),
+                        const SizedBox(width: 4),
                         Text(
                           flightState.passengerCount.toString(),
-                          style: boldBodyTextStyle(context),
+                          style: tt.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.w700,
+                            color: cs.onSurface,
+                          ),
                         ),
                         const SizedBox(width: 5),
-                        const Text('|'),
+                        Text('|', style: TextStyle(color: cs.onSurfaceVariant)),
                         const SizedBox(width: 5),
-                        const Icon(Icons.airline_seat_recline_normal),
+                        Icon(
+                          Icons.airline_seat_recline_normal,
+                          color: cs.onSurfaceVariant,
+                        ),
+                        const SizedBox(width: 4),
                         Flexible(
                           child: Text(
                             flightState.cabinClass,
                             overflow: TextOverflow.ellipsis,
                             maxLines: 1,
-                            style: boldBodyTextStyle(context),
+                            style: tt.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.w700,
+                              color: cs.onSurface,
+                            ),
                           ),
                         ),
                       ],

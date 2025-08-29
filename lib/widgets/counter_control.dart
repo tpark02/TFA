@@ -1,9 +1,20 @@
 import 'package:flutter/material.dart';
 
 class CounterControl extends StatefulWidget {
-  const CounterControl({super.key, required this.count, this.onChanged});
+  const CounterControl({
+    super.key,
+    required this.count,
+    this.onChanged,
+    this.min = 0,
+    this.max,
+    this.size = 32, // diameter of the circular buttons
+  });
+
   final int count;
   final ValueChanged<int>? onChanged;
+  final int min; // lowest allowed value (inclusive)
+  final int? max; // highest allowed value (inclusive), null = no cap
+  final double size; // button diameter
 
   @override
   State<CounterControl> createState() => _CounterControlState();
@@ -12,69 +23,88 @@ class CounterControl extends StatefulWidget {
 class _CounterControlState extends State<CounterControl> {
   late int _count;
 
+  bool get _canDec => _count > widget.min;
+  bool get _canInc => widget.max == null ? true : _count < widget.max!;
+
   @override
   void initState() {
     super.initState();
-    _count = widget.count;
+    _count = widget.count.clamp(widget.min, widget.max ?? 1 << 30);
   }
 
   void _increment() {
-    setState(() {
-      _count++;
-      widget.onChanged?.call(_count);
-    });
+    if (!_canInc) return;
+    setState(() => _count++);
+    widget.onChanged?.call(_count);
   }
 
   void _decrement() {
-    if (_count > 0) {
-      setState(() {
-        _count--;
-        widget.onChanged?.call(_count);
-      });
-    }
+    if (!_canDec) return;
+    setState(() => _count--);
+    widget.onChanged?.call(_count);
   }
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
-        _circleButton(context, Icons.remove, _decrement, false),
-        const SizedBox(width: 10),
-        Text(
-          '$_count',
-          style: TextStyle(
-            fontSize: Theme.of(context).textTheme.bodyMedium?.fontSize,
-          ),
+        _circleButton(
+          context: context,
+          icon: Icons.remove,
+          onPressed: _decrement,
+          enabled: _canDec,
         ),
-        const SizedBox(width: 10),
-        _circleButton(context, Icons.add, _increment),
+        const SizedBox(width: 12),
+        Text('$_count', style: tt.bodyMedium?.copyWith(color: cs.onSurface)),
+        const SizedBox(width: 12),
+        _circleButton(
+          context: context,
+          icon: Icons.add,
+          onPressed: _increment,
+          enabled: _canInc,
+          isPrimary: true,
+        ),
       ],
     );
   }
 
-  Widget _circleButton(
-    BuildContext context,
-    IconData icon,
-    VoidCallback onPressed, [
-    bool isInc = true,
-  ]) {
-    return Container(
-      width: 25,
-      height: 25,
-      decoration: const ShapeDecoration(
-        color: Color(0xFFF0F0F0), // light grey background
-        shape: CircleBorder(),
-      ),
-      child: IconButton(
-        icon: Icon(icon, size: 14),
-        padding: EdgeInsets.zero, // ← removes the default padding
-        constraints: const BoxConstraints(), // ← removes min size constraints
-        color: isInc
-            ? Theme.of(context).colorScheme.primary
-            : Theme.of(context).colorScheme.secondary,
-        onPressed: onPressed,
-        splashRadius: 16,
+  Widget _circleButton({
+    required BuildContext context,
+    required IconData icon,
+    required VoidCallback onPressed,
+    bool enabled = true,
+    bool isPrimary = false,
+  }) {
+    final cs = Theme.of(context).colorScheme;
+    final double d = widget.size;
+
+    // background uses surface containers for subtle elevation in both themes
+    final Color bg = isPrimary
+        ? cs.primaryContainer
+        : cs.surfaceContainerHighest;
+    final Color fg = isPrimary ? cs.onPrimaryContainer : cs.onSurface;
+    final Color disabledFg = cs.onSurface.withValues(alpha: 0.38);
+    final Color disabledBg = cs.surfaceContainerHigh;
+
+    return Material(
+      color: enabled ? bg : disabledBg,
+      shape: const CircleBorder(),
+      child: InkWell(
+        customBorder: const CircleBorder(),
+        onTap: enabled ? onPressed : null,
+        child: SizedBox(
+          width: d,
+          height: d,
+          child: Icon(
+            icon,
+            size: d * 0.55, // scale icon with button size
+            color: enabled ? fg : disabledFg,
+          ),
+        ),
       ),
     );
   }

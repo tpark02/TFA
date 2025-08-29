@@ -21,6 +21,8 @@ class FlightListViewItem extends ConsumerWidget {
     int? plusDay,
     String? arrAirport,
     double? fs,
+    required ColorScheme cs,
+    required TextTheme tt,
   }) {
     final double h = plusDay != null && plusDay > 0 ? 52.0 : 55.0;
     return SizedBox(
@@ -37,33 +39,30 @@ class FlightListViewItem extends ConsumerWidget {
                 children: <InlineSpan>[
                   TextSpan(
                     text: time,
-                    style: TextStyle(
+                    style: tt.bodyLarge?.copyWith(
                       fontSize: fontSize,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black,
+                      color: cs.onSurface,
                     ),
                   ),
                   if (plusDay != null && plusDay > 0)
                     WidgetSpan(
-                      // 🟢 FIX: align to alphabetic baseline
                       alignment: PlaceholderAlignment.baseline,
                       baseline: TextBaseline.alphabetic,
                       child: Transform.translate(
-                        // small upward nudge (proportional to font size)
                         offset: Offset(-5, -fontSize * 0.7),
                         child: Text(
                           '+$plusDay',
-                          style: TextStyle(
+                          style: tt.labelSmall?.copyWith(
                             fontSize: fontSize * 0.55,
-                            color: Colors.red,
-                            height: 1, // keep tight
+                            color: cs.error,
+                            height: 1,
                           ),
                         ),
                       ),
                     ),
                 ],
               ),
-              // 🟢 FIX: normalize line metrics so left/right line up
               strutStyle: StrutStyle(
                 forceStrutHeight: true,
                 fontSize: fontSize,
@@ -81,7 +80,7 @@ class FlightListViewItem extends ConsumerWidget {
             right: 0,
             child: Text(
               arrAirport ?? 'N/A',
-              style: TextStyle(fontSize: fs, color: Colors.grey),
+              style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
             ),
           ),
         ],
@@ -89,75 +88,67 @@ class FlightListViewItem extends ConsumerWidget {
     );
   }
 
-  Widget layoverTimeline(BuildContext context, List<String> middleAirports) {
-    const double totalHeight = 48; // more room vertically
+  Widget layoverTimeline(
+    BuildContext context,
+    List<String> middleAirports,
+    ColorScheme cs,
+    TextTheme tt,
+  ) {
+    const double totalHeight = 48;
     const double dotSize = 10;
-    const double lineY = 16; // push line higher
-    const double labelTop = lineY + dotSize / 2 + 4; // push label below dot
+    const double lineY = 16;
+    const double labelTop = lineY + dotSize / 2 + 4;
 
     return SizedBox(
       height: totalHeight,
       child: Stack(
         children: <Widget>[
-          // Connector line
           Positioned(
             top: lineY,
             left: 0,
             right: 0,
-            child: Container(height: 1, color: Colors.grey[400]),
+            child: Container(height: 1, color: cs.outlineVariant),
           ),
-
-          // Dots + labels
           Row(
-            children: List.generate(
-              middleAirports.isEmpty ? 0 : middleAirports.length,
-              (int i) {
-                final String code = middleAirports.isEmpty
-                    ? ''
-                    : middleAirports[i];
-                return Expanded(
-                  child: Stack(
-                    children: <Widget>[
-                      // Dot
-                      Positioned(
-                        top: lineY - dotSize / 2,
-                        left: 0,
-                        right: 0,
-                        child: Align(
-                          alignment: Alignment.center,
-                          child: Container(
-                            width: dotSize,
-                            height: dotSize,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              shape: BoxShape.circle,
-                              border: Border.all(color: Colors.grey),
-                            ),
+            children: List.generate(middleAirports.length, (int i) {
+              final code = middleAirports[i];
+              return Expanded(
+                child: Stack(
+                  children: <Widget>[
+                    Positioned(
+                      top: lineY - dotSize / 2,
+                      left: 0,
+                      right: 0,
+                      child: Align(
+                        alignment: Alignment.center,
+                        child: Container(
+                          width: dotSize,
+                          height: dotSize,
+                          decoration: BoxDecoration(
+                            color: cs.surface,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: cs.outline),
                           ),
                         ),
                       ),
-                      // Label
-                      if (code.isNotEmpty)
-                        Positioned(
-                          top: labelTop,
-                          left: 0,
-                          right: 0,
-                          child: Text(
-                            code,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: Colors.grey[600],
-                              fontSize: Theme.of(
-                                context,
-                              ).textTheme.bodyLarge?.fontSize,
-                            ),
+                    ),
+                    if (code.isNotEmpty)
+                      Positioned(
+                        top: labelTop,
+                        left: 0,
+                        right: 0,
+                        child: Text(
+                          code,
+                          textAlign: TextAlign.center,
+                          style: tt.labelSmall?.copyWith(
+                            color: cs.onSurfaceVariant,
                           ),
                         ),
-                    ],
-                  ),
-                );
-              },
-            ),
+                      ),
+                  ],
+                ),
+              );
+            }),
           ),
         ],
       ),
@@ -166,6 +157,9 @@ class FlightListViewItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+
     final depTime = flight['depTime'] ?? '';
     final arrTime = flight['arrTime'] ?? '';
     final plusDayStr = flight['plusDay'] ?? '';
@@ -177,72 +171,55 @@ class FlightListViewItem extends ConsumerWidget {
     final airline = flight['airline'] ?? '';
     final price = flight['price'] ?? '';
 
-    final int plusDay = plusDayStr == ''
-        ? 0
-        : int.parse(flight['plusDay'] as String);
-
-    final double? headlineMedium = Theme.of(
-      context,
-    ).textTheme.headlineMedium?.fontSize;
-    // final double? bodyLarge = Theme.of(context).textTheme.bodyLarge?.fontSize;
-    // Extract intermediate airport codes if needed
+    final int plusDay = plusDayStr == '' ? 0 : int.parse(plusDayStr);
     final pathParts = airportPath.split('→').map((s) => s.trim()).toList();
-
-    final List<String> middleAirports = pathParts.length > 2
+    final middleAirports = pathParts.length > 2
         ? List<String>.from(pathParts.sublist(1, pathParts.length - 1))
         : <String>[];
-    final double? fs = headlineMedium;
 
-    final Color textColor = Theme.of(context).colorScheme.primary;
-    Color labelColor = Colors.transparent;
-    Color frontLabelColor = Colors.transparent;
-    String label = "";
+    // Label logic
+    Color labelBg = Colors.transparent;
+    Color leftStripe = Colors.transparent;
+    String label = '';
 
-    if (flight['isHiddenCityFlight']) {
-      label = "Skip Lagging";
-      labelColor = Colors.blueGrey.shade100;
-      frontLabelColor = Theme.of(context).colorScheme.primary;
-    } else if (flight['pricingMode'] == 'perleg' && hasReturnFlights == true) {
-      label = "Seperate Tickets";
-      labelColor = Colors.blueGrey.shade100;
-      frontLabelColor = Theme.of(context).colorScheme.primary;
+    if (flight['isHiddenCityFlight'] == true) {
+      label = "Hidden-City Ticket";
+      labelBg = cs.secondaryContainer;
+      leftStripe = cs.primary;
+    } else if (flight['pricingMode'] == 'perleg' && hasReturnFlights) {
+      label = "Separate Tickets";
+      labelBg = cs.secondaryContainer;
+      leftStripe = cs.primary;
     }
 
-    final bool isSeperateTicket = flight['pricingMode'] == 'perleg' ? true : false;
+    final bool isSeparate = flight['pricingMode'] == 'perleg';
 
     return Material(
-      color: flight['pricingMode'] == 'perleg'
-          ? flight['isHiddenCityFlight']
-                ? Colors.amber
-                : Colors.red
-          : Colors.blue,
+      color: cs.surface,
       child: Column(
-        children: <Widget>[
+        children: [
           Container(
             decoration: BoxDecoration(
-              color: Colors.white,
-              border: Border(
-                left: BorderSide(color: frontLabelColor, width: 6),
-              ),
+              color: cs.surface,
+              border: Border(left: BorderSide(color: leftStripe, width: 6)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                if (isSeperateTicket) ...<Widget>[
+              children: [
+                if (isSeparate || flight['isHiddenCityFlight'] == true) ...[
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 8,
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: labelColor, // light blue background
+                      color: labelBg,
                       borderRadius: BorderRadius.zero,
                     ),
                     child: Text(
                       label,
-                      style: TextStyle(
-                        color: textColor,
-                        fontSize: 12,
+                      style: tt.labelSmall?.copyWith(
+                        color: cs.onSecondaryContainer,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -254,30 +231,32 @@ class FlightListViewItem extends ConsumerWidget {
                     padding: const EdgeInsets.fromLTRB(20, 10, 10, 10),
                     decoration: BoxDecoration(
                       border: Border(
-                        bottom: BorderSide(color: Colors.grey.shade300),
+                        bottom: BorderSide(
+                          color: cs.outlineVariant,
+                          width: 0.7,
+                        ),
                       ),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        /// Top Row — Departure & Arrival Times and Airports
+                      children: [
+                        /// Top Row — Times and Airports
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: <Widget>[
+                          children: [
                             SizedBox(
                               width: 75,
                               height: 62,
                               child: Stack(
-                                children: <Widget>[
+                                children: [
                                   Positioned(
                                     top: 11,
                                     left: 0,
                                     right: 0,
                                     child: Text(
                                       depTime,
-                                      style: TextStyle(
+                                      style: tt.bodyLarge?.copyWith(
                                         fontWeight: FontWeight.bold,
-                                        fontSize: fs,
                                       ),
                                     ),
                                   ),
@@ -287,9 +266,8 @@ class FlightListViewItem extends ConsumerWidget {
                                     right: 0,
                                     child: Text(
                                       depAirport,
-                                      style: TextStyle(
-                                        fontSize: fs,
-                                        color: Colors.grey,
+                                      style: tt.labelMedium?.copyWith(
+                                        color: cs.onSurfaceVariant,
                                       ),
                                     ),
                                   ),
@@ -304,15 +282,22 @@ class FlightListViewItem extends ConsumerWidget {
                                   10,
                                   0,
                                 ),
-                                child: layoverTimeline(context, middleAirports),
+                                child: layoverTimeline(
+                                  context,
+                                  middleAirports,
+                                  cs,
+                                  tt,
+                                ),
                               ),
                             ),
                             _timeCell(
                               arrTime,
-                              fs!,
+                              tt.bodyLarge?.fontSize ?? 16,
                               plusDay: plusDay > 0 ? plusDay : null,
                               arrAirport: arrAirport,
-                              fs: fs,
+                              fs: tt.bodyLarge?.fontSize,
+                              cs: cs,
+                              tt: tt,
                             ),
                           ],
                         ),
@@ -320,13 +305,14 @@ class FlightListViewItem extends ConsumerWidget {
                         const SizedBox(height: 8),
 
                         /// Duration, stops, airline, price
-                        // Keep meta on the left (ellipsis), keep PRICE on one line at the right.
                         Row(
-                          children: <Widget>[
+                          children: [
                             Expanded(
                               child: Text(
                                 "$duration | $stops | $airline",
-                                style: TextStyle(color: Colors.grey[700]),
+                                style: tt.bodySmall?.copyWith(
+                                  color: cs.onSurfaceVariant,
+                                ),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 softWrap: false,
@@ -334,10 +320,10 @@ class FlightListViewItem extends ConsumerWidget {
                             ),
                             const SizedBox(width: 8),
                             Text(
-                              price, // e.g., €1,100.72
-                              style: TextStyle(
+                              price,
+                              style: tt.bodyLarge?.copyWith(
                                 fontWeight: FontWeight.bold,
-                                fontSize: headlineMedium,
+                                color: cs.onSurface,
                               ),
                               maxLines: 1,
                               softWrap: false,

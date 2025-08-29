@@ -57,5 +57,14 @@
   "automatic":"'Automatic protection included with every ticket at no extra cost.'",
   "cost": "Cost",
   "c_class":"Class",
-  "mode":"Mode"
+  "mode":"Appearance Settings",
+  "login_in" : "Log in",
+  "email_addr" : "Email Address",
+  "create_account": "Create account",
+  "please_enter_email" : "Please enter a valid email address.",
+  "password": "Password",
+  "password_must_be":"Password must be at least 6 characters long.",
+  "login": "Login",
+  "sign_up":"Sign up",
+  "i_already" :"I already have an account"
 }

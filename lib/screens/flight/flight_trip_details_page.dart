@@ -7,7 +7,6 @@ import 'package:TFA/utils/utils.dart';
 import 'package:TFA/widgets/dotted_divider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:TFA/constants/colors.dart';
 import 'package:intl/intl.dart';
 
 class FlightTripDetailsPage extends ConsumerStatefulWidget {
@@ -92,9 +91,10 @@ class _FlightTripDetailPageState extends ConsumerState<FlightTripDetailsPage> {
       decimalDigits: 2,
     );
     final String ticketTotalPrice = fmt.format(p); // "€238.04"
+    final cs = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: appBackgroundColor,
+      backgroundColor: cs.surface,
       appBar: AppBar(
         elevation: 0,
         backgroundColor: primary,

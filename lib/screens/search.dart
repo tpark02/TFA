@@ -1,9 +1,5 @@
 import 'package:TFA/l10n/app_localizations.dart';
-import 'package:TFA/providers/flight/flight_search_controller.dart';
-import 'package:TFA/screens/car/car_page.dart';
 import 'package:TFA/screens/flight/flight_page.dart';
-import 'package:TFA/screens/hotel/hotel_page.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -38,12 +34,18 @@ class _SearchContentState extends ConsumerState<_SearchContent> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final text = AppLocalizations.of(context)!;
+    final cs = theme.colorScheme;
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(text.search, style: TextStyle(color: Colors.white)),
+        title: Text(
+          text.search,
+          style: TextStyle(color: cs.onPrimary, fontWeight: FontWeight.w600),
+        ),
         centerTitle: true,
-        backgroundColor: Theme.of(context).colorScheme.primary,
+        backgroundColor: cs.primary,
         elevation: 0,
       ),
       body: Column(
@@ -68,35 +70,4 @@ class _SearchContentState extends ConsumerState<_SearchContent> {
       ),
     );
   }
-
-  //   Widget _buildTabIcon(
-  //     BuildContext context,
-  //     int index,
-  //     IconData icon,
-  //     String label,
-  //   ) {
-  //     final bool isSelected = _selectedIndex == index;
-
-  //     return Column(
-  //       children: <Widget>[
-  //         IconButton(
-  //           onPressed: () => setState(() => _selectedIndex = index),
-  //           icon: Icon(icon),
-  //           iconSize: 50,
-  //           style: IconButton.styleFrom(
-  //             shape: const CircleBorder(),
-  //             backgroundColor: Colors.grey[200],
-  //             foregroundColor: isSelected
-  //                 ? Theme.of(context).colorScheme.primary
-  //                 : Colors.grey[500]!,
-  //           ),
-  //         ),
-  //         const SizedBox(height: 8),
-  //         Text(
-  //           label,
-  //           style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-  //         ),
-  //       ],
-  //     );
-  //   }
 }

@@ -180,5 +180,32 @@ class AppLocalizationsKo extends AppLocalizations {
   String get c_class => '클래스';
 
   @override
-  String get mode => '모드';
+  String get mode => '테마 설정';
+
+  @override
+  String get login_in => '로그인';
+
+  @override
+  String get email_addr => '이메일 주소';
+
+  @override
+  String get create_account => '계정 만들기';
+
+  @override
+  String get please_enter_email => '올바른 이메일 주소를 입력하세요.';
+
+  @override
+  String get password => '비밀번호';
+
+  @override
+  String get password_must_be => '비밀번호는 최소 6자 이상이어야 합니다.';
+
+  @override
+  String get login => '로그인';
+
+  @override
+  String get sign_up => '회원가입';
+
+  @override
+  String get i_already => '이미 계정이 있습니다';
 }

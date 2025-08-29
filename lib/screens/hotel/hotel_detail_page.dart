@@ -13,6 +13,7 @@ class _HotelDetailPageState extends State<HotelDetailPage>
   late final AnimationController _anim;
   bool _descExpanded = false;
   bool _reviewsExpanded = false;
+
   @override
   void initState() {
     super.initState();
@@ -31,16 +32,28 @@ class _HotelDetailPageState extends State<HotelDetailPage>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final cs = theme.colorScheme;
     const title = 'Lotte City Hotel Mapo';
 
     return Scaffold(
       appBar: AppBar(
-        title: const Column(
+        title: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(title, style: TextStyle(fontWeight: FontWeight.w600)),
-            SizedBox(height: 2),
-            Text('Sep 10 - Sep 11', style: TextStyle(fontSize: 12)),
+            Text(
+              title,
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: cs.onSurface,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              'Sep 10 - Sep 11',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: cs.onSurfaceVariant,
+              ),
+            ),
           ],
         ),
         centerTitle: true,
@@ -60,7 +73,7 @@ class _HotelDetailPageState extends State<HotelDetailPage>
                     AspectRatio(
                       aspectRatio: 16 / 9,
                       child: Image.asset(
-                        'assets/images/room_1.jpg', // 🟢 Using asset
+                        'assets/images/room_1.jpg',
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -100,12 +113,15 @@ class _HotelDetailPageState extends State<HotelDetailPage>
                                   title,
                                   style: theme.textTheme.titleLarge?.copyWith(
                                     fontWeight: FontWeight.w700,
+                                    color: cs.onSurface,
                                   ),
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
                                   '467, Gongduk-Dong, Seoul, Republic Of Korea',
-                                  style: theme.textTheme.bodyMedium,
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                    color: cs.onSurfaceVariant,
+                                  ),
                                 ),
                               ],
                             ),
@@ -128,36 +144,6 @@ class _HotelDetailPageState extends State<HotelDetailPage>
                   ),
                 ),
 
-                // Rooms & Guests form
-                // const _SectionHeader('Rooms & Guests'),
-                // const _RoomsGuestsBar(),
-                // const SizedBox(height: 8),
-                // const Padding(
-                //   padding: EdgeInsets.symmetric(horizontal: 16),
-                //   child: Row(
-                //     children: [
-                //       Expanded(
-                //         child: _DateBox(label: 'Check in', value: 'Sep 10'),
-                //       ),
-                //       SizedBox(width: 12),
-                //       Expanded(
-                //         child: _DateBox(label: 'Check out', value: 'Sep 11'),
-                //       ),
-                //     ],
-                //   ),
-                // ),
-                // const SizedBox(height: 12),
-                // Padding(
-                //   padding: const EdgeInsets.symmetric(horizontal: 16),
-                //   child: SizedBox(
-                //     width: double.infinity,
-                //     height: 48,
-                //     child: FilledButton(
-                //       onPressed: () {},
-                //       child: const Text('Search'),
-                //     ),
-                //   ),
-                // ),
                 const SizedBox(height: 20),
 
                 // Rooms
@@ -182,23 +168,31 @@ class _HotelDetailPageState extends State<HotelDetailPage>
                     children: [
                       Row(
                         children: [
-                          const Icon(Icons.bed_outlined),
+                          Icon(Icons.bed_outlined, color: cs.onSurfaceVariant),
                           const SizedBox(width: 8),
                           Text(
                             '1 Double Bed',
-                            style: theme.textTheme.bodyMedium,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: cs.onSurface,
+                            ),
                           ),
                         ],
                       ),
                       const SizedBox(height: 12),
                       Row(
                         children: [
-                          const Icon(Icons.info_outline, size: 20),
+                          Icon(
+                            Icons.info_outline,
+                            size: 20,
+                            color: cs.onSurfaceVariant,
+                          ),
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
                               'Fully Refundable until Sep 7, 04:00 am',
-                              style: theme.textTheme.bodyMedium,
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                color: cs.onSurface,
+                              ),
                             ),
                           ),
                         ],
@@ -207,33 +201,38 @@ class _HotelDetailPageState extends State<HotelDetailPage>
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
+                          color: cs.surface,
                           border: Border.all(
-                            color: theme.colorScheme.primary.withOpacity(.4),
+                            color: cs.primary.withValues(alpha: .35),
                           ),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Row(
                           children: [
-                            const Icon(Icons.info, color: Colors.blue),
+                            Icon(Icons.info, color: cs.primary),
                             const SizedBox(width: 8),
                             Expanded(
                               child: RichText(
                                 text: TextSpan(
-                                  style: theme.textTheme.bodyMedium,
-                                  children: const [
-                                    TextSpan(text: 'You will earn '),
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                    color: cs.onSurface,
+                                  ),
+                                  children: [
+                                    const TextSpan(text: 'You will earn '),
                                     TextSpan(
                                       text: '₩4,897.57',
                                       style: TextStyle(
                                         fontWeight: FontWeight.w700,
-                                        color: Colors.green,
+                                        color: cs.tertiary,
                                       ),
                                     ),
-                                    TextSpan(text: ' in rewards! '),
+                                    const TextSpan(text: ' in rewards! '),
                                     TextSpan(
                                       text: 'More Info',
                                       style: TextStyle(
                                         decoration: TextDecoration.underline,
+                                        color: cs.primary,
+                                        fontWeight: FontWeight.w600,
                                       ),
                                     ),
                                   ],
@@ -253,13 +252,17 @@ class _HotelDetailPageState extends State<HotelDetailPage>
                                 Text(
                                   '₩150,052',
                                   style: theme.textTheme.headlineSmall
-                                      ?.copyWith(fontWeight: FontWeight.w800),
+                                      ?.copyWith(
+                                        fontWeight: FontWeight.w800,
+                                        color: cs.onSurface,
+                                      ),
                                 ),
                                 const SizedBox(height: 2),
                                 Text(
                                   '₩174,721',
                                   style: theme.textTheme.bodyMedium?.copyWith(
                                     decoration: TextDecoration.lineThrough,
+                                    color: cs.onSurfaceVariant,
                                   ),
                                 ),
                                 const SizedBox(height: 4),
@@ -267,6 +270,7 @@ class _HotelDetailPageState extends State<HotelDetailPage>
                                   '₩199,126 total',
                                   style: theme.textTheme.bodySmall?.copyWith(
                                     decoration: TextDecoration.lineThrough,
+                                    color: cs.onSurfaceVariant,
                                   ),
                                 ),
                               ],
@@ -297,8 +301,6 @@ class _HotelDetailPageState extends State<HotelDetailPage>
                 const _SectionHeader('Guests Reviews'),
                 const _ReviewHistogram(),
                 const SizedBox(height: 16),
-                // const _SingleReview(),
-                const SizedBox(height: 16),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: _ReviewPreview(
@@ -323,9 +325,14 @@ class _HotelDetailPageState extends State<HotelDetailPage>
                         'assets/images/room_1.jpg',
                         fit: BoxFit.cover,
                         errorBuilder: (_, __, ___) => Container(
-                          color: Colors.grey.shade200,
+                          color: cs.surfaceContainerHigh,
                           alignment: Alignment.center,
-                          child: const Text('Map Preview'),
+                          child: Text(
+                            'Map Preview',
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: cs.onSurfaceVariant,
+                            ),
+                          ),
                         ),
                       ),
                     ),
@@ -336,13 +343,14 @@ class _HotelDetailPageState extends State<HotelDetailPage>
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: InkWell(
                     onTap: () {},
-                    child: const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 12),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
                       child: Text(
                         '467, Gongduk-Dong, Seoul',
-                        style: TextStyle(
+                        style: theme.textTheme.bodyMedium?.copyWith(
                           decoration: TextDecoration.underline,
                           fontWeight: FontWeight.w600,
+                          color: cs.primary,
                         ),
                       ),
                     ),
@@ -354,7 +362,6 @@ class _HotelDetailPageState extends State<HotelDetailPage>
           ),
         ],
       ),
-      // bottomNavigationBar: _BottomBar(theme: theme),
     );
   }
 }
@@ -371,7 +378,10 @@ class _ExpandableText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).textTheme.bodyMedium;
+    final t = Theme.of(context);
+    final cs = t.colorScheme;
+    final style = t.textTheme.bodyMedium?.copyWith(color: cs.onSurface);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -407,12 +417,17 @@ class _ScoreBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cs.surface,
         borderRadius: BorderRadius.circular(12),
-        boxShadow: const [BoxShadow(blurRadius: 10, color: Colors.black26)],
+        boxShadow: [
+          BoxShadow(blurRadius: 10, color: Colors.black.withValues(alpha: .25)),
+        ],
+        border: Border.all(color: cs.outlineVariant),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -420,13 +435,13 @@ class _ScoreBadge extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
             decoration: BoxDecoration(
-              color: Colors.blue.shade700,
+              color: cs.primary,
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
               score,
-              style: const TextStyle(
-                color: Colors.white,
+              style: TextStyle(
+                color: cs.onPrimary,
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -435,10 +450,16 @@ class _ScoreBadge extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(label, style: const TextStyle(fontWeight: FontWeight.w700)),
+              Text(
+                label,
+                style: TextStyle(
+                  fontWeight: FontWeight.w700,
+                  color: cs.onSurface,
+                ),
+              ),
               Text(
                 sub,
-                style: const TextStyle(fontSize: 12, color: Colors.black54),
+                style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant),
               ),
             ],
           ),
@@ -452,11 +473,12 @@ class _AmenitiesRow extends StatelessWidget {
   const _AmenitiesRow();
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     Widget item(IconData i, String t) => Column(
       children: [
-        Icon(i, size: 28),
+        Icon(i, size: 28, color: cs.onSurfaceVariant),
         const SizedBox(height: 6),
-        Text(t, style: const TextStyle(fontSize: 12)),
+        Text(t, style: TextStyle(fontSize: 12, color: cs.onSurface)),
       ],
     );
     return Row(
@@ -476,13 +498,16 @@ class _SectionHeader extends StatelessWidget {
   const _SectionHeader(this.title);
   @override
   Widget build(BuildContext context) {
+    final t = Theme.of(context);
+    final cs = t.colorScheme;
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 20, 16, 12),
       child: Text(
         title,
-        style: Theme.of(
-          context,
-        ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+        style: t.textTheme.titleLarge?.copyWith(
+          fontWeight: FontWeight.w800,
+          color: cs.onSurface,
+        ),
       ),
     );
   }
@@ -492,21 +517,26 @@ class _RoomsGuestsBar extends StatelessWidget {
   const _RoomsGuestsBar();
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
         decoration: BoxDecoration(
+          color: cs.surface,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: Colors.black12),
+          border: Border.all(color: cs.outlineVariant),
         ),
-        child: const Row(
+        child: Row(
           children: [
-            Icon(Icons.search),
-            SizedBox(width: 10),
+            Icon(Icons.search, color: cs.onSurfaceVariant),
+            const SizedBox(width: 10),
             Text(
               '1 Room, 2 Guests',
-              style: TextStyle(fontWeight: FontWeight.w600),
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                color: cs.onSurface,
+              ),
             ),
           ],
         ),
@@ -521,24 +551,32 @@ class _DateBox extends StatelessWidget {
   const _DateBox({required this.label, required this.value});
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
+        color: cs.surface,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.black12),
+        border: Border.all(color: cs.outlineVariant),
       ),
       child: Row(
         children: [
-          const Icon(Icons.event_note_outlined),
+          Icon(Icons.event_note_outlined, color: cs.onSurfaceVariant),
           const SizedBox(width: 10),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 label,
-                style: const TextStyle(fontSize: 12, color: Colors.black54),
+                style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant),
               ),
-              Text(value, style: const TextStyle(fontWeight: FontWeight.w600)),
+              Text(
+                value,
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  color: cs.onSurface,
+                ),
+              ),
             ],
           ),
         ],
@@ -551,9 +589,13 @@ class _RoomCard extends StatelessWidget {
   const _RoomCard();
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
     return Card(
       clipBehavior: Clip.antiAlias,
       elevation: 2,
+      color: cs.surface,
+      surfaceTintColor: cs.surfaceTint,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -574,8 +616,11 @@ class _RoomCard extends StatelessWidget {
                   width: 150,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10),
-                    boxShadow: const [
-                      BoxShadow(blurRadius: 10, color: Colors.black26),
+                    boxShadow: [
+                      BoxShadow(
+                        blurRadius: 10,
+                        color: Colors.black.withValues(alpha: .25),
+                      ),
                     ],
                   ),
                   child: Column(
@@ -587,17 +632,17 @@ class _RoomCard extends StatelessWidget {
                           horizontal: 10,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.blueGrey.shade700,
+                          color: cs.secondary,
                           borderRadius: const BorderRadius.only(
                             topLeft: Radius.circular(10),
                             topRight: Radius.circular(10),
                           ),
                         ),
-                        child: const Text(
+                        child: Text(
                           '14% off',
                           textAlign: TextAlign.left,
                           style: TextStyle(
-                            color: Colors.white,
+                            color: cs.onSecondary,
                             fontWeight: FontWeight.w700,
                           ),
                         ),
@@ -608,16 +653,16 @@ class _RoomCard extends StatelessWidget {
                           horizontal: 10,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.red.shade600,
+                          color: cs.error,
                           borderRadius: const BorderRadius.only(
                             bottomLeft: Radius.circular(10),
                             bottomRight: Radius.circular(10),
                           ),
                         ),
-                        child: const Text(
+                        child: Text(
                           'Skiplagged Rate',
                           style: TextStyle(
-                            color: Colors.white,
+                            color: cs.onError,
                             fontWeight: FontWeight.w700,
                           ),
                         ),
@@ -626,14 +671,15 @@ class _RoomCard extends StatelessWidget {
                   ),
                 ),
               ),
-              const Positioned(
+              Positioned(
                 left: 16,
                 bottom: 12,
                 child: Text(
                   'ACTUAL ROOM MAY VARY',
-                  style: TextStyle(
+                  style: tt.labelLarge?.copyWith(
                     color: Colors.white,
                     fontWeight: FontWeight.w800,
+                    letterSpacing: .3,
                   ),
                 ),
               ),
@@ -646,35 +692,40 @@ class _RoomCard extends StatelessWidget {
               children: [
                 Text(
                   'STANDARD, DOUBLE BED Room Only',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  style: tt.titleMedium?.copyWith(
                     fontWeight: FontWeight.w800,
+                    color: cs.onSurface,
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   "Skiplagged Rate — this rate isn't available anywhere else. The room will be assigned by the hotel at check-in.",
-                  style: Theme.of(context).textTheme.bodyMedium,
+                  style: tt.bodyMedium?.copyWith(color: cs.onSurface),
                 ),
                 const SizedBox(height: 12),
                 Row(
                   children: [
-                    const Icon(Icons.bed_outlined),
+                    Icon(Icons.bed_outlined, color: cs.onSurfaceVariant),
                     const SizedBox(width: 8),
                     Text(
                       '1 Double Bed',
-                      style: Theme.of(context).textTheme.bodyMedium,
+                      style: tt.bodyMedium?.copyWith(color: cs.onSurface),
                     ),
                   ],
                 ),
                 const SizedBox(height: 8),
                 Row(
                   children: [
-                    const Icon(Icons.info_outline, size: 20),
+                    Icon(
+                      Icons.info_outline,
+                      size: 20,
+                      color: cs.onSurfaceVariant,
+                    ),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         'Fully Refundable until Sep 7, 04:00 am',
-                        style: Theme.of(context).textTheme.bodyMedium,
+                        style: tt.bodyMedium?.copyWith(color: cs.onSurface),
                       ),
                     ),
                   ],
@@ -692,6 +743,8 @@ class _ReviewHistogram extends StatelessWidget {
   const _ReviewHistogram();
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
     Widget bar(String label, double value, int right) {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -701,7 +754,10 @@ class _ReviewHistogram extends StatelessWidget {
               width: 86,
               child: Text(
                 label,
-                style: const TextStyle(fontWeight: FontWeight.w600),
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  color: cs.onSurface,
+                ),
               ),
             ),
             Expanded(
@@ -710,12 +766,13 @@ class _ReviewHistogram extends StatelessWidget {
                 child: LinearProgressIndicator(
                   minHeight: 12,
                   value: value,
-                  backgroundColor: Colors.black12,
+                  color: cs.primary,
+                  backgroundColor: cs.surfaceVariant,
                 ),
               ),
             ),
             const SizedBox(width: 8),
-            Text('$right'),
+            Text('$right', style: TextStyle(color: cs.onSurface)),
           ],
         ),
       );
@@ -759,10 +816,12 @@ class _ScoreTile extends StatelessWidget {
   });
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        border: Border.all(color: Colors.blue.shade300),
+        color: cs.surface,
+        border: Border.all(color: cs.primary.withValues(alpha: .4)),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(
@@ -770,13 +829,13 @@ class _ScoreTile extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
             decoration: BoxDecoration(
-              color: Colors.blue.shade700,
+              color: cs.primary,
               borderRadius: BorderRadius.circular(8),
             ),
-            child: const Text(
-              '8.6/10',
+            child: Text(
+              score,
               style: TextStyle(
-                color: Colors.white,
+                color: cs.onPrimary,
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -785,10 +844,16 @@ class _ScoreTile extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(label, style: const TextStyle(fontWeight: FontWeight.w700)),
+              Text(
+                label,
+                style: TextStyle(
+                  fontWeight: FontWeight.w700,
+                  color: cs.onSurface,
+                ),
+              ),
               Text(
                 sub,
-                style: const TextStyle(fontSize: 12, color: Colors.black54),
+                style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant),
               ),
             ],
           ),
@@ -798,89 +863,27 @@ class _ScoreTile extends StatelessWidget {
   }
 }
 
-// class _SingleReview extends StatelessWidget {
-//   const _SingleReview();
-//   @override
-//   Widget build(BuildContext context) {
-//     return Padding(
-//       padding: const EdgeInsets.symmetric(horizontal: 16),
-//       child: Column(
-//         crossAxisAlignment: CrossAxisAlignment.start,
-//         children: [
-//           const Row(
-//             crossAxisAlignment: CrossAxisAlignment.start,
-//             children: [
-//               Expanded(
-//                 child: Column(
-//                   crossAxisAlignment: CrossAxisAlignment.start,
-//                   children: [
-//                     Text(
-//                       'Mustafa',
-//                       style: TextStyle(
-//                         fontWeight: FontWeight.w800,
-//                         fontSize: 18,
-//                       ),
-//                     ),
-//                     SizedBox(height: 2),
-//                     Text(
-//                       'October 29, 2023',
-//                       style: TextStyle(color: Colors.black54),
-//                     ),
-//                   ],
-//                 ),
-//               ),
-//               Column(
-//                 children: [
-//                   Text(
-//                     '9/10',
-//                     style: TextStyle(
-//                       color: Colors.green,
-//                       fontWeight: FontWeight.w900,
-//                       fontSize: 18,
-//                     ),
-//                   ),
-//                   SizedBox(height: 2),
-//                   Text('Wonderful', style: TextStyle(color: Colors.black54)),
-//                 ],
-//               ),
-//             ],
-//           ),
-//           const SizedBox(height: 12),
-//           ...[
-//             'Great location',
-//             'Good value for money',
-//             'Friendly staff',
-//             'Room was well equipped',
-//             'Spacious rooms',
-//           ].map((t) => _bullet(t, true)),
-//           const SizedBox(height: 8),
-//           ...[
-//             'Rooms look a bit outdated',
-//             'Have to pay to use the swimming pool',
-//           ].map((t) => _bullet(t, false)),
-//           const SizedBox(height: 16),
-//           OutlinedButton(
-//             onPressed: () {},
-//             child: const Text('Show More Reviews'),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
 Widget _bullet(String text, bool good) {
-  return Padding(
-    padding: const EdgeInsets.symmetric(vertical: 4),
-    child: Row(
-      children: [
-        Icon(
-          good ? Icons.check_circle : Icons.cancel,
-          color: good ? Colors.green : Colors.red,
-          size: 18,
+  return Builder(
+    builder: (context) {
+      final cs = Theme.of(context).colorScheme;
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        child: Row(
+          children: [
+            Icon(
+              good ? Icons.check_circle : Icons.cancel,
+              color: good ? cs.tertiary : cs.error,
+              size: 18,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(text, style: TextStyle(color: cs.onSurface)),
+            ),
+          ],
         ),
-        const SizedBox(width: 8),
-        Expanded(child: Text(text)),
-      ],
-    ),
+      );
+    },
   );
 }
 
@@ -891,6 +894,7 @@ class _ReviewPreview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -912,19 +916,17 @@ class _ReviewPreview extends StatelessWidget {
 
         const SizedBox(height: 16),
 
-        // Toggle button
         OutlinedButton(
           onPressed: onToggle,
           child: Text(expanded ? 'Hide Reviews' : 'Show More Reviews'),
         ),
 
-        // Expanded list of more reviews
         if (expanded) ...[
           const SizedBox(height: 8),
           ListView.separated(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            itemCount: 5, // shows 5 more reviews
+            itemCount: 5,
             separatorBuilder: (_, __) => const Divider(height: 24),
             itemBuilder: (_, i) => _SingleReview(index: i + 1),
           ),
@@ -941,6 +943,7 @@ class _SingleReview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Column(
@@ -948,11 +951,12 @@ class _SingleReview extends StatelessWidget {
         children: [
           Text(
             'Reviewer #$index',
-            style: const TextStyle(fontWeight: FontWeight.bold),
+            style: TextStyle(fontWeight: FontWeight.bold, color: cs.onSurface),
           ),
           const SizedBox(height: 4),
-          const Text(
+          Text(
             'This is a detailed review comment explaining their experience at the hotel.',
+            style: TextStyle(color: cs.onSurface),
           ),
         ],
       ),
@@ -964,13 +968,14 @@ class _AmenitiesList extends StatelessWidget {
   const _AmenitiesList();
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     Widget row(IconData i, String t) => Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       child: Row(
         children: [
-          Icon(i, size: 28),
+          Icon(i, size: 28, color: cs.onSurfaceVariant),
           const SizedBox(width: 16),
-          Text(t, style: const TextStyle(fontSize: 16)),
+          Text(t, style: TextStyle(fontSize: 16, color: cs.onSurface)),
         ],
       ),
     );

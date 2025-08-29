@@ -25,124 +25,127 @@ class FlightListPage extends ConsumerStatefulWidget {
 }
 
 class _FlightListPageState extends ConsumerState<FlightListPage> {
-  String selectedSort = 'Cost';
+  // Use the lowercase keys expected by FlightListView (cost, duration, value)
+  String selectedSort = 'cost';
   String selectedStops = 'Up to 2 stops';
+
   RangeValues takeoffRange = const RangeValues(0, 1439);
   RangeValues landingRange = const RangeValues(0, 1439);
   RangeValues flightDurationRange = const RangeValues(0, 1440);
   RangeValues layOverDurationRange = const RangeValues(0, 1470);
+
   Set<String> selectedAirlines = <String>{};
   Set<String> selectedLayovers = <String>{};
   List<String> kAirlines = <String>[];
   List<String> kLayoverCities = <String>[];
-  int flightDurationSt = 0;
-  int flightDurationEnd = 0;
-  int layOverDurationSt = 0;
-  int layOverDurationEnd = 0;
-  // late final ProviderSubscription<FlightSearchState> _sub;
-  // bool _rtFetching = false;
 
-  Map<String, String> carriersDict = <String, String>{}; // <-- add this
+  Map<String, String> carriersDict = <String, String>{};
 
   Widget _pageBody(BuildContext context, FlightSearchState flightState) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
     final bool isLoading = flightState.isLoading;
     int minDuration = 1000000, maxDuration = 0;
     int minLayOver = 1000000, maxLayOver = 0;
     final text = AppLocalizations.of(context)!;
 
-    for (Map<String, dynamic> e in flightState.processedFlights) {
-      final List<String> lst = e['layOverAirports'] as List<String>;
+    // Build filters data from processed flights
+    for (final Map<String, dynamic> e in flightState.processedFlights) {
+      final List<String> lst = (e['layOverAirports'] as List<dynamic>)
+          .cast<String>();
       if (lst.isNotEmpty) {
-        for (String l in lst) {
+        for (final String l in lst) {
           if (!kLayoverCities.contains(l)) kLayoverCities.add(l);
         }
       }
-      final airline = e['airline'] as String;
+      final String airline = e['airline'] as String;
       if (!kAirlines.contains(airline)) kAirlines.add(airline);
 
-      minDuration = min(minDuration, e['durationMin']);
-      maxDuration = max(maxDuration, e['durationMin']);
-      minLayOver = min(minLayOver, e['layoverMin']);
-      maxLayOver = max(maxLayOver, e['layoverMin']);
+      minDuration = min(minDuration, e['durationMin'] as int);
+      maxDuration = max(maxDuration, e['durationMin'] as int);
+      minLayOver = min(minLayOver, e['layoverMin'] as int);
+      maxLayOver = max(maxLayOver, e['layoverMin'] as int);
     }
 
+    // Update ranges (best-effort: keep within slider domain)
     flightDurationRange = RangeValues(
-      minDuration.toDouble(),
-      maxDuration.toDouble(),
+      min(minDuration, 0).toDouble().clamp(0, 1440),
+      max(maxDuration, 0).toDouble().clamp(0, 1440),
     );
     layOverDurationRange = RangeValues(
-      minLayOver.toDouble(),
-      maxLayOver.toDouble(),
+      min(minLayOver, 0).toDouble().clamp(0, 1470),
+      max(maxLayOver, 0).toDouble().clamp(0, 1470),
     );
 
-    final List<Widget> content = [
-      Container(
-        color: Theme.of(context).colorScheme.primary,
-        padding: const EdgeInsets.fromLTRB(0, 0, 0, 10), // status bar spacing
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: <Widget>[
-            Container(
-              padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-              child: InkWell(
-                onTap: () {
-                  Navigator.of(context).pop();
-                },
-                child: const Icon(Icons.arrow_back_ios, color: Colors.white),
-              ),
+    final List<Widget> header = <Widget>[
+      // Top summary bar
+      Material(
+        color: cs.primary,
+        elevation: 0,
+        child: SafeArea(
+          bottom: false,
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.only(top: 10),
+                  child: InkWell(
+                    onTap: () => Navigator.of(context).pop(),
+                    child: Icon(Icons.arrow_back_ios, color: cs.onPrimary),
+                  ),
+                ),
+                SizedBox(
+                  width: 250,
+                  child: FlightSearchSummaryCard(
+                    from: flightState.departureAirportCode,
+                    to: flightState.arrivalAirportCode,
+                    dateRange: flightState.displayDate ?? '',
+                    passengerCount: flightState.passengerCount.toString(),
+                    cabinClass: flightState.cabinClass,
+                  ),
+                ),
+                const SizedBox(width: 20), // spacer for symmetry
+              ],
             ),
-            SizedBox(
-              width: 250,
-              child: FlightSearchSummaryCard(
-                from: flightState.departureAirportCode,
-                to: flightState.arrivalAirportCode,
-                dateRange: flightState.displayDate ?? '',
-                passengerCount: flightState.passengerCount.toString(),
-                cabinClass: flightState.cabinClass,
-              ),
-            ),
-            Container(
-              padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-
-              child: InkWell(
-                onTap: () {},
-                child: const Icon(Icons.favorite_border, color: Colors.white),
-              ),
-            ),
-            Container(
-              padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-
-              child: InkWell(
-                onTap: () {},
-                child: Platform.isIOS
-                    ? const Icon(Icons.ios_share, color: Colors.white)
-                    : const Icon(Icons.share, color: Colors.white),
-              ),
-            ),
-          ],
+          ),
         ),
       ),
+
+      // Filters row
       Container(
-        color: Colors.grey[200],
+        color: cs.surfaceContainerHighest,
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         child: SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
+              // Tune icon button
               Container(
                 margin: const EdgeInsets.only(left: 8),
                 child: OutlinedButton(
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.all(10),
-                    backgroundColor: Colors.white,
-                    minimumSize: const Size(0, 32),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(4.0),
-                    ),
-                    side: BorderSide(color: Colors.grey[400]!, width: 1),
-                  ),
+                  style:
+                      OutlinedButton.styleFrom(
+                        backgroundColor: cs.surface,
+                        minimumSize: const Size(0, 36),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        side: BorderSide(color: cs.outlineVariant, width: 1),
+                        foregroundColor: cs.onSurface,
+                      ).copyWith(
+                        overlayColor: MaterialStateProperty.resolveWith<Color?>(
+                          (states) => states.contains(MaterialState.pressed)
+                              ? cs.primary.withValues(alpha: .08)
+                              : null,
+                        ),
+                      ),
                   onPressed: () async {
                     final Map<String, List<String>>? result =
                         await Navigator.of(
@@ -163,18 +166,20 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
 
                     if (result != null) {
                       setState(() {
-                        selectedAirlines =
-                            result['airlines']?.toSet() ?? selectedAirlines;
-                        selectedLayovers =
-                            result['layovers']?.toSet() ?? selectedLayovers;
+                        selectedAirlines = (result['airlines'] ?? <String>[])
+                            .toSet();
+                        selectedLayovers = (result['layovers'] ?? <String>[])
+                            .toSet();
                       });
                     }
                   },
                   child: const Icon(Icons.tune, size: 23),
                 ),
               ),
+
+              // Sort (uses lowercase key but shows capitalized label)
               FilterButton(
-                label: "${text.sort}: $selectedSort",
+                label: "${text.sort}: ${_cap(selectedSort)}",
                 func: () {
                   showSortBottomSheet(
                     title: text.sort,
@@ -182,14 +187,13 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
                     selectedSort: selectedSort,
                     sortType: SortTab.sort,
                     onSortSelected: (String value) {
-                      setState(() {
-                        selectedSort = value;
-                      });
+                      setState(() => selectedSort = value.toLowerCase());
                     },
                   );
                 },
               ),
 
+              // Stops
               FilterButton(
                 label: "${text.stops}: $selectedStops",
                 func: () {
@@ -199,13 +203,13 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
                     selectedSort: selectedStops,
                     sortType: SortTab.stops,
                     onSortSelected: (String value) {
-                      setState(
-                        () => selectedStops = value,
-                      ); // update parent state
+                      setState(() => selectedStops = value);
                     },
                   );
                 },
               ),
+
+              // Take off
               FilterButton(
                 label: text.take_off,
                 func: () async {
@@ -213,10 +217,10 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
                     context: context,
                     sheet: RangePickerSheet(
                       title: text.take_off,
-                      min: 0, // min possible minutes
-                      max: 1439, // max possible minutes
+                      min: 0,
+                      max: 1439,
                       divisions: 1439,
-                      initial: takeoffRange, // ✅ use the current value
+                      initial: takeoffRange,
                       label: formatTimeFromMinutes,
                       onConfirmed: (RangeValues range) {
                         setState(() => takeoffRange = range);
@@ -225,6 +229,8 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
                   );
                 },
               ),
+
+              // Landing
               FilterButton(
                 label: text.landing,
                 func: () async {
@@ -244,20 +250,20 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
                   );
                 },
               ),
+
+              // Flight duration
               FilterButton(
                 label: text.flight_duration,
                 func: () async {
                   final int dMin = flightDurationRange.start.floor();
                   final int dMax = flightDurationRange.end.ceil();
-                  // final int divs = (dMax - dMin).clamp(1, 100000);
-
                   await showRangePickerSheet(
                     context: context,
                     sheet: RangePickerSheet(
                       title: text.flight_duration,
                       min: 0,
                       max: 1440,
-                      divisions: 1440.clamp(1, 100000),
+                      divisions: 1440,
                       initial: RangeValues(dMin.toDouble(), dMax.toDouble()),
                       label: formatDurationFromMinutes,
                       onConfirmed: (RangeValues range) =>
@@ -266,13 +272,14 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
                   );
                 },
               ),
+
+              // Layover duration
               FilterButton(
                 label: text.layover_duration,
                 func: () async {
                   final int lMin = layOverDurationRange.start.floor();
                   final int lMax = layOverDurationRange.end.ceil();
-                  final int divs = (lMax - lMin).clamp(1, 100000);
-
+                  final int divs = (lMax - lMin).clamp(1, 1470);
                   await showRangePickerSheet(
                     context: context,
                     sheet: RangePickerSheet(
@@ -288,24 +295,25 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
                   );
                 },
               ),
+
+              // Airlines
               FilterButton(
                 label: text.airlines,
                 func: () {
                   showSelectionBottomSheet<String>(
                     context: context,
                     title: text.airlines,
-                    items: kAirlines, // ← full list, not from selected
+                    items: kAirlines,
                     selected: selectedAirlines,
                     labelOf: (String s) => s,
                     onDone: (Set<String> s) => setState(() {
                       selectedAirlines = s;
-                      for (final String a in selectedAirlines) {
-                        debugPrint('selected airlines - $a');
-                      }
                     }),
                   );
                 },
               ),
+
+              // Layover cities
               FilterButton(
                 label: text.layover_cities,
                 func: () {
@@ -330,10 +338,10 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
     return Stack(
       children: [
         AbsorbPointer(
-          absorbing: isLoading, // 🔒 no taps/scrolls
+          absorbing: isLoading,
           child: Column(
             children: <Widget>[
-              ...content,
+              ...header,
               Expanded(
                 child: isLoading
                     ? SearchSummaryLoadingCard(
@@ -342,7 +350,8 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
                         dateText: flightState.displayDate ?? '',
                       )
                     : FlightListView(
-                        sortType: selectedSort,
+                        sortType:
+                            selectedSort, // expects 'cost'|'duration'|'value'
                         stopType: selectedStops,
                         takeoff: takeoffRange,
                         landing: landingRange,
@@ -359,6 +368,9 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
     );
   }
 
+  String _cap(String v) =>
+      v.isEmpty ? v : (v[0].toUpperCase() + v.substring(1));
+
   @override
   void initState() {
     super.initState();
@@ -367,12 +379,18 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
   @override
   Widget build(BuildContext context) {
     final FlightSearchState flightState = ref.watch(flightSearchProvider);
+
     final Scaffold page = Scaffold(
+      // Keep primary under status-bar for nice blend with summary bar
       body: Container(
         color: Theme.of(context).colorScheme.primary,
-        child: SafeArea(child: _pageBody(context, flightState)),
+        child: SafeArea(
+          top: false, // allow our top Material(bar) to paint under status bar
+          child: _pageBody(context, flightState),
+        ),
       ),
     );
+
     return Platform.isIOS ? CupertinoScaffold(body: page) : page;
   }
 }

@@ -39,8 +39,10 @@ class _FlightFilterScreenState extends State<FlightFilterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: cs.surface, // theme-aware background
       body: SafeArea(
         child: FlightFilterPage(
           scrollController: _controller,

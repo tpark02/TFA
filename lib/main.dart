@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:TFA/constants/colors.dart';
 import 'package:TFA/l10n/app_localizations.dart';
 import 'package:TFA/providers/auth_provider.dart';
 import 'package:TFA/providers/flight/flight_search_controller.dart';
@@ -13,6 +14,7 @@ import 'package:TFA/providers/theme_provider.dart';
 import 'package:TFA/screens/auth.dart';
 import 'package:TFA/screens/menu.dart';
 import 'package:TFA/theme/app_theme.dart';
+import 'package:dynamic_color/dynamic_color.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -95,35 +97,46 @@ class _AppState extends ConsumerState<App> {
   Widget build(BuildContext context) {
     final mode = ref.watch(themeModeProvider); // or ref.watch if ConsumerWidget
 
-    return MaterialApp(
-      navigatorKey: rootNavigatorKey, // for global navigation
-      title: 'TFA',
-      theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
-      themeMode: mode,
-      localizationsDelegates: [
-        AppLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: AppLocalizations.supportedLocales,
-      navigatorObservers: [appRouteObserver],
-      // Define a route for flight list if you used pushNamed above
-      // routes: {'/flight_list': (_) => const FlightListPage()},
-      home: StreamBuilder<User?>(
-        stream: FirebaseAuth.instance.authStateChanges(),
-        builder: (ctx, snap) {
-          if (snap.hasData) {
-            return Platform.isAndroid
-                ? const MenuScreen()
-                : const CupertinoScaffold(body: MenuScreen());
-          }
-          return Platform.isAndroid
-              ? const AuthScreen()
-              : const CupertinoScaffold(body: AuthScreen());
-        },
-      ),
+    return DynamicColorBuilder(
+      builder: (lightDynamic, darkDynamic) {
+        // Use dynamic Material You colors on Android 12+, else fallback
+        final light = Platform.isAndroid && lightDynamic != null
+            ? lightDynamic.harmonized()
+            : lightColorScheme;
+        final dark = Platform.isAndroid && darkDynamic != null
+            ? darkDynamic.harmonized()
+            : darkColorScheme;
+        return MaterialApp(
+          navigatorKey: rootNavigatorKey, // for global navigation
+          title: 'TFA',
+          theme: AppTheme.fromScheme(light),
+          darkTheme: AppTheme.fromScheme(dark),
+          themeMode: mode,
+          localizationsDelegates: [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: AppLocalizations.supportedLocales,
+          navigatorObservers: [appRouteObserver],
+          // Define a route for flight list if you used pushNamed above
+          // routes: {'/flight_list': (_) => const FlightListPage()},
+          home: StreamBuilder<User?>(
+            stream: FirebaseAuth.instance.authStateChanges(),
+            builder: (ctx, snap) {
+              if (snap.hasData) {
+                return Platform.isAndroid
+                    ? const MenuScreen()
+                    : const CupertinoScaffold(body: MenuScreen());
+              }
+              return Platform.isAndroid
+                  ? const AuthScreen()
+                  : const CupertinoScaffold(body: AuthScreen());
+            },
+          ),
+        );
+      },
     );
   }
 }

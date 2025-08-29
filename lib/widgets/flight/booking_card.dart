@@ -12,7 +12,7 @@ class BookingCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final onSurface = Theme.of(context).colorScheme.onSurface;
-    final sub = onSurface.withOpacity(0.7);
+    final sub = onSurface.withValues(alpha: 0.7);
 
     final String route = '${booking.departCode} → ${booking.arrivalCode}';
 
@@ -34,7 +34,7 @@ class BookingCard extends StatelessWidget {
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: onSurface.withOpacity(0.12)),
+          border: Border.all(color: onSurface.withValues(alpha: 0.12)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

@@ -195,16 +195,16 @@ class _AnywhereListState extends ConsumerState<AnywhereListPage> {
                         : const Icon(Icons.map_outlined, color: Colors.white),
                   ),
                 ),
-                Container(
-                  padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+                // Container(
+                //   padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
 
-                  child: InkWell(
-                    onTap: () {},
-                    child: Platform.isIOS
-                        ? const Icon(Icons.ios_share, color: Colors.white)
-                        : const Icon(Icons.share, color: Colors.white),
-                  ),
-                ),
+                //   child: InkWell(
+                //     onTap: () {},
+                //     child: Platform.isIOS
+                //         ? const Icon(Icons.ios_share, color: Colors.white)
+                //         : const Icon(Icons.share, color: Colors.white),
+                //   ),
+                // ),
               ],
             ),
           ),

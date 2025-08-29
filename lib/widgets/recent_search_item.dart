@@ -1,10 +1,8 @@
 import 'package:TFA/providers/airport/airport_lookup.dart';
 import 'package:TFA/providers/flight/flight_search_controller.dart';
-import 'package:TFA/screens/flight/flight_list_page.dart';
 import 'package:flutter/material.dart';
 import 'package:TFA/providers/recent_search.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 
 class RecentSearchItem extends ConsumerWidget {
   const RecentSearchItem({super.key, required this.search});
@@ -12,9 +10,10 @@ class RecentSearchItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final FlightSearchController controller = ref.read(
-      flightSearchProvider.notifier,
-    );
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+
+    final controller = ref.read(flightSearchProvider.notifier);
     final String depCity =
         ref.watch(cityByIataProvider(search.departCode)) ?? search.departCode;
     final String arrCity =
@@ -26,12 +25,15 @@ class RecentSearchItem extends ConsumerWidget {
           controller.setDepartureCity(depCity);
           controller.setArrivalCode(search.arrivalCode, arrCity);
           controller.setDepartureCode(search.departCode, depCity);
-          if (search.departDate.isNotEmpty && search.returnDate.isNotEmpty) {
-            controller.setTripDates(
-              departDate: DateTime.parse(search.departDate),
-              returnDate: DateTime.parse(search.returnDate),
-            );
+
+          if (search.departDate.isNotEmpty) {
+            final depart = DateTime.parse(search.departDate);
+            final DateTime? ret = search.returnDate.isNotEmpty
+                ? DateTime.parse(search.returnDate)
+                : null;
+            controller.setTripDates(departDate: depart, returnDate: ret);
           }
+
           controller.setPassengers(
             count: search.passengerCnt,
             cabinIndex: search.cabinIdx,
@@ -40,33 +42,7 @@ class RecentSearchItem extends ConsumerWidget {
             infantLap: search.infantLap,
             infantSeat: search.infantSeat,
           );
-          // controller.updateSearch(
-          //   // airports
-          //   departureCode: search.departCode,
-          //   departureCity: depCity,
-          //   arrivalCode: search.arrivalCode,
-          //   arrivalCity: arrCity,
-
-          //   // dates: if returnDate is empty → clear it (one-way)
-          //   departDate: search.departDate.isNotEmpty
-          //       ? DateTime.parse(search.departDate)
-          //       : null,
-          //   returnDate: search.returnDate.isNotEmpty
-          //       ? DateTime.parse(search.returnDate)
-          //       : null,
-          //   clearReturnDate: search.returnDate.isEmpty, // one-way toggle
-          //   // pax / cabin
-          //   passengerCount: search.passengerCnt,
-          //   cabinIndex: search.cabinIdx,
-          //   adult: search.adult,
-          //   children: search.children,
-          //   infantLap: search.infantLap,
-          //   infantSeat: search.infantSeat,
-          // );
         }
-        // Navigator.of(
-        //   context,
-        // ).push(MaterialPageRoute<void>(builder: (_) => const FlightListPage()));
       },
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 5),
@@ -79,38 +55,33 @@ class RecentSearchItem extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
+                  // Destination (city - city)
                   Text(
                     search.destination,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: Theme.of(
-                        context,
-                      ).textTheme.bodyMedium?.fontSize,
+                    style: tt.bodyMedium?.copyWith(
                       fontWeight: FontWeight.bold,
-                      color: Theme.of(context).colorScheme.onSurface,
+                      color: cs.onSurface,
                     ),
                   ),
                   const SizedBox(height: 4),
 
-                  // Date + icons (grouped together)
+                  // Date + inline icons
                   Row(
-                    mainAxisSize: MainAxisSize.min, // 🟢 Keep it tight
+                    mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
                       Text(
                         search.tripDateRange,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: Theme.of(
-                            context,
-                          ).textTheme.bodySmall?.fontSize,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.grey[500],
+                        style: tt.bodySmall?.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: cs.onSurfaceVariant,
                         ),
                       ),
                       const SizedBox(width: 6),
-                      ...search.icons, // 🟢 Icons now hug the text
+                      ...search.icons, // assume icons already themed upstream
                     ],
                   ),
                 ],
@@ -119,25 +90,24 @@ class RecentSearchItem extends ConsumerWidget {
 
             const SizedBox(width: 8),
 
-            // RIGHT (Code + Arrow)
+            // RIGHT (IATA codes + chevron)
             Row(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
                 Text(
                   search.destinationCode,
-                  style: TextStyle(
-                    fontSize: Theme.of(context).textTheme.bodyMedium?.fontSize,
+                  style: tt.bodyMedium?.copyWith(
                     fontWeight: FontWeight.bold,
+                    color: cs.onSurface,
                   ),
                 ),
                 const SizedBox(width: 4),
-                search.destinationCode.isEmpty
-                    ? const SizedBox.shrink()
-                    : const Icon(
-                        Icons.chevron_right,
-                        size: 20,
-                        color: Colors.grey,
-                      ),
+                if (search.destinationCode.isNotEmpty)
+                  Icon(
+                    Icons.chevron_right,
+                    size: 20,
+                    color: cs.onSurfaceVariant,
+                  ),
               ],
             ),
           ],

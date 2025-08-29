@@ -21,7 +21,7 @@ class GuaranteeSheet extends ConsumerWidget {
             borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(.2),
+                color: Colors.black.withValues(alpha: .2),
                 blurRadius: 10,
                 spreadRadius: 1,
               ),
@@ -58,7 +58,7 @@ class GuaranteeSheet extends ConsumerWidget {
                   width: 52,
                   height: 52,
                   decoration: BoxDecoration(
-                    color: cs.primary.withOpacity(.1),
+                    color: cs.primary.withValues(alpha: .1),
                     shape: BoxShape.circle,
                   ),
                   alignment: Alignment.center,
@@ -70,9 +70,8 @@ class GuaranteeSheet extends ConsumerWidget {
                 Text.rich(
                   const TextSpan(
                     children: [
-                      TextSpan(text: 'Introducing the\n'),
                       TextSpan(
-                        text: 'Skiplagged Guarantee',
+                        text: 'Guarantee',
                         style: TextStyle(fontWeight: FontWeight.w800),
                       ),
                     ],
@@ -94,7 +93,7 @@ class GuaranteeSheet extends ConsumerWidget {
                   "peace of mind, even when plans change.",
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: Colors.black.withOpacity(.7),
+                    color: Colors.black.withValues(alpha: .7),
                     height: 1.4,
                   ),
                 ),

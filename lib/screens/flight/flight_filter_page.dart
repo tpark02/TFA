@@ -1,3 +1,4 @@
+// lib/screens/flight/flight_filter_page.dart
 import 'package:TFA/l10n/app_localizations.dart';
 import 'package:TFA/utils/utils.dart';
 import 'package:TFA/widgets/silvers/section_header.dart';
@@ -13,6 +14,7 @@ class FlightFilterPage extends StatefulWidget {
     required this.kLayoverCities,
     required this.carriersDict,
   });
+
   final ScrollController scrollController;
   final Set<String> selectedAirlines;
   final Set<String> selectedLayovers;
@@ -25,65 +27,88 @@ class FlightFilterPage extends StatefulWidget {
 }
 
 class _FlightFilterPageState extends State<FlightFilterPage> {
+  // sort / filters
   String selectedSort = 'cost';
   bool selfTransferEnabled = true;
   int selectedStops = 2;
+
+  // ranges
   RangeValues takeoffRange = const RangeValues(0, 1439);
   RangeValues landingRange = const RangeValues(0, 1439);
-  RangeValues flightDuration = const RangeValues(0, 1395); // 8h40m to 23h15m
-  RangeValues layoverDuration = const RangeValues(0, 1470); // 0 to 24h30m
-  // --- Airlines state ---
+  RangeValues flightDuration = const RangeValues(0, 1395); // up to ~23h15m
+  RangeValues layoverDuration = const RangeValues(0, 1470); // up to 24h30m
 
+  // lists visibility
   static const int _visibleItemsCount = 7;
   bool _showAllAirlines = false;
   bool _showAllCities = false;
 
-  Widget _padded(Widget child) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: child,
-    );
+  // local mutable selections
+  late Set<String> _airlinesSel;
+  late Set<String> _layoversSel;
+
+  @override
+  void initState() {
+    super.initState();
+    _airlinesSel = <String>{...widget.selectedAirlines};
+    _layoversSel = <String>{...widget.selectedLayovers};
   }
 
+  // --- UI helpers -------------------------------------------------------------
+
+  Widget _padded(Widget child) => Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 16),
+    child: child,
+  );
+
   Widget _radio(String value, String title) {
-    return Container(
-      color: Colors.white,
-      child: RadioListTile(
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+    return Material(
+      color: cs.surface,
+      child: RadioListTile<String>(
         value: value,
         groupValue: selectedSort,
-        onChanged: (String? v) => setState(() => selectedSort = v!),
-        title: Text(title),
+        onChanged: (v) => setState(() => selectedSort = v!),
+        title: Text(title, style: tt.bodyMedium?.copyWith(color: cs.onSurface)),
         contentPadding: const EdgeInsets.symmetric(horizontal: 8),
         dense: true,
+        activeColor: cs.primary,
       ),
     );
   }
 
   Widget _radioInt(int value, String title) {
-    return RadioListTile(
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+    return RadioListTile<int>(
       value: value,
       groupValue: selectedStops,
-      onChanged: (int? v) => setState(() => selectedStops = v!),
-      title: Text(title),
+      onChanged: (v) => setState(() => selectedStops = v!),
+      title: Text(title, style: tt.bodyMedium?.copyWith(color: cs.onSurface)),
+      activeColor: cs.primary,
     );
   }
 
   Widget _checkbox(String title, bool current, void Function(bool) onChanged) {
-    return Container(
-      color: Colors.white,
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+    return Material(
+      color: cs.surface,
       child: CheckboxListTile(
         value: current,
-        onChanged: (bool? v) => onChanged(v!),
-        title: Text(title),
+        onChanged: (v) => onChanged(v!),
+        title: Text(title, style: tt.bodyMedium?.copyWith(color: cs.onSurface)),
         controlAffinity: ListTileControlAffinity.leading,
         contentPadding: const EdgeInsets.symmetric(horizontal: 8),
         dense: true,
+        activeColor: cs.primary,
+        checkColor: cs.onPrimary,
       ),
     );
   }
 
   Widget _buildSlider({
-    // required String title,
     required String leftLabel,
     required String rightLabel,
     required RangeValues values,
@@ -91,37 +116,51 @@ class _FlightFilterPageState extends State<FlightFilterPage> {
     required double max,
     required ValueChanged<RangeValues> onChanged,
   }) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        // const SizedBox(height: 20),
-        // Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[Text(leftLabel), Text(rightLabel)],
+          children: <Widget>[
+            Text(
+              leftLabel,
+              style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+            ),
+            Text(
+              rightLabel,
+              style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+            ),
+          ],
         ),
         RangeSlider(
           min: min,
           max: max,
           values: values,
-          onChanged: (RangeValues v) => onChanged(
+          onChanged: (v) => onChanged(
             RangeValues(v.start.clamp(min, max), v.end.clamp(min, max)),
           ),
+          activeColor: cs.primary,
+          inactiveColor: cs.outlineVariant,
         ),
       ],
     );
   }
 
   Widget _airlineTile(BuildContext context, String airlineName) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
     final bool isSelected = _airlinesSel.contains(airlineName);
-    return Container(
-      color: Colors.white,
+
+    return Material(
+      color: cs.surface,
       child: ListTile(
         dense: true,
         contentPadding: const EdgeInsets.symmetric(horizontal: 8),
         leading: Checkbox(
           value: isSelected,
-          onChanged: (bool? v) {
+          onChanged: (v) {
             setState(() {
               if (v == true) {
                 _airlinesSel.add(airlineName);
@@ -130,8 +169,13 @@ class _FlightFilterPageState extends State<FlightFilterPage> {
               }
             });
           },
+          activeColor: cs.primary,
+          checkColor: cs.onPrimary,
         ),
-        title: Text(airlineName),
+        title: Text(
+          airlineName,
+          style: tt.bodyMedium?.copyWith(color: cs.onSurface),
+        ),
         trailing: GestureDetector(
           onTap: () {
             setState(() {
@@ -140,26 +184,28 @@ class _FlightFilterPageState extends State<FlightFilterPage> {
                 ..add(airlineName);
             });
           },
-          // child: const Text(, style: TextStyle(color: Colors.lightBlue)),
           child: Text(
             AppLocalizations.of(context)!.only,
-            style: const TextStyle(color: Colors.lightBlue),
+            style: tt.bodyMedium?.copyWith(color: cs.primary),
           ),
         ),
       ),
     );
   }
 
-  Widget _cityTiles(String city) {
+  Widget _cityTile(String city) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
     final bool isSelected = _layoversSel.contains(city);
-    return Container(
-      color: Colors.white,
+
+    return Material(
+      color: cs.surface,
       child: ListTile(
         dense: true,
         contentPadding: const EdgeInsets.symmetric(horizontal: 8),
         leading: Checkbox(
           value: isSelected,
-          onChanged: (bool? v) {
+          onChanged: (v) {
             setState(() {
               if (v == true) {
                 _layoversSel.add(city);
@@ -168,8 +214,10 @@ class _FlightFilterPageState extends State<FlightFilterPage> {
               }
             });
           },
+          activeColor: cs.primary,
+          checkColor: cs.onPrimary,
         ),
-        title: Text(city),
+        title: Text(city, style: tt.bodyMedium?.copyWith(color: cs.onSurface)),
         trailing: GestureDetector(
           onTap: () {
             setState(() {
@@ -180,45 +228,48 @@ class _FlightFilterPageState extends State<FlightFilterPage> {
           },
           child: Text(
             AppLocalizations.of(context)!.only,
-            style: const TextStyle(color: Colors.lightBlue),
+            style: tt.bodyMedium?.copyWith(color: cs.primary),
           ),
         ),
       ),
     );
   }
 
-  late Set<String> _airlinesSel;
-  late Set<String> _layoversSel;
-
-  @override
-  void initState() {
-    super.initState();
-    _airlinesSel = <String>{...widget.selectedAirlines}; // local copy
-    _layoversSel = <String>{...widget.selectedLayovers};
-  }
+  // --- build -----------------------------------------------------------------
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+    final text = AppLocalizations.of(context)!;
+
     return Scaffold(
+      backgroundColor: cs.surface,
       body: CustomScrollView(
         controller: widget.scrollController,
         slivers: <Widget>[
-          const SliverToBoxAdapter(
+          SliverToBoxAdapter(
             child: Padding(
-              padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
               child: Text(
-                "Filters",
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                text.sort, // "Filters" → use a localized header if you like
+                style: tt.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: cs.onSurface,
+                ),
               ),
             ),
           ),
 
-          SliverPersistentHeader(pinned: true, delegate: SectionHeader('Sort')),
+          SliverPersistentHeader(
+            pinned: true,
+            delegate: SectionHeader(text.sort),
+          ),
           SliverList(
             delegate: SliverChildListDelegate(<Widget>[
-              _padded(_radio('duration', 'Duration')),
-              _padded(_radio('cost', 'Cost')),
-              _padded(_radio('value', 'Value')),
+              _padded(_radio('duration', text.duration)),
+              _padded(_radio('cost', text.total_cost)), // reuse; or "Cost"
+              _padded(_radio('value', text.value)),
             ]),
           ),
 
@@ -229,7 +280,7 @@ class _FlightFilterPageState extends State<FlightFilterPage> {
           SliverList(
             delegate: SliverChildListDelegate(<Widget>[
               _padded(
-                _checkbox('Self - Transfer', selfTransferEnabled, (bool v) {
+                _checkbox('Self - Transfer', selfTransferEnabled, (v) {
                   setState(() => selfTransferEnabled = v);
                 }),
               ),
@@ -238,18 +289,18 @@ class _FlightFilterPageState extends State<FlightFilterPage> {
 
           SliverPersistentHeader(
             pinned: true,
-            delegate: SectionHeader('Stops'),
+            delegate: SectionHeader(text.stops),
           ),
           SliverList(
             delegate: SliverChildListDelegate(<Widget>[
-              _padded(_radioInt(1, 'Up to 1 stop')),
-              _padded(_radioInt(2, 'Up to 2 stops')),
+              _padded(_radioInt(1, text.up_to_1_stop)),
+              _padded(_radioInt(2, text.up_to_2_stops)),
             ]),
           ),
 
           SliverPersistentHeader(
             pinned: true,
-            delegate: SectionHeader('Take Off'),
+            delegate: SectionHeader(text.take_off),
           ),
           SliverToBoxAdapter(
             child: _padded(
@@ -259,14 +310,14 @@ class _FlightFilterPageState extends State<FlightFilterPage> {
                 values: takeoffRange,
                 min: 0,
                 max: 1439,
-                onChanged: (RangeValues r) => setState(() => takeoffRange = r),
+                onChanged: (r) => setState(() => takeoffRange = r),
               ),
             ),
           ),
 
           SliverPersistentHeader(
             pinned: true,
-            delegate: SectionHeader('Landing'),
+            delegate: SectionHeader(text.landing),
           ),
           SliverToBoxAdapter(
             child: _padded(
@@ -276,14 +327,14 @@ class _FlightFilterPageState extends State<FlightFilterPage> {
                 values: landingRange,
                 min: 0,
                 max: 1439,
-                onChanged: (RangeValues r) => setState(() => landingRange = r),
+                onChanged: (r) => setState(() => landingRange = r),
               ),
             ),
           ),
 
           SliverPersistentHeader(
             pinned: true,
-            delegate: SectionHeader('Flight Duration'),
+            delegate: SectionHeader(text.flight_duration),
           ),
           SliverToBoxAdapter(
             child: _padded(
@@ -297,15 +348,14 @@ class _FlightFilterPageState extends State<FlightFilterPage> {
                 values: flightDuration,
                 min: 0,
                 max: 1440,
-                onChanged: (RangeValues r) =>
-                    setState(() => flightDuration = r),
+                onChanged: (r) => setState(() => flightDuration = r),
               ),
             ),
           ),
 
           SliverPersistentHeader(
             pinned: true,
-            delegate: SectionHeader('Layover Duration'),
+            delegate: SectionHeader(text.layover_duration),
           ),
           SliverToBoxAdapter(
             child: _padded(
@@ -319,28 +369,36 @@ class _FlightFilterPageState extends State<FlightFilterPage> {
                 values: layoverDuration,
                 min: 0,
                 max: 1470,
-                onChanged: (RangeValues r) =>
-                    setState(() => layoverDuration = r),
+                onChanged: (r) => setState(() => layoverDuration = r),
               ),
             ),
           ),
 
           SliverPersistentHeader(
             pinned: true,
-            delegate: SectionHeader('Airlines'),
+            delegate: SectionHeader(text.airlines),
           ),
           SliverList(
             delegate: SliverChildListDelegate(<Widget>[
               ...((_showAllAirlines
                       ? widget.kAirlines
                       : widget.kAirlines.take(_visibleItemsCount)))
-                  .map((String a) => _padded(_airlineTile(context, a))),
+                  .map((a) => _padded(_airlineTile(context, a))),
               if (widget.kAirlines.length > _visibleItemsCount)
                 Center(
                   child: TextButton(
                     onPressed: () =>
                         setState(() => _showAllAirlines = !_showAllAirlines),
-                    child: Text(_showAllAirlines ? 'Show Less' : 'Show More'),
+                    child: Text(
+                      _showAllAirlines
+                          ? AppLocalizations.of(context)!.learn_more.replaceAll(
+                              AppLocalizations.of(context)!.learn_more,
+                              'Show Less',
+                            )
+                          : 'Show More',
+                      // (If you add l10n keys for show_more/show_less, swap here)
+                      style: TextStyle(color: cs.primary),
+                    ),
                   ),
                 ),
             ]),
@@ -348,26 +406,31 @@ class _FlightFilterPageState extends State<FlightFilterPage> {
 
           SliverPersistentHeader(
             pinned: true,
-            delegate: SectionHeader('Layover Cities'),
+            delegate: SectionHeader(text.layover_cities),
           ),
           SliverList(
             delegate: SliverChildListDelegate(<Widget>[
               ...((_showAllCities
                       ? widget.kLayoverCities
                       : widget.kLayoverCities.take(_visibleItemsCount)))
-                  .map((String c) => _padded(_cityTiles(c))),
+                  .map((c) => _padded(_cityTile(c))),
               if (widget.kLayoverCities.length > _visibleItemsCount)
                 Center(
                   child: TextButton(
                     onPressed: () =>
                         setState(() => _showAllCities = !_showAllCities),
-                    child: Text(_showAllCities ? 'Show Less' : 'Show More'),
+                    child: Text(
+                      _showAllCities ? 'Show Less' : 'Show More',
+                      style: TextStyle(color: cs.primary),
+                    ),
                   ),
                 ),
             ]),
           ),
 
           const SliverToBoxAdapter(child: SizedBox(height: 24)),
+
+          // Done button
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
@@ -381,17 +444,19 @@ class _FlightFilterPageState extends State<FlightFilterPage> {
                         "layovers": _layoversSel.toList(),
                       }),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.lightBlue,
+                    backgroundColor: cs.primary,
+                    foregroundColor: cs.onPrimary,
                     shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.zero,
+                      borderRadius: BorderRadius.all(Radius.circular(8)),
                     ),
+                    elevation: 1,
                   ),
                   child: Text(
-                    "Done",
+                    AppLocalizations.of(context)!.done,
                     style: TextStyle(
                       fontSize: Theme.of(context).textTheme.bodyLarge?.fontSize,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      color: cs.onPrimary,
                     ),
                   ),
                 ),

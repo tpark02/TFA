@@ -1,11 +1,13 @@
+// lib/screens/shared/recent_search_list.dart
+
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:TFA/l10n/app_localizations.dart';
 import 'package:TFA/providers/car/car_search_controller.dart';
 import 'package:TFA/providers/flight/flight_search_controller.dart';
 import 'package:TFA/providers/hotel/hotel_search_controller.dart';
 import 'package:TFA/providers/recent_search.dart';
 import 'package:TFA/widgets/recent_search_item.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class RecentSearchList extends ConsumerWidget {
   const RecentSearchList({super.key, required this.panelName});
@@ -13,13 +15,17 @@ class RecentSearchList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+
+    // Select correct provider based on panelName
     final List<RecentSearch> searches = switch (panelName) {
       'flight' => ref.watch(flightSearchProvider).recentSearches,
       'hotel' => ref.watch(hotelSearchProvider).recentSearches,
       _ => ref.watch(carSearchProvider).recentSearches,
     };
 
-    // pad to 5 rows for consistent layout
+    // Always generate 5 placeholders for consistent height
     final List<RecentSearch> paddedSearches = List<RecentSearch>.generate(
       5,
       (int i) => i < searches.length
@@ -39,45 +45,46 @@ class RecentSearchList extends ConsumerWidget {
             ),
     );
 
-    final titleStyle = TextStyle(
-      fontSize: Theme.of(context).textTheme.headlineMedium?.fontSize,
-      fontWeight: FontWeight.bold,
-      color: Theme.of(context).colorScheme.onSurface,
-    );
     final text = AppLocalizations.of(context)!;
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      // mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Align(
-          alignment: Alignment.centerLeft,
-          child: Text(text.recent_searches, style: titleStyle),
+        Text(
+          text.recent_searches,
+          style: tt.headlineMedium?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: cs.onSurface,
+          ),
         ),
         const SizedBox(height: 20),
-        // ✅ Proper conditional branches
-        if (searches.isNotEmpty) ...[
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              const SizedBox(height: 30),
-              const Icon(Icons.image_outlined, size: 96, color: Colors.black12),
-              const SizedBox(height: 30),
-              Text(
-                text.no_recent_searches,
-                textAlign: TextAlign.left,
-                style: const TextStyle(
-                  fontSize: 18,
-                  height: 1.35,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black87,
-                ),
+
+        // Show empty state or recent searches
+        if (searches.isEmpty) ...[
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 24.0),
+              child: Column(
+                children: [
+                  Icon(
+                    Icons.image_outlined,
+                    size: 96,
+                    color: cs.onSurfaceVariant,
+                  ),
+                  const SizedBox(height: 30),
+                  Text(
+                    text.no_recent_searches,
+                    textAlign: TextAlign.center,
+                    style: tt.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: cs.onSurfaceVariant,
+                    ),
+                  ),
+                ],
               ),
-              // SizedBox(height: 20),
-            ],
+            ),
           ),
-        ] else ...<Widget>[
+        ] else ...[
           ListView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),

@@ -1,33 +1,48 @@
 import 'package:flutter/material.dart';
 
 class SectionHeader extends SliverPersistentHeaderDelegate {
-  SectionHeader(this.title, {this.maxHeight = 44, this.minHeight = 0});
+  SectionHeader(this.title, {this.height = 44});
   final String title;
-  final double maxHeight;
-  final double minHeight; // << collapsed height
+  final double height;
 
   @override
-  Widget build(BuildContext c, double shrink, bool overlaps) {
-    return Container(
-      color: Colors.grey[100],
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      alignment: Alignment.centerLeft,
-      child: Text(
-        title,
-        style: TextStyle(
-          fontSize: Theme.of(c).textTheme.bodyLarge?.fontSize,
-          fontWeight: FontWeight.bold,
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+    final bool pinned = overlapsContent || shrinkOffset > 0;
+
+    return Material(
+      color: cs.surfaceContainerHigh, // ← theme-aware bg (great in dark)
+      elevation: pinned ? 1 : 0, // subtle shadow only when pinned
+      child: Container(
+        alignment: Alignment.centerLeft,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        decoration: BoxDecoration(
+          border: Border(
+            bottom: BorderSide(color: cs.outlineVariant, width: 1), // divider
+          ),
+        ),
+        child: Text(
+          title,
+          style: tt.titleSmall?.copyWith(
+            color: cs.onSurface, // theme-aware text
+            fontWeight: FontWeight.w700,
+          ),
         ),
       ),
     );
   }
 
   @override
-  double get maxExtent => maxHeight;
+  double get maxExtent => height;
 
   @override
-  double get minExtent => minHeight; // << set to 0 so previous headers disappear
+  double get minExtent => 0;
 
   @override
-  bool shouldRebuild(covariant SliverPersistentHeaderDelegate old) => false;
+  bool shouldRebuild(covariant SectionHeader oldDelegate) => false;
 }

@@ -180,5 +180,32 @@ class AppLocalizationsEn extends AppLocalizations {
   String get c_class => 'Class';
 
   @override
-  String get mode => 'Mode';
+  String get mode => 'Appearance Settings';
+
+  @override
+  String get login_in => 'Log in';
+
+  @override
+  String get email_addr => 'Email Address';
+
+  @override
+  String get create_account => 'Create account';
+
+  @override
+  String get please_enter_email => 'Please enter a valid email address.';
+
+  @override
+  String get password => 'Password';
+
+  @override
+  String get password_must_be => 'Password must be at least 6 characters long.';
+
+  @override
+  String get login => 'Login';
+
+  @override
+  String get sign_up => 'Sign up';
+
+  @override
+  String get i_already => 'I already have an account';
 }

@@ -13,6 +13,8 @@ class SearchSummaryLoadingCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
     return Container(
       color: Theme.of(context).colorScheme.surface,
       child: Center(
@@ -26,7 +28,7 @@ class SearchSummaryLoadingCard extends StatelessWidget {
               style: TextStyle(
                 fontSize: Theme.of(context).textTheme.headlineMedium?.fontSize,
                 fontWeight: FontWeight.bold,
-                color: Colors.black87,
+                color: cs.onSurface,
               ),
             ),
             const SizedBox(height: 10),

@@ -111,8 +111,10 @@ class _CalendarSheetState extends ConsumerState<CalendarSheet>
     final Color onPrimary = Theme.of(context).colorScheme.onPrimary;
     final text = AppLocalizations.of(context)!;
 
+    final cs = Theme.of(context).colorScheme;
+
     return Scaffold(
-      backgroundColor: appBackgroundColor,
+      backgroundColor: cs.surface,
       appBar: AppBar(
         elevation: 0,
         backgroundColor: primary,

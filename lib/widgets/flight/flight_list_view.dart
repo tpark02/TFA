@@ -1,12 +1,12 @@
 import 'package:TFA/l10n/app_localizations.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:TFA/providers/flight/flight_search_controller.dart';
 import 'package:TFA/providers/flight/flight_search_state.dart';
 import 'package:TFA/utils/platform_modal_sheet.dart';
 import 'package:TFA/utils/utils.dart';
 import 'package:TFA/widgets/flight/flight_list_view_item.dart';
 import 'package:TFA/widgets/search_summary_loading_card.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class FlightListView extends ConsumerStatefulWidget {
   const FlightListView({
@@ -26,6 +26,7 @@ class FlightListView extends ConsumerStatefulWidget {
   final String stopType;
   final Set<String> selectedAirlines;
   final Set<String> selectedLayovers;
+
   @override
   ConsumerState<FlightListView> createState() => _FlightListViewState();
 }
@@ -41,7 +42,8 @@ class _FlightListViewState extends ConsumerState<FlightListView>
   late Map<String, dynamic> _departData;
   Map<String, dynamic>? _returnData;
   List<FlightListViewItem> returnFlightWidgets = <FlightListViewItem>[];
-  // Call this instead of Navigator.of(...).push(...)
+
+  // Open details (modal)
   void openTripDetails({
     required BuildContext context,
     required bool isReturnPage,
@@ -83,19 +85,16 @@ class _FlightListViewState extends ConsumerState<FlightListView>
       isLoading = true;
     });
 
-    // ✅ Trigger slide immediately while still loading
     await Future<void>.delayed(const Duration(milliseconds: 10));
     _returnAnimController.forward(from: 0);
 
-    // Simulate loading
+    // Simulate load
     await Future<void>.delayed(const Duration(milliseconds: 500));
 
     if (!mounted) return;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      setState(() {
-        isLoading = false; // ✅ Ensure it's set AFTER animation/frame
-      });
+      setState(() => isLoading = false);
       debugPrint("🛑 Done loading return flights, isLoading = false");
     });
   }
@@ -122,64 +121,54 @@ class _FlightListViewState extends ConsumerState<FlightListView>
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+    final text = AppLocalizations.of(context)!;
+
     final FlightSearchState flightState = ref.watch(flightSearchProvider);
-    final List<Map<String, dynamic>> allFlights = ref
-        .watch(flightSearchProvider)
-        .processedFlights;
-    // final List<Map<String, dynamic>>? allInBoundFlights = ref
-    //     .watch(flightSearchProvider)
-    //     .processedInBoundFlights;
+    final List<Map<String, dynamic>> allFlights = flightState.processedFlights;
+
     final int maxStops = maxStopsFor(widget.stopType);
 
-    for (final String s in widget.selectedAirlines) {
-      debugPrint('selected Airlines - $s');
-    }
-    debugPrint("🟣 all flights count : ${allFlights.length}");
-
-    final List<Map<String, dynamic>> filteredFlights = allFlights.where((
-      Map<String, dynamic> f,
-    ) {
-      debugPrint("🧳 all flights - pricing mode : ${f['pricingMode']}");
-      // airlines filter
-      // if (!passesAirlineFilter(f, widget.selectedAirlines)) return false;
-
+    final List<Map<String, dynamic>> filteredFlights = allFlights.where((f) {
+      // Airline filter
       if (widget.selectedAirlines.isNotEmpty &&
-          !widget.selectedAirlines.contains(f['airline']))
+          !widget.selectedAirlines.contains(f['airline'])) {
         return false;
+      }
 
-      // layover city filter (by cityCode like "TYO", "SEL")
-      // if (!passesLayoverCityFilter(f, widget.selectedLayovers)) return false;
-      for (final l in f['layOverAirports'] as List<String>) {
+      // Layover city filter
+      for (final l in (f['layOverAirports'] as List<String>)) {
         if (widget.selectedLayovers.isNotEmpty &&
             !widget.selectedLayovers.contains(l)) {
           return false;
         }
       }
 
+      // Stops
       final int stops =
           int.tryParse(f['stops'].toString().split(' ').first) ?? 0;
       if (stops > maxStops) return false;
 
-      // --- flight duration ---
-      // ignore: always_specify_types
+      // Flight duration
       final int durMin = f['durationMin'] ?? 0;
       final int dStart = widget.flightDuration.start.round();
       final int dEnd = widget.flightDuration.end.round();
       if (durMin < dStart || durMin > dEnd) return false;
 
-      // layover duration
+      // Layover duration
       final int layOverMin = f['layoverMin'] ?? 0;
       final int lStart = widget.layOverDuration.start.round();
       final int lEnd = widget.layOverDuration.end.round();
       if (layOverMin < lStart || layOverMin > lEnd) return false;
 
-      // time windows...
+      // Time windows
       if (f['isReturn'] == false) {
-        final int mins = depMinutesOfDay(f['depRaw']);
-        if (mins >= 0) {
+        final int depMin = depMinutesOfDay(f['depRaw']);
+        if (depMin >= 0) {
           final int start = widget.takeoff.start.round();
           final int end = widget.takeoff.end.round();
-          if (mins < start || mins > end) return false;
+          if (depMin < start || depMin > end) return false;
         }
         final int arrMin = depMinutesOfDay(f['arrRaw']);
         if (arrMin >= 0) {
@@ -201,57 +190,39 @@ class _FlightListViewState extends ConsumerState<FlightListView>
           if (arrMin < start || arrMin > end) return false;
         }
       }
+
       return true;
     }).toList();
 
+    // Sort
     final String sortKey = widget.sortType;
     final List<Map<String, dynamic>> sortedAllFlights =
-        <Map<String, dynamic>>[...filteredFlights]
-          ..sort((Map<String, dynamic> a, Map<String, dynamic> b) {
-            switch (sortKey) {
-              case 'duration':
-                return parseDurationMins(
-                  a['duration'],
-                ).compareTo(parseDurationMins(b['duration']));
-              case 'value':
-                return valueScore(a).compareTo(valueScore(b));
-              case 'cost':
-              default:
-                return parsePrice(a['price']).compareTo(parsePrice(b['price']));
-            }
-          });
+        <Map<String, dynamic>>[...filteredFlights]..sort((a, b) {
+          switch (sortKey) {
+            case 'duration':
+              return parseDurationMins(
+                a['duration'],
+              ).compareTo(parseDurationMins(b['duration']));
+            case 'value':
+              return valueScore(a).compareTo(valueScore(b));
+            case 'cost':
+            default:
+              return parsePrice(a['price']).compareTo(parsePrice(b['price']));
+          }
+        });
 
-    final List<Map<String, dynamic>> departureFlights = sortedAllFlights
-        .where(
-          (Map<String, dynamic> f) =>
-              (f['pricingMode'] == 'combined' && f['isReturn'] == false) ||
-              (f['pricingMode'] == 'perleg' && f['isInBoundFlight'] == false),
-        )
-        .toList();
-    // final List<Map<String, dynamic>> returnFlights =
-    //     allInBoundFlights == null || allInBoundFlights.isEmpty
-    //     ? sortedAllFlights
-    //           .where((Map<String, dynamic> f) => f['isReturn'] == true)
-    //           .toList()
-    //     : allInBoundFlights
-    //           .where((Map<String, dynamic> f) => f['isReturn'] == false)
-    //           .toList();
-    final List<Map<String, dynamic>> returnFlights = sortedAllFlights
-        .where(
-          (Map<String, dynamic> f) =>
-              (f['pricingMode'] == 'combined' && f['isReturn'] == true) ||
-              (f['pricingMode'] == 'perleg' && f['isInBoundFlight'] == true),
-        )
-        .toList();
+    // Split depart/return
+    final departureFlights = sortedAllFlights.where((f) {
+      return (f['pricingMode'] == 'combined' && f['isReturn'] == false) ||
+          (f['pricingMode'] == 'perleg' && f['isInBoundFlight'] == false);
+    }).toList();
 
-    // if (allInBoundFlights != null && allInBoundFlights.isNotEmpty) {
-    //   final allInbounds = allInBoundFlights!
-    //       .where((Map<String, dynamic> f) => f['isReturn'] == false)
-    //       .toList();
+    final returnFlights = sortedAllFlights.where((f) {
+      return (f['pricingMode'] == 'combined' && f['isReturn'] == true) ||
+          (f['pricingMode'] == 'perleg' && f['isInBoundFlight'] == true);
+    }).toList();
 
-    //   allInbounds.map((f) => returnFlights.add(f));
-    // }
-    final bool hasReturnFlights = returnFlights.isNotEmpty ? true : false;
+    final bool hasReturnFlights = returnFlights.isNotEmpty;
     final int? activeIndex =
         (selectedDepartureIndex != null &&
             selectedDepartureIndex! >= 0 &&
@@ -259,6 +230,7 @@ class _FlightListViewState extends ConsumerState<FlightListView>
         ? selectedDepartureIndex
         : null;
 
+    // Build return widgets
     returnFlightWidgets = List<FlightListViewItem>.generate(
       returnFlights.length,
       (int i) => FlightListViewItem(
@@ -273,149 +245,84 @@ class _FlightListViewState extends ConsumerState<FlightListView>
       ),
     );
 
-    debugPrint("🔴 returnFlightWidgets length : ${returnFlightWidgets.length}");
-
-    final List<Widget> departureFlightWidgets =
-        List<FlightListViewItem>.generate(
-          departureFlights.length,
-          (int i) => FlightListViewItem(
-            onClick: returnFlightWidgets.isNotEmpty
-                ? () {
-                    debugPrint(
-                      '👍 departureFlightWidgets - round trip flight clicked'
-                      ' -> must choose return flight',
-                    );
-                    _departData = departureFlights[i];
-                    onDepartureClicked(i);
-                  }
-                : () {
-                    debugPrint(
-                      '☑️ departureFlightWidgets - one way flight clicked'
-                      ' -> go to detail page',
-                    );
-                    _departData = departureFlights[i];
-                    openTripDetails(context: context, isReturnPage: false);
-                  },
-            index: i,
-            flight: departureFlights[i],
-            hasReturnFlights: hasReturnFlights,
-          ),
+    // Build departure widgets
+    final departureFlightWidgets = List<FlightListViewItem>.generate(
+      departureFlights.length,
+      (int i) {
+        return FlightListViewItem(
+          onClick: returnFlightWidgets.isNotEmpty
+              ? () {
+                  // Round trip → choose return
+                  _departData = departureFlights[i];
+                  onDepartureClicked(i);
+                }
+              : () {
+                  // One way → open details
+                  _departData = departureFlights[i];
+                  openTripDetails(context: context, isReturnPage: false);
+                },
+          index: i,
+          flight: departureFlights[i],
+          hasReturnFlights: hasReturnFlights,
         );
+      },
+    );
 
-    // 🟢 Stop shimmer once list is built
-    // if (isLoading && departureFlightWidgets.isNotEmpty) {
-    //   WidgetsBinding.instance.addPostFrameCallback((_) {
-    //     if (!mounted) return;
-    //     setState(() {
-    //       isLoading = false;
-    //     });
-    //     debugPrint(
-    //       "🛑 Done building departure flight widgets → isLoading = false",
-    //     );
-    //   });
-    // }
-    final text = AppLocalizations.of(context)!;
     return Container(
-      color: Theme.of(context).colorScheme.surface,
+      color: cs.surface, // adaptive background
       child: Column(
         children: <Widget>[
-          // Departure flight row (static)
+          // If a departure has been selected, pin it above the return list
           if (activeIndex != null)
             departureFlightWidgets[activeIndex]
           else
+            // Otherwise, show the full departure list
             Expanded(
               child: ListView(
                 controller: _returnScrollController,
-                // padding: const EdgeInsets.all(16),
                 children: <Widget>[
-                  // ✅ Optional: Departing flight header
+                  // Departing header (theme-aware)
                   Container(
                     padding: const EdgeInsets.all(10),
-                    color: Colors.grey[100],
-                    child: Stack(
-                      children: <Widget>[
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            Text(
-                              text.choose_departing_flight,
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            Text(
-                              text.total_cost,
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Theme.of(context).colorScheme.secondary,
-                              ),
-                            ),
-                          ],
+                    decoration: BoxDecoration(
+                      color: cs.surfaceContainerHighest,
+                      border: Border(
+                        top: BorderSide(color: cs.outlineVariant, width: 0.0),
+                        bottom: BorderSide(
+                          color: cs.outlineVariant,
+                          width: 1.0,
                         ),
-                        // if (isLoading)
-                        //   const Positioned(
-                        //     top: 0,
-                        //     left: 0,
-                        //     right: 0,
-                        //     child: LinearProgressIndicator(minHeight: 2),
-                        //   ),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Text(
+                          text.choose_departing_flight,
+                          style: tt.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: cs.onSurface,
+                          ),
+                        ),
+                        Text(
+                          text.total_cost,
+                          style: tt.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: cs.secondary,
+                          ),
+                        ),
                       ],
                     ),
                   ),
-                  // ✅ Banner at the top of the scrollable list
-                  // Container(
-                  //   color: Colors.amber[50],
-                  //   padding: const EdgeInsets.all(10),
-                  //   child: Row(
-                  //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  //     children: <Widget>[
-                  //       Expanded(
-                  //         child: RichText(
-                  //           text: TextSpan(
-                  //             style: TextStyle(
-                  //               fontSize: Theme.of(
-                  //                 context,
-                  //               ).textTheme.bodyLarge?.fontSize,
-                  //               color: Theme.of(context).colorScheme.primary,
-                  //             ),
-                  //             children: const <InlineSpan>[
-                  //               TextSpan(
-                  //                 text:
-                  //                     'Automatic protection on every flight. ',
-                  //               ),
-                  //               TextSpan(
-                  //                 text: 'The Skiplagged Guarantee.',
-                  //                 style: TextStyle(fontWeight: FontWeight.bold),
-                  //               ),
-                  //             ],
-                  //           ),
-                  //         ),
-                  //       ),
-                  //       ElevatedButton(
-                  //         onPressed: () {},
-                  //         style: ElevatedButton.styleFrom(
-                  //           backgroundColor: Theme.of(
-                  //             context,
-                  //           ).colorScheme.primary,
-                  //           foregroundColor: Colors.white,
-                  //           shape: RoundedRectangleBorder(
-                  //             borderRadius: BorderRadius.circular(4.0),
-                  //           ),
-                  //           padding: const EdgeInsets.all(10.0),
-                  //         ),
-                  //         child: const Text("Learn More"),
-                  //       ),
-                  //     ],
-                  //   ),
-                  // ),
 
-                  // ✅ Actual flight items
+                  // Flight items
                   ...departureFlightWidgets,
                 ],
               ),
             ),
 
-          // Return flight list below
-          if (activeIndex != null &&
-              returnFlightWidgets.isNotEmpty) ...<Widget>[
+          // Return flight list (slides in)
+          if (activeIndex != null && returnFlightWidgets.isNotEmpty) ...[
             Flexible(
               child: SizedBox.expand(
                 child: SlideTransition(
@@ -423,44 +330,33 @@ class _FlightListViewState extends ConsumerState<FlightListView>
                   child: Column(
                     key: const ValueKey<String>('return-list'),
                     children: <Widget>[
-                      Stack(
-                        children: <Widget>[
-                          Container(
-                            padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-                            decoration: BoxDecoration(
-                              color: Colors.grey[100]!,
-                              border: Border(
-                                top: BorderSide(
-                                  color: Colors.grey[400]!,
-                                  width: 1.0,
-                                ),
-                              ),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: <Widget>[
-                                Text(
-                                  text.choose_returning_flight,
-                                  style: TextStyle(
-                                    fontSize: Theme.of(
-                                      context,
-                                    ).textTheme.bodyMedium?.fontSize,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
+                      // Returning header
+                      Container(
+                        padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+                        decoration: BoxDecoration(
+                          color: cs.surfaceContainerHighest,
+                          border: Border(
+                            top: BorderSide(
+                              color: cs.outlineVariant,
+                              width: 1.0,
                             ),
                           ),
-                          // if (isLoading)
-                          //   const Positioned(
-                          //     top: 0,
-                          //     left: 0,
-                          //     right: 0,
-                          //     child: LinearProgressIndicator(minHeight: 2),
-                          //   ),
-                        ],
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Text(
+                              text.choose_returning_flight,
+                              style: tt.bodyMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: cs.onSurface,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
 
+                      // Returning list or shimmer
                       Expanded(
                         child: AnimatedSwitcher(
                           duration: const Duration(milliseconds: 300),
@@ -473,7 +369,7 @@ class _FlightListViewState extends ConsumerState<FlightListView>
                                                 as String? ??
                                             '')
                                       : '',
-                                  dateText: flightState.displayDate!,
+                                  dateText: flightState.displayDate ?? '',
                                 )
                               : ListView(
                                   key: const ValueKey<String>('return-list'),
@@ -498,24 +394,14 @@ class _FlightListViewState extends ConsumerState<FlightListView>
 
     if (mode == 'perleg') {
       return returnFlightWidgets
-          .where((FlightListViewItem f) => f.flight['pricingMode'] == 'perleg')
+          .where((f) => f.flight['pricingMode'] == 'perleg')
           .toList();
     }
 
-    debugPrint("💕 depart flight number :${_departData['myFlightNumber']}");
-    int cnt = 0;
-    for (final FlightListViewItem f in returnFlightWidgets) {
-      if (f.flight['pricingMode'] == 'combined') cnt++;
-
-      if ((f.flight['pricingMode'] == 'combined') &&
-          f.flight['parentFlightNumber'] == _departData['myFlightNumber']) {
-        debugPrint("📍 child flight number : ${f.flight["myFlightNumber"]}");
-      }
-    }
-    debugPrint("😉 return flight count : $cnt");
+    // combined: match child flights by parentFlightNumber
     return returnFlightWidgets
         .where(
-          (FlightListViewItem f) =>
+          (f) =>
               (f.flight['pricingMode'] == 'combined') &&
               f.flight['parentFlightNumber'] == _departData['myFlightNumber'],
         )

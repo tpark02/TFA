@@ -2,7 +2,6 @@ import 'package:TFA/models/airport.dart';
 import 'package:TFA/providers/airport/airport_selection.dart';
 import 'package:TFA/providers/airport/airport_provider.dart';
 import 'package:TFA/providers/flight/flight_search_controller.dart';
-// import 'package:TFA/screens/flight/anywhere_list_page.dart';
 import 'package:TFA/services/airport_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -40,22 +39,15 @@ class _AirportSheetState extends ConsumerState<SearchAirportSheet> {
   Future<bool> _doFetchHiddenAirports({required String iata}) async {
     if (!mounted) return false;
 
-    final FlightSearchController controller = ref.read(
-      flightSearchProvider.notifier,
-    );
+    final controller = ref.read(flightSearchProvider.notifier);
 
     final List<Map<String, dynamic>>? airports = await _airportSvc
         .searchHiddenAirports(iataCode: iata);
 
     if (airports != null) {
       final List<String> candidateDests = airports
-          .map(
-            (Map<String, dynamic> a) =>
-                (a['iataCode'] as String?)?.toUpperCase(),
-          )
-          .where(
-            (String? c) => c != null && c.isNotEmpty && c != iata.toUpperCase(),
-          )
+          .map((a) => (a['iataCode'] as String?)?.toUpperCase())
+          .where((c) => c != null && c.isNotEmpty && c != iata.toUpperCase())
           .cast<String>()
           .toSet()
           .take(12)
@@ -65,7 +57,6 @@ class _AirportSheetState extends ConsumerState<SearchAirportSheet> {
         candidateDests: candidateDests,
         nearbyRaw: airports,
       );
-
       controller.setHiddenAirporCodeList(candidateDests);
     }
 
@@ -90,11 +81,8 @@ class _AirportSheetState extends ConsumerState<SearchAirportSheet> {
     if (n == 0) {
       final List<String> nearbyCodes =
           (nearbyRaw ?? const <Map<String, dynamic>>[])
-              .map(
-                (Map<String, dynamic> a) =>
-                    (a['iataCode'] as String?)?.toUpperCase(),
-              )
-              .where((String? c) => c != null && c.isNotEmpty)
+              .map((a) => (a['iataCode'] as String?)?.toUpperCase())
+              .where((c) => c != null && c.isNotEmpty)
               .cast<String>()
               .toList();
       dev.log(
@@ -117,35 +105,34 @@ class _AirportSheetState extends ConsumerState<SearchAirportSheet> {
     );
   }
 
-  Widget buildAirportListItems(final List filteredAirports, int index) {
+  Widget buildAirportListItems(List filteredAirports, int index) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+
     final Airport airport = filteredAirports[index] as Airport;
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: Row(
         children: <Widget>[
-          const Icon(Icons.local_airport),
+          Icon(Icons.local_airport, color: cs.primary),
           const SizedBox(width: 8),
           Expanded(
             child: TextButton(
               onPressed: _isFetchingHidden
                   ? null
                   : () async {
-                      debugPrint("✅ Selected: ${airport.iataCode}");
                       setState(() {
                         _selectedIataCode = airport.iataCode;
                         _isFetchingHidden = true;
                       });
 
-                      final String selected = airport.iataCode;
-
+                      final selected = airport.iataCode;
                       try {
                         bool ok = true;
-                        if (widget.isDeparture == false) {
+                        if (!widget.isDeparture) {
                           ok = await fetchHiddenAirports(iata: selected);
                         }
-
                         if (!mounted) return;
-
                         if (widget.isDeparture || ok) {
                           Navigator.pop(
                             context,
@@ -168,6 +155,7 @@ class _AirportSheetState extends ConsumerState<SearchAirportSheet> {
               style: TextButton.styleFrom(
                 padding: EdgeInsets.zero,
                 alignment: Alignment.centerLeft,
+                foregroundColor: cs.onSurface,
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -176,19 +164,22 @@ class _AirportSheetState extends ConsumerState<SearchAirportSheet> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
+                        // Airport name
                         Text(
                           airport.airportName,
                           overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: Theme.of(
-                              context,
-                            ).textTheme.headlineMedium?.fontSize,
+                          style: tt.headlineMedium?.copyWith(
                             fontWeight: FontWeight.bold,
+                            color: cs.onSurface,
                           ),
                         ),
+                        // City, Country
                         Text(
                           '${airport.city}, ${airport.country}',
                           overflow: TextOverflow.ellipsis,
+                          style: tt.bodySmall?.copyWith(
+                            color: cs.onSurfaceVariant,
+                          ),
                         ),
                       ],
                     ),
@@ -196,14 +187,13 @@ class _AirportSheetState extends ConsumerState<SearchAirportSheet> {
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
+                      // IATA
                       Text(
                         airport.iataCode,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: Theme.of(
-                            context,
-                          ).textTheme.bodyMedium?.fontSize,
-                          color: const Color.fromRGBO(48, 48, 48, 1),
+                        style: tt.bodyMedium?.copyWith(
+                          color: cs.onSurface,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                       if (_isFetchingHidden &&
@@ -227,15 +217,11 @@ class _AirportSheetState extends ConsumerState<SearchAirportSheet> {
     );
   }
 
-  // @override
-  // void dispose() {
-  //   // _confettiController.dispose();
-  //   super.dispose();
-  //   filteredai
-  // }
-
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+
     final double height = MediaQuery.of(context).size.height;
     final String query = ref.watch(airportSearchQueryProvider);
     final AsyncValue<List<Airport>> airportData = ref.watch(
@@ -257,6 +243,7 @@ class _AirportSheetState extends ConsumerState<SearchAirportSheet> {
     );
 
     return Material(
+      color: cs.surface,
       child: SafeArea(
         child: Padding(
           padding: EdgeInsets.only(
@@ -272,15 +259,16 @@ class _AirportSheetState extends ConsumerState<SearchAirportSheet> {
                     horizontal: 16,
                     vertical: 12,
                   ),
-                  decoration: const BoxDecoration(
-                    borderRadius: BorderRadius.vertical(
+                  decoration: BoxDecoration(
+                    borderRadius: const BorderRadius.vertical(
                       top: Radius.circular(0),
                     ),
-                    color: Colors.white,
+                    color: cs.surface,
                   ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
+                      // Header
                       Padding(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 0,
@@ -290,19 +278,27 @@ class _AirportSheetState extends ConsumerState<SearchAirportSheet> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
                             IconButton(
-                              icon: const Icon(Icons.close, size: 24),
+                              icon: Icon(
+                                Icons.close,
+                                size: 24,
+                                color: cs.onSurface,
+                              ),
                               onPressed: () => Navigator.of(context).pop(),
                             ),
                             Text(
                               widget.title,
-                              style: Theme.of(context).textTheme.titleLarge
-                                  ?.copyWith(fontWeight: FontWeight.bold),
+                              style: tt.titleLarge?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: cs.onSurface,
+                              ),
                             ),
                             const SizedBox(width: 48), // keeps title centered
                           ],
                         ),
                       ),
                       const SizedBox(height: 8),
+
+                      // Search field
                       Row(
                         children: <Widget>[
                           Expanded(
@@ -316,36 +312,44 @@ class _AirportSheetState extends ConsumerState<SearchAirportSheet> {
                                       value,
                               decoration: InputDecoration(
                                 hintText: widget.isDeparture ? "From" : "To",
-                                hintStyle: const TextStyle(color: Colors.grey),
+                                hintStyle: tt.bodyMedium?.copyWith(
+                                  color: cs.onSurfaceVariant,
+                                ),
                                 prefixIcon: Icon(
                                   Icons.search,
-                                  color: Theme.of(context).colorScheme.primary,
+                                  color: cs.primary,
                                 ),
+                                filled: true,
+                                fillColor: cs.surfaceContainerHighest,
                                 enabledBorder: OutlineInputBorder(
                                   borderSide: BorderSide(
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.primary,
+                                    color: cs.outlineVariant,
                                     width: 1,
                                   ),
-                                  borderRadius: BorderRadius.circular(0),
+                                  borderRadius: BorderRadius.circular(8),
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderSide: BorderSide(
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.primary,
+                                    color: cs.primary,
                                     width: 2,
                                   ),
-                                  borderRadius: BorderRadius.circular(0),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 10,
                                 ),
                               ),
-                              style: const TextStyle(color: Colors.black),
+                              style: tt.bodyMedium?.copyWith(
+                                color: cs.onSurface,
+                              ),
                             ),
                           ),
                         ],
                       ),
                       const SizedBox(height: 20),
+
+                      // Results / Anywhere
                       Expanded(
                         child: ListView.builder(
                           itemCount: filteredAirports.isNotEmpty
@@ -387,9 +391,10 @@ class AnyWhereButton extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final FlightSearchController controller = ref.read(
-      flightSearchProvider.notifier,
-    );
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+
+    final controller = ref.read(flightSearchProvider.notifier);
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
@@ -409,39 +414,29 @@ class AnyWhereButton extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: <Widget>[
-            Icon(
-              Icons.public,
-              size: 32,
-              color: Theme.of(context).colorScheme.secondary,
-            ),
+            Icon(Icons.public, size: 32, color: cs.secondary),
             Column(
-              mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Text(
                   "Anywhere",
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.primary,
-                    fontSize: Theme.of(context).textTheme.bodyLarge?.fontSize,
+                  style: tt.bodyLarge?.copyWith(
+                    color: cs.primary,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 Text(
                   "See the best deals from your departure",
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.secondary,
-                    fontSize: Theme.of(context).textTheme.bodySmall?.fontSize,
-                  ),
+                  style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant),
                 ),
               ],
             ),
             const SizedBox(width: 30),
             Text(
               "ANY",
-              style: TextStyle(
-                fontSize: Theme.of(context).textTheme.bodyLarge?.fontSize,
+              style: tt.bodyLarge?.copyWith(
                 fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.secondary,
+                color: cs.secondary,
               ),
             ),
           ],

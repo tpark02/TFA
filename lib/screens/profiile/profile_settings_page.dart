@@ -1,9 +1,7 @@
 // lib/screens/profile/profile_settings_page.dart
-// import 'package:TFA/providers/flight/flight_search_controller.dart';
 import 'package:TFA/l10n/app_localizations.dart';
 import 'package:TFA/providers/menu_tab_provider.dart';
 import 'package:TFA/providers/theme_provider.dart';
-// import 'package:TFA/screens/profiile/currency_selector_sheet.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -14,42 +12,58 @@ class ProfileSettingsPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final text = AppLocalizations.of(context)!;
+    final cs = Theme.of(context).colorScheme;
     final mode = ref.watch(themeModeProvider);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(text.account, style: const TextStyle(color: Colors.white)),
-        backgroundColor: Theme.of(context).colorScheme.primary,
+        backgroundColor: cs.primary,
+        foregroundColor: cs.onPrimary, // title & icons color
+        title: Text(
+          text.account,
+          style: TextStyle(color: cs.onPrimary, fontWeight: FontWeight.w600),
+        ),
+        elevation: 0,
       ),
       body: ListView(
         children: <Widget>[
           _SectionHeader(text.profile),
-
           const _Login(),
-          Divider(height: 0, color: Colors.grey.shade200),
+          Divider(height: 0, color: cs.outlineVariant),
+
           _SectionHeader(text.mode),
-          Divider(height: 0, color: Colors.grey.shade200),
-          RadioListTile(
+          // (optional) tiny caption under the header
+          // Padding(
+          //   padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+          //   child: Text(text.choose_theme, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
+          // ),
+          RadioListTile<ThemeMode>(
             title: const Text('Light'),
             value: ThemeMode.light,
             groupValue: mode,
             onChanged: (v) => ref.read(themeModeProvider.notifier).set(v!),
+            activeColor: cs.primary,
           ),
-          RadioListTile(
+          RadioListTile<ThemeMode>(
             title: const Text('Dark'),
             value: ThemeMode.dark,
             groupValue: mode,
             onChanged: (v) => ref.read(themeModeProvider.notifier).set(v!),
+            activeColor: cs.primary,
           ),
-          // const _SectionHeader('App'),
-          // const _SimpleItem(title: 'About'),
-          // Divider(height: 0, color: Colors.grey.shade200),
+          RadioListTile<ThemeMode>(
+            title: const Text('System'),
+            value: ThemeMode.system,
+            groupValue: mode,
+            onChanged: (v) => ref.read(themeModeProvider.notifier).set(v!),
+            activeColor: cs.primary,
+          ),
+          Divider(height: 0, color: cs.outlineVariant),
 
-          // const _SimpleItem(title: 'Share'),
-          // Divider(height: 0, color: Colors.grey.shade200),
-          // const SizedBox(height: 24),
+          const SizedBox(height: 24),
         ],
       ),
+      backgroundColor: cs.surface,
     );
   }
 }
@@ -58,121 +72,64 @@ class _Login extends ConsumerStatefulWidget {
   const _Login({super.key});
 
   @override
-  ConsumerState<_Login> createState() {
-    return _LoginState();
-  }
+  ConsumerState<_Login> createState() => _LoginState();
 }
 
 class _LoginState extends ConsumerState<_Login> {
   @override
   Widget build(BuildContext context) {
-    Color color = Theme.of(context).colorScheme.primary;
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
     final text = AppLocalizations.of(context)!;
+    final user = FirebaseAuth.instance.currentUser;
+    final email = user?.email ?? 'N/A';
 
     return ListTile(
-      leading: Icon(Icons.person, color: color),
+      leading: Icon(Icons.person, color: cs.primary),
       title: Text(
-        "${FirebaseAuth.instance.currentUser != null ? FirebaseAuth.instance.currentUser!.email : "N/A"}",
-        style: TextStyle(color: color, fontWeight: FontWeight.bold),
+        email,
+        style: tt.titleMedium?.copyWith(
+          color: cs.onSurface,
+          fontWeight: FontWeight.w700,
+        ),
+        overflow: TextOverflow.ellipsis,
       ),
-      trailing: OutlinedButton(
-        style: OutlinedButton.styleFrom(
-          backgroundColor: color,
-          side: BorderSide(color: color),
+      trailing: FilledButton(
+        style: FilledButton.styleFrom(
+          backgroundColor: cs.primary,
+          foregroundColor: cs.onPrimary,
           shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
         ),
-        onPressed: () {
+        onPressed: () async {
           ref.read(menuTabProvider.notifier).state = MenuTab.home;
-          FirebaseAuth.instance.signOut();
+          await FirebaseAuth.instance.signOut();
         },
-        child: Text(text.log_out, style: TextStyle(color: Colors.white)),
+        child: Text(text.log_out),
       ),
     );
   }
 }
-
-// class _CurrencyRow extends ConsumerStatefulWidget {
-//   _CurrencyRow({super.key});
-//   Currency _currentCurrency = const Currency(
-//     name: 'Australian Dollar',
-//     code: 'AUD',
-//     symbol: 'A\$',
-//   );
-//   @override
-//   ConsumerState<_CurrencyRow> createState() {
-//     return _CurrencyRowState();
-//   }
-// }
-
-// class _CurrencyRowState extends ConsumerState<_CurrencyRow> {
-//   Future<void> _openCurrencyDialog() async {
-//     final chosen = await showDialog<Currency>(
-//       context: context,
-//       barrierDismissible: true,
-//       builder: (_) => CurrencySelectorSheet(
-//         currencies: const [
-//           Currency(name: 'Australian Dollar', code: 'AUD', symbol: 'A\$'),
-//           Currency(name: 'Brazilian Real', code: 'BRL', symbol: 'R\$'),
-//           Currency(name: 'Canadian Dollar', code: 'CAD', symbol: 'CA\$'),
-//           Currency(name: 'Euro', code: 'EUR', symbol: '€'),
-//           Currency(name: 'Hong Kong Dollar', code: 'HKD', symbol: 'HK\$'),
-//           Currency(name: 'Indian Rupee', code: 'INR', symbol: '₹'),
-//           Currency(name: 'Malaysian Ringgit', code: 'MYR', symbol: 'RM'),
-//           Currency(name: 'Mexican Peso', code: 'MXN', symbol: 'MX\$'),
-//         ],
-//         selectedCode: widget._currentCurrency.code,
-//       ),
-//     );
-//     if (chosen != null) {
-//       setState(() => widget._currentCurrency = chosen);
-//     }
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     final c = widget._currentCurrency;
-//     Color color = Theme.of(context).colorScheme.primary;
-//     return ListTile(
-//       leading: Icon(Icons.attach_money, color: color),
-//       title: Text(c.name, style: TextStyle(color: color)),
-//       subtitle: Text('${c.symbol} (${c.code})', style: TextStyle(color: color)),
-//       onTap: _openCurrencyDialog, // open by tapping the row
-//       trailing: IconButton(
-//         icon: Icon(Icons.edit_outlined, color: color),
-//         onPressed: _openCurrencyDialog, // or by tapping the edit icon
-//       ),
-//     );
-//   }
-// }
 
 class _SectionHeader extends StatelessWidget {
   final String title;
   const _SectionHeader(this.title);
+
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-      color: Colors.grey.shade100,
+      color: cs.surfaceContainerHighest, // adapts in dark/light
       child: Text(
         title,
-        style: const TextStyle(
+        style: tt.titleSmall?.copyWith(
           fontWeight: FontWeight.w800,
-          color: Colors.black87,
+          color: cs.onSurfaceVariant,
+          letterSpacing: .2,
         ),
       ),
     );
   }
 }
-
-// class _SimpleItem extends StatelessWidget {
-//   final String title;
-//   const _SimpleItem({required this.title});
-//   @override
-//   Widget build(BuildContext context) {
-//     return ListTile(
-//       title: Text(title),
-//       onTap: () {},
-//       trailing: const Icon(Icons.chevron_right),
-//     );
-//   }
-// }
