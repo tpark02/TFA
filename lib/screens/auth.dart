@@ -113,144 +113,205 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
 
     return Scaffold(
       backgroundColor: cs.primary,
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(vertical: 24),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.end,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              Card(
-                margin: const EdgeInsets.all(20),
-                elevation: 0,
-                color: Colors.transparent,
-                // shadowColor: Colors.black.withValues(alpha: 0.4),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
+      body: Stack(
+        children: [
+          Positioned.fill(
+            child: Opacity(
+              opacity: 0.3,
+              child: Image.asset('assets/images/cloud.jpg', fit: BoxFit.cover),
+            ),
+          ),
+          // Positioned(
+          //   left: 50,
+          //   top: 50,
+          //   child: SafeArea(
+          //     child: Text(
+          //       "Welcome",
+          //       style: TextStyle(
+          //         fontSize: Theme.of(context).textTheme.displayLarge!.fontSize,
+          //         color: cs.onPrimary,
+          //       ),
+          //     ),
+          //   ),
+          // ),
+          Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(vertical: 24),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: MediaQuery.of(context).size.height,
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Form(
-                    key: _form,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: <Widget>[
-                        Text(
-                          _isLogin ? text.login_in : text.create_account,
-                          style: t.titleLarge?.copyWith(
-                            fontWeight: FontWeight.w700,
-                            color: cs.primaryContainer,
-                          ),
+                child: IntrinsicHeight(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    //crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const Spacer(),
+                      Text(
+                        "Welcome",
+                        style: TextStyle(
+                          fontSize: Theme.of(
+                            context,
+                          ).textTheme.displayLarge!.fontSize,
+                          color: cs.onPrimary,
                         ),
-                        const SizedBox(height: 16),
-
-                        // Email
-                        TextFormField(
-                          controller: _emailCtrl,
-                          decoration: InputDecoration(
-                            labelText: text.email_addr,
-                            prefixIcon: const Icon(Icons.email_outlined),
-                            errorStyle: TextStyle(
-                              color:
-                                  Colors.red.shade600, // <- Your custom color
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          keyboardType: TextInputType.emailAddress,
-                          autocorrect: false,
-                          textCapitalization: TextCapitalization.none,
-                          validator: (value) {
-                            final v = (value ?? '').trim();
-                            if (v.isEmpty || !v.contains('@')) {
-                              return text.please_enter_email;
-                            }
-                            return null;
-                          },
+                      ),
+                      const SizedBox(height: 60),
+                      Card(
+                        margin: const EdgeInsets.all(20),
+                        elevation: 0,
+                        color: Colors.transparent,
+                        // shadowColor: Colors.black.withValues(alpha: 0.4),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
                         ),
-                        const SizedBox(height: 12),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Form(
+                            key: _form,
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: <Widget>[
+                                // Text(
+                                //   _isLogin
+                                //       ? text.login_in
+                                //       : text.create_account,
+                                //   style: t.titleLarge?.copyWith(
+                                //     fontWeight: FontWeight.w700,
+                                //     color: cs.onPrimary,
+                                //   ),
+                                // ),
+                                // const SizedBox(height: 16),
 
-                        // Password
-                        TextFormField(
-                          controller: _pwCtrl,
-                          decoration: InputDecoration(
-                            labelText: text.password,
-                            prefixIcon: const Icon(Icons.lock_outline),
-                            suffixIcon: IconButton(
-                              onPressed: () => setState(
-                                () => _showPassword = !_showPassword,
-                              ),
-                              icon: Icon(
-                                _showPassword
-                                    ? Icons.visibility_off
-                                    : Icons.visibility,
-                              ),
-                            ),
-                            errorStyle: TextStyle(
-                              color:
-                                  Colors.red.shade600, // <- Your custom color
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          obscureText: !_showPassword,
-                          validator: (value) {
-                            final v = value ?? '';
-                            if (v.length < 6) {
-                              return text.password_must_be;
-                            }
-                            return null;
-                          },
-                        ),
-
-                        const SizedBox(height: 16),
-
-                        // Submit
-                        SizedBox(
-                          width: double.infinity,
-                          child: FilledButton(
-                            onPressed: _isSubmitting ? null : _submit,
-                            style: FilledButton.styleFrom(
-                              backgroundColor: cs.primaryContainer,
-                              foregroundColor: cs.onPrimaryContainer,
-                              disabledBackgroundColor: cs.primaryContainer
-                                  .withValues(alpha: .4),
-                              disabledForegroundColor: cs.onPrimaryContainer
-                                  .withValues(alpha: .6),
-                              padding: const EdgeInsets.symmetric(vertical: 14),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                            child: _isSubmitting
-                                ? const SizedBox(
-                                    height: 18,
-                                    width: 18,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
+                                // Email
+                                TextFormField(
+                                  controller: _emailCtrl,
+                                  decoration: InputDecoration(
+                                    labelText: text.email_addr,
+                                    prefixIcon: const Icon(
+                                      Icons.email_outlined,
                                     ),
-                                  )
-                                : Text(_isLogin ? text.login : text.sign_up),
+                                    errorStyle: TextStyle(
+                                      color: Colors
+                                          .red
+                                          .shade600, // <- Your custom color
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  keyboardType: TextInputType.emailAddress,
+                                  autocorrect: false,
+                                  textCapitalization: TextCapitalization.none,
+                                  validator: (value) {
+                                    final v = (value ?? '').trim();
+                                    if (v.isEmpty || !v.contains('@')) {
+                                      return text.please_enter_email;
+                                    }
+                                    return null;
+                                  },
+                                ),
+                                const SizedBox(height: 12),
+
+                                // Password
+                                TextFormField(
+                                  controller: _pwCtrl,
+                                  decoration: InputDecoration(
+                                    labelText: text.password,
+                                    prefixIcon: const Icon(Icons.lock_outline),
+                                    suffixIcon: IconButton(
+                                      onPressed: () => setState(
+                                        () => _showPassword = !_showPassword,
+                                      ),
+                                      icon: Icon(
+                                        _showPassword
+                                            ? Icons.visibility_off
+                                            : Icons.visibility,
+                                      ),
+                                    ),
+                                    errorStyle: TextStyle(
+                                      color: Colors
+                                          .red
+                                          .shade600, // <- Your custom color
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  obscureText: !_showPassword,
+                                  validator: (value) {
+                                    final v = value ?? '';
+                                    if (v.length < 6) {
+                                      return text.password_must_be;
+                                    }
+                                    return null;
+                                  },
+                                ),
+
+                                const SizedBox(height: 16),
+
+                                // Submit
+                                SizedBox(
+                                  width: double.infinity,
+                                  child: FilledButton(
+                                    onPressed: _isSubmitting ? null : _submit,
+                                    style: FilledButton.styleFrom(
+                                      backgroundColor: cs.primaryContainer,
+                                      foregroundColor: cs.onPrimaryContainer,
+                                      disabledBackgroundColor: cs
+                                          .primaryContainer
+                                          .withValues(alpha: .4),
+                                      disabledForegroundColor: cs
+                                          .onPrimaryContainer
+                                          .withValues(alpha: .6),
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 14,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                    ),
+                                    child: _isSubmitting
+                                        ? const SizedBox(
+                                            height: 18,
+                                            width: 18,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                            ),
+                                          )
+                                        : Text(
+                                            _isLogin
+                                                ? text.login
+                                                : text.sign_up,
+                                          ),
+                                  ),
+                                ),
+
+                                const SizedBox(height: 8),
+
+                                // Switch mode
+                                TextButton(
+                                  onPressed: _isSubmitting
+                                      ? null
+                                      : () => setState(
+                                          () => _isLogin = !_isLogin,
+                                        ),
+                                  child: Text(
+                                    _isLogin
+                                        ? text.create_account
+                                        : text.i_already,
+                                    style: TextStyle(color: cs.onPrimary),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-
-                        const SizedBox(height: 8),
-
-                        // Switch mode
-                        TextButton(
-                          onPressed: _isSubmitting
-                              ? null
-                              : () => setState(() => _isLogin = !_isLogin),
-                          child: Text(
-                            _isLogin ? text.create_account : text.i_already,
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(height: 100, width: 100),
+                    ],
                   ),
                 ),
               ),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

@@ -95,7 +95,7 @@ flutter:
     - assets/images/room_1.jpg
     - assets/images/room_2.jpg
     - assets/images/room_3.webp
-    - assets/images/logo.png
+    - assets/images/cloud.jpg
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

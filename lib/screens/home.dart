@@ -89,7 +89,7 @@ class _HomeState extends ConsumerState<HomeScreen> {
 
               // 🟦 Promotion Box
               Container(
-                padding: EdgeInsets.all(16),
+                padding: const EdgeInsets.all(16),
                 child: Material(
                   color: cs.surfaceContainerHighest, // Adaptive surface color
                   elevation: 5, // Theme-aware shadow
