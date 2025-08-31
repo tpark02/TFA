@@ -1,14 +1,14 @@
 import 'package:TFA/l10n/app_localizations.dart';
 import 'package:TFA/models/booking_out.dart';
 import 'package:TFA/providers/flight/flight_search_controller.dart';
+import 'package:TFA/providers/menu_tab_provider.dart';
 import 'package:TFA/providers/route_observer.dart';
 import 'package:TFA/widgets/flight/booking_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class MyTripsPage extends ConsumerStatefulWidget {
-  const MyTripsPage({super.key, this.onSearchTap});
-  final VoidCallback? onSearchTap;
+  const MyTripsPage({super.key});
 
   @override
   ConsumerState<MyTripsPage> createState() => _MyTrpPageState();
@@ -31,15 +31,13 @@ class _MyTrpPageState extends ConsumerState<MyTripsPage> {
           style: TextStyle(color: cs.onPrimary, fontWeight: FontWeight.w600),
         ),
       ),
-      body: _BookingsEmpty(onSearchTap: widget.onSearchTap),
+      body: _BookingsEmpty(),
     );
   }
 }
 
 class _BookingsEmpty extends ConsumerStatefulWidget {
-  const _BookingsEmpty({super.key, this.onSearchTap});
-  final VoidCallback? onSearchTap;
-
+  const _BookingsEmpty({super.key});
   @override
   ConsumerState<_BookingsEmpty> createState() => _BookingEmptyState();
 }
@@ -93,7 +91,7 @@ class _BookingEmptyState extends ConsumerState<_BookingsEmpty> with RouteAware {
         }
         final bookings = snap.data ?? const <BookingOut>[];
         if (bookings.isEmpty) {
-          return _EmptyState(onSearchTap: widget.onSearchTap);
+          return _EmptyState();
         }
         return ListView.separated(
           padding: const EdgeInsets.all(16),
@@ -106,12 +104,11 @@ class _BookingEmptyState extends ConsumerState<_BookingsEmpty> with RouteAware {
   }
 }
 
-class _EmptyState extends StatelessWidget {
-  const _EmptyState({this.onSearchTap});
-  final VoidCallback? onSearchTap;
+class _EmptyState extends ConsumerWidget {
+  const _EmptyState();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final width = MediaQuery.of(context).size.width;
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
@@ -146,7 +143,11 @@ class _EmptyState extends StatelessWidget {
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                onPressed: onSearchTap,
+                onPressed: () {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    ref.read(menuTabProvider.notifier).state = MenuTab.search;
+                  });
+                },
                 child: Text(
                   'Search for a flight',
                   style: tt.titleSmall?.copyWith(fontWeight: FontWeight.w700),
