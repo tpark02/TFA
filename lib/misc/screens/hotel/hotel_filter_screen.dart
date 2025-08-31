@@ -1,6 +1,6 @@
 // lib/screens/hotel/hotel_filter_screen.dart
 import 'package:flutter/material.dart';
-import 'package:TFA/screens/hotel/hotel_filter_page.dart';
+import 'package:TFA/misc/screens/hotel/hotel_filter_page.dart';
 
 class HotelFilterScreen extends StatefulWidget {
   const HotelFilterScreen({super.key, this.initial});

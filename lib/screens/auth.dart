@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
-import 'package:sign_in_button/sign_in_button.dart';
 
 final FirebaseAuth _firebase = FirebaseAuth.instance;
 
@@ -22,7 +21,6 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   final TextEditingController _emailCtrl = TextEditingController();
   final TextEditingController _pwCtrl = TextEditingController();
   bool busy = false;
-
   bool _isLogin = true;
   bool _isSubmitting = false;
   bool _showPassword = false;
@@ -42,11 +40,6 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   }
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   void dispose() {
     _emailCtrl.dispose();
     _pwCtrl.dispose();
@@ -55,18 +48,13 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
 
   Future<void> _submit() async {
     final form = _form.currentState;
-    if (form == null) return;
-    if (!form.validate()) return;
+    if (form == null || !form.validate()) return;
     form.save();
-
     final email = _emailCtrl.text.trim();
     final password = _pwCtrl.text;
-
     setState(() => _isSubmitting = true);
-
     try {
       UserCredential creds;
-
       if (_isLogin) {
         creds = await _firebase.signInWithEmailAndPassword(
           email: email,
@@ -78,15 +66,12 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
           password: password,
         );
       }
-
-      // Verify with backend using fresh ID token
       try {
         final idToken = await creds.user!.getIdToken(true);
         final res = await http.get(
           getBackendUri(),
           headers: <String, String>{'Authorization': 'Bearer $idToken'},
         );
-
         if (!mounted) return;
         if (res.statusCode != 200) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -131,9 +116,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final t = Theme.of(context).textTheme;
     final text = AppLocalizations.of(context)!;
-
     return Scaffold(
       backgroundColor: cs.primary,
       body: Stack(
@@ -144,19 +127,6 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
               child: Image.asset('assets/images/cloud.jpg', fit: BoxFit.cover),
             ),
           ),
-          // Positioned(
-          //   left: 50,
-          //   top: 50,
-          //   child: SafeArea(
-          //     child: Text(
-          //       "Welcome",
-          //       style: TextStyle(
-          //         fontSize: Theme.of(context).textTheme.displayLarge!.fontSize,
-          //         color: cs.onPrimary,
-          //       ),
-          //     ),
-          //   ),
-          // ),
           Center(
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(vertical: 24),
@@ -167,7 +137,6 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                 child: IntrinsicHeight(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    //crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       const Spacer(),
                       Text(
@@ -184,7 +153,6 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                         margin: const EdgeInsets.all(20),
                         elevation: 0,
                         color: Colors.transparent,
-                        // shadowColor: Colors.black.withValues(alpha: 0.4),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
                         ),
@@ -195,18 +163,6 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: <Widget>[
-                                // Text(
-                                //   _isLogin
-                                //       ? text.login_in
-                                //       : text.create_account,
-                                //   style: t.titleLarge?.copyWith(
-                                //     fontWeight: FontWeight.w700,
-                                //     color: cs.onPrimary,
-                                //   ),
-                                // ),
-                                // const SizedBox(height: 16),
-
-                                // Email
                                 TextFormField(
                                   controller: _emailCtrl,
                                   decoration: InputDecoration(
@@ -215,9 +171,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                                       Icons.email_outlined,
                                     ),
                                     errorStyle: TextStyle(
-                                      color: Colors
-                                          .red
-                                          .shade600, // <- Your custom color
+                                      color: Colors.red.shade600,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
@@ -233,8 +187,6 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                                   },
                                 ),
                                 const SizedBox(height: 12),
-
-                                // Password
                                 TextFormField(
                                   controller: _pwCtrl,
                                   decoration: InputDecoration(
@@ -251,9 +203,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                                       ),
                                     ),
                                     errorStyle: TextStyle(
-                                      color: Colors
-                                          .red
-                                          .shade600, // <- Your custom color
+                                      color: Colors.red.shade600,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
@@ -266,10 +216,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                                     return null;
                                   },
                                 ),
-
                                 const SizedBox(height: 16),
-
-                                // Submit
                                 SizedBox(
                                   width: double.infinity,
                                   child: FilledButton(
@@ -305,10 +252,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                                           ),
                                   ),
                                 ),
-
                                 const SizedBox(height: 8),
-
-                                // Switch mode
                                 TextButton(
                                   onPressed: _isSubmitting
                                       ? null
@@ -323,7 +267,6 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                                   ),
                                 ),
                                 const SizedBox(height: 16),
-                                // Divider with "OR"
                                 Row(
                                   children: [
                                     const Expanded(
@@ -344,7 +287,6 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                                   ],
                                 ),
                                 const SizedBox(height: 12),
-                                // Google Sign-In button
                                 SizedBox(
                                   width: double.infinity,
                                   child: GoogleButton(

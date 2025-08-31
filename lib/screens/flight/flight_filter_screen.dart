@@ -1,4 +1,3 @@
-// lib/screens/flight/flight_filter_screen.dart
 import 'package:flutter/material.dart';
 import 'package:TFA/screens/flight/flight_filter_page.dart';
 
@@ -28,21 +27,20 @@ class _FlightFilterScreenState extends State<FlightFilterScreen> {
   @override
   void initState() {
     super.initState();
-    _controller = ScrollController(); // create once
+    _controller = ScrollController();
   }
 
   @override
   void dispose() {
-    _controller.dispose(); // avoid leaks
+    _controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-
     return Scaffold(
-      backgroundColor: cs.surface, // theme-aware background
+      backgroundColor: cs.surface,
       body: SafeArea(
         child: FlightFilterPage(
           scrollController: _controller,

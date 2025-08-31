@@ -5,7 +5,7 @@ import 'package:TFA/providers/flight/flight_search_controller.dart';
 import 'package:TFA/providers/flight/flight_search_state.dart';
 import 'package:TFA/utils/platform_modal_sheet.dart';
 import 'package:TFA/utils/utils.dart';
-import 'package:TFA/widgets/flight/flight_list_view_item.dart';
+import 'package:TFA/screens/flight/flight_list_view_item.dart';
 import 'package:TFA/widgets/search_summary_loading_card.dart';
 
 class FlightListView extends ConsumerStatefulWidget {
@@ -43,7 +43,6 @@ class _FlightListViewState extends ConsumerState<FlightListView>
   Map<String, dynamic>? _returnData;
   List<FlightListViewItem> returnFlightWidgets = <FlightListViewItem>[];
 
-  // Open details (modal)
   void openTripDetails({
     required BuildContext context,
     required bool isReturnPage,
@@ -60,15 +59,12 @@ class _FlightListViewState extends ConsumerState<FlightListView>
     if (selectedDepartureIndex == index) {
       await _returnAnimController.reverse();
       await Future<void>.delayed(const Duration(milliseconds: 50));
-
       final int? indexToScroll = selectedDepartureIndex;
       setState(() {
         selectedDepartureIndex = null;
         isLoading = true;
       });
-
       await Future<void>.delayed(const Duration(milliseconds: 50));
-
       if (indexToScroll != null) {
         final double offset = indexToScroll * 100.0;
         _returnScrollController.animateTo(
@@ -87,15 +83,11 @@ class _FlightListViewState extends ConsumerState<FlightListView>
 
     await Future<void>.delayed(const Duration(milliseconds: 10));
     _returnAnimController.forward(from: 0);
-
-    // Simulate load
     await Future<void>.delayed(const Duration(milliseconds: 500));
-
     if (!mounted) return;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       setState(() => isLoading = false);
-      debugPrint("🛑 Done loading return flights, isLoading = false");
     });
   }
 
@@ -131,13 +123,11 @@ class _FlightListViewState extends ConsumerState<FlightListView>
     final int maxStops = maxStopsFor(widget.stopType);
 
     final List<Map<String, dynamic>> filteredFlights = allFlights.where((f) {
-      // Airline filter
       if (widget.selectedAirlines.isNotEmpty &&
           !widget.selectedAirlines.contains(f['airline'])) {
         return false;
       }
 
-      // Layover city filter
       for (final l in (f['layOverAirports'] as List<String>)) {
         if (widget.selectedLayovers.isNotEmpty &&
             !widget.selectedLayovers.contains(l)) {
@@ -145,24 +135,20 @@ class _FlightListViewState extends ConsumerState<FlightListView>
         }
       }
 
-      // Stops
       final int stops =
           int.tryParse(f['stops'].toString().split(' ').first) ?? 0;
       if (stops > maxStops) return false;
 
-      // Flight duration
       final int durMin = f['durationMin'] ?? 0;
       final int dStart = widget.flightDuration.start.round();
       final int dEnd = widget.flightDuration.end.round();
       if (durMin < dStart || durMin > dEnd) return false;
 
-      // Layover duration
       final int layOverMin = f['layoverMin'] ?? 0;
       final int lStart = widget.layOverDuration.start.round();
       final int lEnd = widget.layOverDuration.end.round();
       if (layOverMin < lStart || layOverMin > lEnd) return false;
 
-      // Time windows
       if (f['isReturn'] == false) {
         final int depMin = depMinutesOfDay(f['depRaw']);
         if (depMin >= 0) {
@@ -194,7 +180,6 @@ class _FlightListViewState extends ConsumerState<FlightListView>
       return true;
     }).toList();
 
-    // Sort
     final String sortKey = widget.sortType;
     final List<Map<String, dynamic>> sortedAllFlights =
         <Map<String, dynamic>>[...filteredFlights]..sort((a, b) {
@@ -211,7 +196,6 @@ class _FlightListViewState extends ConsumerState<FlightListView>
           }
         });
 
-    // Split depart/return
     final departureFlights = sortedAllFlights.where((f) {
       return (f['pricingMode'] == 'combined' && f['isReturn'] == false) ||
           (f['pricingMode'] == 'perleg' && f['isInBoundFlight'] == false);
@@ -230,12 +214,10 @@ class _FlightListViewState extends ConsumerState<FlightListView>
         ? selectedDepartureIndex
         : null;
 
-    // Build return widgets
     returnFlightWidgets = List<FlightListViewItem>.generate(
       returnFlights.length,
       (int i) => FlightListViewItem(
         onClick: () async {
-          debugPrint("👍 returnFlightWidgets clicked");
           _returnData = returnFlights[i];
           openTripDetails(context: context, isReturnPage: true);
         },
@@ -245,19 +227,16 @@ class _FlightListViewState extends ConsumerState<FlightListView>
       ),
     );
 
-    // Build departure widgets
     final departureFlightWidgets = List<FlightListViewItem>.generate(
       departureFlights.length,
       (int i) {
         return FlightListViewItem(
           onClick: returnFlightWidgets.isNotEmpty
               ? () {
-                  // Round trip → choose return
                   _departData = departureFlights[i];
                   onDepartureClicked(i);
                 }
               : () {
-                  // One way → open details
                   _departData = departureFlights[i];
                   openTripDetails(context: context, isReturnPage: false);
                 },
@@ -269,19 +248,16 @@ class _FlightListViewState extends ConsumerState<FlightListView>
     );
 
     return Container(
-      color: cs.surface, // adaptive background
+      color: cs.surface,
       child: Column(
         children: <Widget>[
-          // If a departure has been selected, pin it above the return list
           if (activeIndex != null)
             departureFlightWidgets[activeIndex]
           else
-            // Otherwise, show the full departure list
             Expanded(
               child: ListView(
                 controller: _returnScrollController,
                 children: <Widget>[
-                  // Departing header (theme-aware)
                   Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
@@ -314,14 +290,10 @@ class _FlightListViewState extends ConsumerState<FlightListView>
                       ],
                     ),
                   ),
-
-                  // Flight items
                   ...departureFlightWidgets,
                 ],
               ),
             ),
-
-          // Return flight list (slides in)
           if (activeIndex != null && returnFlightWidgets.isNotEmpty) ...[
             Flexible(
               child: SizedBox.expand(
@@ -330,7 +302,6 @@ class _FlightListViewState extends ConsumerState<FlightListView>
                   child: Column(
                     key: const ValueKey<String>('return-list'),
                     children: <Widget>[
-                      // Returning header
                       Container(
                         padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
                         decoration: BoxDecoration(
@@ -355,8 +326,6 @@ class _FlightListViewState extends ConsumerState<FlightListView>
                           ],
                         ),
                       ),
-
-                      // Returning list or shimmer
                       Expanded(
                         child: AnimatedSwitcher(
                           duration: const Duration(milliseconds: 300),
@@ -391,14 +360,11 @@ class _FlightListViewState extends ConsumerState<FlightListView>
 
   List<Widget> filterReturnFlightWidgets() {
     final String mode = _departData['pricingMode'] as String;
-
     if (mode == 'perleg') {
       return returnFlightWidgets
           .where((f) => f.flight['pricingMode'] == 'perleg')
           .toList();
     }
-
-    // combined: match child flights by parentFlightNumber
     return returnFlightWidgets
         .where(
           (f) =>

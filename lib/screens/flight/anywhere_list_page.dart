@@ -1,14 +1,10 @@
-// lib/screens/flight/anywhere_list_page.dart
 import 'dart:async';
-import 'dart:io';
 
 import 'package:TFA/l10n/app_localizations.dart';
-import 'package:TFA/models/anywhere_destination.dart';
 import 'package:TFA/providers/flight/anywhere_provider.dart';
 import 'package:TFA/providers/flight/flight_search_controller.dart';
-import 'package:TFA/providers/flight/flight_search_state.dart';
 import 'package:TFA/screens/flight/anywhere_map_screen.dart';
-import 'package:TFA/widgets/flight/anywhere_destination_tile.dart';
+import 'package:TFA/screens/flight/anywhere_destination_tile.dart';
 import 'package:TFA/screens/flight/flight_search_summary_card.dart';
 import 'package:TFA/widgets/search_summary_loading_card.dart';
 import 'package:flutter/material.dart';
@@ -21,195 +17,67 @@ class AnywhereListPage extends ConsumerStatefulWidget {
 }
 
 class _AnywhereListState extends ConsumerState<AnywhereListPage> {
-  Timer? _t;
-  bool _show = false;
-  late final ProviderSubscription<bool> _sub;
-  // late final ProviderSubscription<FlightSearchState> _stateSub;
-
+  Timer? _hideLoadingTimer;
+  bool _showLoadingOverlay = false;
   bool _isMapSelected = false;
-
-  // bool _hasSubscribed = false;
-
-  // @override
-  // void didChangeDependencies() {
-  //   super.didChangeDependencies();
-
-  //   if (_hasSubscribed) return;
-  //   _hasSubscribed = true;
-
-  //   _stateSub = ref.listenManual<FlightSearchState>(flightSearchProvider, (
-  //     prev,
-  //     next,
-  //   ) {
-  //     debugPrint('🎯 listenManual fired: $prev → $next');
-  //     if (prev != next) {
-  //       WidgetsBinding.instance.addPostFrameCallback((_) {
-  //         if (!mounted) return;
-
-  //         if (next.arrivalAirportCode == 'anywhere' ||
-  //             (prev != null && prev.arrivalAirportCode == 'anywhere')) {
-  //           return;
-  //         }
-  //         Navigator.of(
-  //           context,
-  //         ).push(MaterialPageRoute<void>(builder: (_) => FlightListPage()));
-  //       });
-  //     }
-  //   }, fireImmediately: false);
-  // }
 
   @override
   void initState() {
     super.initState();
-
-    _sub = ref.listenManual<bool>(
-      flightSearchProvider.select((FlightSearchState s) => s.isLoading),
-      (bool? prev, bool isLoading) {
-        _t?.cancel();
-
-        if (isLoading) {
-          setState(() => _show = true);
-          _t = Timer(const Duration(seconds: 2), () {
-            if (!mounted) return;
-            ref.read(flightSearchProvider.notifier).setLoading(false);
-          });
-        } else {
-          setState(() => _show = false);
-        }
-      },
-      fireImmediately: true,
-    );
-
-    //   _stateSub = ref.listenManual<FlightSearchState>(flightSearchProvider, (
-    //     FlightSearchState? prev,
-    //     FlightSearchState next,
-    //   ) {
-    //     if (prev != null &&
-    //         ((prev.arrivalAirportCode != next.arrivalAirportCode) ||
-    //             (prev.departureAirportCode != next.departureAirportCode) ||
-    //             (prev.departDate != next.departDate) ||
-    //             (prev.returnDate != next.returnDate) ||
-    //             (prev.cabinIdx != next.cabinIdx) ||
-    //             (prev.adultCnt != next.adultCnt) ||
-    //             (prev.childrenCnt != next.childrenCnt) ||
-    //             (prev.infantLapCnt != next.infantLapCnt) ||
-    //             (prev.infantSeatCnt != next.infantSeatCnt))) {
-    //       WidgetsBinding.instance.addPostFrameCallback((_) {
-    //         if (!mounted) return;
-    //         debugPrint('🎯 listenManual fired');
-
-    //         if (next.arrivalAirportCode == 'anywhere') {
-    //           return;
-    //         }
-    //         Navigator.of(context).push(
-    //           MaterialPageRoute<void>(builder: (_) => const FlightListPage()),
-    //         );
-    //       });
-    //     }
-    //   }, fireImmediately: false);
   }
 
   @override
   void dispose() {
-    _t?.cancel();
-    _sub.close();
-    // _stateSub.close();
+    _hideLoadingTimer?.cancel();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final AsyncValue<List<AnywhereDestination>> tiles = ref.watch(
-      anywhereDestinationsProvider,
-    );
-    final FlightSearchState flightState = ref.watch(flightSearchProvider);
-    final FlightSearchController controller = ref.read(
-      flightSearchProvider.notifier,
-    );
+    ref.listen<bool>(flightSearchProvider.select((s) => s.isLoading), (
+      _,
+      isLoading,
+    ) {
+      _hideLoadingTimer?.cancel();
+      if (isLoading) {
+        setState(() => _showLoadingOverlay = true);
+        _hideLoadingTimer = Timer(const Duration(seconds: 2), () {
+          if (!mounted) return;
+          ref.read(flightSearchProvider.notifier).setLoading(false);
+        });
+      } else {
+        setState(() => _showLoadingOverlay = false);
+      }
+    });
+
+    final tiles = ref.watch(anywhereDestinationsProvider);
+    final flightState = ref.watch(flightSearchProvider);
+    final controller = ref.read(flightSearchProvider.notifier);
     final text = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF6F7F9),
-
+      backgroundColor: cs.primary,
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(90),
-        child: Container(
-          color: Theme.of(context).colorScheme.primary,
-          child: const SizedBox(height: 30),
+        child: _TopBar(
+          title: FlightSearchSummaryCard(
+            from: flightState.departureAirportCode,
+            to: flightState.arrivalAirportCode,
+            dateRange: flightState.displayDate ?? '',
+            passengerCount: flightState.passengerCount.toString(),
+            cabinClass: flightState.cabinClass,
+          ),
+          isMap: _isMapSelected,
+          onBack: () => Navigator.of(context).pop(),
+          onToggleMap: () => setState(() => _isMapSelected = !_isMapSelected),
         ),
       ),
       body: Column(
-        children: <Widget>[
-          Container(
-            color: Theme.of(context).colorScheme.primary,
-            padding: const EdgeInsets.fromLTRB(
-              0,
-              30,
-              0,
-              10,
-            ), // status bar spacing
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[
-                Container(
-                  padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-                  child: InkWell(
-                    onTap: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: const Icon(
-                      Icons.arrow_back_ios,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  width: 250,
-                  child: FlightSearchSummaryCard(
-                    from: flightState.departureAirportCode,
-                    to: flightState.arrivalAirportCode,
-                    dateRange: flightState.displayDate ?? '',
-                    passengerCount: flightState.passengerCount.toString(),
-                    cabinClass: flightState.cabinClass,
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-
-                  child: InkWell(
-                    // onTap: () {
-                    //   Navigator.of(context).push(
-                    //     MaterialPageRoute<void>(
-                    //       builder: (_) => const AnywhereMapScreen(),
-                    //     ),
-                    //   );
-                    // },
-                    onTap: () {
-                      setState(() {
-                        _isMapSelected = !_isMapSelected;
-                      });
-                    },
-                    child: _isMapSelected
-                        ? const Icon(Icons.list, color: Colors.white)
-                        : const Icon(Icons.map_outlined, color: Colors.white),
-                  ),
-                ),
-                // Container(
-                //   padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-
-                //   child: InkWell(
-                //     onTap: () {},
-                //     child: Platform.isIOS
-                //         ? const Icon(Icons.ios_share, color: Colors.white)
-                //         : const Icon(Icons.share, color: Colors.white),
-                //   ),
-                // ),
-              ],
-            ),
-          ),
+        children: [
           ColoredBox(
-            color: Colors.white,
+            color: cs.primaryContainer,
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 8),
               child: Center(child: Text(text.prices_are_not)),
@@ -218,39 +86,36 @@ class _AnywhereListState extends ConsumerState<AnywhereListPage> {
           const SizedBox(height: 8),
           Expanded(
             child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 400),
+              duration: const Duration(milliseconds: 300),
               switchInCurve: Curves.easeInOut,
               switchOutCurve: Curves.easeInOut,
-              child: _show
+              child: _showLoadingOverlay
                   ? SearchSummaryLoadingCard(
+                      key: const ValueKey('loading'),
                       routeText:
                           '${flightState.departureAirportCode} - Anywhere',
                       dateText: flightState.displayDate ?? '',
                     )
                   : _isMapSelected
-                  ? const AnywhereMapScreen()
+                  ? const AnywhereMapScreen(key: ValueKey('map'))
                   : tiles.when(
-                      data: (List<AnywhereDestination> items) => ListView.separated(
+                      data: (items) => ListView.separated(
+                        key: const ValueKey('list'),
                         padding: const EdgeInsets.symmetric(
                           horizontal: 12,
                           vertical: 8,
                         ),
                         itemCount: items.length,
-                        separatorBuilder: (_, _) => const SizedBox(height: 10),
-                        itemBuilder: (BuildContext context, int i) =>
-                            AnywhereDestinationTile(
-                              item: items[i],
-                              onTap: () {
-                                debugPrint(
-                                  '☘️ anywhere_list_page.dart - Tapped: ${items[i].name}',
-                                );
-                                controller.setArrivalCode(
-                                  items[i].iata,
-                                  items[i].name,
-                                );
-                                // controller.setArrivalCity(items[i].name);
-                              },
-                            ),
+                        separatorBuilder: (_, __) => const SizedBox(height: 10),
+                        itemBuilder: (_, i) => AnywhereDestinationTile(
+                          item: items[i],
+                          onTap: () {
+                            controller.setArrivalCode(
+                              items[i].iata,
+                              items[i].name,
+                            );
+                          },
+                        ),
                       ),
                       loading: () => ListView.separated(
                         padding: const EdgeInsets.symmetric(
@@ -261,14 +126,73 @@ class _AnywhereListState extends ConsumerState<AnywhereListPage> {
                         separatorBuilder: (_, __) => const SizedBox(height: 10),
                         itemBuilder: (_, __) => const SkeletonCard(),
                       ),
-                      error: (Object e, _) =>
-                          Center(child: Text('Failed to load: $e')),
+                      error: (e, _) => Center(
+                        child: Text(
+                          'Failed to load: $e',
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: theme.colorScheme.error,
+                          ),
+                        ),
+                      ),
                     ),
             ),
           ),
         ],
       ),
-      // Your bottom nav already exists; plug this page into the Search tab.
+    );
+  }
+}
+
+class _TopBar extends StatelessWidget {
+  const _TopBar({
+    required this.title,
+    required this.onBack,
+    required this.onToggleMap,
+    required this.isMap,
+  });
+
+  final Widget title;
+  final VoidCallback onBack;
+  final VoidCallback onToggleMap;
+  final bool isMap;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
+    return Container(
+      color: cs.primary,
+      padding: const EdgeInsets.only(top: 30, bottom: 10),
+      child: Row(
+        children: [
+          const SizedBox(width: 8),
+          IconButton(
+            onPressed: onBack,
+            icon: const Icon(Icons.arrow_back_ios),
+            color: Colors.white,
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: SizedBox(
+                height: 60,
+                child: FittedBox(
+                  alignment: Alignment.centerLeft,
+                  fit: BoxFit.scaleDown,
+                  child: SizedBox(width: 250, child: title),
+                ),
+              ),
+            ),
+          ),
+          IconButton(
+            onPressed: onToggleMap,
+            icon: Icon(isMap ? Icons.list : Icons.map_outlined),
+            color: Colors.white,
+          ),
+          const SizedBox(width: 8),
+        ],
+      ),
     );
   }
 }
@@ -278,16 +202,16 @@ class SkeletonCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Container(
-      width: 280,
       height: AnywhereDestinationTile.height,
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
+        color: cs.surface,
         borderRadius: BorderRadius.circular(14),
       ),
       padding: const EdgeInsets.all(12),
       child: Row(
-        children: <Widget>[
+        children: [
           Container(
             width: 84,
             height: 84,
@@ -301,14 +225,25 @@ class SkeletonCard extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Container(height: 18, width: 140, color: Colors.black12),
+              children: [
+                _bar(width: 140, height: 18),
                 const SizedBox(height: 10),
-                Container(height: 14, width: 90, color: Colors.black12),
+                _bar(width: 90, height: 14),
               ],
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _bar({required double width, required double height}) {
+    return Container(
+      width: width,
+      height: height,
+      decoration: BoxDecoration(
+        color: Colors.black12,
+        borderRadius: BorderRadius.circular(6),
       ),
     );
   }

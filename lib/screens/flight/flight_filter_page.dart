@@ -1,7 +1,6 @@
-// lib/screens/flight/flight_filter_page.dart
 import 'package:TFA/l10n/app_localizations.dart';
 import 'package:TFA/utils/utils.dart';
-import 'package:TFA/widgets/silvers/section_header.dart';
+import 'package:TFA/widgets/section_header.dart';
 import 'package:flutter/material.dart';
 
 class FlightFilterPage extends StatefulWidget {
@@ -27,34 +26,28 @@ class FlightFilterPage extends StatefulWidget {
 }
 
 class _FlightFilterPageState extends State<FlightFilterPage> {
-  // sort / filters
   String selectedSort = 'cost';
   bool selfTransferEnabled = true;
   int selectedStops = 2;
 
-  // ranges
   RangeValues takeoffRange = const RangeValues(0, 1439);
   RangeValues landingRange = const RangeValues(0, 1439);
-  RangeValues flightDuration = const RangeValues(0, 1395); // up to ~23h15m
-  RangeValues layoverDuration = const RangeValues(0, 1470); // up to 24h30m
+  RangeValues flightDuration = const RangeValues(0, 1395);
+  RangeValues layoverDuration = const RangeValues(0, 1470);
 
-  // lists visibility
   static const int _visibleItemsCount = 7;
   bool _showAllAirlines = false;
   bool _showAllCities = false;
 
-  // local mutable selections
   late Set<String> _airlinesSel;
   late Set<String> _layoversSel;
 
   @override
   void initState() {
     super.initState();
-    _airlinesSel = <String>{...widget.selectedAirlines};
-    _layoversSel = <String>{...widget.selectedLayovers};
+    _airlinesSel = {...widget.selectedAirlines};
+    _layoversSel = {...widget.selectedLayovers};
   }
-
-  // --- UI helpers -------------------------------------------------------------
 
   Widget _padded(Widget child) => Padding(
     padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -235,8 +228,6 @@ class _FlightFilterPageState extends State<FlightFilterPage> {
     );
   }
 
-  // --- build -----------------------------------------------------------------
-
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
@@ -252,7 +243,7 @@ class _FlightFilterPageState extends State<FlightFilterPage> {
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
               child: Text(
-                text.sort, // "Filters" → use a localized header if you like
+                text.sort,
                 style: tt.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: cs.onSurface,
@@ -260,7 +251,6 @@ class _FlightFilterPageState extends State<FlightFilterPage> {
               ),
             ),
           ),
-
           SliverPersistentHeader(
             pinned: true,
             delegate: SectionHeader(text.sort),
@@ -268,11 +258,10 @@ class _FlightFilterPageState extends State<FlightFilterPage> {
           SliverList(
             delegate: SliverChildListDelegate(<Widget>[
               _padded(_radio('duration', text.duration)),
-              _padded(_radio('cost', text.total_cost)), // reuse; or "Cost"
+              _padded(_radio('cost', text.total_cost)),
               _padded(_radio('value', text.value)),
             ]),
           ),
-
           SliverPersistentHeader(
             pinned: true,
             delegate: SectionHeader('Travel Hacks'),
@@ -280,13 +269,14 @@ class _FlightFilterPageState extends State<FlightFilterPage> {
           SliverList(
             delegate: SliverChildListDelegate(<Widget>[
               _padded(
-                _checkbox('Self - Transfer', selfTransferEnabled, (v) {
-                  setState(() => selfTransferEnabled = v);
-                }),
+                _checkbox(
+                  'Self - Transfer',
+                  selfTransferEnabled,
+                  (v) => setState(() => selfTransferEnabled = v),
+                ),
               ),
             ]),
           ),
-
           SliverPersistentHeader(
             pinned: true,
             delegate: SectionHeader(text.stops),
@@ -297,7 +287,6 @@ class _FlightFilterPageState extends State<FlightFilterPage> {
               _padded(_radioInt(2, text.up_to_2_stops)),
             ]),
           ),
-
           SliverPersistentHeader(
             pinned: true,
             delegate: SectionHeader(text.take_off),
@@ -314,7 +303,6 @@ class _FlightFilterPageState extends State<FlightFilterPage> {
               ),
             ),
           ),
-
           SliverPersistentHeader(
             pinned: true,
             delegate: SectionHeader(text.landing),
@@ -331,7 +319,6 @@ class _FlightFilterPageState extends State<FlightFilterPage> {
               ),
             ),
           ),
-
           SliverPersistentHeader(
             pinned: true,
             delegate: SectionHeader(text.flight_duration),
@@ -352,7 +339,6 @@ class _FlightFilterPageState extends State<FlightFilterPage> {
               ),
             ),
           ),
-
           SliverPersistentHeader(
             pinned: true,
             delegate: SectionHeader(text.layover_duration),
@@ -373,7 +359,6 @@ class _FlightFilterPageState extends State<FlightFilterPage> {
               ),
             ),
           ),
-
           SliverPersistentHeader(
             pinned: true,
             delegate: SectionHeader(text.airlines),
@@ -390,20 +375,13 @@ class _FlightFilterPageState extends State<FlightFilterPage> {
                     onPressed: () =>
                         setState(() => _showAllAirlines = !_showAllAirlines),
                     child: Text(
-                      _showAllAirlines
-                          ? AppLocalizations.of(context)!.learn_more.replaceAll(
-                              AppLocalizations.of(context)!.learn_more,
-                              'Show Less',
-                            )
-                          : 'Show More',
-                      // (If you add l10n keys for show_more/show_less, swap here)
+                      _showAllAirlines ? 'Show Less' : 'Show More',
                       style: TextStyle(color: cs.primary),
                     ),
                   ),
                 ),
             ]),
           ),
-
           SliverPersistentHeader(
             pinned: true,
             delegate: SectionHeader(text.layover_cities),
@@ -427,10 +405,7 @@ class _FlightFilterPageState extends State<FlightFilterPage> {
                 ),
             ]),
           ),
-
           const SliverToBoxAdapter(child: SizedBox(height: 24)),
-
-          // Done button
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
@@ -452,7 +427,7 @@ class _FlightFilterPageState extends State<FlightFilterPage> {
                     elevation: 1,
                   ),
                   child: Text(
-                    AppLocalizations.of(context)!.done,
+                    text.done,
                     style: TextStyle(
                       fontSize: Theme.of(context).textTheme.bodyLarge?.fontSize,
                       fontWeight: FontWeight.bold,

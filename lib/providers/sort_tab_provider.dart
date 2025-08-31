@@ -1,4 +1,3 @@
-// flight_page_trigger_provider.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 enum SortTab {
@@ -15,5 +14,5 @@ enum SortTab {
 }
 
 final StateProvider<SortTab> sortTabProvider = StateProvider<SortTab>(
-  (StateProviderRef<SortTab> ref) => SortTab.sort,
+  (ref) => SortTab.sort,
 );

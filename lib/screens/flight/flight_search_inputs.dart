@@ -1,5 +1,3 @@
-// lib/screens/flight/widgets/search_inputs.dart
-
 import 'dart:math' as math;
 
 import 'package:TFA/providers/flight/flight_search_state.dart';
@@ -34,7 +32,6 @@ class FlightSearchInputs extends ConsumerWidget {
 
     return Column(
       children: <Widget>[
-        // ───────────────────────── Top row: Origin / Swap / Destination ─────────────────────────
         Padding(
           padding: EdgeInsets.symmetric(horizontal: padding),
           child: Material(
@@ -45,7 +42,6 @@ class FlightSearchInputs extends ConsumerWidget {
               padding: const EdgeInsets.symmetric(horizontal: 12),
               child: Row(
                 children: <Widget>[
-                  // Departure
                   Expanded(
                     child: TextButton(
                       style: flatSegmentStyle(context),
@@ -86,8 +82,6 @@ class FlightSearchInputs extends ConsumerWidget {
                       ),
                     ),
                   ),
-
-                  // Swap
                   Transform.rotate(
                     angle: math.pi / 2,
                     child: InkWell(
@@ -112,8 +106,6 @@ class FlightSearchInputs extends ConsumerWidget {
                       ),
                     ),
                   ),
-
-                  // Arrival
                   Expanded(
                     child: TextButton(
                       style: flatSegmentStyle(context),
@@ -149,15 +141,11 @@ class FlightSearchInputs extends ConsumerWidget {
             ),
           ),
         ),
-
         const SizedBox(height: 8),
-
-        // ───────────────────────── Bottom row: Dates / Travelers ─────────────────────────
         Padding(
           padding: EdgeInsets.symmetric(horizontal: padding),
           child: Row(
             children: <Widget>[
-              // Dates
               Expanded(
                 flex: 5,
                 child: Material(
@@ -210,10 +198,7 @@ class FlightSearchInputs extends ConsumerWidget {
                   ),
                 ),
               ),
-
               const SizedBox(width: 8),
-
-              // Travelers
               Expanded(
                 flex: 5,
                 child: Material(

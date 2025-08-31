@@ -17,7 +17,6 @@ class FilterButton extends StatelessWidget {
         onPressed: func,
         style:
             OutlinedButton.styleFrom(
-              // Background that adapts to light/dark (keeps it subtle)
               backgroundColor: cs.surface,
               minimumSize: const Size(0, 36),
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -25,7 +24,6 @@ class FilterButton extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8),
               ),
               side: BorderSide(color: cs.outlineVariant, width: 1),
-              // Ensure good contrast for ripple in both themes
               foregroundColor: cs.onSurface,
             ).copyWith(
               overlayColor: WidgetStateProperty.resolveWith<Color?>(

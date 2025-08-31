@@ -13,19 +13,14 @@ class BookingCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final onSurface = Theme.of(context).colorScheme.onSurface;
     final sub = onSurface.withValues(alpha: 0.7);
-
     final String route = '${booking.departCode} → ${booking.arrivalCode}';
-
     final String dates = _fmtDateRange(booking.departDate, booking.returnDate);
-
     final String pax = _paxSummary(
       adults: booking.adult,
       children: booking.children,
       infantLap: booking.infantLap,
       infantSeat: booking.infantSeat,
     );
-
-    // final String price = _fmtCurrency(booking.prices);
 
     return InkWell(
       onTap: onTap,
@@ -39,7 +34,6 @@ class BookingCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Route + price row
             Row(
               children: [
                 Expanded(
@@ -61,51 +55,32 @@ class BookingCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 6),
-            // Dates
             Text(dates, style: TextStyle(color: sub)),
             const SizedBox(height: 6),
-            // Pax + cabin
             Text(
               'Passengers: $pax  •  ${getTravelClassByIdx(cabinIndex: booking.cabinIdx)}',
               style: TextStyle(color: sub),
             ),
             const SizedBox(height: 6),
-            // Created at (optional)
-            // Text(
-            //   'Booked: ${_fmtDateTime(booking.createdAt)}',
-            //   style: TextStyle(color: sub, fontSize: 12),
-            // ),
           ],
         ),
       ),
     );
   }
 
-  // ---- helpers ----
-
   String _fmtDateRange(String depart, String? ret) {
     final String out = _fmtDate(depart);
-    if (ret == null || ret.isEmpty) return out; // one-way
+    if (ret == null || ret.isEmpty) return out;
     return '$out — ${_fmtDate(ret)}';
   }
 
   String _fmtDate(String s) {
     try {
       final d = DateTime.parse(s).toLocal();
-      return DateFormat('yMMMd').format(d); // e.g. Jan 5, 2025
+      return DateFormat('yMMMd').format(d);
     } catch (_) {
       return s;
     }
-  }
-
-  String _fmtDateTime(DateTime d) {
-    return DateFormat('yMMMd • HH:mm').format(d.toLocal());
-  }
-
-  String _fmtCurrency(num amount) {
-    // adjust currency if you have it; BookingOut.prices is int per your model
-    // Using no symbol to avoid wrong symbol; swap with NumberFormat.currency if you know it
-    return NumberFormat.decimalPattern().format(amount);
   }
 
   String _paxSummary({

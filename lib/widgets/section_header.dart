@@ -16,20 +16,20 @@ class SectionHeader extends SliverPersistentHeaderDelegate {
     final bool pinned = overlapsContent || shrinkOffset > 0;
 
     return Material(
-      color: cs.surfaceContainerHigh, // ← theme-aware bg (great in dark)
-      elevation: pinned ? 1 : 0, // subtle shadow only when pinned
+      color: cs.surfaceContainerHigh,
+      elevation: pinned ? 1 : 0,
       child: Container(
         alignment: Alignment.centerLeft,
         padding: const EdgeInsets.symmetric(horizontal: 16),
         decoration: BoxDecoration(
           border: Border(
-            bottom: BorderSide(color: cs.outlineVariant, width: 1), // divider
+            bottom: BorderSide(color: cs.outlineVariant, width: 1),
           ),
         ),
         child: Text(
           title,
           style: tt.titleSmall?.copyWith(
-            color: cs.onSurface, // theme-aware text
+            color: cs.onSurface,
             fontWeight: FontWeight.w700,
           ),
         ),

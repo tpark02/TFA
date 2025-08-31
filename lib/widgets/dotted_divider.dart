@@ -1,13 +1,12 @@
-// lib/widgets/dotted_divider.dart
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 class DottedDivider extends StatelessWidget {
   const DottedDivider({
     super.key,
-    this.thickness = 2, // dot thickness
-    this.dashLength = 2, // length of each “dot” (very short => dot-like)
-    this.dashGap = 6, // gap between dots
+    this.thickness = 2,
+    this.dashLength = 2,
+    this.dashGap = 6,
     this.color,
   });
 
@@ -19,7 +18,7 @@ class DottedDivider extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: thickness, // 🟢 ensures bounded height
+      height: thickness,
       width: double.infinity,
       child: CustomPaint(
         painter: _DashedPainter(
@@ -47,7 +46,7 @@ class _DashedPainter extends CustomPainter {
       ..color = color
       ..style = PaintingStyle.stroke
       ..strokeWidth = thickness
-      ..strokeCap = StrokeCap.round; // 🟢 rounded “dots” like the screenshot
+      ..strokeCap = StrokeCap.round;
 
     final double y = size.height / 2;
     double x = 0;

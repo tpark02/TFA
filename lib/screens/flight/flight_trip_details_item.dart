@@ -1,9 +1,11 @@
 import 'package:TFA/l10n/app_localizations.dart';
+import 'package:TFA/models/booking_in.dart';
 import 'package:TFA/providers/airport/airport_lookup.dart';
+import 'package:TFA/providers/flight/flight_search_controller.dart';
+import 'package:TFA/screens/flight/flight_book_complete_page.dart';
 import 'package:TFA/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 
 class FlightTripDetailsItem extends ConsumerWidget {
   const FlightTripDetailsItem({
@@ -25,7 +27,6 @@ class FlightTripDetailsItem extends ConsumerWidget {
 
     if (flightData.isEmpty) return const SizedBox.shrink();
 
-    // ── Top/meta parsing ───────────────────────────────────────────────────────
     final String depAirport = (flightData['depAirport'] ?? '') as String;
     final String arrAirport = (flightData['arrAirport'] ?? '') as String;
 
@@ -55,7 +56,7 @@ class FlightTripDetailsItem extends ConsumerWidget {
 
     final String headerDate =
         (depAtForHeader != null && depAtForHeader.isNotEmpty)
-        ? _formatHeaderDate(depAtForHeader)
+        ? formatHeaderDate(depAtForHeader)
         : '';
 
     final String metaAir =
@@ -68,7 +69,6 @@ class FlightTripDetailsItem extends ConsumerWidget {
     final String passengerLabel =
         "$passengerTotal${passengerTotal > 1 ? ' ${text.travelers}' : ' ${text.travelers}'}";
 
-    // ── Build segment tiles + layovers ─────────────────────────────────────────
     final List<Widget> sectionChildren = <Widget>[
       _AirlineLabel(name: airlineName),
     ];
@@ -87,8 +87,8 @@ class FlightTripDetailsItem extends ConsumerWidget {
       final String depAt = (dep['at'] ?? '') as String;
       final String arrAt = (arr['at'] ?? '') as String;
 
-      final String depTime = depAt.isNotEmpty ? _fmtTime(depAt) : '';
-      final String arrTime = arrAt.isNotEmpty ? _fmtTime(arrAt) : '';
+      final String depTime = depAt.isNotEmpty ? fmtTime(depAt) : '';
+      final String arrTime = arrAt.isNotEmpty ? fmtTime(arrAt) : '';
 
       final String plusDayStr = (flightData['plusDay'] ?? '') as String;
       final int plusDay = plusDayStr.isEmpty ? 0 : int.parse(plusDayStr);
@@ -119,15 +119,17 @@ class FlightTripDetailsItem extends ConsumerWidget {
 
       sectionChildren.add(const SizedBox(height: 12));
     }
+    final flightState = ref.watch(flightSearchProvider);
+    final FlightSearchController controller = ref.read(
+      flightSearchProvider.notifier,
+    );
 
-    // ── UI ─────────────────────────────────────────────────────────────────────
     return Container(
       color: Colors.transparent,
       padding: const EdgeInsets.fromLTRB(0, 16, 0, 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          // Header line
           Container(
             decoration: BoxDecoration(
               border: Border(bottom: BorderSide(color: cs.outlineVariant)),
@@ -137,7 +139,6 @@ class FlightTripDetailsItem extends ConsumerWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: <Widget>[
-                    // keep symmetrical padding
                     const SizedBox(width: 48, height: 40),
                     Flexible(
                       child: FittedBox(
@@ -187,10 +188,8 @@ class FlightTripDetailsItem extends ConsumerWidget {
               ],
             ),
           ),
-
           const SizedBox(height: 16),
           ...sectionChildren,
-
           if (flightData['pricingMode'] == 'perleg' &&
               isReturnPage) ...<Widget>[
             Container(
@@ -212,6 +211,32 @@ class FlightTripDetailsItem extends ConsumerWidget {
                       ),
                       onPressed: () {
                         debugPrint("Book button clicked");
+                        final BookingIn bookingIn = BookingIn(
+                          destination: flightState.arrivalCity,
+                          tripDateRange: flightState.displayDate ?? '',
+                          destinationCode: flightState.arrivalAirportCode,
+                          passengerCnt: flightState.passengerCount,
+                          adult: flightState.adultCnt,
+                          children: flightState.childrenCnt,
+                          infantLap: flightState.infantLapCnt,
+                          infantSeat: flightState.infantSeatCnt,
+                          cabinIdx: flightState.cabinIdx,
+                          rooms: 0,
+                          kind: 'flight',
+                          departCode: flightState.departureAirportCode,
+                          arrivalCode: flightState.arrivalAirportCode,
+                          departDate: flightState.departDate,
+                          returnDate: flightState.returnDate,
+                          prices: flightData['price'],
+                        );
+
+                        controller.addBooking(bIn: bookingIn);
+
+                        Navigator.of(context).push(
+                          MaterialPageRoute<void>(
+                            builder: (_) => const FlightBookCompletePage(),
+                          ),
+                        );
                       },
                       child: Align(
                         alignment: Alignment.center,
@@ -232,16 +257,6 @@ class FlightTripDetailsItem extends ConsumerWidget {
         ],
       ),
     );
-  }
-
-  String _fmtTime(String iso) {
-    final DateTime dt = DateTime.parse(iso);
-    return DateFormat('HH:mm').format(dt);
-  }
-
-  String _formatHeaderDate(String iso) {
-    final DateTime dt = DateTime.parse(iso);
-    return DateFormat('EEEE, MMMM d').format(dt);
   }
 }
 
@@ -301,7 +316,6 @@ class _SegmentTile extends StatelessWidget {
       ),
       child: Column(
         children: <Widget>[
-          // Times row
           Row(
             children: <Widget>[
               _timeCell(context, depTime, timeSize),
@@ -318,7 +332,6 @@ class _SegmentTile extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 6),
-          // Codes row
           Row(
             children: <Widget>[
               Text(
@@ -333,7 +346,6 @@ class _SegmentTile extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 8),
-          // Meta row
           Row(
             children: <Widget>[
               Flexible(

@@ -1,11 +1,9 @@
-// lib/screens/shared/recent_search_list.dart
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:TFA/l10n/app_localizations.dart';
-import 'package:TFA/providers/car/car_search_controller.dart';
+import 'package:TFA/misc/providers/car/car_search_controller.dart';
 import 'package:TFA/providers/flight/flight_search_controller.dart';
-import 'package:TFA/providers/hotel/hotel_search_controller.dart';
+import 'package:TFA/misc/providers/hotel/hotel_search_controller.dart';
 import 'package:TFA/providers/recent_search.dart';
 import 'package:TFA/widgets/recent_search_item.dart';
 
@@ -18,14 +16,12 @@ class RecentSearchList extends ConsumerWidget {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
 
-    // Select correct provider based on panelName
     final List<RecentSearch> searches = switch (panelName) {
       'flight' => ref.watch(flightSearchProvider).recentSearches,
       'hotel' => ref.watch(hotelSearchProvider).recentSearches,
       _ => ref.watch(carSearchProvider).recentSearches,
     };
 
-    // Always generate 5 placeholders for consistent height
     final List<RecentSearch> paddedSearches = List<RecentSearch>.generate(
       5,
       (int i) => i < searches.length
@@ -58,8 +54,6 @@ class RecentSearchList extends ConsumerWidget {
           ),
         ),
         const SizedBox(height: 20),
-
-        // Show empty state or recent searches
         if (searches.isEmpty) ...[
           Center(
             child: Padding(

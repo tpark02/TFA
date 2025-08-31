@@ -50,12 +50,10 @@ class RecentSearchItem extends ConsumerWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-            // LEFT (Destination + Date+Icons)
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  // Destination (city - city)
                   Text(
                     search.destination,
                     maxLines: 1,
@@ -66,8 +64,6 @@ class RecentSearchItem extends ConsumerWidget {
                     ),
                   ),
                   const SizedBox(height: 4),
-
-                  // Date + inline icons
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
@@ -81,16 +77,13 @@ class RecentSearchItem extends ConsumerWidget {
                         ),
                       ),
                       const SizedBox(width: 6),
-                      ...search.icons, // assume icons already themed upstream
+                      ...search.icons,
                     ],
                   ),
                 ],
               ),
             ),
-
             const SizedBox(width: 8),
-
-            // RIGHT (IATA codes + chevron)
             Row(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[

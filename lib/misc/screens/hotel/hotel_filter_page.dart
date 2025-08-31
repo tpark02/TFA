@@ -1,7 +1,7 @@
 // lib/screens/hotel/hotel_filter_page.dart
 import 'package:TFA/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
-import 'package:TFA/widgets/silvers/section_header.dart';
+import 'package:TFA/widgets/section_header.dart';
 
 class HotelFilterResult {
   HotelFilterResult({

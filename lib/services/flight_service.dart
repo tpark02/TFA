@@ -99,7 +99,6 @@ class FlightService {
     if (response.statusCode == 200) {
       final decoded = jsonDecode(response.body);
 
-      // 🟢 Debug: print every field that's null
       void checkNulls(Map<String, dynamic> map, [String path = ""]) {
         map.forEach((String key, value) {
           final String fullPath = path.isEmpty ? key : "$path.$key";

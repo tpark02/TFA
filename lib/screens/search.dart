@@ -3,7 +3,6 @@ import 'package:TFA/screens/flight/flight_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// This is the wrapper with nested navigator
 class SearchScreen extends StatelessWidget {
   const SearchScreen({super.key});
 
@@ -24,9 +23,6 @@ class _SearchContent extends ConsumerStatefulWidget {
 }
 
 class _SearchContentState extends ConsumerState<_SearchContent> {
-  // static const double _padding = 20.0;
-  int _selectedIndex = 0;
-
   @override
   void initState() {
     super.initState();
@@ -65,7 +61,7 @@ class _SearchContentState extends ConsumerState<_SearchContent> {
                 ),
             child: const FlightPage(key: ValueKey(0)),
           ),
-          const SizedBox(height: 50), // dummy bottom spacing
+          const SizedBox(height: 50),
         ],
       ),
     );

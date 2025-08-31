@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// Primary filled button style (no border)
 ButtonStyle primaryButtonStyle(BuildContext context) =>
     OutlinedButton.styleFrom(
       side: BorderSide.none,
@@ -8,7 +7,6 @@ ButtonStyle primaryButtonStyle(BuildContext context) =>
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
     );
 
-/// Outlined button style
 ButtonStyle outlinedButtonStyle(BuildContext context) =>
     OutlinedButton.styleFrom(
       padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
@@ -16,7 +14,6 @@ ButtonStyle outlinedButtonStyle(BuildContext context) =>
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
     );
 
-/// Common bold text style
 TextStyle boldBodyTextStyle(BuildContext context) => TextStyle(
   fontSize: Theme.of(context).textTheme.bodyMedium?.fontSize,
   fontWeight: FontWeight.bold,

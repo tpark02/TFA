@@ -53,7 +53,6 @@ class AirportService {
         return data.cast<Map<String, dynamic>>();
       }
 
-      // 🟠 if 404, trigger fallback
       if (res.statusCode == 404 && latitude != null && longitude != null) {
         debugPrint(
           "⚠️ No airports found by IATA, falling back to nearby search...",
@@ -70,7 +69,6 @@ class AirportService {
     }
   }
 
-  /// fallback: call /api/v1/airports/nearby
   Future<List<Map<String, dynamic>>> _fallbackNearbyAirports(
     double latitude,
     double longitude,

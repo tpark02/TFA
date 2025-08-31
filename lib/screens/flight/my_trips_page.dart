@@ -3,7 +3,7 @@ import 'package:TFA/models/booking_out.dart';
 import 'package:TFA/providers/flight/flight_search_controller.dart';
 import 'package:TFA/providers/menu_tab_provider.dart';
 import 'package:TFA/providers/route_observer.dart';
-import 'package:TFA/widgets/flight/booking_card.dart';
+import 'package:TFA/screens/flight/booking_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -91,7 +91,7 @@ class _BookingEmptyState extends ConsumerState<_BookingsEmpty> with RouteAware {
         }
         final bookings = snap.data ?? const <BookingOut>[];
         if (bookings.isEmpty) {
-          return _EmptyState();
+          return const _EmptyState();
         }
         return ListView.separated(
           padding: const EdgeInsets.all(16),

@@ -1,10 +1,10 @@
-import 'package:TFA/providers/hotel/hotel_search_controller.dart';
-import 'package:TFA/providers/hotel/hotel_search_state.dart';
+import 'package:TFA/misc/providers/hotel/hotel_search_controller.dart';
+import 'package:TFA/misc/providers/hotel/hotel_search_state.dart';
 import 'package:TFA/providers/recent_search.dart';
-import 'package:TFA/screens/hotel/hotel_list_page.dart';
+import 'package:TFA/misc/screens/hotel/hotel_list_page.dart';
 import 'package:TFA/screens/shared/recent_search_list.dart';
 import 'package:TFA/screens/shared/room_guest_selector_sheet.dart';
-import 'package:TFA/screens/shared/search_hotel_sheet.dart';
+import 'package:TFA/misc/shared/search_hotel_sheet.dart';
 import 'package:TFA/utils/utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';

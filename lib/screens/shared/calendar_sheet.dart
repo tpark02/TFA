@@ -1,4 +1,3 @@
-import 'package:TFA/constants/colors.dart';
 import 'package:TFA/l10n/app_localizations.dart';
 import 'package:TFA/providers/flight/flight_search_controller.dart';
 import 'package:flutter/material.dart';
@@ -36,7 +35,6 @@ class _CalendarSheetState extends ConsumerState<CalendarSheet>
   @override
   void initState() {
     super.initState();
-
     if (widget.isRange) {
       departDate = DateTime.now().add(Duration(days: widget.startDays));
       returnDate = DateTime.now().add(Duration(days: widget.endDays));
@@ -44,7 +42,6 @@ class _CalendarSheetState extends ConsumerState<CalendarSheet>
       departDate = DateTime.now().add(Duration(days: widget.startDays));
       returnDate = null;
     }
-
     _tabController = TabController(length: 2, vsync: this);
   }
 
@@ -55,45 +52,24 @@ class _CalendarSheetState extends ConsumerState<CalendarSheet>
   }
 
   void _onSelectionRange(DateRangePickerSelectionChangedArgs args) {
-    // final FlightSearchController controller = ref.read(
-    //   flightSearchProvider.notifier,
-    // );
-
     if (args.value is PickerDateRange) {
       final PickerDateRange range = args.value as PickerDateRange;
-
       if (range.startDate != null && range.endDate != null) {
         departDate = range.startDate;
         returnDate = range.endDate;
-        // controller.setClearReturnDate(false);
-        debugPrint("📅 start date : $departDate, end date : $returnDate");
-      } else {
-        debugPrint('📅 selected range: start or end is null');
       }
-    } else {
-      debugPrint('📅 selected range: null or not a valid range');
     }
   }
 
   void _onSelectionChanged(DateRangePickerSelectionChangedArgs args) {
-    // final FlightSearchController controller = ref.read(
-    //   flightSearchProvider.notifier,
-    // );
     if (args.value is DateTime) {
       departDate = args.value;
-      // controller.setClearReturnDate(true);
-      debugPrint("📅 start date : $departDate , end date : $returnDate");
-    } else {
-      debugPrint('📅 Selection is not a DateTime: ${args.value.runtimeType}');
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final double height = MediaQuery.of(
-      context,
-    ).size.height; // 95% of screen height
-
+    final double height = MediaQuery.of(context).size.height;
     final bool isRange = widget.isRange;
 
     final PickerDateRange initialRange = PickerDateRange(
@@ -110,7 +86,6 @@ class _CalendarSheetState extends ConsumerState<CalendarSheet>
     final Color primary = Theme.of(context).colorScheme.primary;
     final Color onPrimary = Theme.of(context).colorScheme.onPrimary;
     final text = AppLocalizations.of(context)!;
-
     final cs = Theme.of(context).colorScheme;
 
     return Scaffold(
@@ -147,7 +122,6 @@ class _CalendarSheetState extends ConsumerState<CalendarSheet>
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: const BoxDecoration(
             borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-            // color: Colors.white,
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -256,14 +230,10 @@ class _CalendarSheetState extends ConsumerState<CalendarSheet>
                         ).colorScheme.onPrimary,
                         backgroundColor: Theme.of(context).colorScheme.primary,
                         shape: const RoundedRectangleBorder(
-                          borderRadius:
-                              BorderRadius.zero, // sharp corners, no rounding
+                          borderRadius: BorderRadius.zero,
                         ),
                       ),
                       onPressed: () {
-                        debugPrint(
-                          "📅 onpressed start date : $departDate, end date : $returnDate",
-                        );
                         Navigator.pop(context, <String, DateTime?>{
                           'departDate': departDate,
                           'returnDate': returnDate,

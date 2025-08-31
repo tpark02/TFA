@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'dart:io'; // for SocketException
+import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
 import 'package:TFA/utils/api_config.dart';
@@ -14,8 +14,8 @@ class RecentSearchApiService {
     required String kind,
     required String departCode,
     required String arrivalCode,
-    required String departDate, // "yyyy-MM-dd"
-    required String? returnDate, // "yyyy-MM-dd"
+    required String departDate,
+    required String? returnDate,
     int cabinIdx = 0,
     int adult = 1,
     int children = 0,
@@ -55,9 +55,7 @@ class RecentSearchApiService {
         print("✅ Sent: ${response.body}");
         return true;
       } else if (response.statusCode == 422) {
-        print(
-          "422 detail: ${response.body}",
-        ); // <-- shows the exact field failing
+        print("422 detail: ${response.body}");
       } else {
         print("❌ Failed: ${response.statusCode} ${response.body}");
         return false;

@@ -1,4 +1,3 @@
-// lib/utils/api_config.dart
 import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
 

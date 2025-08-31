@@ -1,4 +1,3 @@
-// lib/screens/profile/profile_settings_page.dart
 import 'package:TFA/l10n/app_localizations.dart';
 import 'package:TFA/providers/menu_tab_provider.dart';
 import 'package:TFA/providers/theme_provider.dart';
@@ -32,11 +31,6 @@ class ProfileSettingsPage extends ConsumerWidget {
           Divider(height: 0, color: cs.outlineVariant),
 
           _SectionHeader(text.mode),
-          // (optional) tiny caption under the header
-          // Padding(
-          //   padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
-          //   child: Text(text.choose_theme, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
-          // ),
           RadioListTile<ThemeMode>(
             title: const Text('Light'),
             value: ThemeMode.light,

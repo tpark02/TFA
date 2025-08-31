@@ -1,6 +1,6 @@
 import 'package:TFA/l10n/app_localizations.dart';
-import 'package:TFA/models/cars.dart';
-import 'package:TFA/providers/car/car_provider.dart';
+import 'package:TFA/misc/models/cars.dart';
+import 'package:TFA/misc/providers/car/car_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

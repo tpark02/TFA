@@ -1,15 +1,14 @@
 import 'package:TFA/providers/flight/flight_search_controller.dart';
-import 'package:TFA/providers/flight/flight_search_state.dart';
 import 'package:TFA/services/airport_service.dart';
 import 'package:TFA/services/location_service.dart';
 import 'package:TFA/utils/dev_logger.dart';
+import 'package:TFA/screens/flight/flight_search_button.dart';
+import 'package:TFA/screens/flight/flight_search_inputs.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geocoding/geocoding.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:TFA/widgets/flight/flight_search_inputs.dart';
-import 'package:TFA/widgets/flight/flight_search_button.dart';
-import 'package:geolocator_platform_interface/src/models/position.dart';
+import 'package:geolocator/geolocator.dart';
 
 class FlightPage extends ConsumerStatefulWidget {
   const FlightPage({super.key});
@@ -19,19 +18,12 @@ class FlightPage extends ConsumerStatefulWidget {
 
 class _FlightPageState extends ConsumerState<FlightPage> {
   static const double _padding = 20.0;
-  bool _isLoadingCity = true;
   bool _initialized = false;
   final User? user = FirebaseAuth.instance.currentUser;
   late final FlightSearchController controller;
   final AirportService _airportSvc = AirportService();
-  late final ProviderSubscription<FlightSearchState> _stateSub;
-  bool _rtFetching = false;
-  bool _suppressListener = true;
 
   Future<void> fetchCurrentCountry() async {
-    if (!mounted) return;
-    setState(() => _isLoadingCity = true);
-
     try {
       final FlightSearchController controller = ref.read(
         flightSearchProvider.notifier,
@@ -49,7 +41,6 @@ class _FlightPageState extends ConsumerState<FlightPage> {
         pos.latitude,
         pos.longitude,
       );
-
       final String city = placemarks.isNotEmpty
           ? (placemarks.first.locality ?? '')
           : '';
@@ -70,130 +61,34 @@ class _FlightPageState extends ConsumerState<FlightPage> {
 
       if (code != null) {
         controller.setDepartureCode(code, city);
-        // controller.setDepartureCity(city);
-        debugPrint('📍 set iataCode from Amadeus: $code');
         return;
       }
-      debugPrint('📍 no nearby airport from API (city: $city) → default JFK');
       controller.setDepartureCode('JFK', 'New York');
-      // controller.setDepartureCity('New York');
     } catch (e, st) {
       debugPrint('❌ Location/airport error: $e');
       debugPrint('$st');
       controller.setDepartureCode('JFK', 'New York');
-      // controller.setDepartureCity('New York');
-    } finally {
-      if (mounted) setState(() => _isLoadingCity = false);
     }
   }
 
-  // ---------------------- add these helpers ----------------------
-  // bool _stateReady(FlightSearchState s) {
-  //   final bool hasDep = s.departureAirportCode.isNotEmpty;
-  //   final bool hasArr = s.arrivalAirportCode.isNotEmpty;
-  //   final bool hasOut = s.departDate.isNotEmpty;
-  //   // return date optional (allow one-way)
-  //   return hasDep && hasArr && hasOut;
-  // }
-
-  // Future<void> _runSearchFrom(FlightSearchState s) async {
-  //   if (_rtFetching) return;
-  //   _rtFetching = true;
-
-  //   final FlightSearchController controller = ref.read(
-  //     flightSearchProvider.notifier,
-  //   );
-
-  //   try {
-  //     // optional: clear existing results before new search
-  //     controller.clearProcessedFlights();
-  //     WidgetsBinding.instance.addPostFrameCallback((_) {
-  //       Navigator.of(
-  //         context,
-  //       ).push(MaterialPageRoute<void>(builder: (_) => const FlightListPage()));
-  //     });
-  //     // IMPORTANT: executeFlightSearch returns a list of closures.
-  //     final List<Future<(bool, String)> Function()> ops = controller
-  //         .executeFlightSearch();
-
-  //     for (final Future<(bool, String)> Function() op in ops) {
-  //       final (bool ok, String msg) = await op(); // <-- invoke each closure
-  //       if (!ok) {
-  //         debugPrint('❌ Search failed: $msg');
-  //         // you can throw or show a snackbar here, then break/return
-  //         break;
-  //       }
-  //       debugPrint('✅ Search step: $msg');
-  //     }
-  //   } catch (e, st) {
-  //     debugPrint('❌ runSearch error: $e\n$st');
-  //     if (mounted) {
-  //       ScaffoldMessenger.of(
-  //         context,
-  //       ).showSnackBar(SnackBar(content: Text(e.toString())));
-  //     }
-  //   } finally {
-  //     _rtFetching = false;
-  //   }
-  // }
-
-  // ---------------------- init & dispose ----------------------
   @override
   void initState() {
     super.initState();
     controller = ref.read(flightSearchProvider.notifier);
-    // // Listen to flightSearchProvider and trigger searches on meaningful changes
-    // _stateSub = ref.listenManual<FlightSearchState>(
-    //   flightSearchProvider,
-    //   (FlightSearchState? prev, FlightSearchState next) async {
-    //     // identical object → ignore
-    //     if (!FlightPage.enableAutoListen) return;
-    //     // if (_suppressListener) return;
-    //     if (prev == next) return;
-
-    //     // ignore “anywhere” (handled by your Anywhere UI)
-    //     if (next.arrivalAirportCode.toLowerCase() == 'anywhere') return;
-
-    //     // only run when NEW state is ready (don’t gate on prev)
-    //     if (!_stateReady(next)) return;
-    //     debugPrint('🎯 listenManual fired → running search…');
-    //     await _runSearchFrom(next);
-    //   },
-    //   fireImmediately: false, // first run will wait until a change arrives
-    // );
-  }
-
-  @override
-  void dispose() {
-    // _stateSub.close();
-    super.dispose();
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    if (_initialized) return;
+    _initialized = true;
 
-    if (!_initialized) {
-      _initialized = true;
-
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (controller.departDate == null || controller.departDate!.isEmpty) {
-          final DateTime departDate = DateTime.now();
-
-          controller.setTripDates(departDate: departDate);
-        }
-      });
-
-      // Future<void>.microtask(() async {
-      //   if (!mounted) return;
-      //   await fetchCurrentCountry();
-
-      //   if (controller.mounted) {
-      //     await controller.loadRecentSearches();
-      //   }
-      //   _suppressListener = false;
-      // });
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (controller.departDate == null || controller.departDate!.isEmpty) {
+        final DateTime departDate = DateTime.now();
+        controller.setTripDates(departDate: departDate);
+      }
+    });
   }
 
   @override

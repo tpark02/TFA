@@ -1,4 +1,4 @@
-import 'package:TFA/screens/hotel/hotel_detail_page.dart';
+import 'package:TFA/misc/screens/hotel/hotel_detail_page.dart';
 import 'package:flutter/material.dart';
 
 class HotelCard extends StatelessWidget {

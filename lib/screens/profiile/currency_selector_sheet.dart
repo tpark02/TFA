@@ -1,4 +1,3 @@
-// lib/screens/profile/currency_selector_sheet.dart
 import 'package:flutter/material.dart';
 
 class Currency {

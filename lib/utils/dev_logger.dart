@@ -1,8 +1,6 @@
-// lib/utils/dev_logger.dart
 import 'dart:convert';
 import 'dart:developer' as dev;
 
-/// RFC 5424-ish numeric levels (same values as package:logging)
 class LogLevel {
   static const int FINEST = 300;
   static const int FINER = 400;

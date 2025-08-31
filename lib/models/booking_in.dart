@@ -1,4 +1,3 @@
-// lib/models/booking_in.dart
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'booking_in.freezed.dart';

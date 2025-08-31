@@ -7,11 +7,10 @@ class RangePickerSheet extends StatefulWidget {
   final double min;
   final double max;
   final RangeValues initial;
-  final int? divisions; // null = smooth
-  final LabelFormatter label; // how to show values
+  final int? divisions;
+  final LabelFormatter label;
   final Color? primaryColor;
   final String confirmText;
-  // final String cancelText;
   final ValueChanged<RangeValues> onConfirmed;
 
   const RangePickerSheet({
@@ -25,7 +24,6 @@ class RangePickerSheet extends StatefulWidget {
     this.divisions,
     this.primaryColor,
     this.confirmText = 'Done',
-    // this.cancelText = 'Cancel',
   }) : assert(min < max);
 
   @override
@@ -38,8 +36,16 @@ class _RangePickerSheetState extends State<RangePickerSheet> {
   @override
   void initState() {
     super.initState();
-    final double clampedStart = _clamp(widget.initial.start, widget.min, widget.max);
-    final double clampedEnd = _clamp(widget.initial.end, widget.min, widget.max);
+    final double clampedStart = _clamp(
+      widget.initial.start,
+      widget.min,
+      widget.max,
+    );
+    final double clampedEnd = _clamp(
+      widget.initial.end,
+      widget.min,
+      widget.max,
+    );
     _values = RangeValues(
       clampedStart <= clampedEnd ? clampedStart : clampedEnd,
       clampedEnd >= clampedStart ? clampedEnd : clampedStart,
@@ -84,7 +90,6 @@ class _RangePickerSheetState extends State<RangePickerSheet> {
                 ),
               ),
             ),
-            // const SizedBox(height: 16),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
               child: Row(
@@ -138,7 +143,6 @@ class _RangePickerSheetState extends State<RangePickerSheet> {
   }
 }
 
-/// Helper to open as a modal bottom sheet
 Future<void> showRangePickerSheet({
   required BuildContext context,
   required RangePickerSheet sheet,

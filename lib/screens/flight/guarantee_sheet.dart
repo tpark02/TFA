@@ -14,7 +14,7 @@ class GuaranteeSheet extends ConsumerWidget {
       initialChildSize: 0.8, // how tall it opens
       minChildSize: 0.6,
       maxChildSize: 0.95,
-      builder: (_, scrollController) {
+      builder: (_, ScrollController scrollController) {
         return Container(
           decoration: BoxDecoration(
             color: Colors.white,

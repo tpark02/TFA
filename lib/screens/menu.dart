@@ -47,7 +47,7 @@ class MenuScreen extends ConsumerWidget {
                 MenuTab.travel,
                 MenuTab.account,
               ].indexOf(currentTab)
-            : 0, // fallback when on flightList (or any non-tab screen)
+            : 0,
         selectedItemColor: Colors.blue,
         unselectedItemColor: Colors.grey,
         onTap: (int index) {

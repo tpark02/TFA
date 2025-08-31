@@ -7,14 +7,14 @@ class CounterControl extends StatefulWidget {
     this.onChanged,
     this.min = 0,
     this.max,
-    this.size = 32, // diameter of the circular buttons
+    this.size = 32,
   });
 
   final int count;
   final ValueChanged<int>? onChanged;
-  final int min; // lowest allowed value (inclusive)
-  final int? max; // highest allowed value (inclusive), null = no cap
-  final double size; // button diameter
+  final int min;
+  final int? max;
+  final double size;
 
   @override
   State<CounterControl> createState() => _CounterControlState();
@@ -81,8 +81,6 @@ class _CounterControlState extends State<CounterControl> {
   }) {
     final cs = Theme.of(context).colorScheme;
     final double d = widget.size;
-
-    // background uses surface containers for subtle elevation in both themes
     final Color bg = isPrimary
         ? cs.primaryContainer
         : cs.surfaceContainerHighest;
@@ -99,11 +97,7 @@ class _CounterControlState extends State<CounterControl> {
         child: SizedBox(
           width: d,
           height: d,
-          child: Icon(
-            icon,
-            size: d * 0.55, // scale icon with button size
-            color: enabled ? fg : disabledFg,
-          ),
+          child: Icon(icon, size: d * 0.55, color: enabled ? fg : disabledFg),
         ),
       ),
     );

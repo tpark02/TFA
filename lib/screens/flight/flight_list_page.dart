@@ -8,10 +8,10 @@ import 'package:TFA/providers/sort_tab_provider.dart';
 import 'package:TFA/screens/flight/flight_filter_screen.dart';
 import 'package:TFA/utils/utils.dart';
 import 'package:TFA/widgets/filter_button.dart';
-import 'package:TFA/widgets/flight/flight_list_view.dart';
-import 'package:TFA/widgets/sort_sheets/range_picker_sheet.dart';
-import 'package:TFA/widgets/sort_sheets/selection_bottom_sheet.dart';
-import 'package:TFA/widgets/sort_sheets/sort_bottom_sheet.dart';
+import 'package:TFA/screens/flight/flight_list_view.dart';
+import 'package:TFA/widgets/range_picker_sheet.dart';
+import 'package:TFA/widgets/selection_bottom_sheet.dart';
+import 'package:TFA/widgets/sort_bottom_sheet.dart';
 import 'package:TFA/screens/flight/flight_search_summary_card.dart';
 import 'package:TFA/widgets/search_summary_loading_card.dart';
 import 'package:flutter/material.dart';
@@ -25,7 +25,6 @@ class FlightListPage extends ConsumerStatefulWidget {
 }
 
 class _FlightListPageState extends ConsumerState<FlightListPage> {
-  // Use the lowercase keys expected by FlightListView (cost, duration, value)
   String selectedSort = 'cost';
   String selectedStops = 'Up to 2 stops';
 
@@ -43,13 +42,11 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
 
   Widget _pageBody(BuildContext context, FlightSearchState flightState) {
     final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
     final bool isLoading = flightState.isLoading;
     int minDuration = 1000000, maxDuration = 0;
     int minLayOver = 1000000, maxLayOver = 0;
     final text = AppLocalizations.of(context)!;
 
-    // Build filters data from processed flights
     for (final Map<String, dynamic> e in flightState.processedFlights) {
       final List<String> lst = (e['layOverAirports'] as List<dynamic>)
           .cast<String>();
@@ -67,7 +64,6 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
       maxLayOver = max(maxLayOver, e['layoverMin'] as int);
     }
 
-    // Update ranges (best-effort: keep within slider domain)
     flightDurationRange = RangeValues(
       min(minDuration, 0).toDouble().clamp(0, 1440),
       max(maxDuration, 0).toDouble().clamp(0, 1440),
@@ -78,7 +74,6 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
     );
 
     final List<Widget> header = <Widget>[
-      // Top summary bar
       Material(
         color: cs.primary,
         elevation: 0,
@@ -107,14 +102,12 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
                     cabinClass: flightState.cabinClass,
                   ),
                 ),
-                const SizedBox(width: 20), // spacer for symmetry
+                const SizedBox(width: 20),
               ],
             ),
           ),
         ),
       ),
-
-      // Filters row
       Container(
         color: cs.surfaceContainerHighest,
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -122,7 +115,6 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
           scrollDirection: Axis.horizontal,
           child: Row(
             children: <Widget>[
-              // Tune icon button
               Container(
                 margin: const EdgeInsets.only(left: 8),
                 child: OutlinedButton(
@@ -176,8 +168,6 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
                   child: const Icon(Icons.tune, size: 23),
                 ),
               ),
-
-              // Sort (uses lowercase key but shows capitalized label)
               FilterButton(
                 label: "${text.sort}: ${_cap(selectedSort)}",
                 func: () {
@@ -192,8 +182,6 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
                   );
                 },
               ),
-
-              // Stops
               FilterButton(
                 label: "${text.stops}: $selectedStops",
                 func: () {
@@ -208,8 +196,6 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
                   );
                 },
               ),
-
-              // Take off
               FilterButton(
                 label: text.take_off,
                 func: () async {
@@ -229,8 +215,6 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
                   );
                 },
               ),
-
-              // Landing
               FilterButton(
                 label: text.landing,
                 func: () async {
@@ -250,8 +234,6 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
                   );
                 },
               ),
-
-              // Flight duration
               FilterButton(
                 label: text.flight_duration,
                 func: () async {
@@ -272,8 +254,6 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
                   );
                 },
               ),
-
-              // Layover duration
               FilterButton(
                 label: text.layover_duration,
                 func: () async {
@@ -295,8 +275,6 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
                   );
                 },
               ),
-
-              // Airlines
               FilterButton(
                 label: text.airlines,
                 func: () {
@@ -312,8 +290,6 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
                   );
                 },
               ),
-
-              // Layover cities
               FilterButton(
                 label: text.layover_cities,
                 func: () {
@@ -350,8 +326,7 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
                         dateText: flightState.displayDate ?? '',
                       )
                     : FlightListView(
-                        sortType:
-                            selectedSort, // expects 'cost'|'duration'|'value'
+                        sortType: selectedSort,
                         stopType: selectedStops,
                         takeoff: takeoffRange,
                         landing: landingRange,
@@ -381,13 +356,9 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
     final FlightSearchState flightState = ref.watch(flightSearchProvider);
 
     final Scaffold page = Scaffold(
-      // Keep primary under status-bar for nice blend with summary bar
       body: Container(
         color: Theme.of(context).colorScheme.primary,
-        child: SafeArea(
-          top: false, // allow our top Material(bar) to paint under status bar
-          child: _pageBody(context, flightState),
-        ),
+        child: SafeArea(top: false, child: _pageBody(context, flightState)),
       ),
     );
 

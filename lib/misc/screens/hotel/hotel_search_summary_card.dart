@@ -1,5 +1,5 @@
-import 'package:TFA/providers/hotel/hotel_search_controller.dart';
-import 'package:TFA/providers/hotel/hotel_search_state.dart';
+import 'package:TFA/misc/providers/hotel/hotel_search_controller.dart';
+import 'package:TFA/misc/providers/hotel/hotel_search_state.dart';
 import 'package:TFA/screens/shared/calendar_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

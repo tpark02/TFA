@@ -1,4 +1,3 @@
-// lib/widgets/anywhere/anywhere_destination_tile.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -28,15 +27,16 @@ class AnywhereDestinationTile extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final Color cardColor = Theme.of(context).colorScheme.surface;
-    final Color onSurface = Theme.of(context).colorScheme.onSurface;
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final onSurface = cs.onSurface;
 
     return InkWell(
       borderRadius: BorderRadius.circular(0),
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          color: cardColor,
+          color: cs.surface,
           borderRadius: BorderRadius.circular(4),
           boxShadow: const <BoxShadow>[
             BoxShadow(
@@ -46,7 +46,6 @@ class AnywhereDestinationTile extends ConsumerWidget {
             ),
           ],
         ),
-        // padding: const EdgeInsets.all(12),
         child: Row(
           children: <Widget>[
             SizedBox.square(
@@ -59,7 +58,6 @@ class AnywhereDestinationTile extends ConsumerWidget {
                 child: Image.network(
                   item.imageUrl,
                   fit: BoxFit.cover,
-                  // shows a simple loader color while fetching
                   loadingBuilder:
                       (
                         BuildContext context,
@@ -69,7 +67,6 @@ class AnywhereDestinationTile extends ConsumerWidget {
                         if (progress == null) return child;
                         return Container(color: Colors.black12);
                       },
-                  // graceful fallback if 404/timeout/etc
                   errorBuilder:
                       (BuildContext context, Object error, StackTrace? stack) =>
                           const _ThumbFallback(),
@@ -88,8 +85,8 @@ class AnywhereDestinationTile extends ConsumerWidget {
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: <Widget>[
                         Text(
-                          textAlign: TextAlign.start,
                           item.name,
+                          textAlign: TextAlign.start,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
@@ -111,7 +108,7 @@ class AnywhereDestinationTile extends ConsumerWidget {
                             vertical: 8,
                           ),
                           decoration: BoxDecoration(
-                            color: Colors.grey.shade200,
+                            color: cs.primaryContainer,
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: Text(

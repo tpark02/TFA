@@ -3,7 +3,7 @@ import 'dart:ui';
 import 'package:TFA/l10n/app_localizations.dart';
 import 'package:TFA/providers/flight/flight_search_controller.dart';
 import 'package:TFA/providers/menu_tab_provider.dart';
-import 'package:TFA/widgets/flight/guarantee_sheet.dart';
+import 'package:TFA/screens/flight/guarantee_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';

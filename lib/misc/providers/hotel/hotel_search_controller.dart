@@ -1,4 +1,4 @@
-import 'package:TFA/models/hotel.dart';
+import 'package:TFA/misc/models/hotel.dart';
 import 'package:TFA/providers/recent_search.dart';
 import 'package:TFA/services/recent_search_service.dart';
 import 'package:flutter/material.dart';

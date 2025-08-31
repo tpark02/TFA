@@ -1,17 +1,15 @@
 import 'package:flutter/material.dart';
 
-/// ✅ Make your generic sheet work for the Stars case:
-/// - singleSelect: behaves like radio (keeps exactly one selected)
-/// - trailingOf: lets you render star icons on the right
+typedef LabelOf<T> = String Function(T item);
+
 Future<void> showSelectionBottomSheet<T>({
   required BuildContext context,
   required String title,
   required List<T> items,
   required Set<T> selected,
-  required String Function(T) labelOf,
+  required LabelOf<T> labelOf,
   required void Function(Set<T> newSelection) onDone,
   bool showOnlyAction = true,
-  // double maxHeightFraction = 0.6,
   Widget Function(T item)? trailingOf,
 }) {
   return showModalBottomSheet(
@@ -29,7 +27,6 @@ Future<void> showSelectionBottomSheet<T>({
         labelOf: labelOf,
         onDone: onDone,
         showOnlyAction: showOnlyAction,
-        // maxHeightFraction: maxHeightFraction,
         trailingOf: trailingOf,
       );
     },
@@ -44,18 +41,16 @@ class _SelectionContent<T> extends StatefulWidget {
     required this.labelOf,
     required this.onDone,
     required this.showOnlyAction,
-    // required this.maxHeightFraction,
     required this.trailingOf,
   });
 
   final String title;
   final List<T> items;
   final Set<T> initialSelected;
-  final String Function(T) labelOf;
+  final LabelOf<T> labelOf;
   final void Function(Set<T>) onDone;
   final bool showOnlyAction;
-  // final double maxHeightFraction;
-  final Widget Function(T item)? trailingOf; // 🟢 NEW
+  final Widget Function(T item)? trailingOf;
 
   @override
   State<_SelectionContent<T>> createState() => _SelectionContentState<T>();
@@ -125,7 +120,7 @@ class _SelectionContentState<T> extends State<_SelectionContent<T>> {
                     dense: true,
                     contentPadding: const EdgeInsets.symmetric(horizontal: 8),
                     leading: Checkbox(
-                      fillColor: WidgetStateProperty.all(Colors.transparent),
+                      fillColor: MaterialStateProperty.all(Colors.transparent),
                       checkColor: Theme.of(context).colorScheme.primary,
                       shape: const CircleBorder(),
                       side: BorderSide.none,
@@ -135,32 +130,29 @@ class _SelectionContentState<T> extends State<_SelectionContent<T>> {
                     title: Text(
                       label,
                       style: TextStyle(
-                        fontWeight: isSelected
-                            ? FontWeight.bold
-                            : FontWeight.w300,
+                        fontWeight:
+                            isSelected ? FontWeight.bold : FontWeight.w300,
                         fontSize: 16,
                       ),
                     ),
                     trailing: widget.trailingOf != null
                         ? widget.trailingOf!(item)
                         : (widget.showOnlyAction
-                              ? InkWell(
-                                  onTap: () => _toggle(item, true, true),
-                                  child: const Padding(
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: 8.0,
-                                    ),
-                                    child: Text(
-                                      'only',
-                                      style: TextStyle(
-                                        color: Colors.lightBlue,
-                                        fontWeight: FontWeight.w400,
-                                        fontSize: 16,
-                                      ),
+                            ? InkWell(
+                                onTap: () => _toggle(item, true, true),
+                                child: const Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 8.0),
+                                  child: Text(
+                                    'only',
+                                    style: TextStyle(
+                                      color: Colors.lightBlue,
+                                      fontWeight: FontWeight.w400,
+                                      fontSize: 16,
                                     ),
                                   ),
-                                )
-                              : null),
+                                ),
+                              )
+                            : null),
                     onTap: () => _toggle(item, !isSelected, false),
                   );
                 },
@@ -168,10 +160,7 @@ class _SelectionContentState<T> extends State<_SelectionContent<T>> {
             ),
             const SizedBox(height: 12),
             Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 20.0,
-                vertical: 10,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10),
               child: SizedBox(
                 width: double.infinity,
                 height: 48,

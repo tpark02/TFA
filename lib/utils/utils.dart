@@ -11,10 +11,9 @@ int depMinutesOfDay(dynamic depRaw) {
   if (depRaw == null) return -1;
   final DateTime? dt = DateTime.tryParse(depRaw.toString());
   if (dt == null) return -1;
-  return dt.hour * 60 + dt.minute; // 0..1439
+  return dt.hour * 60 + dt.minute;
 }
 
-// ---- helpers ----
 double parsePrice(dynamic v) {
   if (v is num) return v.toDouble();
   if (v is String) {
@@ -24,14 +23,12 @@ double parsePrice(dynamic v) {
   return double.infinity;
 }
 
-// Accepts "PT12H30M", "12h 30m", "12h30m", "750" (mins) etc.
 int parseDurationMins(dynamic v) {
   if (v == null) return 1 << 30;
   if (v is int) return v;
   if (v is num) return v.toInt();
   final String s = v.toString().trim().toUpperCase();
 
-  // ISO-8601 like PT12H30M
   final RegExp iso = RegExp(r'^PT(?:(\d+)H)?(?:(\d+)M)?$');
   final RegExpMatch? mIso = iso.firstMatch(s);
   if (mIso != null) {
@@ -40,7 +37,6 @@ int parseDurationMins(dynamic v) {
     return h * 60 + m;
   }
 
-  // "12H 30M" or "12H30M"
   final RegExp hm = RegExp(r'(?:(\d+)\s*H)?\s*(?:(\d+)\s*M)?');
   final RegExpMatch? mHm = hm.firstMatch(s);
   if (mHm != null && (mHm.group(1) != null || mHm.group(2) != null)) {
@@ -49,36 +45,17 @@ int parseDurationMins(dynamic v) {
     return h * 60 + m;
   }
 
-  // plain minutes string like "750"
   return int.tryParse(s) ?? (1 << 30);
 }
 
-// Lower is better: balances cheap + short (tweak weights if you want)
 double valueScore(Map f) {
   final double p = parsePrice(f['price']);
   final double d = parseDurationMins(f['duration']).toDouble();
-  // weights: 0.7 price, 0.3 duration (per hour)
-  final double priceNorm = p; // already in currency units
-  final double durNorm = d / 60.0; // hours
+  final double priceNorm = p;
+  final double durNorm = d / 60.0;
   return 0.7 * priceNorm + 0.3 * durNorm;
 }
 
-// ---- sort ALL flights, then split ----
-// int compareFlights(String sortKey, Map a, Map b) {
-//   switch (sortKey) {
-//     case 'duration':
-//       return parseDurationMins(
-//         a['duration'],
-//       ).compareTo(parseDurationMins(b['duration']));
-//     case 'value':
-//       return valueScore(a).compareTo(valueScore(b));
-//     case 'cost':
-//     default:
-//       return parsePrice(a['price']).compareTo(parsePrice(b['price']));
-//   }
-// }
-
-// Map label to max stops allowed
 int maxStopsFor(String stopsLabel) {
   switch (stopsLabel) {
     case 'Nonstop':
@@ -92,53 +69,6 @@ int maxStopsFor(String stopsLabel) {
   }
 }
 
-// --- helpers for filters ---
-// Set<String> layoverCityCodesOf(Map f) {
-//   final String path = (f['airportPath'] as String? ?? '');
-//   final List<String> parts = path
-//       .split('→')
-//       .map((String s) => s.trim())
-//       .toList();
-//   if (parts.length <= 2) return <String>{}; // nonstop
-
-//   final List<String> middleIATAs = parts.sublist(1, parts.length - 1);
-//   final Map<String, dynamic> locMap =
-//       (f['locations'] as Map?)?.cast<String, dynamic>() ?? <String, dynamic>{};
-
-//   final Set<String> out = <String>{};
-//   for (final String iata in middleIATAs) {
-//     final Map<String, dynamic>? details = (locMap[iata] as Map?)
-//         ?.cast<String, dynamic>();
-//     final String? city = details?['cityCode'] as String?;
-//     if (city != null && city.isNotEmpty) out.add(city);
-//   }
-//   return out;
-// }
-
-// bool passesAirlineFilter(Map f, Set<String> selected) {
-//   if (selected.isEmpty) return true; // or false, depending on your UX
-
-//   String norm(String s) => s.toUpperCase().trim();
-
-//   final Set<String> flightAir =
-//       ((f['airlines'] as Iterable?) ?? const <dynamic>[])
-//           .map((e) => norm(e.toString()))
-//           .toSet();
-
-//   final Set<String> selectedNorm = selected.map(norm).toSet();
-
-//   // ✅ Show only if EVERY carrier in the itinerary is selected
-//   return selectedNorm.containsAll(flightAir);
-//   // (equivalent: return flightAir.difference(selectedNorm).isEmpty;)
-// }
-
-// bool passesLayoverCityFilter(Map f, Set<String> selected) {
-//   if (selected.isEmpty) return true;
-//   final Set<String> layoverCities = layoverCityCodesOf(f);
-//   return layoverCities.any(selected.contains);
-// }
-
-/// Parse ISO-8601 duration like "PT5H41M" into minutes.
 int parseIsoDurMin(String? iso) {
   if (iso == null || iso.isEmpty) return 0;
   final RegExp re = RegExp(r'^PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?$');
@@ -150,7 +80,16 @@ int parseIsoDurMin(String? iso) {
   return h * 60 + min + (s ~/ 60);
 }
 
-/// Format minutes to "Hh MMm" (e.g., 341 → "5h 41m")
+String fmtTime(String iso) {
+  final DateTime dt = DateTime.parse(iso);
+  return DateFormat('HH:mm').format(dt);
+}
+
+String formatHeaderDate(String iso) {
+  final DateTime dt = DateTime.parse(iso);
+  return DateFormat('EEEE, MMMM d').format(dt);
+}
+
 String fmtHM(int minutes) {
   final int m = minutes < 0 ? 0 : minutes;
   final int h = m ~/ 60;
@@ -160,7 +99,6 @@ String fmtHM(int minutes) {
   return '${h}h ${mm}m';
 }
 
-/// Format an ISO timestamp to "HH:mm" local time.
 String formatTime(String iso) {
   final DateTime? dt = DateTime.tryParse(iso);
   if (dt == null) return iso;
@@ -179,7 +117,6 @@ String formatDuration(String isoDuration) {
 }
 
 int parseIsoDurationToMin(String iso) {
-  // "PT9H44M" => minutes
   final RegExp re = RegExp(
     r'^P(?:\d+Y)?(?:\d+M)?(?:\d+D)?T?(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?$',
   );
@@ -188,10 +125,9 @@ int parseIsoDurationToMin(String iso) {
   final int h = int.tryParse(m.group(1) ?? '0') ?? 0;
   final int min = int.tryParse(m.group(2) ?? '0') ?? 0;
   final int s = int.tryParse(m.group(3) ?? '0') ?? 0;
-  return h * 60 + min + (s > 0 ? 1 : 0); // round up if seconds present
+  return h * 60 + min + (s > 0 ? 1 : 0);
 }
 
-/// Converts total minutes (0–1439) to formatted time like `12:45p`.
 String formatTimeFromMinutes(int minutes) {
   final int hours = minutes ~/ 60;
   final int mins = minutes % 60;
@@ -201,7 +137,6 @@ String formatTimeFromMinutes(int minutes) {
   return '$displayHour:$displayMin$period';
 }
 
-/// Converts total minutes to duration format like `5h 30m`.
 String formatDurationFromMinutes(int minutes) {
   final int hours = minutes ~/ 60;
   final int mins = minutes % 60;
@@ -252,10 +187,6 @@ Future<Map<String, DateTime?>?> showCalender(
   }
 }
 
-/// Format any currency as a string with optional '+' at the end.
-/// - [amount]: integer value
-/// - [currencySymbol]: e.g. ₩, $, €, ¥
-/// - [addPlusForMax]: append '+' for max bound (for "and above")
 String formatCurrency(
   int amount, {
   String currencySymbol = '₩',
@@ -322,47 +253,38 @@ String pluralize(String word, int n, {String? irregularPlural}) =>
 double parseCurrencyString(
   String s, {
   String locale = 'en_US',
-  String? currencyName, // e.g. 'EUR' (optional)
-  String? currencySymbol, // e.g. '€' (optional)
+  String? currencyName,
+  String? currencySymbol,
 }) {
-  // 1) Try locale/currency aware parse first
   try {
     final NumberFormat f = NumberFormat.currency(
       locale: locale,
-      name: currencyName, // currency code
-      symbol: currencySymbol, // symbol; leave null to use locale default
+      name: currencyName,
+      symbol: currencySymbol,
     );
     return f.parse(s).toDouble();
   } catch (_) {
-    // 2) Fallback: strip noise, remove group sep, normalize decimal sep
     final NumberFormat dp = NumberFormat.decimalPattern(locale);
-    final String dec = dp.symbols.DECIMAL_SEP; // e.g. "." or ","
-    final String grp = dp.symbols.GROUP_SEP; // e.g. "," or " "
+    final String dec = dp.symbols.DECIMAL_SEP;
+    final String grp = dp.symbols.GROUP_SEP;
 
-    // Keep only digits, minus, decimal/group separators
     String t = s.replaceAll(
       RegExp(r'[^0-9\-\Q' + dec + r'\E\Q' + grp + r'\E]'),
       '',
     );
-
-    // Remove grouping
     if (grp.isNotEmpty) t = t.replaceAll(grp, '');
-
-    // Normalize decimal separator to "."
     if (dec != '.') t = t.replaceAll(dec, '.');
 
     return double.tryParse(t) ?? 0.0;
   }
 }
 
-// compact ISO → yyyymmddHHMM for stable keys
 String _ts(String? iso) {
   if (iso == null || iso.isEmpty) return '';
-  final DateTime dt = DateTime.parse(iso); // your API gives ISO without TZ
+  final DateTime dt = DateTime.parse(iso);
   return DateFormat('yyyyMMddHHmm').format(dt);
 }
 
-// One segment → key part: OPERATOR/FLIGHT DEP-TS->ARR-TS
 String _segKey(Segment s) {
   final String op = (s.operating?.carrierCode ?? s.carrierCode ?? '')
       .toUpperCase();
@@ -374,16 +296,13 @@ String _segKey(Segment s) {
   return '$op/$num $dep-$depAt->$arr-$arrAt';
 }
 
-// Whole itinerary (list of segments) → leg key
 String itineraryKey(List<Segment> segs) =>
     (segs.isEmpty) ? '' : segs.map(_segKey).join('|');
 
-// Outbound leg key for a flight offer (itineraries[0])
 String outboundKey(FlightOffer offer) =>
     itineraryKey(offer.itineraries?.first.segments ?? const <Segment>[]);
 
 List<double> saturationMatrix(double s) {
-  // s: 1.0 = original, 0.0 = grayscale
   final inv = 1 - s;
   final r = 0.2126 * inv;
   final g = 0.7152 * inv;

@@ -1,4 +1,3 @@
-// lib/widgets/google_button.dart
 import 'package:flutter/material.dart';
 
 class GoogleButton extends StatelessWidget {
@@ -8,10 +7,7 @@ class GoogleButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 🟢 FIX: exact size + shape to match your fields/login button
-    const double kHeight = 48; // ~14 vertical padding on your other button
-    final cs = Theme.of(context).colorScheme;
-
+    const double kHeight = 48;
     return Material(
       color: Colors.white,
       elevation: 1.5,
@@ -21,11 +17,10 @@ class GoogleButton extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         child: SizedBox(
           height: kHeight,
-          width: double.infinity, // full width
+          width: double.infinity,
           child: Stack(
             alignment: Alignment.center,
             children: [
-              // left icon
               Positioned(
                 left: 16,
                 child: loading
@@ -40,7 +35,6 @@ class GoogleButton extends StatelessWidget {
                         height: 20,
                       ),
               ),
-              // centered label
               const Text(
                 'Sign in with Google',
                 style: TextStyle(

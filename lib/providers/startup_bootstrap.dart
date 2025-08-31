@@ -1,11 +1,8 @@
-// lib/bootstrap/startup_bootstrap.dart
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geocoding/geocoding.dart';
-import 'package:geolocator_platform_interface/src/models/position.dart';
-
+import 'package:geolocator/geolocator.dart';
 import 'package:TFA/providers/flight/flight_search_controller.dart';
-import 'package:TFA/providers/flight/flight_search_state.dart';
 import 'package:TFA/services/airport_service.dart';
 import 'package:TFA/services/location_service.dart';
 
