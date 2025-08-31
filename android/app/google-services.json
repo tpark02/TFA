@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:34506647750:android:231995162200bb37d14fc7",
+        "mobilesdk_app_id": "1:34506647750:android:46837d3bcac74e1cd14fc7",
         "android_client_info": {
-          "package_name": "com.example.chat_app"
+          "package_name": "com.example.tfa"
         }
       },
       "oauth_client": [],
