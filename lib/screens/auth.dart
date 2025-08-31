@@ -1,9 +1,12 @@
 import 'package:TFA/l10n/app_localizations.dart';
+import 'package:TFA/providers/auth_provider.dart';
 import 'package:TFA/utils/api_config.dart';
+import 'package:TFA/widgets/google_button.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
+import 'package:sign_in_button/sign_in_button.dart';
 
 final FirebaseAuth _firebase = FirebaseAuth.instance;
 
@@ -18,10 +21,30 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   final GlobalKey<FormState> _form = GlobalKey<FormState>();
   final TextEditingController _emailCtrl = TextEditingController();
   final TextEditingController _pwCtrl = TextEditingController();
+  bool busy = false;
 
   bool _isLogin = true;
   bool _isSubmitting = false;
   bool _showPassword = false;
+
+  Future<void> _google() async {
+    setState(() => busy = true);
+    try {
+      await ref.read(authServiceProvider).signInWithGoogle();
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Google sign-in failed: $e')));
+    } finally {
+      if (mounted) setState(() => busy = false);
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   void dispose() {
@@ -297,6 +320,36 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                                         ? text.create_account
                                         : text.i_already,
                                     style: TextStyle(color: cs.onPrimary),
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                // Divider with "OR"
+                                Row(
+                                  children: [
+                                    const Expanded(
+                                      child: Divider(thickness: 1),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                      ),
+                                      child: Text(
+                                        "OR",
+                                        style: TextStyle(color: cs.onPrimary),
+                                      ),
+                                    ),
+                                    const Expanded(
+                                      child: Divider(thickness: 1),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 12),
+                                // Google Sign-In button
+                                SizedBox(
+                                  width: double.infinity,
+                                  child: GoogleButton(
+                                    onPressed: busy ? null : _google,
+                                    loading: busy,
                                   ),
                                 ),
                               ],

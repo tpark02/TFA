@@ -59,6 +59,8 @@ dependencies:
   flutter_gen: ^5.11.0
   shared_preferences: ^2.2.2
   dynamic_color: ^1.7.0
+  google_sign_in: ^6.2.1
+  sign_in_button: ^3.0.0
   
 dev_dependencies:
   build_runner: ^2.4.8
@@ -96,6 +98,8 @@ flutter:
     - assets/images/room_2.jpg
     - assets/images/room_3.webp
     - assets/images/cloud.jpg
+    - assets/images/google_logo.png
+
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
