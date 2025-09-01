@@ -1,9 +1,9 @@
 import 'package:TFA/l10n/app_localizations.dart';
 import 'package:TFA/models/booking_out.dart';
 import 'package:TFA/providers/flight/flight_search_controller.dart';
-import 'package:TFA/providers/menu_tab_provider.dart';
 import 'package:TFA/providers/route_observer.dart';
 import 'package:TFA/screens/flight/booking_card.dart';
+import 'package:TFA/screens/flight/empty_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -91,7 +91,9 @@ class _BookingEmptyState extends ConsumerState<_BookingsEmpty> with RouteAware {
         }
         final bookings = snap.data ?? const <BookingOut>[];
         if (bookings.isEmpty) {
-          return const _EmptyState();
+          return EmptyScreen(
+            msg: "You don't have any past bookings.\nLet's get you flying!",
+          );
         }
         return ListView.separated(
           padding: const EdgeInsets.all(16),
@@ -100,66 +102,6 @@ class _BookingEmptyState extends ConsumerState<_BookingsEmpty> with RouteAware {
           itemBuilder: (_, i) => BookingCard(booking: bookings[i]),
         );
       },
-    );
-  }
-}
-
-class _EmptyState extends ConsumerWidget {
-  const _EmptyState();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final width = MediaQuery.of(context).size.width;
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
-
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.image_outlined, size: 96, color: cs.outlineVariant),
-            const SizedBox(height: 24),
-            Text(
-              "You don't have any past bookings.\nLet's get you flying!",
-              textAlign: TextAlign.center,
-              style: tt.titleMedium?.copyWith(
-                height: 1.35,
-                fontWeight: FontWeight.w600,
-                color: cs.onSurface,
-              ),
-            ),
-            const SizedBox(height: 24),
-            SizedBox(
-              width: width * 0.8,
-              height: 48,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: cs.primary,
-                  foregroundColor: cs.onPrimary,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                onPressed: () {
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    ref.read(menuTabProvider.notifier).state = MenuTab.search;
-                  });
-                },
-                child: Text(
-                  'Search for a flight',
-                  style: tt.titleSmall?.copyWith(
-                    fontWeight: FontWeight.w700,
-                    color: cs.onPrimary,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

@@ -1,4 +1,6 @@
 import 'package:TFA/l10n/app_localizations.dart';
+import 'package:TFA/screens/flight/empty_screen.dart';
+import 'package:TFA/screens/flight/my_trips_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:TFA/providers/flight/flight_search_controller.dart';
@@ -247,115 +249,123 @@ class _FlightListViewState extends ConsumerState<FlightListView>
       },
     );
 
-    return Container(
-      color: cs.surface,
-      child: Column(
-        children: <Widget>[
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: cs.surfaceContainerHighest,
-              border: Border(
-                top: BorderSide(color: cs.outlineVariant, width: 0.0),
-                bottom: BorderSide(color: cs.outlineVariant, width: 1.0),
-              ),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return departureFlightWidgets.isEmpty
+        ? EmptyScreen(msg: "There are no flights")
+        : Container(
+            color: cs.surface,
+            child: Column(
               children: <Widget>[
-                Text(
-                  text.choose_departing_flight,
-                  style: tt.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: cs.onSurface,
-                  ),
-                ),
-                Text(
-                  text.total_cost,
-                  style: tt.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: cs.secondary,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          if (activeIndex != null)
-            departureFlightWidgets[activeIndex]
-          else
-            Flexible(
-              child: MediaQuery.removePadding(
-                context: context,
-                removeTop: true,
-                child: ListView(
-                  controller: _returnScrollController,
-                  children: <Widget>[...departureFlightWidgets],
-                ),
-              ),
-            ),
-          if (activeIndex != null && returnFlightWidgets.isNotEmpty) ...[
-            Container(
-              padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-              decoration: BoxDecoration(
-                color: cs.surfaceContainerHighest,
-                border: Border(
-                  top: BorderSide(color: cs.outlineVariant, width: 1.0),
-                ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  Text(
-                    text.choose_returning_flight,
-                    style: tt.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: cs.onSurface,
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: cs.surfaceContainerHighest,
+                    border: Border(
+                      top: BorderSide(color: cs.outlineVariant, width: 0.0),
+                      bottom: BorderSide(color: cs.outlineVariant, width: 1.0),
                     ),
                   ),
-                ],
-              ),
-            ),
-            Flexible(
-              child: MediaQuery.removePadding(
-                context: context,
-                removeTop: true,
-                child: SizedBox.expand(
-                  child: SlideTransition(
-                    position: _returnSlideAnimation,
-                    child: Column(
-                      key: const ValueKey<String>('return-list'),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Text(
+                        text.choose_departing_flight,
+                        style: tt.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: cs.onSurface,
+                        ),
+                      ),
+                      Text(
+                        text.total_cost,
+                        style: tt.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: cs.secondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                if (activeIndex != null)
+                  departureFlightWidgets[activeIndex]
+                else
+                  Flexible(
+                    child: MediaQuery.removePadding(
+                      context: context,
+                      removeTop: true,
+                      child: ListView(
+                        controller: _returnScrollController,
+                        children: <Widget>[...departureFlightWidgets],
+                      ),
+                    ),
+                  ),
+                if (activeIndex != null && returnFlightWidgets.isNotEmpty) ...[
+                  Container(
+                    padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+                    decoration: BoxDecoration(
+                      color: cs.surfaceContainerHighest,
+                      border: Border(
+                        top: BorderSide(color: cs.outlineVariant, width: 1.0),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
-                        Expanded(
-                          child: AnimatedSwitcher(
-                            duration: const Duration(milliseconds: 300),
-                            child: isLoading
-                                ? SearchSummaryLoadingCard(
-                                    key: const ValueKey<String>('shimmer'),
-                                    routeText:
-                                        (activeIndex < departureFlights.length)
-                                        ? (departureFlights[activeIndex]['airportPath']
-                                                  as String? ??
-                                              '')
-                                        : '',
-                                    dateText: flightState.displayDate ?? '',
-                                  )
-                                : ListView(
-                                    key: const ValueKey<String>('return-list'),
-                                    controller: _returnScrollController,
-                                    children: filterReturnFlightWidgets(),
-                                  ),
+                        Text(
+                          text.choose_returning_flight,
+                          style: tt.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: cs.onSurface,
                           ),
                         ),
                       ],
                     ),
                   ),
-                ),
-              ),
+                  Flexible(
+                    child: MediaQuery.removePadding(
+                      context: context,
+                      removeTop: true,
+                      child: SizedBox.expand(
+                        child: SlideTransition(
+                          position: _returnSlideAnimation,
+                          child: Column(
+                            key: const ValueKey<String>('return-list'),
+                            children: <Widget>[
+                              Expanded(
+                                child: AnimatedSwitcher(
+                                  duration: const Duration(milliseconds: 300),
+                                  child: isLoading
+                                      ? SearchSummaryLoadingCard(
+                                          key: const ValueKey<String>(
+                                            'shimmer',
+                                          ),
+                                          routeText:
+                                              (activeIndex <
+                                                  departureFlights.length)
+                                              ? (departureFlights[activeIndex]['airportPath']
+                                                        as String? ??
+                                                    '')
+                                              : '',
+                                          dateText:
+                                              flightState.displayDate ?? '',
+                                        )
+                                      : ListView(
+                                          key: const ValueKey<String>(
+                                            'return-list',
+                                          ),
+                                          controller: _returnScrollController,
+                                          children: filterReturnFlightWidgets(),
+                                        ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ],
             ),
-          ],
-        ],
-      ),
-    );
+          );
   }
 
   List<Widget> filterReturnFlightWidgets() {
