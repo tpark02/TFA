@@ -232,7 +232,3 @@ Set up signing and upload to Play Console.
 - Hotels/rental cars: start with UI, then wire real APIs
 
 ---
-
-## License
-
-TBD
