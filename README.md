@@ -75,7 +75,7 @@ TFA/
 └─ README.md
 
 
-# TFA — Skiplagged-style Flight Search & Booking (Flutter + FastAPI)
+## TFA — Skiplagged-style Flight Search & Booking (Flutter + FastAPI)
 
 Provides “Anywhere” exploration, one-way/round-trip search, filters/sorting, and a slide-in return-list UX.
 Uses the Amadeus API for real flight search and booking.
