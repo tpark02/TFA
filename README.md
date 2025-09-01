@@ -3,7 +3,6 @@
 Anywhere 목적지 탐색, 왕복/편도 검색, 필터/정렬, 리턴편 슬라이드 인 UX를 제공하며
 Amadeus API로 실제 항공편 검색과 예약(Booking)을 수행합니다.
 클라이언트는 Flutter + Riverpod, 서버는 FastAPI 기반입니다. Firebase Auth 로그인 구현됨.
-** tfa.zip - android apk.
 
 ---
 
