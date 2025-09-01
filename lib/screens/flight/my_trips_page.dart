@@ -150,7 +150,10 @@ class _EmptyState extends ConsumerWidget {
                 },
                 child: Text(
                   'Search for a flight',
-                  style: tt.titleSmall?.copyWith(fontWeight: FontWeight.w700),
+                  style: tt.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: cs.onPrimary,
+                  ),
                 ),
               ),
             ),
