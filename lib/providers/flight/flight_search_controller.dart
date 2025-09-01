@@ -701,6 +701,9 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
     if (next != state) state = next;
   }
 
+  // lib/providers/flight/flight_search_controller.dart
+  // Adds a searchNonce bump whenever search params change.
+
   void updateSearch({
     // airports
     String? departureCode,
@@ -709,9 +712,10 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
     String? arrivalCity,
 
     // dates
-    DateTime? departDate, // set outbound
-    DateTime? returnDate, // set return
-    bool clearReturnDate = false, // set to true to remove return date
+    DateTime? departDate,
+    DateTime? returnDate,
+    bool clearReturnDate = false,
+
     // pax / cabin
     int? passengerCount,
     int? cabinIndex,
@@ -719,6 +723,8 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
     int? children,
     int? infantLap,
     int? infantSeat,
+
+    bool bumpNonce = true,
   }) {
     // --- start from current values
     String depCode = departureCode ?? state.departureAirportCode;
@@ -759,7 +765,7 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
         ? getCabinClassByIdx(cabinIndex: newCabinIdx)
         : state.cabinClass;
 
-    final next = state.copyWith(
+    var next = state.copyWith(
       // airports
       departureAirportCode: depCode,
       departureCity: depCity,
@@ -782,7 +788,10 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
       cabinClass: newCabinClass,
     );
 
-    if (next != state) state = next;
+    if (bumpNonce) {
+      next = next.copyWith(searchNonce: state.searchNonce + 1);
+    }
+    state = next;
   }
 
   void setDepartureCity(String city) {
@@ -797,10 +806,12 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
     state = state.copyWith(departureAirportCode: code, departureCity: city);
   }
 
-  // void clearProcessedFlights() {
-  //   debugPrint("🔴 clear processed flights");
-  //   state = state.copyWith(processedFlights: <Map<String, dynamic>>[]);
-  // }
+  Future<(bool, String)> clearProcessedFlights() async {
+    final cleared = state.processedFlights.length;
+    debugPrint('🔴 clear processed flights ($cleared)');
+    state = state.copyWith(processedFlights: <Map<String, dynamic>>[]);
+    return (true, 'cleared $cleared flights');
+  }
 
   // void clearHiddenAiportCodeList() {
   //   debugPrint("🔴 clear hidden airport code list flights");
@@ -977,7 +988,9 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
   List<Future<(bool, String)> Function()> executeFlightSearch() {
     if (returnDate?.isNotEmpty ?? false) {
       debugPrint("✈️ Round Trip");
+
       return <Future<(bool, String)> Function()>[
+        () => clearProcessedFlights(),
         () => searchFlights(
           origin: state.departureAirportCode,
           destination: state.arrivalAirportCode,

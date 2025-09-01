@@ -26,13 +26,13 @@ class SearchRunner {
     try {
       final ctrl = container.read(flightSearchProvider.notifier);
 
+      final ops = ctrl.executeFlightSearch();
+
       // navigate first (like your original code)
       searchTabNavKey.currentState?.push(
         MaterialPageRoute<void>(builder: (_) => const FlightListPage()),
       );
 
-      // ctrl.clearProcessedFlights();
-      final ops = ctrl.executeFlightSearch();
       for (final op in ops) {
         final (ok, msg) = await op();
         if (!ok) {

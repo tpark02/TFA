@@ -22,20 +22,26 @@ class RecentSearchItem extends ConsumerWidget {
     return InkWell(
       onTap: () async {
         if (search.kind == 'flight' && search.departCode.isNotEmpty) {
-          controller.setDepartureCity(depCity);
-          controller.setArrivalCode(search.arrivalCode, arrCity);
-          controller.setDepartureCode(search.departCode, depCity);
+          // Replace all the individual setters with a single call:
+          controller.clearProcessedFlights();
+          controller.updateSearch(
+            // airports
+            departureCode: search.departCode,
+            departureCity: depCity,
+            arrivalCode: search.arrivalCode,
+            arrivalCity: arrCity,
 
-          if (search.departDate.isNotEmpty) {
-            final depart = DateTime.parse(search.departDate);
-            final DateTime? ret = search.returnDate.isNotEmpty
+            // dates
+            departDate: search.departDate.isNotEmpty
+                ? DateTime.parse(search.departDate)
+                : null,
+            returnDate: search.returnDate.isNotEmpty
                 ? DateTime.parse(search.returnDate)
-                : null;
-            controller.setTripDates(departDate: depart, returnDate: ret);
-          }
-
-          controller.setPassengers(
-            count: search.passengerCnt,
+                : null,
+            clearReturnDate:
+                search.returnDate.isEmpty, // remove return if empty
+            // pax / cabin
+            passengerCount: search.passengerCnt,
             cabinIndex: search.cabinIdx,
             adult: search.adult,
             children: search.children,
