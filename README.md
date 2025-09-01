@@ -5,7 +5,9 @@ Amadeus API로 실제 항공편 검색과 예약(Booking)을 수행합니다.
 클라이언트는 Flutter + Riverpod, 서버는 FastAPI 기반입니다. Firebase Auth 로그인 구현됨.
 
 ---
-
+## APK
+- tfa.zip - android apk
+  
 ## 기능
 
 - Anywhere 목적지 탐색: 리스트 ↔ 지도 토글
@@ -73,7 +75,7 @@ TFA/
 ├─ pubspec.yaml
 ├─ pubspec.lock
 └─ README.md
-
+```
 
 # TFA — Skiplagged-style Flight Search & Booking (Flutter + FastAPI)
 
@@ -104,7 +106,7 @@ Client is Flutter + Riverpod; server is FastAPI. Firebase Auth login is implemen
 ---
 
 ## Folder Structure
-
+```text
 TFA/
 ├─ android/
 ├─ ios/
@@ -137,7 +139,7 @@ TFA/
 ├─ pubspec.yaml
 ├─ pubspec.lock
 └─ README.md
-
+```
 ---
 
 ## Quick Start
@@ -232,7 +234,3 @@ Set up signing and upload to Play Console.
 - Hotels/rental cars: start with UI, then wire real APIs
 
 ---
-
-## License
-
-TBD
