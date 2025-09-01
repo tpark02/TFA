@@ -104,7 +104,7 @@ Client is Flutter + Riverpod; server is FastAPI. Firebase Auth login is implemen
 ---
 
 ## Folder Structure
-
+```text
 TFA/
 ├─ android/
 ├─ ios/
@@ -137,7 +137,7 @@ TFA/
 ├─ pubspec.yaml
 ├─ pubspec.lock
 └─ README.md
-
+```
 ---
 
 ## Quick Start
