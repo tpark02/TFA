@@ -8,7 +8,7 @@ import 'package:TFA/models/booking_out.dart';
 class BookingService {
   static Future<BookingOut> createBooking({required BookingIn booking}) async {
     final User? user = FirebaseAuth.instance.currentUser;
-    final String? idToken = await user?.getIdToken();
+    final String? idToken = await user?.getIdToken(true);
 
     if (idToken == null) {
       throw Exception("User not authenticated.");
