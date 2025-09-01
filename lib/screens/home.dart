@@ -91,7 +91,7 @@ class _HomeState extends ConsumerState<HomeScreen> {
               Container(
                 padding: const EdgeInsets.all(16),
                 child: Material(
-                  color: cs.surfaceContainerHighest, // Adaptive surface color
+                  color: cs.primaryContainer, // Adaptive surface color
                   elevation: 5, // Theme-aware shadow
                   borderRadius: BorderRadius.circular(4),
                   child: Padding(
@@ -138,7 +138,7 @@ class _HomeState extends ConsumerState<HomeScreen> {
                         ),
                         const SizedBox(width: 8),
                         Material(
-                          color: cs.surface, // Theme-aware surface
+                          color: cs.primaryContainer, // Theme-aware surface
                           elevation: 5,
                           borderRadius: BorderRadius.circular(12),
                           child: ClipRRect(
@@ -166,7 +166,7 @@ class _HomeState extends ConsumerState<HomeScreen> {
                 padding: const EdgeInsets.all(16.0),
                 child: Material(
                   color: cs
-                      .surfaceContainerHigh, // theme surface color (adapts to dark mode)
+                      .primaryContainer, // theme surface color (adapts to dark mode)
                   elevation: 5, // subtle theme-aware shadow
                   borderRadius: BorderRadius.circular(4),
                   child: Column(
@@ -263,6 +263,9 @@ class _HomeState extends ConsumerState<HomeScreen> {
     return InkWell(
       onTap: () {
         controller.setArrivalCode(iata, label);
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          ref.read(menuTabProvider.notifier).state = MenuTab.search;
+        });
       },
       child: Container(
         margin: const EdgeInsets.only(right: 12),
@@ -313,6 +316,9 @@ class _HomeState extends ConsumerState<HomeScreen> {
     return TextButton(
       onPressed: () {
         controller.setArrivalCode(seed, title);
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          ref.read(menuTabProvider.notifier).state = MenuTab.search;
+        });
       },
       child: Material(
         color: cs.surface, // theme surface color (adapts to dark mode)

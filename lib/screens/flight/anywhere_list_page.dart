@@ -8,6 +8,7 @@ import 'package:TFA/screens/flight/anywhere_destination_tile.dart';
 import 'package:TFA/screens/flight/flight_search_summary_card.dart';
 import 'package:TFA/widgets/search_summary_loading_card.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class AnywhereListPage extends ConsumerStatefulWidget {
@@ -58,7 +59,6 @@ class _AnywhereListState extends ConsumerState<AnywhereListPage> {
     final cs = theme.colorScheme;
 
     return Scaffold(
-      backgroundColor: cs.primary,
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(90),
         child: _TopBar(
@@ -145,6 +145,7 @@ class _AnywhereListState extends ConsumerState<AnywhereListPage> {
 
 class _TopBar extends StatelessWidget {
   const _TopBar({
+    super.key,
     required this.title,
     required this.onBack,
     required this.onToggleMap,
@@ -160,38 +161,47 @@ class _TopBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
 
-    return Container(
-      color: cs.primary,
-      padding: const EdgeInsets.only(top: 30, bottom: 10),
-      child: Row(
-        children: [
-          const SizedBox(width: 8),
-          IconButton(
-            onPressed: onBack,
-            icon: const Icon(Icons.arrow_back_ios),
-            color: Colors.white,
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: SizedBox(
-                height: 60,
-                child: FittedBox(
-                  alignment: Alignment.centerLeft,
-                  fit: BoxFit.scaleDown,
-                  child: SizedBox(width: 250, child: title),
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      // Makes status bar icons white
+      value: SystemUiOverlayStyle.light,
+      child: Container(
+        color: cs.primary, // Color extends under status bar
+        child: SafeArea(
+          bottom: false, // only pad for top
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            child: Row(
+              children: [
+                const SizedBox(width: 8),
+                IconButton(
+                  onPressed: onBack,
+                  icon: const Icon(Icons.arrow_back_ios),
+                  color: Colors.white,
                 ),
-              ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: SizedBox(
+                      height: 60,
+                      child: FittedBox(
+                        alignment: Alignment.centerLeft,
+                        fit: BoxFit.scaleDown,
+                        child: SizedBox(width: 250, child: title),
+                      ),
+                    ),
+                  ),
+                ),
+                IconButton(
+                  onPressed: onToggleMap,
+                  icon: Icon(isMap ? Icons.list : Icons.map_outlined),
+                  color: Colors.white,
+                ),
+                const SizedBox(width: 8),
+              ],
             ),
           ),
-          IconButton(
-            onPressed: onToggleMap,
-            icon: Icon(isMap ? Icons.list : Icons.map_outlined),
-            color: Colors.white,
-          ),
-          const SizedBox(width: 8),
-        ],
+        ),
       ),
     );
   }

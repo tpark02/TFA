@@ -36,7 +36,7 @@ class AnywhereDestinationTile extends ConsumerWidget {
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          color: cs.surface,
+          color: cs.primaryContainer,
           borderRadius: BorderRadius.circular(4),
           boxShadow: const <BoxShadow>[
             BoxShadow(
@@ -78,7 +78,7 @@ class AnywhereDestinationTile extends ConsumerWidget {
                           fit: StackFit.expand,
                           children: [
                             // subtle placeholder background
-                            Container(color: Colors.black12),
+                            Container(color: cs.onPrimaryContainer),
                             // centered spinner
                             Center(
                               child: SizedBox(
@@ -116,7 +116,7 @@ class AnywhereDestinationTile extends ConsumerWidget {
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            color: onSurface,
+                            color: cs.onSecondaryContainer,
                             fontSize: 20,
                             fontWeight: FontWeight.w800,
                             letterSpacing: -0.2,
@@ -134,13 +134,13 @@ class AnywhereDestinationTile extends ConsumerWidget {
                             vertical: 8,
                           ),
                           decoration: BoxDecoration(
-                            color: cs.primaryContainer,
+                            color: cs.secondaryContainer,
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: Text(
                             'FROM ${_krw(item.minPriceKrw)}',
                             style: TextStyle(
-                              color: onSurface.withAlpha((0.9 * 255).toInt()),
+                              color: cs.onSecondaryContainer,
                               fontWeight: FontWeight.w800,
                               fontSize: Theme.of(
                                 context,

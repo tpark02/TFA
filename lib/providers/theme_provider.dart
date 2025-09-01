@@ -9,11 +9,11 @@ final themeModeProvider = StateNotifierProvider<ThemeModeController, ThemeMode>(
 );
 
 class ThemeModeController extends StateNotifier<ThemeMode> {
-  ThemeModeController() : super(ThemeMode.system);
+  ThemeModeController() : super(ThemeMode.light);
 
   Future<void> load() async {
     final p = await SharedPreferences.getInstance();
-    final v = p.getString('themeMode') ?? 'system';
+    final v = p.getString('themeMode') ?? 'light';
     state = _from(v);
   }
 
