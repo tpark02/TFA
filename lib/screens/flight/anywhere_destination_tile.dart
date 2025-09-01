@@ -55,47 +55,43 @@ class AnywhereDestinationTile extends ConsumerWidget {
                   topLeft: Radius.circular(4),
                   bottomLeft: Radius.circular(4),
                 ),
-                child: Image.network(
-                  item.imageUrl,
-                  fit: BoxFit.cover,
-                  loadingBuilder:
-                      (
-                        BuildContext context,
-                        Widget child,
-                        ImageChunkEvent? progress,
-                      ) {
-                        if (progress == null)
-                          return child; // loaded → show image
-
-                        // Still loading → show dim bg + centered CircularProgressIndicator (with % if known)
-                        final total = progress.expectedTotalBytes;
-                        final loaded = progress.cumulativeBytesLoaded;
-                        final value = (total != null && total > 0)
-                            ? loaded / total
-                            : null;
-
-                        return Stack(
-                          fit: StackFit.expand,
-                          children: [
-                            // subtle placeholder background
-                            Container(color: cs.onPrimaryContainer),
-                            // centered spinner
-                            Center(
-                              child: SizedBox(
-                                width: 24,
-                                height: 24,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2.4,
-                                  value: value, // null => indeterminate
+                child: SizedBox(
+                  width: 200, // give finite constraints
+                  height: 150,
+                  child: Image.network(
+                    item.imageUrl,
+                    fit: BoxFit.cover,
+                    frameBuilder:
+                        (context, child, frame, wasSynchronouslyLoaded) {
+                          if (wasSynchronouslyLoaded)
+                            return child; // cached: show immediately
+                          return Stack(
+                            fit: StackFit.expand,
+                            children: [
+                              Container(
+                                color: cs.onPrimaryContainer,
+                              ), // placeholder bg
+                              const Center(
+                                child: SizedBox(
+                                  width: 24,
+                                  height: 24,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2.4,
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
-                        );
-                      },
-                  errorBuilder:
-                      (BuildContext context, Object error, StackTrace? stack) =>
-                          const _ThumbFallback(),
+                              AnimatedOpacity(
+                                opacity: frame == null ? 0.0 : 1.0,
+                                duration: const Duration(milliseconds: 200),
+                                child:
+                                    child, // fade in when the first frame arrives
+                              ),
+                            ],
+                          );
+                        },
+                    errorBuilder: (_, __, ___) =>
+                        const Center(child: Icon(Icons.image_not_supported)),
+                  ),
                 ),
               ),
             ),
