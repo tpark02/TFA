@@ -15,6 +15,18 @@ Amadeus API로 실제 항공편 검색과 예약(Booking)을 수행합니다.
 - 검색 파라미터 일괄 업데이트: updateSearch() + searchNonce 로 재검색 트리거
 - 국제화(l10n), 라이트/다크 테마(기본 라이트)
 
+## 📸 스크린샷
+
+<p align="center">
+  <img src="./screenshots/login.jpeg" alt="Login" width="30%" />
+  <img src="./screenshots/home.jpeg" alt="Home" width="30%" />
+  <img src="./screenshots/search.jpeg" alt="Search" width="30%" />
+  <br/>
+  <img src="./screenshots/list.jpeg" alt="List" width="30%" />
+  <img src="./screenshots/mytrip.jpeg" alt="My Trip" width="30%" />
+  <img src="./screenshots/profile.jpeg" alt="Profile" width="30%" />
+</p>
+
 ---
 
 ## 기술 스택
