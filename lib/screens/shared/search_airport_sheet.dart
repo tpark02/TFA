@@ -354,7 +354,9 @@ class _AirportSheetState extends ConsumerState<SearchAirportSheet> {
                         child: ListView.builder(
                           itemCount: filteredAirports.isNotEmpty
                               ? filteredAirports.length
-                              : 1,
+                              : !widget.isDeparture
+                              ? 1
+                              : 0,
                           itemBuilder: (BuildContext context, int index) {
                             if (filteredAirports.isEmpty) {
                               return const AnyWhereButton();

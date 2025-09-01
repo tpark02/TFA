@@ -114,7 +114,7 @@ class FlightSearchInputs extends ConsumerWidget {
                             await showAirportSelectionSheet(
                               context: context,
                               title: 'Destination',
-                              isDeparture: true,
+                              isDeparture: false,
                             );
                         if (result != null) {
                           controller.setArrivalCode(result.code, result.city);

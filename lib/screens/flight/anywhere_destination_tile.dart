@@ -64,8 +64,34 @@ class AnywhereDestinationTile extends ConsumerWidget {
                         Widget child,
                         ImageChunkEvent? progress,
                       ) {
-                        if (progress == null) return child;
-                        return Container(color: Colors.black12);
+                        if (progress == null)
+                          return child; // loaded → show image
+
+                        // Still loading → show dim bg + centered CircularProgressIndicator (with % if known)
+                        final total = progress.expectedTotalBytes;
+                        final loaded = progress.cumulativeBytesLoaded;
+                        final value = (total != null && total > 0)
+                            ? loaded / total
+                            : null;
+
+                        return Stack(
+                          fit: StackFit.expand,
+                          children: [
+                            // subtle placeholder background
+                            Container(color: Colors.black12),
+                            // centered spinner
+                            Center(
+                              child: SizedBox(
+                                width: 24,
+                                height: 24,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2.4,
+                                  value: value, // null => indeterminate
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
                       },
                   errorBuilder:
                       (BuildContext context, Object error, StackTrace? stack) =>

@@ -23,11 +23,9 @@ class RecentSearchApiService {
     int infantSeat = 0,
     required String jwtToken,
   }) async {
-    final Uri url = Uri.parse("$baseUrl/api/v1/recent-searches/");
-
     try {
       final http.Response response = await http.post(
-        url,
+        apiUri('/api/v1/recent-searches/'),
         headers: <String, String>{
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $jwtToken',
@@ -81,11 +79,8 @@ class RecentSearchApiService {
     if (idToken == null) {
       throw Exception("User not authenticated.");
     }
-
-    final Uri url = Uri.parse("$baseUrl/api/v1/recent-searches/$kind");
-
     final http.Response response = await http.get(
-      url,
+      apiUri('/api/v1/recent-searches/$kind'),
       headers: <String, String>{
         'Authorization': 'Bearer $idToken',
         'Content-Type': 'application/json',

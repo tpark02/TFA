@@ -69,7 +69,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
       try {
         final idToken = await creds.user!.getIdToken(true);
         final res = await http.get(
-          getBackendUri(),
+          apiUri('/api/v1/auth/me'),
           headers: <String, String>{'Authorization': 'Bearer $idToken'},
         );
         if (!mounted) return;

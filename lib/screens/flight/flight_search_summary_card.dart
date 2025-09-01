@@ -119,7 +119,7 @@ class FlightSearchSummaryCard extends ConsumerWidget {
                           context: context,
                           builder: (_) => SearchAirportSheet(
                             title: text.destination,
-                            isDeparture: true,
+                            isDeparture: false,
                           ),
                         );
                     if (result != null) {

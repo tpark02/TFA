@@ -11,7 +11,7 @@ class AirportService {
     int limit = 10,
     int offset = 0,
   }) async {
-    final Uri uri = Uri.parse('$baseUrl/api/v1/airports/nearby').replace(
+    final Uri uri = apiUri('/api/v1/airports/nearby').replace(
       queryParameters: <String, dynamic>{
         'latitude': lat.toStringAsFixed(6),
         'longitude': lon.toStringAsFixed(6),
@@ -36,13 +36,9 @@ class AirportService {
     double? latitude,
     double? longitude,
   }) async {
-    final Uri primaryUri = Uri.parse(
-      '$baseUrl/api/v1/airports/location/$iataCode',
-    );
-
     try {
       final http.Response res = await http.get(
-        primaryUri,
+        apiUri('/api/v1/airports/location/$iataCode'),
         headers: const <String, String>{'Accept': 'application/json'},
       );
 
@@ -73,11 +69,8 @@ class AirportService {
     double latitude,
     double longitude,
   ) async {
-    final Uri uri = Uri.parse(
-      '$baseUrl/api/v1/airports/nearby?latitude=$latitude&longitude=$longitude',
-    );
     final http.Response res = await http.get(
-      uri,
+      apiUri('/api/v1/airports/nearby?latitude=$latitude&longitude=$longitude'),
       headers: const <String, String>{'Accept': 'application/json'},
     );
 

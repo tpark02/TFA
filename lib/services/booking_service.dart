@@ -7,7 +7,6 @@ import 'package:TFA/models/booking_out.dart';
 
 class BookingService {
   static Future<BookingOut> createBooking({required BookingIn booking}) async {
-    final Uri url = Uri.parse("$baseUrl/api/v1/bookings/");
     final User? user = FirebaseAuth.instance.currentUser;
     final String? idToken = await user?.getIdToken();
 
@@ -16,7 +15,7 @@ class BookingService {
     }
 
     final response = await http.post(
-      url,
+      apiUri('/api/v1/bookings/'),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $idToken',
@@ -34,7 +33,6 @@ class BookingService {
   }
 
   static Future<List<BookingOut>> getBooking(String kind) async {
-    final Uri url = Uri.parse("$baseUrl/api/v1/bookings/$kind");
     final User? user = FirebaseAuth.instance.currentUser;
     final String? idToken = await user?.getIdToken();
 
@@ -43,7 +41,7 @@ class BookingService {
     }
 
     final http.Response res = await http.get(
-      url,
+      apiUri('/api/v1/bookings/$kind'),
       headers: <String, String>{
         'Authorization': 'Bearer $idToken',
         'Content-Type': 'application/json',

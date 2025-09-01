@@ -37,14 +37,13 @@ class FlightService {
     int maxResults = 5,
   }) async {
     try {
-      final Uri url = Uri.http(
-        baseUrl.replaceFirst('http://', ''),
+      final url = apiUri(
         '/api/v1/flights/search',
-        <String, dynamic>{
+        query: {
           'origin': origin,
           'destination': destination,
           'departure_date': departureDate,
-          if (returnDate != null) 'return_date': returnDate,
+          if ((returnDate ?? '').isNotEmpty) 'return_date': returnDate,
           'adults': adults.toString(),
           'children': children.toString(),
           'infants': infants.toString(),
@@ -87,10 +86,14 @@ class FlightService {
   Future<List<FlightSearchOut>> fetchHiddenCity({
     required FlightSearchIn payload,
   }) async {
-    final Uri url = Uri.parse("$baseUrl/api/v1/hidden-city/search");
+    final Uri url = apiUri('/api/v1/hidden-city/search');
+
     final http.Response response = await http.post(
       url,
-      headers: <String, String>{"Content-Type": "application/json"},
+      headers: <String, String>{
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
       body: jsonEncode(payload.toJson()),
     );
 
