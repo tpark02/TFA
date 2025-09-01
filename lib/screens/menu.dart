@@ -1,59 +1,45 @@
+// lib/screens/menu.dart  (replace your current MenuScreen)
 import 'package:TFA/l10n/app_localizations.dart';
 import 'package:TFA/providers/menu_tab_provider.dart';
+import 'package:TFA/providers/navigation.dart';
 import 'package:TFA/screens/flight/my_trips_page.dart';
 import 'package:TFA/screens/profiile/profile_settings_page.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:TFA/screens/search.dart';
 import 'package:TFA/screens/home.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class MenuScreen extends ConsumerWidget {
   const MenuScreen({super.key});
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final MenuTab currentTab = ref.watch(menuTabProvider);
+    final currentTab = ref.watch(menuTabProvider);
     final text = AppLocalizations.of(context)!;
 
-    Widget body;
-    switch (currentTab) {
-      case MenuTab.home:
-        body = const HomeScreen();
-        break;
-      case MenuTab.search:
-        body = const SearchScreen();
-        break;
-      case MenuTab.travel:
-        body = const MyTripsPage();
-        break;
-      case MenuTab.account:
-        body = const ProfileSettingsPage();
-        break;
-    }
-
     return Scaffold(
-      body: body,
+      extendBody: true,
+      body: IndexedStack(
+        index: currentTab.index,
+        children: [
+          // Each tab gets its own Navigator
+          _TabNavigator(navKey: homeTabNavKey, child: const HomeScreen()),
+          _TabNavigator(navKey: searchTabNavKey, child: const SearchScreen()),
+          _TabNavigator(navKey: travelTabNavKey, child: const MyTripsPage()),
+          _TabNavigator(
+            navKey: accountTabNavKey,
+            child: const ProfileSettingsPage(),
+          ),
+        ],
+      ),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
-        currentIndex:
-            <MenuTab>[
-              MenuTab.home,
-              MenuTab.search,
-              MenuTab.travel,
-              MenuTab.account,
-            ].contains(currentTab)
-            ? <MenuTab>[
-                MenuTab.home,
-                MenuTab.search,
-                MenuTab.travel,
-                MenuTab.account,
-              ].indexOf(currentTab)
-            : 0,
+        currentIndex: currentTab.index,
         selectedItemColor: Colors.blue,
         unselectedItemColor: Colors.grey,
-        onTap: (int index) {
-          ref.read(menuTabProvider.notifier).state = MenuTab.values[index];
-        },
-        items: <BottomNavigationBarItem>[
+        onTap: (i) =>
+            ref.read(menuTabProvider.notifier).state = MenuTab.values[i],
+        items: [
           BottomNavigationBarItem(
             icon: const Icon(Icons.home),
             label: text.home,
@@ -72,6 +58,20 @@ class MenuScreen extends ConsumerWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _TabNavigator extends StatelessWidget {
+  const _TabNavigator({required this.navKey, required this.child});
+  final GlobalKey<NavigatorState> navKey;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Navigator(
+      key: navKey,
+      onGenerateRoute: (settings) => MaterialPageRoute(builder: (_) => child),
     );
   }
 }

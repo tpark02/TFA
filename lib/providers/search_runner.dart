@@ -27,7 +27,7 @@ class SearchRunner {
       final ctrl = container.read(flightSearchProvider.notifier);
 
       // navigate first (like your original code)
-      rootNavigatorKey.currentState?.push(
+      searchTabNavKey.currentState?.push(
         MaterialPageRoute<void>(builder: (_) => const FlightListPage()),
       );
 
