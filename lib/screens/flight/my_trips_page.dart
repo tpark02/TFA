@@ -93,6 +93,7 @@ class _BookingEmptyState extends ConsumerState<_BookingsEmpty> with RouteAware {
         if (bookings.isEmpty) {
           return EmptyScreen(
             msg: "You don't have any past bookings.\nLet's get you flying!",
+            showButton: true,
           );
         }
         return ListView.separated(

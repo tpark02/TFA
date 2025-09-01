@@ -250,7 +250,7 @@ class _FlightListViewState extends ConsumerState<FlightListView>
     );
 
     return departureFlightWidgets.isEmpty
-        ? EmptyScreen(msg: "There are no flights")
+        ? EmptyScreen(msg: "There are no flights", showButton: false)
         : Container(
             color: cs.surface,
             child: Column(

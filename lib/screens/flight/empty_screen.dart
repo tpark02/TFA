@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class EmptyScreen extends ConsumerWidget {
-  EmptyScreen({super.key, required this.msg});
+  EmptyScreen({super.key, required this.msg, required this.showButton});
   final String msg;
-
+  final bool showButton;
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final width = MediaQuery.of(context).size.width;
@@ -32,32 +32,35 @@ class EmptyScreen extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: 24),
-              SizedBox(
-                width: width * 0.8,
-                height: 48,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: cs.primary,
-                    foregroundColor: cs.onPrimary,
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+              if (showButton) ...[
+                SizedBox(
+                  width: width * 0.8,
+                  height: 48,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: cs.primary,
+                      foregroundColor: cs.onPrimary,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
-                  ),
-                  onPressed: () {
-                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                      ref.read(menuTabProvider.notifier).state = MenuTab.search;
-                    });
-                  },
-                  child: Text(
-                    'Search for a flight',
-                    style: tt.titleSmall?.copyWith(
-                      fontWeight: FontWeight.w700,
-                      color: cs.onPrimary,
+                    onPressed: () {
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        ref.read(menuTabProvider.notifier).state =
+                            MenuTab.search;
+                      });
+                    },
+                    child: Text(
+                      'Search for a flight',
+                      style: tt.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: cs.onPrimary,
+                      ),
                     ),
                   ),
                 ),
-              ),
+              ],
             ],
           ),
         ),
