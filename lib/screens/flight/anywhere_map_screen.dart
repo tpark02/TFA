@@ -34,6 +34,13 @@ class _AnywhereMapState extends ConsumerState<AnywhereMapScreen>
     super.dispose();
   }
 
+  double _bottomBarOffset(BuildContext context) {
+    final safe = MediaQuery.of(
+      context,
+    ).padding.bottom; // iPhone home-indicator, etc.
+    return safe + kBottomNavigationBarHeight + 8; // nav bar + small gap
+  }
+
   void _animateMapMove(LatLng dest, double toZoom) {
     final beginCenter = _mapController.center;
     final beginZoom = _mapController.camera.zoom;
@@ -154,7 +161,7 @@ class _AnywhereMapState extends ConsumerState<AnywhereMapScreen>
                 ],
               ),
               Positioned(
-                bottom: 16,
+                bottom: _bottomBarOffset(context),
                 left: 16,
                 right: 16,
                 child: SizedBox(
