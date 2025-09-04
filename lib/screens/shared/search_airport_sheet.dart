@@ -39,15 +39,15 @@ class _AirportSheetState extends ConsumerState<SearchAirportSheet> {
   Future<bool> _doFetchHiddenAirports({required String iata}) async {
     if (!mounted) return false;
 
-    final controller = ref.read(flightSearchProvider.notifier);
+    final FlightSearchController controller = ref.read(flightSearchProvider.notifier);
 
     final List<Map<String, dynamic>>? airports = await _airportSvc
         .searchHiddenAirports(iataCode: iata);
 
     if (airports != null) {
       final List<String> candidateDests = airports
-          .map((a) => (a['iataCode'] as String?)?.toUpperCase())
-          .where((c) => c != null && c.isNotEmpty && c != iata.toUpperCase())
+          .map((Map<String, dynamic> a) => (a['iataCode'] as String?)?.toUpperCase())
+          .where((String? c) => c != null && c.isNotEmpty && c != iata.toUpperCase())
           .cast<String>()
           .toSet()
           .take(12)
@@ -81,8 +81,8 @@ class _AirportSheetState extends ConsumerState<SearchAirportSheet> {
     if (n == 0) {
       final List<String> nearbyCodes =
           (nearbyRaw ?? const <Map<String, dynamic>>[])
-              .map((a) => (a['iataCode'] as String?)?.toUpperCase())
-              .where((c) => c != null && c.isNotEmpty)
+              .map((Map<String, dynamic> a) => (a['iataCode'] as String?)?.toUpperCase())
+              .where((String? c) => c != null && c.isNotEmpty)
               .cast<String>()
               .toList();
       dev.log(
@@ -106,8 +106,8 @@ class _AirportSheetState extends ConsumerState<SearchAirportSheet> {
   }
 
   Widget buildAirportListItems(List filteredAirports, int index) {
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
+    final TextTheme tt = Theme.of(context).textTheme;
 
     final Airport airport = filteredAirports[index] as Airport;
     return Padding(
@@ -126,7 +126,7 @@ class _AirportSheetState extends ConsumerState<SearchAirportSheet> {
                         _isFetchingHidden = true;
                       });
 
-                      final selected = airport.iataCode;
+                      final String selected = airport.iataCode;
                       try {
                         bool ok = true;
                         if (!widget.isDeparture) {
@@ -219,8 +219,8 @@ class _AirportSheetState extends ConsumerState<SearchAirportSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
+    final TextTheme tt = Theme.of(context).textTheme;
 
     final double height = MediaQuery.of(context).size.height;
     final String query = ref.watch(airportSearchQueryProvider);
@@ -393,10 +393,10 @@ class AnyWhereButton extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
+    final TextTheme tt = Theme.of(context).textTheme;
 
-    final controller = ref.read(flightSearchProvider.notifier);
+    final FlightSearchController controller = ref.read(flightSearchProvider.notifier);
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),

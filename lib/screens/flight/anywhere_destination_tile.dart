@@ -27,9 +27,9 @@ class AnywhereDestinationTile extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
-    final cs = theme.colorScheme;
-    final onSurface = cs.onSurface;
+    final ThemeData theme = Theme.of(context);
+    final ColorScheme cs = theme.colorScheme;
+    final Color onSurface = cs.onSurface;
 
     return InkWell(
       borderRadius: BorderRadius.circular(0),
@@ -62,12 +62,13 @@ class AnywhereDestinationTile extends ConsumerWidget {
                     item.imageUrl,
                     fit: BoxFit.cover,
                     frameBuilder:
-                        (context, child, frame, wasSynchronouslyLoaded) {
-                          if (wasSynchronouslyLoaded)
+                        (BuildContext context, Widget child, int? frame, bool wasSynchronouslyLoaded) {
+                          if (wasSynchronouslyLoaded) {
                             return child; // cached: show immediately
+                          }
                           return Stack(
                             fit: StackFit.expand,
-                            children: [
+                            children: <Widget>[
                               Container(
                                 color: cs.onPrimaryContainer,
                               ), // placeholder bg

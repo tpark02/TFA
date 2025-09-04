@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class EmptyScreen extends ConsumerWidget {
-  EmptyScreen({super.key, required this.msg, required this.showButton});
+  const EmptyScreen({super.key, required this.msg, required this.showButton});
   final String msg;
   final bool showButton;
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final width = MediaQuery.of(context).size.width;
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
+    final double width = MediaQuery.of(context).size.width;
+    final ColorScheme cs = Theme.of(context).colorScheme;
+    final TextTheme tt = Theme.of(context).textTheme;
 
     return Container(
       color: cs.surface,
@@ -19,7 +19,7 @@ class EmptyScreen extends ConsumerWidget {
           padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            children: [
+            children: <Widget>[
               Icon(Icons.image_outlined, size: 96, color: cs.outlineVariant),
               const SizedBox(height: 24),
               Text(
@@ -32,7 +32,7 @@ class EmptyScreen extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: 24),
-              if (showButton) ...[
+              if (showButton) ...<Widget>[
                 SizedBox(
                   width: width * 0.8,
                   height: 48,

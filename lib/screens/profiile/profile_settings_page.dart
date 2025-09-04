@@ -10,9 +10,9 @@ class ProfileSettingsPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final text = AppLocalizations.of(context)!;
-    final cs = Theme.of(context).colorScheme;
-    final mode = ref.watch(themeModeProvider);
+    final AppLocalizations text = AppLocalizations.of(context)!;
+    final ColorScheme cs = Theme.of(context).colorScheme;
+    final ThemeMode mode = ref.watch(themeModeProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -35,21 +35,21 @@ class ProfileSettingsPage extends ConsumerWidget {
             title: const Text('Light'),
             value: ThemeMode.light,
             groupValue: mode,
-            onChanged: (v) => ref.read(themeModeProvider.notifier).set(v!),
+            onChanged: (ThemeMode? v) => ref.read(themeModeProvider.notifier).set(v!),
             activeColor: cs.primary,
           ),
           RadioListTile<ThemeMode>(
             title: const Text('Dark'),
             value: ThemeMode.dark,
             groupValue: mode,
-            onChanged: (v) => ref.read(themeModeProvider.notifier).set(v!),
+            onChanged: (ThemeMode? v) => ref.read(themeModeProvider.notifier).set(v!),
             activeColor: cs.primary,
           ),
           RadioListTile<ThemeMode>(
             title: const Text('System'),
             value: ThemeMode.system,
             groupValue: mode,
-            onChanged: (v) => ref.read(themeModeProvider.notifier).set(v!),
+            onChanged: (ThemeMode? v) => ref.read(themeModeProvider.notifier).set(v!),
             activeColor: cs.primary,
           ),
           Divider(height: 0, color: cs.outlineVariant),
@@ -63,7 +63,7 @@ class ProfileSettingsPage extends ConsumerWidget {
 }
 
 class _Login extends ConsumerStatefulWidget {
-  const _Login({super.key});
+  const _Login();
 
   @override
   ConsumerState<_Login> createState() => _LoginState();
@@ -72,11 +72,11 @@ class _Login extends ConsumerStatefulWidget {
 class _LoginState extends ConsumerState<_Login> {
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
-    final text = AppLocalizations.of(context)!;
-    final user = FirebaseAuth.instance.currentUser;
-    final email = user?.email ?? 'N/A';
+    final ColorScheme cs = Theme.of(context).colorScheme;
+    final TextTheme tt = Theme.of(context).textTheme;
+    final AppLocalizations text = AppLocalizations.of(context)!;
+    final User? user = FirebaseAuth.instance.currentUser;
+    final String email = user?.email ?? 'N/A';
 
     return ListTile(
       leading: Icon(Icons.person, color: cs.primary),
@@ -110,8 +110,8 @@ class _SectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
+    final TextTheme tt = Theme.of(context).textTheme;
 
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),

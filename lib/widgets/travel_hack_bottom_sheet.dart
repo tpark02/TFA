@@ -5,8 +5,8 @@ class TravelHackBottomSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
+    final TextTheme tt = Theme.of(context).textTheme;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
@@ -17,7 +17,7 @@ class TravelHackBottomSheet extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+        children: <Widget>[
           Text(
             'Travel Hacks',
             style: tt.titleMedium?.copyWith(
@@ -27,7 +27,7 @@ class TravelHackBottomSheet extends StatelessWidget {
           ),
           const SizedBox(height: 20),
           Row(
-            children: [
+            children: <Widget>[
               const Text(
                 'Self - Transfer',
                 style: TextStyle(fontWeight: FontWeight.w600),

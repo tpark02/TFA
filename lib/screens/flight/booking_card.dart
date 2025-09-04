@@ -11,8 +11,8 @@ class BookingCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final onSurface = Theme.of(context).colorScheme.onSurface;
-    final sub = onSurface.withValues(alpha: 0.7);
+    final Color onSurface = Theme.of(context).colorScheme.onSurface;
+    final Color sub = onSurface.withValues(alpha: 0.7);
     final String route = '${booking.departCode} → ${booking.arrivalCode}';
     final String dates = _fmtDateRange(booking.departDate, booking.returnDate);
     final String pax = _paxSummary(
@@ -33,9 +33,9 @@ class BookingCard extends StatelessWidget {
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+          children: <Widget>[
             Row(
-              children: [
+              children: <Widget>[
                 Expanded(
                   child: Text(
                     route,
@@ -76,7 +76,7 @@ class BookingCard extends StatelessWidget {
 
   String _fmtDate(String s) {
     try {
-      final d = DateTime.parse(s).toLocal();
+      final DateTime d = DateTime.parse(s).toLocal();
       return DateFormat('yMMMd').format(d);
     } catch (_) {
       return s;
@@ -89,7 +89,7 @@ class BookingCard extends StatelessWidget {
     required int infantLap,
     required int infantSeat,
   }) {
-    final parts = <String>[];
+    final List<String> parts = <String>[];
     if (adults > 0) parts.add('$adults ${adults == 1 ? "adult" : "adults"}');
     if (children > 0) {
       parts.add('$children ${children == 1 ? "child" : "children"}');

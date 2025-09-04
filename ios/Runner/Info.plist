@@ -24,14 +24,15 @@
 	<string>????</string>
 	<key>CFBundleURLTypes</key>
 	<array>
-		<dict>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>com.googleusercontent.apps.34506647750-6jn3grdq8ih5lq7jr3fb2k3jf4k9c4ts</string>
-			</array>
-		</dict>
+	<dict>
+	<key>CFBundleTypeRole</key>
+	<string>Editor</string>
+	<key>CFBundleURLSchemes</key>
+	<array>
+	<!-- MUST match REVERSED_CLIENT_ID from GoogleService-Info.plist -->
+	<string>com.googleusercontent.apps.750757984956-1t216qgu6tnfs8q7lo1810b5mgrtd6dq</string>
+	</array>
+	</dict>
 	</array>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>

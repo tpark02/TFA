@@ -13,7 +13,7 @@ class SearchSummaryLoadingCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
 
     return Container(
       color: Theme.of(context).colorScheme.surface,

@@ -28,7 +28,7 @@ class DealCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final cs = Theme.of(context).colorScheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
 
     return TextButton(
       onPressed: () {
@@ -45,9 +45,9 @@ class DealCard extends ConsumerWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+          children: <Widget>[
             Stack(
-              children: [
+              children: <Widget>[
                 SizedBox(
                   width: width,
                   height: height,
@@ -59,11 +59,11 @@ class DealCard extends ConsumerWidget {
                           : 'https://picsum.photos/seed/$seed/200/150',
                       fit: BoxFit.cover,
                       frameBuilder:
-                          (context, child, frame, wasSynchronouslyLoaded) {
+                          (BuildContext context, Widget child, int? frame, bool wasSynchronouslyLoaded) {
                             if (wasSynchronouslyLoaded) return child; // cached
                             return Stack(
                               fit: StackFit.expand,
-                              children: [
+                              children: <Widget>[
                                 Container(color: Colors.black12), // placeholder
                                 const Center(
                                   child: SizedBox(
@@ -95,7 +95,7 @@ class DealCard extends ConsumerWidget {
                       color: cs.primary,
                       borderRadius: BorderRadius.circular(4),
                       border: Border.all(color: Colors.transparent, width: 1),
-                      boxShadow: const [
+                      boxShadow: const <BoxShadow>[
                         BoxShadow(
                           color: Colors.black12,
                           blurRadius: 8,
@@ -125,7 +125,7 @@ class DealCard extends ConsumerWidget {
                       color: Colors.red.shade400,
                       borderRadius: BorderRadius.circular(4),
                       border: Border.all(color: Colors.transparent, width: 1),
-                      boxShadow: [
+                      boxShadow: <BoxShadow>[
                         BoxShadow(
                           color: cs.errorContainer,
                           blurRadius: 8,

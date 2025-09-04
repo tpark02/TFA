@@ -22,8 +22,8 @@ class FlightSearchInputs extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
+    final TextTheme tt = Theme.of(context).textTheme;
 
     final FlightSearchController controller = ref.read(
       flightSearchProvider.notifier,

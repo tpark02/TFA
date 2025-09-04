@@ -14,5 +14,5 @@ enum SortTab {
 }
 
 final StateProvider<SortTab> sortTabProvider = StateProvider<SortTab>(
-  (ref) => SortTab.sort,
+  (StateProviderRef<SortTab> ref) => SortTab.sort,
 );

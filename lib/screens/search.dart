@@ -30,9 +30,9 @@ class _SearchContentState extends ConsumerState<_SearchContent> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final text = AppLocalizations.of(context)!;
-    final cs = theme.colorScheme;
+    final ThemeData theme = Theme.of(context);
+    final AppLocalizations text = AppLocalizations.of(context)!;
+    final ColorScheme cs = theme.colorScheme;
 
     return Scaffold(
       appBar: AppBar(

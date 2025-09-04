@@ -71,5 +71,4 @@ class DefaultFirebaseOptions {
     authDomain: 'tfa-auth-demo-2025.firebaseapp.com',
     storageBucket: 'tfa-auth-demo-2025.firebasestorage.app',
   );
-
 }

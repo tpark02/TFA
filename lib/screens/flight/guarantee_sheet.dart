@@ -7,7 +7,7 @@ class GuaranteeSheet extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final cs = Theme.of(context).colorScheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
 
     return DraggableScrollableSheet(
       expand: false,
@@ -19,7 +19,7 @@ class GuaranteeSheet extends ConsumerWidget {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-            boxShadow: [
+            boxShadow: <BoxShadow>[
               BoxShadow(
                 color: Colors.black.withValues(alpha: .2),
                 blurRadius: 10,
@@ -32,7 +32,7 @@ class GuaranteeSheet extends ConsumerWidget {
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
             child: Column(
               mainAxisSize: MainAxisSize.min,
-              children: [
+              children: <Widget>[
                 // Top drag handle
                 Container(
                   width: 36,
@@ -69,7 +69,7 @@ class GuaranteeSheet extends ConsumerWidget {
                 // Title
                 Text.rich(
                   const TextSpan(
-                    children: [
+                    children: <InlineSpan>[
                       TextSpan(
                         text: 'Guarantee',
                         style: TextStyle(fontWeight: FontWeight.w800),
@@ -133,7 +133,7 @@ class GuaranteeSheet extends ConsumerWidget {
                         alignment: Alignment.center,
                         child: const Icon(Icons.image_not_supported_outlined),
                       ),
-                      loadingBuilder: (c, child, prog) => prog == null
+                      loadingBuilder: (BuildContext c, Widget child, ImageChunkEvent? prog) => prog == null
                           ? child
                           : Container(color: Colors.black12),
                     ),

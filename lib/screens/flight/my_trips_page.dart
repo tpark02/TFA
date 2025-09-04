@@ -17,9 +17,9 @@ class MyTripsPage extends ConsumerStatefulWidget {
 class _MyTrpPageState extends ConsumerState<MyTripsPage> {
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
-    final text = AppLocalizations.of(context)!;
+    final ColorScheme cs = Theme.of(context).colorScheme;
+    final TextTheme tt = Theme.of(context).textTheme;
+    final AppLocalizations text = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
@@ -31,13 +31,13 @@ class _MyTrpPageState extends ConsumerState<MyTripsPage> {
           style: TextStyle(color: cs.onPrimary, fontWeight: FontWeight.w600),
         ),
       ),
-      body: _BookingsEmpty(),
+      body: const _BookingsEmpty(),
     );
   }
 }
 
 class _BookingsEmpty extends ConsumerStatefulWidget {
-  const _BookingsEmpty({super.key});
+  const _BookingsEmpty();
   @override
   ConsumerState<_BookingsEmpty> createState() => _BookingEmptyState();
 }
@@ -72,7 +72,7 @@ class _BookingEmptyState extends ConsumerState<_BookingsEmpty> with RouteAware {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
     return FutureBuilder<List<BookingOut>?>(
       future: _future,
       builder: (BuildContext context, AsyncSnapshot<List<BookingOut>?> snap) {
@@ -89,9 +89,9 @@ class _BookingEmptyState extends ConsumerState<_BookingsEmpty> with RouteAware {
             ),
           );
         }
-        final bookings = snap.data ?? const <BookingOut>[];
+        final List<BookingOut> bookings = snap.data ?? const <BookingOut>[];
         if (bookings.isEmpty) {
-          return EmptyScreen(
+          return const EmptyScreen(
             msg: "You don't have any past bookings.\nLet's get you flying!",
             showButton: true,
           );
@@ -100,7 +100,7 @@ class _BookingEmptyState extends ConsumerState<_BookingsEmpty> with RouteAware {
           padding: const EdgeInsets.all(16),
           itemCount: bookings.length,
           separatorBuilder: (_, __) => const SizedBox(height: 12),
-          itemBuilder: (_, i) => BookingCard(booking: bookings[i]),
+          itemBuilder: (_, int i) => BookingCard(booking: bookings[i]),
         );
       },
     );

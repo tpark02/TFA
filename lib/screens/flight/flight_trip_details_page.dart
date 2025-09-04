@@ -1,6 +1,7 @@
 import 'package:TFA/l10n/app_localizations.dart';
 import 'package:TFA/models/booking_in.dart';
 import 'package:TFA/providers/flight/flight_search_controller.dart';
+import 'package:TFA/providers/flight/flight_search_state.dart';
 import 'package:TFA/screens/flight/flight_book_complete_page.dart';
 import 'package:TFA/screens/flight/flight_trip_details_item.dart';
 import 'package:TFA/utils/utils.dart';
@@ -42,7 +43,7 @@ class _FlightTripDetailPageState extends ConsumerState<FlightTripDetailsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final flightState = ref.watch(flightSearchProvider);
+    final FlightSearchState flightState = ref.watch(flightSearchProvider);
     final Color primary = Theme.of(context).colorScheme.primary;
     final Color onPrimary = Theme.of(context).colorScheme.onPrimary;
     final double? textSize = Theme.of(context).textTheme.displaySmall?.fontSize;
@@ -52,7 +53,7 @@ class _FlightTripDetailPageState extends ConsumerState<FlightTripDetailsPage> {
     final int infantsHeld = _departData['pax']['infantsHeld'] as int;
     final int infantsSeated = _departData['pax']['infantsSeated'] as int;
     final List<String> lst = <String>[];
-    final text = AppLocalizations.of(context)!;
+    final AppLocalizations text = AppLocalizations.of(context)!;
 
     if (adults > 0) lst.add('$adults ${pluralize('adult', adults)}');
     if (children > 0) {
@@ -81,7 +82,7 @@ class _FlightTripDetailPageState extends ConsumerState<FlightTripDetailsPage> {
       currencySymbol: currency,
     );
     final num rtp = _returnData != null
-        ? parseCurrencyString(_departData!['price'], currencySymbol: currency)
+        ? parseCurrencyString(_departData['price'], currencySymbol: currency)
         : 0;
 
     final double p = dtp + rtp;
@@ -91,7 +92,7 @@ class _FlightTripDetailPageState extends ConsumerState<FlightTripDetailsPage> {
       decimalDigits: 2,
     );
     final String ticketTotalPrice = fmt.format(p); // "€238.04"
-    final cs = Theme.of(context).colorScheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
 
     return Scaffold(
       backgroundColor: cs.surface,

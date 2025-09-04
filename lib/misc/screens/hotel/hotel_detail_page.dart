@@ -31,15 +31,15 @@ class _HotelDetailPageState extends State<HotelDetailPage>
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final cs = theme.colorScheme;
-    const title = 'Lotte City Hotel Mapo';
+    final ThemeData theme = Theme.of(context);
+    final ColorScheme cs = theme.colorScheme;
+    const String title = 'Lotte City Hotel Mapo';
 
     return Scaffold(
       appBar: AppBar(
         title: Column(
           mainAxisSize: MainAxisSize.min,
-          children: [
+          children: <Widget>[
             Text(
               title,
               style: theme.textTheme.titleMedium?.copyWith(
@@ -57,19 +57,19 @@ class _HotelDetailPageState extends State<HotelDetailPage>
           ],
         ),
         centerTitle: true,
-        actions: [
+        actions: <Widget>[
           IconButton(onPressed: () {}, icon: const Icon(Icons.ios_share)),
         ],
       ),
       body: CustomScrollView(
-        slivers: [
+        slivers: <Widget>[
           SliverToBoxAdapter(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+              children: <Widget>[
                 // Hero image with rating badge
                 Stack(
-                  children: [
+                  children: <Widget>[
                     AspectRatio(
                       aspectRatio: 16 / 9,
                       child: Image.asset(
@@ -102,13 +102,13 @@ class _HotelDetailPageState extends State<HotelDetailPage>
                   padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
+                    children: <Widget>[
                       Row(
-                        children: [
+                        children: <Widget>[
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
+                              children: <Widget>[
                                 Text(
                                   title,
                                   style: theme.textTheme.titleLarge?.copyWith(
@@ -165,9 +165,9 @@ class _HotelDetailPageState extends State<HotelDetailPage>
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
+                    children: <Widget>[
                       Row(
-                        children: [
+                        children: <Widget>[
                           Icon(Icons.bed_outlined, color: cs.onSurfaceVariant),
                           const SizedBox(width: 8),
                           Text(
@@ -180,7 +180,7 @@ class _HotelDetailPageState extends State<HotelDetailPage>
                       ),
                       const SizedBox(height: 12),
                       Row(
-                        children: [
+                        children: <Widget>[
                           Icon(
                             Icons.info_outline,
                             size: 20,
@@ -208,7 +208,7 @@ class _HotelDetailPageState extends State<HotelDetailPage>
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Row(
-                          children: [
+                          children: <Widget>[
                             Icon(Icons.info, color: cs.primary),
                             const SizedBox(width: 8),
                             Expanded(
@@ -217,7 +217,7 @@ class _HotelDetailPageState extends State<HotelDetailPage>
                                   style: theme.textTheme.bodyMedium?.copyWith(
                                     color: cs.onSurface,
                                   ),
-                                  children: [
+                                  children: <InlineSpan>[
                                     const TextSpan(text: 'You will earn '),
                                     TextSpan(
                                       text: '₩4,897.57',
@@ -244,11 +244,11 @@ class _HotelDetailPageState extends State<HotelDetailPage>
                       ),
                       const SizedBox(height: 16),
                       Row(
-                        children: [
+                        children: <Widget>[
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
+                              children: <Widget>[
                                 Text(
                                   '₩150,052',
                                   style: theme.textTheme.headlineSmall
@@ -378,13 +378,13 @@ class _ExpandableText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = Theme.of(context);
-    final cs = t.colorScheme;
-    final style = t.textTheme.bodyMedium?.copyWith(color: cs.onSurface);
+    final ThemeData t = Theme.of(context);
+    final ColorScheme cs = t.colorScheme;
+    final TextStyle? style = t.textTheme.bodyMedium?.copyWith(color: cs.onSurface);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
+      children: <Widget>[
         AnimatedSize(
           duration: const Duration(milliseconds: 250),
           curve: Curves.easeInOut,
@@ -417,21 +417,21 @@ class _ScoreBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
       decoration: BoxDecoration(
         color: cs.surface,
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [
+        boxShadow: <BoxShadow>[
           BoxShadow(blurRadius: 10, color: Colors.black.withValues(alpha: .25)),
         ],
         border: Border.all(color: cs.outlineVariant),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
-        children: [
+        children: <Widget>[
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
             decoration: BoxDecoration(
@@ -449,7 +449,7 @@ class _ScoreBadge extends StatelessWidget {
           const SizedBox(width: 8),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+            children: <Widget>[
               Text(
                 label,
                 style: TextStyle(
@@ -473,9 +473,9 @@ class _AmenitiesRow extends StatelessWidget {
   const _AmenitiesRow();
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
     Widget item(IconData i, String t) => Column(
-      children: [
+      children: <Widget>[
         Icon(i, size: 28, color: cs.onSurfaceVariant),
         const SizedBox(height: 6),
         Text(t, style: TextStyle(fontSize: 12, color: cs.onSurface)),
@@ -483,7 +483,7 @@ class _AmenitiesRow extends StatelessWidget {
     );
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
-      children: [
+      children: <Widget>[
         item(Icons.wifi, 'Free internet'),
         item(Icons.local_parking, 'Free parking'),
         item(Icons.accessible, 'Handicap accessible'),
@@ -498,8 +498,8 @@ class _SectionHeader extends StatelessWidget {
   const _SectionHeader(this.title);
   @override
   Widget build(BuildContext context) {
-    final t = Theme.of(context);
-    final cs = t.colorScheme;
+    final ThemeData t = Theme.of(context);
+    final ColorScheme cs = t.colorScheme;
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 20, 16, 12),
       child: Text(
@@ -517,7 +517,7 @@ class _RoomsGuestsBar extends StatelessWidget {
   const _RoomsGuestsBar();
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Container(
@@ -528,7 +528,7 @@ class _RoomsGuestsBar extends StatelessWidget {
           border: Border.all(color: cs.outlineVariant),
         ),
         child: Row(
-          children: [
+          children: <Widget>[
             Icon(Icons.search, color: cs.onSurfaceVariant),
             const SizedBox(width: 10),
             Text(
@@ -551,7 +551,7 @@ class _DateBox extends StatelessWidget {
   const _DateBox({required this.label, required this.value});
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -560,12 +560,12 @@ class _DateBox extends StatelessWidget {
         border: Border.all(color: cs.outlineVariant),
       ),
       child: Row(
-        children: [
+        children: <Widget>[
           Icon(Icons.event_note_outlined, color: cs.onSurfaceVariant),
           const SizedBox(width: 10),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+            children: <Widget>[
               Text(
                 label,
                 style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant),
@@ -589,8 +589,8 @@ class _RoomCard extends StatelessWidget {
   const _RoomCard();
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
+    final TextTheme tt = Theme.of(context).textTheme;
     return Card(
       clipBehavior: Clip.antiAlias,
       elevation: 2,
@@ -599,9 +599,9 @@ class _RoomCard extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+        children: <Widget>[
           Stack(
-            children: [
+            children: <Widget>[
               AspectRatio(
                 aspectRatio: 16 / 9,
                 child: Image.asset(
@@ -616,7 +616,7 @@ class _RoomCard extends StatelessWidget {
                   width: 150,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10),
-                    boxShadow: [
+                    boxShadow: <BoxShadow>[
                       BoxShadow(
                         blurRadius: 10,
                         color: Colors.black.withValues(alpha: .25),
@@ -625,7 +625,7 @@ class _RoomCard extends StatelessWidget {
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
+                    children: <Widget>[
                       Container(
                         padding: const EdgeInsets.symmetric(
                           vertical: 6,
@@ -689,7 +689,7 @@ class _RoomCard extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+              children: <Widget>[
                 Text(
                   'STANDARD, DOUBLE BED Room Only',
                   style: tt.titleMedium?.copyWith(
@@ -704,7 +704,7 @@ class _RoomCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
                 Row(
-                  children: [
+                  children: <Widget>[
                     Icon(Icons.bed_outlined, color: cs.onSurfaceVariant),
                     const SizedBox(width: 8),
                     Text(
@@ -715,7 +715,7 @@ class _RoomCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Row(
-                  children: [
+                  children: <Widget>[
                     Icon(
                       Icons.info_outline,
                       size: 20,
@@ -743,13 +743,13 @@ class _ReviewHistogram extends StatelessWidget {
   const _ReviewHistogram();
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
 
     Widget bar(String label, double value, int right) {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: Row(
-          children: [
+          children: <Widget>[
             SizedBox(
               width: 86,
               child: Text(
@@ -767,7 +767,7 @@ class _ReviewHistogram extends StatelessWidget {
                   minHeight: 12,
                   value: value,
                   color: cs.primary,
-                  backgroundColor: cs.surfaceVariant,
+                  backgroundColor: cs.surfaceContainerHighest,
                 ),
               ),
             ),
@@ -780,11 +780,11 @@ class _ReviewHistogram extends StatelessWidget {
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
+      children: <Widget>[
         const Padding(
           padding: EdgeInsets.symmetric(horizontal: 16),
           child: Row(
-            children: [
+            children: <Widget>[
               _ScoreTile(
                 score: '8.6/10',
                 label: 'Good',
@@ -816,7 +816,7 @@ class _ScoreTile extends StatelessWidget {
   });
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
@@ -825,7 +825,7 @@ class _ScoreTile extends StatelessWidget {
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(
-        children: [
+        children: <Widget>[
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
             decoration: BoxDecoration(
@@ -843,7 +843,7 @@ class _ScoreTile extends StatelessWidget {
           const SizedBox(width: 8),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+            children: <Widget>[
               Text(
                 label,
                 style: TextStyle(
@@ -865,12 +865,12 @@ class _ScoreTile extends StatelessWidget {
 
 Widget _bullet(String text, bool good) {
   return Builder(
-    builder: (context) {
-      final cs = Theme.of(context).colorScheme;
+    builder: (BuildContext context) {
+      final ColorScheme cs = Theme.of(context).colorScheme;
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 4),
         child: Row(
-          children: [
+          children: <Widget>[
             Icon(
               good ? Icons.check_circle : Icons.cancel,
               color: good ? cs.tertiary : cs.error,
@@ -894,25 +894,25 @@ class _ReviewPreview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
+      children: <Widget>[
         const SizedBox(height: 12),
 
         // Always show first few highlights
-        ...[
+        ...<String>[
           'Great location',
           'Good value for money',
           'Friendly staff',
           'Room was well equipped',
           'Spacious rooms',
-        ].map((t) => _bullet(t, true)),
+        ].map((String t) => _bullet(t, true)),
         const SizedBox(height: 8),
-        ...[
+        ...<String>[
           'Rooms look a bit outdated',
           'Have to pay to use the swimming pool',
-        ].map((t) => _bullet(t, false)),
+        ].map((String t) => _bullet(t, false)),
 
         const SizedBox(height: 16),
 
@@ -921,14 +921,14 @@ class _ReviewPreview extends StatelessWidget {
           child: Text(expanded ? 'Hide Reviews' : 'Show More Reviews'),
         ),
 
-        if (expanded) ...[
+        if (expanded) ...<Widget>[
           const SizedBox(height: 8),
           ListView.separated(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: 5,
             separatorBuilder: (_, __) => const Divider(height: 24),
-            itemBuilder: (_, i) => _SingleReview(index: i + 1),
+            itemBuilder: (_, int i) => _SingleReview(index: i + 1),
           ),
           const SizedBox(height: 12),
         ],
@@ -943,12 +943,12 @@ class _SingleReview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+        children: <Widget>[
           Text(
             'Reviewer #$index',
             style: TextStyle(fontWeight: FontWeight.bold, color: cs.onSurface),
@@ -968,11 +968,11 @@ class _AmenitiesList extends StatelessWidget {
   const _AmenitiesList();
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
     Widget row(IconData i, String t) => Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       child: Row(
-        children: [
+        children: <Widget>[
           Icon(i, size: 28, color: cs.onSurfaceVariant),
           const SizedBox(width: 16),
           Text(t, style: TextStyle(fontSize: 16, color: cs.onSurface)),
@@ -980,7 +980,7 @@ class _AmenitiesList extends StatelessWidget {
       ),
     );
     return Column(
-      children: [
+      children: <Widget>[
         row(Icons.wifi, 'Free internet'),
         row(Icons.local_parking, 'Free parking'),
         row(Icons.accessible, 'Handicap accessible'),
@@ -997,7 +997,7 @@ class _BottomBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return NavigationBar(
-      destinations: const [
+      destinations: const <Widget>[
         NavigationDestination(icon: Icon(Icons.home_outlined), label: 'Home'),
         NavigationDestination(icon: Icon(Icons.search), label: 'Search'),
         NavigationDestination(

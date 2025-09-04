@@ -35,43 +35,44 @@ class _AnywhereMapState extends ConsumerState<AnywhereMapScreen>
   }
 
   double _bottomBarOffset(BuildContext context) {
-    final safe = MediaQuery.of(
+    final double safe = MediaQuery.of(
       context,
     ).padding.bottom; // iPhone home-indicator, etc.
     return safe + kBottomNavigationBarHeight + 8; // nav bar + small gap
   }
 
   void _animateMapMove(LatLng dest, double toZoom) {
-    final beginCenter = _mapController.center;
-    final beginZoom = _mapController.camera.zoom;
-    final latTween = Tween<double>(
+    final LatLng beginCenter = _mapController.center;
+    final double beginZoom = _mapController.camera.zoom;
+    final Tween<double> latTween = Tween<double>(
       begin: beginCenter.latitude,
       end: dest.latitude,
     );
-    final lngTween = Tween<double>(
+    final Tween<double> lngTween = Tween<double>(
       begin: beginCenter.longitude,
       end: dest.longitude,
     );
-    final zoomTween = Tween<double>(begin: beginZoom, end: toZoom);
-    final controller = AnimationController(
+    final Tween<double> zoomTween = Tween<double>(begin: beginZoom, end: toZoom);
+    final AnimationController controller = AnimationController(
       duration: const Duration(milliseconds: 500),
       vsync: this,
     );
-    final curve = CurvedAnimation(parent: controller, curve: Curves.easeInOut);
+    final CurvedAnimation curve = CurvedAnimation(parent: controller, curve: Curves.easeInOut);
     controller.addListener(() {
       _mapController.move(
         LatLng(latTween.evaluate(curve), lngTween.evaluate(curve)),
         zoomTween.evaluate(curve),
       );
     });
-    controller.addStatusListener((s) {
-      if (s == AnimationStatus.completed || s == AnimationStatus.dismissed)
+    controller.addStatusListener((AnimationStatus s) {
+      if (s == AnimationStatus.completed || s == AnimationStatus.dismissed) {
         controller.dispose();
+      }
     });
     controller.forward();
   }
 
-  static const _pricePoints =
+  static const List<({String code, double lat, double lng, String price})> _pricePoints =
       <({double lat, double lng, String price, String code})>[
         (lat: 37.5665, lng: 126.9780, price: '₩380,000', code: 'SEL'),
         (lat: 35.6895, lng: 139.6917, price: '₩639,500', code: 'TYO'),
@@ -87,33 +88,33 @@ class _AnywhereMapState extends ConsumerState<AnywhereMapScreen>
     required List<AnywhereDestination> destinations,
     required double screenWidth,
   }) {
-    final idx = destinations.indexWhere((d) => d.code == code);
+    final int idx = destinations.indexWhere((AnywhereDestination d) => d.code == code);
     if (idx == -1) return;
-    const spacing = 30.0;
-    final tileWidth = screenWidth * 0.9;
-    final target = math.max(0.0, idx * (tileWidth + spacing));
+    const double spacing = 30.0;
+    final double tileWidth = screenWidth * 0.9;
+    final double target = math.max(0.0, idx * (tileWidth + spacing));
     _scrollController.animateTo(
       target,
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeInOut,
     );
     _selectedCode.value = code;
-    final pin = _pricePoints.firstWhere((p) => p.code == code);
+    final ({String code, double lat, double lng, String price}) pin = _pricePoints.firstWhere((({String code, double lat, double lng, String price}) p) => p.code == code);
     _animateMapMove(LatLng(pin.lat, pin.lng), _mapController.camera.zoom);
   }
 
   @override
   Widget build(BuildContext context) {
-    final tiles = ref.watch(anywhereDestinationsProvider);
-    final destinations = tiles.asData?.value ?? const <AnywhereDestination>[];
-    final controller = ref.read(flightSearchProvider.notifier);
-    final w = MediaQuery.of(context).size.width;
+    final AsyncValue<List<AnywhereDestination>> tiles = ref.watch(anywhereDestinationsProvider);
+    final List<AnywhereDestination> destinations = tiles.asData?.value ?? const <AnywhereDestination>[];
+    final FlightSearchController controller = ref.read(flightSearchProvider.notifier);
+    final double w = MediaQuery.of(context).size.width;
 
     return Column(
-      children: [
+      children: <Widget>[
         Expanded(
           child: Stack(
-            children: [
+            children: <Widget>[
               FlutterMap(
                 mapController: _mapController,
                 options: const MapOptions(
@@ -122,7 +123,7 @@ class _AnywhereMapState extends ConsumerState<AnywhereMapScreen>
                   maxZoom: 10,
                   minZoom: 1.5,
                 ),
-                children: [
+                children: <Widget>[
                   TileLayer(
                     urlTemplate:
                         'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
@@ -130,14 +131,14 @@ class _AnywhereMapState extends ConsumerState<AnywhereMapScreen>
                   ),
                   ValueListenableBuilder<String?>(
                     valueListenable: _selectedCode,
-                    builder: (_, selected, __) {
-                      final ordered = [
-                        ..._pricePoints.where((p) => p.code != selected),
-                        ..._pricePoints.where((p) => p.code == selected),
+                    builder: (_, String? selected, __) {
+                      final List<({String code, double lat, double lng, String price})> ordered = <({String code, double lat, double lng, String price})>[
+                        ..._pricePoints.where((({String code, double lat, double lng, String price}) p) => p.code != selected),
+                        ..._pricePoints.where((({String code, double lat, double lng, String price}) p) => p.code == selected),
                       ];
                       return MarkerLayer(
-                        markers: ordered.map((p) {
-                          final isSelected = p.code == selected;
+                        markers: ordered.map((({String code, double lat, double lng, String price}) p) {
+                          final bool isSelected = p.code == selected;
                           return Marker(
                             point: LatLng(p.lat, p.lng),
                             width: 120,
@@ -167,14 +168,14 @@ class _AnywhereMapState extends ConsumerState<AnywhereMapScreen>
                 child: SizedBox(
                   height: AnywhereDestinationTile.height,
                   child: tiles.when(
-                    data: (items) => ListView.separated(
+                    data: (List<AnywhereDestination> items) => ListView.separated(
                       controller: _scrollController,
                       scrollDirection: Axis.horizontal,
                       physics: const NeverScrollableScrollPhysics(),
                       padding: EdgeInsets.zero,
                       itemCount: items.length,
                       separatorBuilder: (_, __) => const SizedBox(width: 30),
-                      itemBuilder: (_, i) => SizedBox(
+                      itemBuilder: (_, int i) => SizedBox(
                         width: w * 0.9,
                         child: AnywhereDestinationTile(
                           item: items[i],
@@ -192,7 +193,7 @@ class _AnywhereMapState extends ConsumerState<AnywhereMapScreen>
                       separatorBuilder: (_, __) => const SizedBox(width: 30),
                       itemBuilder: (_, __) => const SkeletonCard(),
                     ),
-                    error: (e, _) => Center(child: Text('Failed to load: $e')),
+                    error: (Object e, _) => Center(child: Text('Failed to load: $e')),
                   ),
                 ),
               ),
@@ -216,7 +217,7 @@ class _PriceTag extends StatelessWidget {
       decoration: BoxDecoration(
         color: selected ? Colors.blue : Colors.white,
         borderRadius: BorderRadius.circular(8),
-        boxShadow: const [BoxShadow(blurRadius: 2, color: Colors.black26)],
+        boxShadow: const <BoxShadow>[BoxShadow(blurRadius: 2, color: Colors.black26)],
       ),
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: Text(

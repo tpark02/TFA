@@ -1,4 +1,5 @@
 import 'package:TFA/l10n/app_localizations.dart';
+import 'package:TFA/providers/flight/flight_search_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -24,12 +25,12 @@ class FlightSearchButton extends ConsumerStatefulWidget {
 class _FlightSearchButtonState extends ConsumerState<FlightSearchButton> {
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
+    final TextTheme tt = Theme.of(context).textTheme;
 
-    final controller = ref.read(flightSearchProvider.notifier);
-    final flightState = ref.watch(flightSearchProvider);
-    final text = AppLocalizations.of(context)!;
+    final FlightSearchController controller = ref.read(flightSearchProvider.notifier);
+    final FlightSearchState flightState = ref.watch(flightSearchProvider);
+    final AppLocalizations text = AppLocalizations.of(context)!;
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: widget.padding),
@@ -40,11 +41,11 @@ class _FlightSearchButtonState extends ConsumerState<FlightSearchButton> {
             width: double.infinity,
             child: ElevatedButton(
               onPressed: () async {
-                final hasPassengers = flightState.passengerCount > 0;
-                final hasAirports =
+                final bool hasPassengers = flightState.passengerCount > 0;
+                final bool hasAirports =
                     flightState.departureAirportCode.isNotEmpty &&
                     flightState.arrivalAirportCode.isNotEmpty;
-                final hasDate = (flightState.displayDate ?? '').isNotEmpty;
+                final bool hasDate = (flightState.displayDate ?? '').isNotEmpty;
 
                 if (!hasPassengers || !hasDate) return;
 
@@ -64,7 +65,7 @@ class _FlightSearchButtonState extends ConsumerState<FlightSearchButton> {
                 }
 
                 // Save recent search (requires token)
-                final idToken = await widget.user?.getIdToken();
+                final String? idToken = await widget.user?.getIdToken();
                 if (idToken == null) {
                   if (!mounted) return;
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -78,7 +79,7 @@ class _FlightSearchButtonState extends ConsumerState<FlightSearchButton> {
                   return;
                 }
 
-                final success = await controller.addRecentSearch(
+                final bool success = await controller.addRecentSearch(
                   RecentSearch(
                     destination:
                         '${flightState.departureCity} - ${flightState.arrivalCity}',

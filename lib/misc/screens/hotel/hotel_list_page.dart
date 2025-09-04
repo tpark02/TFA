@@ -353,7 +353,7 @@ class _HotelListPageState extends ConsumerState<HotelListPage> {
               : ListView.builder(
                   itemCount: 15,
                   padding: const EdgeInsets.only(bottom: 16),
-                  itemBuilder: (context, index) {
+                  itemBuilder: (BuildContext context, int index) {
                     return AnimatedHotelCard(
                       delay: Duration(milliseconds: 100 * index),
                       child: Container(

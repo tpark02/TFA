@@ -208,7 +208,7 @@ class _HotelFilterPageState extends State<HotelFilterPage> {
     final SliverToBoxAdapter divider = SliverToBoxAdapter(
       child: Container(height: 1, color: const Color(0xFFEAEAEA)),
     );
-    final text = AppLocalizations.of(context)!;
+    final AppLocalizations text = AppLocalizations.of(context)!;
 
     return Scaffold(
       body: CustomScrollView(

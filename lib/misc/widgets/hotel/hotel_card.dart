@@ -25,7 +25,7 @@ class HotelCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final ThemeData theme = Theme.of(context);
     return Card(
       elevation: 3,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
@@ -33,9 +33,9 @@ class HotelCard extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+          children: <Widget>[
             Stack(
-              children: [
+              children: <Widget>[
                 ClipRRect(
                   borderRadius: const BorderRadius.vertical(
                     top: Radius.circular(4),
@@ -55,7 +55,7 @@ class HotelCard extends StatelessWidget {
                       // 🟢 Ensures both children match the widest one
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
+                        children: <Widget>[
                           Container(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 8,
@@ -100,11 +100,11 @@ class HotelCard extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
+                children: <Widget>[
                   Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
+                    children: <Widget>[
                       Text(hotelName, style: theme.textTheme.titleMedium),
                       const SizedBox(height: 4),
                       const Icon(Icons.star, size: 16, color: Colors.orange),
@@ -118,14 +118,14 @@ class HotelCard extends StatelessWidget {
                   ),
                   const Spacer(),
                   Row(
-                    children: [
+                    children: <Widget>[
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: <Widget>[
                           const SizedBox(height: 2),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
+                            children: <Widget>[
                               const Text(
                                 '₩197,535',
                                 style: TextStyle(

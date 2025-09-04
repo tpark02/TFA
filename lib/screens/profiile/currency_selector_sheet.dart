@@ -14,14 +14,14 @@ class Currency {
 class CurrencySelectorSheet extends StatelessWidget {
   final List<Currency> currencies;
   final String selectedCode;
-  const CurrencySelectorSheet({
+  const CurrencySelectorSheet({super.key, 
     required this.currencies,
     required this.selectedCode,
   });
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final ThemeData theme = Theme.of(context);
     // Centered card-like popup
     return Dialog(
       elevation: 8,
@@ -31,7 +31,7 @@ class CurrencySelectorSheet extends StatelessWidget {
         constraints: const BoxConstraints(maxWidth: 420, maxHeight: 520),
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          children: [
+          children: <Widget>[
             // top padding like your screenshot (drag area look)
             const SizedBox(height: 8),
             Expanded(
@@ -40,9 +40,9 @@ class CurrencySelectorSheet extends StatelessWidget {
                 itemCount: currencies.length,
                 separatorBuilder: (_, __) =>
                     Divider(height: 0, color: Colors.grey.shade200),
-                itemBuilder: (_, i) {
-                  final c = currencies[i];
-                  final selected = c.code == selectedCode;
+                itemBuilder: (_, int i) {
+                  final Currency c = currencies[i];
+                  final bool selected = c.code == selectedCode;
                   return ListTile(
                     title: Text(
                       c.name,

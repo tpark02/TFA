@@ -13,8 +13,8 @@ class RecentSearchList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
+    final TextTheme tt = Theme.of(context).textTheme;
 
     final List<RecentSearch> searches = switch (panelName) {
       'flight' => ref.watch(flightSearchProvider).recentSearches,
@@ -41,7 +41,7 @@ class RecentSearchList extends ConsumerWidget {
             ),
     );
 
-    final text = AppLocalizations.of(context)!;
+    final AppLocalizations text = AppLocalizations.of(context)!;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -54,12 +54,12 @@ class RecentSearchList extends ConsumerWidget {
           ),
         ),
         const SizedBox(height: 20),
-        if (searches.isEmpty) ...[
+        if (searches.isEmpty) ...<Widget>[
           Center(
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 24.0),
               child: Column(
-                children: [
+                children: <Widget>[
                   Icon(
                     Icons.image_outlined,
                     size: 96,
@@ -78,7 +78,7 @@ class RecentSearchList extends ConsumerWidget {
               ),
             ),
           ),
-        ] else ...[
+        ] else ...<Widget>[
           ListView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),

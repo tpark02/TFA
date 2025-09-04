@@ -1,8 +1,10 @@
 import 'dart:async';
 
 import 'package:TFA/l10n/app_localizations.dart';
+import 'package:TFA/models/anywhere_destination.dart';
 import 'package:TFA/providers/flight/anywhere_provider.dart';
 import 'package:TFA/providers/flight/flight_search_controller.dart';
+import 'package:TFA/providers/flight/flight_search_state.dart';
 import 'package:TFA/screens/flight/anywhere_map_screen.dart';
 import 'package:TFA/screens/flight/anywhere_destination_tile.dart';
 import 'package:TFA/screens/flight/flight_search_summary_card.dart';
@@ -35,9 +37,9 @@ class _AnywhereListState extends ConsumerState<AnywhereListPage> {
 
   @override
   Widget build(BuildContext context) {
-    ref.listen<bool>(flightSearchProvider.select((s) => s.isLoading), (
+    ref.listen<bool>(flightSearchProvider.select((FlightSearchState s) => s.isLoading), (
       _,
-      isLoading,
+      bool isLoading,
     ) {
       _hideLoadingTimer?.cancel();
       if (isLoading) {
@@ -51,12 +53,12 @@ class _AnywhereListState extends ConsumerState<AnywhereListPage> {
       }
     });
 
-    final tiles = ref.watch(anywhereDestinationsProvider);
-    final flightState = ref.watch(flightSearchProvider);
-    final controller = ref.read(flightSearchProvider.notifier);
-    final text = AppLocalizations.of(context)!;
-    final theme = Theme.of(context);
-    final cs = theme.colorScheme;
+    final AsyncValue<List<AnywhereDestination>> tiles = ref.watch(anywhereDestinationsProvider);
+    final FlightSearchState flightState = ref.watch(flightSearchProvider);
+    final FlightSearchController controller = ref.read(flightSearchProvider.notifier);
+    final AppLocalizations text = AppLocalizations.of(context)!;
+    final ThemeData theme = Theme.of(context);
+    final ColorScheme cs = theme.colorScheme;
 
     return Scaffold(
       appBar: PreferredSize(
@@ -75,7 +77,7 @@ class _AnywhereListState extends ConsumerState<AnywhereListPage> {
         ),
       ),
       body: Column(
-        children: [
+        children: <Widget>[
           ColoredBox(
             color: cs.primaryContainer,
             child: Padding(
@@ -99,7 +101,7 @@ class _AnywhereListState extends ConsumerState<AnywhereListPage> {
                   : _isMapSelected
                   ? const AnywhereMapScreen(key: ValueKey('map'))
                   : tiles.when(
-                      data: (items) => ListView.separated(
+                      data: (List<AnywhereDestination> items) => ListView.separated(
                         key: const ValueKey('list'),
                         padding: const EdgeInsets.symmetric(
                           horizontal: 12,
@@ -107,7 +109,7 @@ class _AnywhereListState extends ConsumerState<AnywhereListPage> {
                         ),
                         itemCount: items.length,
                         separatorBuilder: (_, __) => const SizedBox(height: 10),
-                        itemBuilder: (_, i) => AnywhereDestinationTile(
+                        itemBuilder: (_, int i) => AnywhereDestinationTile(
                           item: items[i],
                           onTap: () {
                             controller.setArrivalCode(
@@ -126,7 +128,7 @@ class _AnywhereListState extends ConsumerState<AnywhereListPage> {
                         separatorBuilder: (_, __) => const SizedBox(height: 10),
                         itemBuilder: (_, __) => const SkeletonCard(),
                       ),
-                      error: (e, _) => Center(
+                      error: (Object e, _) => Center(
                         child: Text(
                           'Failed to load: $e',
                           style: theme.textTheme.bodyMedium?.copyWith(
@@ -145,7 +147,6 @@ class _AnywhereListState extends ConsumerState<AnywhereListPage> {
 
 class _TopBar extends StatelessWidget {
   const _TopBar({
-    super.key,
     required this.title,
     required this.onBack,
     required this.onToggleMap,
@@ -159,7 +160,7 @@ class _TopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       // Makes status bar icons white
@@ -171,7 +172,7 @@ class _TopBar extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 10),
             child: Row(
-              children: [
+              children: <Widget>[
                 const SizedBox(width: 8),
                 IconButton(
                   onPressed: onBack,
@@ -212,7 +213,7 @@ class SkeletonCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
     return Container(
       height: AnywhereDestinationTile.height,
       decoration: BoxDecoration(
@@ -221,7 +222,7 @@ class SkeletonCard extends StatelessWidget {
       ),
       padding: const EdgeInsets.all(12),
       child: Row(
-        children: [
+        children: <Widget>[
           Container(
             width: 84,
             height: 84,
@@ -235,7 +236,7 @@ class SkeletonCard extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+              children: <Widget>[
                 _bar(width: 140, height: 18),
                 const SizedBox(height: 10),
                 _bar(width: 90, height: 14),

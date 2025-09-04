@@ -6,35 +6,35 @@ import 'package:TFA/screens/flight/flight_list_page.dart';
 import 'navigation.dart';
 
 bool stateReady(FlightSearchState s) {
-  final hasDep = s.departureAirportCode.isNotEmpty;
-  final hasArr = s.arrivalAirportCode.isNotEmpty;
-  final hasOut = s.departDate.isNotEmpty; // allow one-way? then relax this
+  final bool hasDep = s.departureAirportCode.isNotEmpty;
+  final bool hasArr = s.arrivalAirportCode.isNotEmpty;
+  final bool hasOut = s.departDate.isNotEmpty; // allow one-way? then relax this
   return hasDep && hasArr && hasOut;
 }
 
-final _isFetchingProvider = StateProvider<bool>((_) => false);
+final StateProvider<bool> _isFetchingProvider = StateProvider<bool>((_) => false);
 
 class SearchRunner {
   SearchRunner(this.container);
   final ProviderContainer container;
 
   Future<void> runFromState(FlightSearchState s) async {
-    final isFetching = container.read(_isFetchingProvider);
+    final bool isFetching = container.read(_isFetchingProvider);
     if (isFetching) return;
     container.read(_isFetchingProvider.notifier).state = true;
 
     try {
-      final ctrl = container.read(flightSearchProvider.notifier);
+      final FlightSearchController ctrl = container.read(flightSearchProvider.notifier);
 
-      final ops = ctrl.executeFlightSearch();
+      final List<Future<(bool, String)> Function()> ops = ctrl.executeFlightSearch();
 
       // navigate first (like your original code)
       searchTabNavKey.currentState?.push(
         MaterialPageRoute<void>(builder: (_) => const FlightListPage()),
       );
 
-      for (final op in ops) {
-        final (ok, msg) = await op();
+      for (final Future<(bool, String)> Function() op in ops) {
+        final (bool ok, String msg) = await op();
         if (!ok) {
           debugPrint('❌ Search step failed: $msg');
           break;

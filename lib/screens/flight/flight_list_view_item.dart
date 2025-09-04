@@ -111,7 +111,7 @@ class FlightListViewItem extends ConsumerWidget {
           ),
           Row(
             children: List.generate(middleAirports.length, (int i) {
-              final code = middleAirports[i];
+              final String code = middleAirports[i];
               return Expanded(
                 child: Stack(
                   children: <Widget>[
@@ -157,8 +157,8 @@ class FlightListViewItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
+    final TextTheme tt = Theme.of(context).textTheme;
 
     final depTime = flight['depTime'] ?? '';
     final arrTime = flight['arrTime'] ?? '';
@@ -173,7 +173,7 @@ class FlightListViewItem extends ConsumerWidget {
 
     final int plusDay = plusDayStr == '' ? 0 : int.parse(plusDayStr);
     final pathParts = airportPath.split('→').map((s) => s.trim()).toList();
-    final middleAirports = pathParts.length > 2
+    final List<String> middleAirports = pathParts.length > 2
         ? List<String>.from(pathParts.sublist(1, pathParts.length - 1))
         : <String>[];
 
@@ -197,7 +197,7 @@ class FlightListViewItem extends ConsumerWidget {
     return Material(
       color: cs.surface,
       child: Column(
-        children: [
+        children: <Widget>[
           Container(
             decoration: BoxDecoration(
               color: cs.surface,
@@ -205,8 +205,8 @@ class FlightListViewItem extends ConsumerWidget {
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (isSeparate || flight['isHiddenCityFlight'] == true) ...[
+              children: <Widget>[
+                if (isSeparate || flight['isHiddenCityFlight'] == true) ...<Widget>[
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 8,
@@ -239,16 +239,16 @@ class FlightListViewItem extends ConsumerWidget {
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
+                      children: <Widget>[
                         /// Top Row — Times and Airports
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
+                          children: <Widget>[
                             SizedBox(
                               width: 75,
                               height: 62,
                               child: Stack(
-                                children: [
+                                children: <Widget>[
                                   Positioned(
                                     top: 11,
                                     left: 0,
@@ -306,7 +306,7 @@ class FlightListViewItem extends ConsumerWidget {
 
                         /// Duration, stops, airline, price
                         Row(
-                          children: [
+                          children: <Widget>[
                             Expanded(
                               child: Text(
                                 "$duration | $stops | $airline",

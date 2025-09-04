@@ -303,10 +303,10 @@ String outboundKey(FlightOffer offer) =>
     itineraryKey(offer.itineraries?.first.segments ?? const <Segment>[]);
 
 List<double> saturationMatrix(double s) {
-  final inv = 1 - s;
-  final r = 0.2126 * inv;
-  final g = 0.7152 * inv;
-  final b = 0.0722 * inv;
+  final double inv = 1 - s;
+  final double r = 0.2126 * inv;
+  final double g = 0.7152 * inv;
+  final double b = 0.0722 * inv;
   return <double>[
     r + s,
     g,

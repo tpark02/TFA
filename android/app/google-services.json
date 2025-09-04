@@ -1,48 +1,40 @@
 {
   "project_info": {
-    "project_number": "34506647750",
-    "project_id": "tfa-auth-demo-2025",
-    "storage_bucket": "tfa-auth-demo-2025.firebasestorage.app"
+    "project_number": "750757984956",
+    "project_id": "tfa-login-6bebe",
+    "storage_bucket": "tfa-login-6bebe.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:34506647750:android:46837d3bcac74e1cd14fc7",
+        "mobilesdk_app_id": "1:750757984956:android:e10ddc110bd8eab26aaeb9",
         "android_client_info": {
-          "package_name": "com.example.tfa"
+          "package_name": "com.taemin.tfa"
         }
       },
       "oauth_client": [
         {
-          "client_id": "34506647750-3nvlou57pabibfo7v87h9435je2h8ga2.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.example.tfa",
-            "certificate_hash": "4eba7299b639bf2003f5b276d4368d454b2606f9"
-          }
-        },
-        {
-          "client_id": "34506647750-sc9mvm0ov8kld0rbvghkm8tmbkpqm0s3.apps.googleusercontent.com",
+          "client_id": "750757984956-84uoe0jqmqlchhc82ltsitem2bocchk4.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyCHGvRqxrtcAUuiyoarFnAziP7Mw93O9Og"
+          "current_key": "AIzaSyCWD1E_dv9vT2Cyjkrf9sse9ZEh6zmnXLQ"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "34506647750-sc9mvm0ov8kld0rbvghkm8tmbkpqm0s3.apps.googleusercontent.com",
+              "client_id": "750757984956-84uoe0jqmqlchhc82ltsitem2bocchk4.apps.googleusercontent.com",
               "client_type": 3
             },
             {
-              "client_id": "34506647750-6jn3grdq8ih5lq7jr3fb2k3jf4k9c4ts.apps.googleusercontent.com",
+              "client_id": "750757984956-1t216qgu6tnfs8q7lo1810b5mgrtd6dq.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.example.tfa"
+                "bundle_id": "com.taemin.tfa"
               }
             }
           ]

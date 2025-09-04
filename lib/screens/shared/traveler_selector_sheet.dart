@@ -1,5 +1,6 @@
 import 'package:TFA/l10n/app_localizations.dart';
 import 'package:TFA/providers/flight/flight_search_controller.dart';
+import 'package:TFA/providers/flight/flight_search_state.dart';
 import 'package:TFA/widgets/counter_control.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -25,15 +26,15 @@ class _TravelerSelectorState extends ConsumerState<TravelerSelectorSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
+    final TextTheme tt = Theme.of(context).textTheme;
 
     final double maxHeight = MediaQuery.of(context).size.height * 0.40;
-    final controller = ref.read(flightSearchProvider.notifier);
-    final state = ref.watch(flightSearchProvider);
-    final text = AppLocalizations.of(context)!;
+    final FlightSearchController controller = ref.read(flightSearchProvider.notifier);
+    final FlightSearchState state = ref.watch(flightSearchProvider);
+    final AppLocalizations text = AppLocalizations.of(context)!;
 
-    Widget _tabButton(String label, int idx) {
+    Widget tabButton(String label, int idx) {
       final bool sel = _selectedIndex == idx;
       return TextButton(
         onPressed: () => setState(() => _selectedIndex = idx),
@@ -51,9 +52,9 @@ class _TravelerSelectorState extends ConsumerState<TravelerSelectorSheet> {
       );
     }
 
-    Widget _rowLabel(String label, {String? hint}) {
+    Widget rowLabel(String label, {String? hint}) {
       return Row(
-        children: [
+        children: <Widget>[
           Text(
             label,
             style: tt.bodyMedium?.copyWith(
@@ -61,7 +62,7 @@ class _TravelerSelectorState extends ConsumerState<TravelerSelectorSheet> {
               color: cs.onSurface,
             ),
           ),
-          if (hint != null) ...[
+          if (hint != null) ...<Widget>[
             const SizedBox(width: 8),
             Text(
               hint,
@@ -72,7 +73,7 @@ class _TravelerSelectorState extends ConsumerState<TravelerSelectorSheet> {
       );
     }
 
-    Widget _cabinOption(String label, int idx) {
+    Widget cabinOption(String label, int idx) {
       final bool sel = _cabinIdx == idx;
       return Row(
         mainAxisAlignment: MainAxisAlignment.start,
@@ -123,9 +124,9 @@ class _TravelerSelectorState extends ConsumerState<TravelerSelectorSheet> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: <Widget>[
-                      _tabButton(text.travelers, 0),
+                      tabButton(text.travelers, 0),
                       const SizedBox(width: 8),
-                      _tabButton(text.c_class, 1),
+                      tabButton(text.c_class, 1),
                     ],
                   ),
                 ),
@@ -139,13 +140,13 @@ class _TravelerSelectorState extends ConsumerState<TravelerSelectorSheet> {
                             // Adults
                             Row(
                               children: <Widget>[
-                                Expanded(child: _rowLabel(text.adults)),
+                                Expanded(child: rowLabel(text.adults)),
                                 Expanded(
                                   child: Align(
                                     alignment: Alignment.centerRight,
                                     child: CounterControl(
                                       count: state.adultCnt,
-                                      onChanged: (val) =>
+                                      onChanged: (int val) =>
                                           controller.adultCnt = val,
                                     ),
                                   ),
@@ -156,14 +157,14 @@ class _TravelerSelectorState extends ConsumerState<TravelerSelectorSheet> {
                             Row(
                               children: <Widget>[
                                 Expanded(
-                                  child: _rowLabel(text.children, hint: "2-11"),
+                                  child: rowLabel(text.children, hint: "2-11"),
                                 ),
                                 Expanded(
                                   child: Align(
                                     alignment: Alignment.centerRight,
                                     child: CounterControl(
                                       count: state.childrenCnt,
-                                      onChanged: (val) =>
+                                      onChanged: (int val) =>
                                           controller.childrenCnt = val,
                                     ),
                                   ),
@@ -173,13 +174,13 @@ class _TravelerSelectorState extends ConsumerState<TravelerSelectorSheet> {
                             // Infant (lap)
                             Row(
                               children: <Widget>[
-                                Expanded(child: _rowLabel(text.infant_lap)),
+                                Expanded(child: rowLabel(text.infant_lap)),
                                 Expanded(
                                   child: Align(
                                     alignment: Alignment.centerRight,
                                     child: CounterControl(
                                       count: state.infantLapCnt,
-                                      onChanged: (val) =>
+                                      onChanged: (int val) =>
                                           controller.infantLapCnt = val,
                                     ),
                                   ),
@@ -189,13 +190,13 @@ class _TravelerSelectorState extends ConsumerState<TravelerSelectorSheet> {
                             // Infant (seat)
                             Row(
                               children: <Widget>[
-                                Expanded(child: _rowLabel(text.infant_seat)),
+                                Expanded(child: rowLabel(text.infant_seat)),
                                 Expanded(
                                   child: Align(
                                     alignment: Alignment.centerRight,
                                     child: CounterControl(
                                       count: state.infantSeatCnt,
-                                      onChanged: (val) =>
+                                      onChanged: (int val) =>
                                           controller.infantSeatCnt = val,
                                     ),
                                   ),
@@ -207,10 +208,10 @@ class _TravelerSelectorState extends ConsumerState<TravelerSelectorSheet> {
                       : Column(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: <Widget>[
-                            _cabinOption(text.economy, 0),
-                            _cabinOption(text.premium_economy, 1),
-                            _cabinOption(text.business, 2),
-                            _cabinOption(text.first, 3),
+                            cabinOption(text.economy, 0),
+                            cabinOption(text.premium_economy, 1),
+                            cabinOption(text.business, 2),
+                            cabinOption(text.first, 3),
                           ],
                         ),
                 ),

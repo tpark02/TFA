@@ -8,8 +8,8 @@ class FilterButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
+    final TextTheme tt = Theme.of(context).textTheme;
 
     return Container(
       margin: const EdgeInsets.only(left: 8),
@@ -27,7 +27,7 @@ class FilterButton extends StatelessWidget {
               foregroundColor: cs.onSurface,
             ).copyWith(
               overlayColor: WidgetStateProperty.resolveWith<Color?>(
-                (states) => states.contains(WidgetState.pressed)
+                (Set<WidgetState> states) => states.contains(WidgetState.pressed)
                     ? cs.primary.withValues(alpha: .08)
                     : states.contains(WidgetState.hovered)
                     ? cs.primary.withValues(alpha: .06)

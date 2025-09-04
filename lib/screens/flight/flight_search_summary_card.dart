@@ -1,6 +1,7 @@
 import 'package:TFA/l10n/app_localizations.dart';
 import 'package:TFA/providers/airport/airport_selection.dart';
 import 'package:TFA/providers/flight/flight_search_controller.dart';
+import 'package:TFA/providers/flight/flight_search_state.dart';
 import 'package:TFA/screens/flight/anywhere_list_page.dart';
 import 'package:TFA/screens/shared/calendar_sheet.dart';
 import 'package:TFA/screens/shared/search_airport_sheet.dart';
@@ -27,13 +28,13 @@ class FlightSearchSummaryCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
-    final controller = ref.read(flightSearchProvider.notifier);
-    final flightState = ref.watch(flightSearchProvider);
-    final text = AppLocalizations.of(context)!;
-    final fg = cs.onPrimary;
-    final fgMuted = cs.onPrimary.withValues(alpha: .85);
+    final ColorScheme cs = Theme.of(context).colorScheme;
+    final TextTheme tt = Theme.of(context).textTheme;
+    final FlightSearchController controller = ref.read(flightSearchProvider.notifier);
+    final FlightSearchState flightState = ref.watch(flightSearchProvider);
+    final AppLocalizations text = AppLocalizations.of(context)!;
+    final Color fg = cs.onPrimary;
+    final Color fgMuted = cs.onPrimary.withValues(alpha: .85);
 
     return Container(
       decoration: BoxDecoration(
@@ -97,10 +98,10 @@ class FlightSearchSummaryCard extends ConsumerWidget {
                     )
                   : InkWell(
                       onTap: () {
-                        final d = flightState.departureAirportCode;
-                        final a = flightState.arrivalAirportCode;
-                        final dcity = flightState.departureCity;
-                        final acity = flightState.arrivalCity;
+                        final String d = flightState.departureAirportCode;
+                        final String a = flightState.arrivalAirportCode;
+                        final String dcity = flightState.departureCity;
+                        final String acity = flightState.arrivalCity;
                         controller.setDepartureCode(a, acity);
                         controller.setArrivalCode(d, dcity);
                       },

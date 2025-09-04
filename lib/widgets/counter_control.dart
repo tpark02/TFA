@@ -46,8 +46,8 @@ class _CounterControlState extends State<CounterControl> {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
+    final TextTheme tt = Theme.of(context).textTheme;
 
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -79,7 +79,7 @@ class _CounterControlState extends State<CounterControl> {
     bool enabled = true,
     bool isPrimary = false,
   }) {
-    final cs = Theme.of(context).colorScheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
     final double d = widget.size;
     final Color bg = isPrimary
         ? cs.primaryContainer

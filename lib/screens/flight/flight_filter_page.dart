@@ -45,8 +45,8 @@ class _FlightFilterPageState extends State<FlightFilterPage> {
   @override
   void initState() {
     super.initState();
-    _airlinesSel = {...widget.selectedAirlines};
-    _layoversSel = {...widget.selectedLayovers};
+    _airlinesSel = <String>{...widget.selectedAirlines};
+    _layoversSel = <String>{...widget.selectedLayovers};
   }
 
   Widget _padded(Widget child) => Padding(
@@ -55,14 +55,14 @@ class _FlightFilterPageState extends State<FlightFilterPage> {
   );
 
   Widget _radio(String value, String title) {
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
+    final TextTheme tt = Theme.of(context).textTheme;
     return Material(
       color: cs.surface,
       child: RadioListTile<String>(
         value: value,
         groupValue: selectedSort,
-        onChanged: (v) => setState(() => selectedSort = v!),
+        onChanged: (String? v) => setState(() => selectedSort = v!),
         title: Text(title, style: tt.bodyMedium?.copyWith(color: cs.onSurface)),
         contentPadding: const EdgeInsets.symmetric(horizontal: 8),
         dense: true,
@@ -72,25 +72,25 @@ class _FlightFilterPageState extends State<FlightFilterPage> {
   }
 
   Widget _radioInt(int value, String title) {
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
+    final TextTheme tt = Theme.of(context).textTheme;
     return RadioListTile<int>(
       value: value,
       groupValue: selectedStops,
-      onChanged: (v) => setState(() => selectedStops = v!),
+      onChanged: (int? v) => setState(() => selectedStops = v!),
       title: Text(title, style: tt.bodyMedium?.copyWith(color: cs.onSurface)),
       activeColor: cs.primary,
     );
   }
 
   Widget _checkbox(String title, bool current, void Function(bool) onChanged) {
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
+    final TextTheme tt = Theme.of(context).textTheme;
     return Material(
       color: cs.surface,
       child: CheckboxListTile(
         value: current,
-        onChanged: (v) => onChanged(v!),
+        onChanged: (bool? v) => onChanged(v!),
         title: Text(title, style: tt.bodyMedium?.copyWith(color: cs.onSurface)),
         controlAffinity: ListTileControlAffinity.leading,
         contentPadding: const EdgeInsets.symmetric(horizontal: 8),
@@ -109,8 +109,8 @@ class _FlightFilterPageState extends State<FlightFilterPage> {
     required double max,
     required ValueChanged<RangeValues> onChanged,
   }) {
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
+    final TextTheme tt = Theme.of(context).textTheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
@@ -131,7 +131,7 @@ class _FlightFilterPageState extends State<FlightFilterPage> {
           min: min,
           max: max,
           values: values,
-          onChanged: (v) => onChanged(
+          onChanged: (RangeValues v) => onChanged(
             RangeValues(v.start.clamp(min, max), v.end.clamp(min, max)),
           ),
           activeColor: cs.primary,
@@ -142,8 +142,8 @@ class _FlightFilterPageState extends State<FlightFilterPage> {
   }
 
   Widget _airlineTile(BuildContext context, String airlineName) {
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
+    final TextTheme tt = Theme.of(context).textTheme;
     final bool isSelected = _airlinesSel.contains(airlineName);
 
     return Material(
@@ -153,7 +153,7 @@ class _FlightFilterPageState extends State<FlightFilterPage> {
         contentPadding: const EdgeInsets.symmetric(horizontal: 8),
         leading: Checkbox(
           value: isSelected,
-          onChanged: (v) {
+          onChanged: (bool? v) {
             setState(() {
               if (v == true) {
                 _airlinesSel.add(airlineName);
@@ -187,8 +187,8 @@ class _FlightFilterPageState extends State<FlightFilterPage> {
   }
 
   Widget _cityTile(String city) {
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
+    final TextTheme tt = Theme.of(context).textTheme;
     final bool isSelected = _layoversSel.contains(city);
 
     return Material(
@@ -198,7 +198,7 @@ class _FlightFilterPageState extends State<FlightFilterPage> {
         contentPadding: const EdgeInsets.symmetric(horizontal: 8),
         leading: Checkbox(
           value: isSelected,
-          onChanged: (v) {
+          onChanged: (bool? v) {
             setState(() {
               if (v == true) {
                 _layoversSel.add(city);
@@ -230,9 +230,9 @@ class _FlightFilterPageState extends State<FlightFilterPage> {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
-    final text = AppLocalizations.of(context)!;
+    final ColorScheme cs = Theme.of(context).colorScheme;
+    final TextTheme tt = Theme.of(context).textTheme;
+    final AppLocalizations text = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: cs.surface,
@@ -272,7 +272,7 @@ class _FlightFilterPageState extends State<FlightFilterPage> {
                 _checkbox(
                   'Self - Transfer',
                   selfTransferEnabled,
-                  (v) => setState(() => selfTransferEnabled = v),
+                  (bool v) => setState(() => selfTransferEnabled = v),
                 ),
               ),
             ]),
@@ -299,7 +299,7 @@ class _FlightFilterPageState extends State<FlightFilterPage> {
                 values: takeoffRange,
                 min: 0,
                 max: 1439,
-                onChanged: (r) => setState(() => takeoffRange = r),
+                onChanged: (RangeValues r) => setState(() => takeoffRange = r),
               ),
             ),
           ),
@@ -315,7 +315,7 @@ class _FlightFilterPageState extends State<FlightFilterPage> {
                 values: landingRange,
                 min: 0,
                 max: 1439,
-                onChanged: (r) => setState(() => landingRange = r),
+                onChanged: (RangeValues r) => setState(() => landingRange = r),
               ),
             ),
           ),
@@ -335,7 +335,7 @@ class _FlightFilterPageState extends State<FlightFilterPage> {
                 values: flightDuration,
                 min: 0,
                 max: 1440,
-                onChanged: (r) => setState(() => flightDuration = r),
+                onChanged: (RangeValues r) => setState(() => flightDuration = r),
               ),
             ),
           ),
@@ -355,7 +355,7 @@ class _FlightFilterPageState extends State<FlightFilterPage> {
                 values: layoverDuration,
                 min: 0,
                 max: 1470,
-                onChanged: (r) => setState(() => layoverDuration = r),
+                onChanged: (RangeValues r) => setState(() => layoverDuration = r),
               ),
             ),
           ),
@@ -368,7 +368,7 @@ class _FlightFilterPageState extends State<FlightFilterPage> {
               ...((_showAllAirlines
                       ? widget.kAirlines
                       : widget.kAirlines.take(_visibleItemsCount)))
-                  .map((a) => _padded(_airlineTile(context, a))),
+                  .map((String a) => _padded(_airlineTile(context, a))),
               if (widget.kAirlines.length > _visibleItemsCount)
                 Center(
                   child: TextButton(
@@ -391,7 +391,7 @@ class _FlightFilterPageState extends State<FlightFilterPage> {
               ...((_showAllCities
                       ? widget.kLayoverCities
                       : widget.kLayoverCities.take(_visibleItemsCount)))
-                  .map((c) => _padded(_cityTile(c))),
+                  .map((String c) => _padded(_cityTile(c))),
               if (widget.kLayoverCities.length > _visibleItemsCount)
                 Center(
                   child: TextButton(

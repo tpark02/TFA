@@ -31,11 +31,11 @@ class _HomeState extends ConsumerState<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final text = AppLocalizations.of(context)!;
-    final cs = Theme.of(context).colorScheme;
+    final AppLocalizations text = AppLocalizations.of(context)!;
+    final ColorScheme cs = Theme.of(context).colorScheme;
 
-    final locale = PlatformDispatcher.instance.locale.toString(); // e.g. en_US
-    final format = NumberFormat.simpleCurrency(locale: locale);
+    final String locale = PlatformDispatcher.instance.locale.toString(); // e.g. en_US
+    final NumberFormat format = NumberFormat.simpleCurrency(locale: locale);
 
     print('Locale: $locale');
     print('Symbol: ${format.currencySymbol}');
@@ -156,9 +156,9 @@ class _HomeState extends ConsumerState<HomeScreen> {
                               child: Image.network(
                                 'https://picsum.photos/seed/airplane/100/100',
                                 fit: BoxFit.cover,
-                                loadingBuilder: (context, child, progress) {
+                                loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? progress) {
                                   if (progress == null) return child;
-                                  return Container(color: cs.surfaceVariant);
+                                  return Container(color: cs.surfaceContainerHighest);
                                 },
                                 errorBuilder: (_, __, ___) =>
                                     const Icon(Icons.image_not_supported),
@@ -181,7 +181,7 @@ class _HomeState extends ConsumerState<HomeScreen> {
                     borderRadius: BorderRadius.circular(4),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
+                      children: <Widget>[
                         Padding(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 16,

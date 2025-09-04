@@ -14,14 +14,14 @@ class MenuScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final currentTab = ref.watch(menuTabProvider);
-    final text = AppLocalizations.of(context)!;
+    final MenuTab currentTab = ref.watch(menuTabProvider);
+    final AppLocalizations text = AppLocalizations.of(context)!;
 
     return Scaffold(
       extendBody: true,
       body: IndexedStack(
         index: currentTab.index,
-        children: [
+        children: <Widget>[
           // Each tab gets its own Navigator
           _TabNavigator(navKey: homeTabNavKey, child: const HomeScreen()),
           _TabNavigator(navKey: searchTabNavKey, child: const SearchScreen()),
@@ -37,9 +37,9 @@ class MenuScreen extends ConsumerWidget {
         currentIndex: currentTab.index,
         selectedItemColor: Colors.blue,
         unselectedItemColor: Colors.grey,
-        onTap: (i) =>
+        onTap: (int i) =>
             ref.read(menuTabProvider.notifier).state = MenuTab.values[i],
-        items: [
+        items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: const Icon(Icons.home),
             label: text.home,
@@ -71,7 +71,7 @@ class _TabNavigator extends StatelessWidget {
   Widget build(BuildContext context) {
     return Navigator(
       key: navKey,
-      onGenerateRoute: (settings) => MaterialPageRoute(builder: (_) => child),
+      onGenerateRoute: (RouteSettings settings) => MaterialPageRoute(builder: (_) => child),
     );
   }
 }

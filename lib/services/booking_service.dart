@@ -14,9 +14,9 @@ class BookingService {
       throw Exception("User not authenticated.");
     }
 
-    final response = await http.post(
+    final http.Response response = await http.post(
       apiUri('/api/v1/bookings/'),
-      headers: {
+      headers: <String, String>{
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $idToken',
       },

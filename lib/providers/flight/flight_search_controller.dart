@@ -218,17 +218,17 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
     final List<Map<String, dynamic>> results = <Map<String, dynamic>>[];
 
     // Typed access
-    final List<FlightOffer> offers = latestFlights.data!;
-    final Dictionaries dict = latestFlights.dictionaries!;
+    final List<FlightOffer> offers = latestFlights.data;
+    final Dictionaries dict = latestFlights.dictionaries;
 
     // Normalize carriers dict to UPPERCASE keys for easy lookup
     final Map<String, String> carriers = <String, String>{
-      for (final MapEntry<String, String> e in dict.carriers!.entries)
+      for (final MapEntry<String, String> e in dict.carriers.entries)
         e.key.toUpperCase(): e.value.toUpperCase(),
     };
 
     // Useful lookups
-    final Map<String, String> aircraftDict = dict.aircraft!;
+    final Map<String, String> aircraftDict = dict.aircraft;
     final Set<String> departFlightNumbers = <String>{};
     String parentFlightNumber = "";
 
@@ -661,7 +661,7 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
     bool passengers = true,
     bool results = true,
   }) {
-    var next = state;
+    FlightSearchState next = state;
 
     if (airports) {
       next = next.copyWith(
@@ -727,14 +727,14 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
     bool bumpNonce = true,
   }) {
     // --- start from current values
-    String depCode = departureCode ?? state.departureAirportCode;
-    String depCity = departureCity ?? state.departureCity;
-    String arrCode = arrivalCode ?? state.arrivalAirportCode;
-    String arrCity = arrivalCity ?? state.arrivalCity;
+    final String depCode = departureCode ?? state.departureAirportCode;
+    final String depCity = departureCity ?? state.departureCity;
+    final String arrCode = arrivalCode ?? state.arrivalAirportCode;
+    final String arrCity = arrivalCity ?? state.arrivalCity;
 
     // --- dates
-    final iso = DateFormat('yyyy-MM-dd');
-    final pretty = DateFormat('MMM d');
+    final DateFormat iso = DateFormat('yyyy-MM-dd');
+    final DateFormat pretty = DateFormat('MMM d');
 
     final String newDepartIso = (departDate != null)
         ? iso.format(departDate)
@@ -765,7 +765,7 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
         ? getCabinClassByIdx(cabinIndex: newCabinIdx)
         : state.cabinClass;
 
-    var next = state.copyWith(
+    FlightSearchState next = state.copyWith(
       // airports
       departureAirportCode: depCode,
       departureCity: depCity,
@@ -807,7 +807,7 @@ class FlightSearchController extends StateNotifier<FlightSearchState> {
   }
 
   Future<(bool, String)> clearProcessedFlights() async {
-    final cleared = state.processedFlights.length;
+    final int cleared = state.processedFlights.length;
     debugPrint('🔴 clear processed flights ($cleared)');
     state = state.copyWith(processedFlights: <Map<String, dynamic>>[]);
     return (true, 'cleared $cleared flights');

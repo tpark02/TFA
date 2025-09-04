@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:TFA/utils/data_loader.dart';
 import 'package:TFA/models/airport.dart';
 
-final airportDataProvider = FutureProvider<List<Airport>>((ref) async {
+final FutureProvider<List<Airport>> airportDataProvider = FutureProvider<List<Airport>>((FutureProviderRef<List<Airport>> ref) async {
   final List<List> raw = await loadAirportData();
   final List<Airport> airportList = raw
       .map((List row) {
@@ -35,5 +35,5 @@ final airportDataProvider = FutureProvider<List<Airport>>((ref) async {
 });
 
 final StateProvider<String> airportSearchQueryProvider = StateProvider<String>(
-  (ref) => '',
+  (StateProviderRef<String> ref) => '',
 );

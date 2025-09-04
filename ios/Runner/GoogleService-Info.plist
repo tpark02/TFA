@@ -3,23 +3,23 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>34506647750-6jn3grdq8ih5lq7jr3fb2k3jf4k9c4ts.apps.googleusercontent.com</string>
+	<string>750757984956-1t216qgu6tnfs8q7lo1810b5mgrtd6dq.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.34506647750-6jn3grdq8ih5lq7jr3fb2k3jf4k9c4ts</string>
+	<string>com.googleusercontent.apps.750757984956-1t216qgu6tnfs8q7lo1810b5mgrtd6dq</string>
 	<key>ANDROID_CLIENT_ID</key>
-	<string>34506647750-3nvlou57pabibfo7v87h9435je2h8ga2.apps.googleusercontent.com</string>
+	<string>750757984956-m8nv5csfetot0bak38gma3luvgv0u188.apps.googleusercontent.com</string>
 	<key>API_KEY</key>
-	<string>AIzaSyCIyIoqUWHs4Scm6NQPF76Sv_1pp0e6uWI</string>
+	<string>AIzaSyDHbenyIIPI-xbPOJbND5Xg0AcTzmqBShU</string>
 	<key>GCM_SENDER_ID</key>
-	<string>34506647750</string>
+	<string>750757984956</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.example.tfa</string>
+	<string>com.taemin.tfa</string>
 	<key>PROJECT_ID</key>
-	<string>tfa-auth-demo-2025</string>
+	<string>tfa-login-6bebe</string>
 	<key>STORAGE_BUCKET</key>
-	<string>tfa-auth-demo-2025.firebasestorage.app</string>
+	<string>tfa-login-6bebe.firebasestorage.app</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -31,6 +31,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:34506647750:ios:1db0ccc3abc5a9e1d14fc7</string>
+	<string>1:750757984956:ios:e661ab84c0edfcb66aaeb9</string>
 </dict>
 </plist>

@@ -5,7 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
   static ThemeData fromScheme(ColorScheme cs) {
-    final baseText = Platform.isAndroid
+    final TextTheme baseText = Platform.isAndroid
         ? GoogleFonts.poppinsTextTheme()
         : (cs.brightness == Brightness.dark
               ? Typography.whiteMountainView

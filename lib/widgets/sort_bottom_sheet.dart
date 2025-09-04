@@ -9,7 +9,7 @@ Future<void> showSortBottomSheet({
   required String selectedSort,
   required ValueChanged<String> onSortSelected,
 }) {
-  final text = AppLocalizations.of(context)!;
+  final AppLocalizations text = AppLocalizations.of(context)!;
   return showModalBottomSheet(
     context: context,
     useRootNavigator: true,

@@ -2,6 +2,7 @@ import 'package:TFA/l10n/app_localizations.dart';
 import 'package:TFA/models/booking_in.dart';
 import 'package:TFA/providers/airport/airport_lookup.dart';
 import 'package:TFA/providers/flight/flight_search_controller.dart';
+import 'package:TFA/providers/flight/flight_search_state.dart';
 import 'package:TFA/screens/flight/flight_book_complete_page.dart';
 import 'package:TFA/utils/utils.dart';
 import 'package:flutter/material.dart';
@@ -19,11 +20,11 @@ class FlightTripDetailsItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
-    final cs = theme.colorScheme;
-    final textTheme = theme.textTheme;
+    final ThemeData theme = Theme.of(context);
+    final ColorScheme cs = theme.colorScheme;
+    final TextTheme textTheme = theme.textTheme;
     final double titleSize = textTheme.headlineMedium?.fontSize ?? 18;
-    final text = AppLocalizations.of(context)!;
+    final AppLocalizations text = AppLocalizations.of(context)!;
 
     if (flightData.isEmpty) return const SizedBox.shrink();
 
@@ -36,11 +37,11 @@ class FlightTripDetailsItem extends ConsumerWidget {
     final String? depRawTop = (flightData['depRaw'] as String?);
 
     final List<Map<String, dynamic>> segments =
-        (flightData['segments'] as List<dynamic>? ?? const [])
+        (flightData['segments'] as List<dynamic>? ?? const <dynamic>[])
             .cast<Map<String, dynamic>>();
 
     final List<Map<String, dynamic>> connections =
-        (flightData['connections'] as List<dynamic>? ?? const [])
+        (flightData['connections'] as List<dynamic>? ?? const <dynamic>[])
             .cast<Map<String, dynamic>>();
 
     final String? depAtForHeader =
@@ -77,9 +78,9 @@ class FlightTripDetailsItem extends ConsumerWidget {
       final Map<String, dynamic> seg = segments[i];
 
       final Map<String, dynamic> dep =
-          (seg['dep'] as Map?)?.cast<String, dynamic>() ?? const {};
+          (seg['dep'] as Map?)?.cast<String, dynamic>() ?? const <String, dynamic>{};
       final Map<String, dynamic> arr =
-          (seg['arr'] as Map?)?.cast<String, dynamic>() ?? const {};
+          (seg['arr'] as Map?)?.cast<String, dynamic>() ?? const <String, dynamic>{};
 
       final String depCode = (dep['code'] ?? '') as String;
       final String arrCode = (arr['code'] ?? '') as String;
@@ -113,13 +114,14 @@ class FlightTripDetailsItem extends ConsumerWidget {
 
       if (i < connections.length) {
         final String layText = (connections[i]['duration'] ?? '') as String;
-        if (layText.isNotEmpty)
+        if (layText.isNotEmpty) {
           sectionChildren.add(_LayoverChip(text: layText));
+        }
       }
 
       sectionChildren.add(const SizedBox(height: 12));
     }
-    final flightState = ref.watch(flightSearchProvider);
+    final FlightSearchState flightState = ref.watch(flightSearchProvider);
     final FlightSearchController controller = ref.read(
       flightSearchProvider.notifier,
     );
@@ -266,8 +268,8 @@ class _AirlineLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
+    final TextTheme tt = Theme.of(context).textTheme;
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 6, 20, 6),
       child: Text(
@@ -303,8 +305,8 @@ class _SegmentTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tt = Theme.of(context).textTheme;
-    final cs = Theme.of(context).colorScheme;
+    final TextTheme tt = Theme.of(context).textTheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
     final double timeSize = tt.headlineSmall?.fontSize ?? 20;
 
     return Container(
@@ -369,7 +371,7 @@ class _SegmentTile extends StatelessWidget {
     int? plusDays,
     bool alignEnd = false,
   }) {
-    final cs = Theme.of(context).colorScheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
 
     return SizedBox(
       width: 96,
@@ -425,8 +427,8 @@ class _LayoverChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
+    final TextTheme tt = Theme.of(context).textTheme;
 
     return Container(
       margin: const EdgeInsets.fromLTRB(20, 8, 20, 12),

@@ -5,11 +5,11 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
 class AuthService {
-  final _auth = FirebaseAuth.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   // One GoogleSignIn instance; give iOS its clientId, others get null.
   final GoogleSignIn _gsi = GoogleSignIn(
-    scopes: ['email'],
+    scopes: <String>['email'],
     clientId: (!kIsWeb && Platform.isIOS)
         ? DefaultFirebaseOptions.currentPlatform.iosClientId
         : null,
@@ -19,17 +19,17 @@ class AuthService {
 
   Future<UserCredential> signInWithGoogle() async {
     if (kIsWeb) {
-      final provider = GoogleAuthProvider()
-        ..setCustomParameters({'prompt': 'select_account'});
+      final GoogleAuthProvider provider = GoogleAuthProvider()
+        ..setCustomParameters(<dynamic, dynamic>{'prompt': 'select_account'});
       return _auth.signInWithPopup(provider);
     }
 
-    final gUser = await _gsi.signIn();
+    final GoogleSignInAccount? gUser = await _gsi.signIn();
     if (gUser == null) {
       throw FirebaseAuthException(code: 'aborted', message: 'User cancelled');
     }
-    final gAuth = await gUser.authentication;
-    final cred = GoogleAuthProvider.credential(
+    final GoogleSignInAuthentication gAuth = await gUser.authentication;
+    final OAuthCredential cred = GoogleAuthProvider.credential(
       idToken: gAuth.idToken,
       accessToken: gAuth.accessToken,
     );

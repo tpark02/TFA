@@ -20,8 +20,8 @@ class CategoryChip extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final cs = Theme.of(context).colorScheme;
-    final diameter = radius * 2;
+    final ColorScheme cs = Theme.of(context).colorScheme;
+    final double diameter = radius * 2;
 
     return InkWell(
       onTap: () {
@@ -52,11 +52,11 @@ class CategoryChip extends ConsumerWidget {
                       fit: BoxFit.cover,
                       // spinner until the first frame is painted
                       frameBuilder:
-                          (context, child, frame, wasSynchronouslyLoaded) {
+                          (BuildContext context, Widget child, int? frame, bool wasSynchronouslyLoaded) {
                             if (wasSynchronouslyLoaded) return child; // cached
                             return Stack(
                               fit: StackFit.expand,
-                              children: [
+                              children: <Widget>[
                                 const Center(
                                   child: SizedBox(
                                     width: 22,

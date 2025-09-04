@@ -115,22 +115,22 @@ class _FlightListViewState extends ConsumerState<FlightListView>
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
-    final text = AppLocalizations.of(context)!;
+    final ColorScheme cs = Theme.of(context).colorScheme;
+    final TextTheme tt = Theme.of(context).textTheme;
+    final AppLocalizations text = AppLocalizations.of(context)!;
 
     final FlightSearchState flightState = ref.watch(flightSearchProvider);
     final List<Map<String, dynamic>> allFlights = flightState.processedFlights;
 
     final int maxStops = maxStopsFor(widget.stopType);
 
-    final List<Map<String, dynamic>> filteredFlights = allFlights.where((f) {
+    final List<Map<String, dynamic>> filteredFlights = allFlights.where((Map<String, dynamic> f) {
       if (widget.selectedAirlines.isNotEmpty &&
           !widget.selectedAirlines.contains(f['airline'])) {
         return false;
       }
 
-      for (final l in (f['layOverAirports'] as List<String>)) {
+      for (final String l in (f['layOverAirports'] as List<String>)) {
         if (widget.selectedLayovers.isNotEmpty &&
             !widget.selectedLayovers.contains(l)) {
           return false;
@@ -184,7 +184,7 @@ class _FlightListViewState extends ConsumerState<FlightListView>
 
     final String sortKey = widget.sortType;
     final List<Map<String, dynamic>> sortedAllFlights =
-        <Map<String, dynamic>>[...filteredFlights]..sort((a, b) {
+        <Map<String, dynamic>>[...filteredFlights]..sort((Map<String, dynamic> a, Map<String, dynamic> b) {
           switch (sortKey) {
             case 'duration':
               return parseDurationMins(
@@ -198,12 +198,12 @@ class _FlightListViewState extends ConsumerState<FlightListView>
           }
         });
 
-    final departureFlights = sortedAllFlights.where((f) {
+    final List<Map<String, dynamic>> departureFlights = sortedAllFlights.where((Map<String, dynamic> f) {
       return (f['pricingMode'] == 'combined' && f['isReturn'] == false) ||
           (f['pricingMode'] == 'perleg' && f['isInBoundFlight'] == false);
     }).toList();
 
-    final returnFlights = sortedAllFlights.where((f) {
+    final List<Map<String, dynamic>> returnFlights = sortedAllFlights.where((Map<String, dynamic> f) {
       return (f['pricingMode'] == 'combined' && f['isReturn'] == true) ||
           (f['pricingMode'] == 'perleg' && f['isInBoundFlight'] == true);
     }).toList();
@@ -229,7 +229,7 @@ class _FlightListViewState extends ConsumerState<FlightListView>
       ),
     );
 
-    final departureFlightWidgets = List<FlightListViewItem>.generate(
+    final List<FlightListViewItem> departureFlightWidgets = List<FlightListViewItem>.generate(
       departureFlights.length,
       (int i) {
         return FlightListViewItem(
@@ -250,7 +250,7 @@ class _FlightListViewState extends ConsumerState<FlightListView>
     );
 
     return departureFlightWidgets.isEmpty
-        ? EmptyScreen(msg: "There are no flights", showButton: false)
+        ? const EmptyScreen(msg: "There are no flights", showButton: false)
         : Container(
             color: cs.surface,
             child: Column(
@@ -297,7 +297,7 @@ class _FlightListViewState extends ConsumerState<FlightListView>
                       ),
                     ),
                   ),
-                if (activeIndex != null && returnFlightWidgets.isNotEmpty) ...[
+                if (activeIndex != null && returnFlightWidgets.isNotEmpty) ...<Widget>[
                   Container(
                     padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
                     decoration: BoxDecoration(
@@ -372,12 +372,12 @@ class _FlightListViewState extends ConsumerState<FlightListView>
     final String mode = _departData['pricingMode'] as String;
     if (mode == 'perleg') {
       return returnFlightWidgets
-          .where((f) => f.flight['pricingMode'] == 'perleg')
+          .where((FlightListViewItem f) => f.flight['pricingMode'] == 'perleg')
           .toList();
     }
     return returnFlightWidgets
         .where(
-          (f) =>
+          (FlightListViewItem f) =>
               (f.flight['pricingMode'] == 'combined') &&
               f.flight['parentFlightNumber'] == _departData['myFlightNumber'],
         )

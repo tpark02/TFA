@@ -20,7 +20,7 @@ class GoogleButton extends StatelessWidget {
           width: double.infinity,
           child: Stack(
             alignment: Alignment.center,
-            children: [
+            children: <Widget>[
               Positioned(
                 left: 16,
                 child: loading

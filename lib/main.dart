@@ -19,15 +19,17 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
-import 'firebase_options.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  final container = ProviderContainer();
+  await Firebase.initializeApp();
+  final ProviderContainer container = ProviderContainer();
 
-  container.listen<FlightSearchState>(flightSearchProvider, (prev, next) async {
+  container.listen<FlightSearchState>(flightSearchProvider, (
+    FlightSearchState? prev,
+    FlightSearchState next,
+  ) async {
     if (prev == next) return;
     if (next.arrivalAirportCode.toLowerCase() == 'anywhere') return;
     if (!stateReady(next)) return;
@@ -36,15 +38,18 @@ Future<void> main() async {
 
   unawaited(runStartupBootstrap(container));
 
-  container.listen<AsyncValue<User?>>(authStateProvider, (prev, next) async {
-    final was = prev?.asData?.value;
-    final now = next.asData?.value;
+  container.listen<AsyncValue<User?>>(authStateProvider, (
+    AsyncValue<User?>? prev,
+    AsyncValue<User?> next,
+  ) async {
+    final User? was = prev?.asData?.value;
+    final User? now = next.asData?.value;
 
     if (was == null && now != null) {
       await runStartupBootstrap(container);
       container.listen<FlightSearchState>(flightSearchProvider, (
-        prev,
-        next,
+        FlightSearchState? prev,
+        FlightSearchState next,
       ) async {
         if (prev == next) return;
         if (next.arrivalAirportCode.toLowerCase() == 'anywhere') return;
@@ -70,13 +75,13 @@ class App extends ConsumerStatefulWidget {
 class _AppState extends ConsumerState<App> {
   @override
   Widget build(BuildContext context) {
-    final mode = ref.watch(themeModeProvider);
+    final ThemeMode mode = ref.watch(themeModeProvider);
     return DynamicColorBuilder(
-      builder: (lightDynamic, darkDynamic) {
-        final light = Platform.isAndroid && lightDynamic != null
+      builder: (ColorScheme? lightDynamic, ColorScheme? darkDynamic) {
+        final ColorScheme light = Platform.isAndroid && lightDynamic != null
             ? lightDynamic.harmonized()
             : lightColorScheme;
-        final dark = Platform.isAndroid && darkDynamic != null
+        final ColorScheme dark = Platform.isAndroid && darkDynamic != null
             ? darkDynamic.harmonized()
             : darkColorScheme;
 
@@ -86,17 +91,17 @@ class _AppState extends ConsumerState<App> {
           theme: AppTheme.fromScheme(light),
           darkTheme: AppTheme.fromScheme(dark),
           themeMode: mode,
-          localizationsDelegates: const [
+          localizationsDelegates: const <LocalizationsDelegate>[
             AppLocalizations.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
           ],
           supportedLocales: AppLocalizations.supportedLocales,
-          navigatorObservers: [appRouteObserver],
+          navigatorObservers: <NavigatorObserver>[appRouteObserver],
           home: StreamBuilder<User?>(
             stream: FirebaseAuth.instance.authStateChanges(),
-            builder: (ctx, snap) {
+            builder: (BuildContext ctx, AsyncSnapshot<User?> snap) {
               if (snap.hasData) {
                 return Platform.isAndroid
                     ? const MenuScreen()

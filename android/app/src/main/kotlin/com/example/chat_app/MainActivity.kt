@@ -1,4 +1,4 @@
-package com.example.tfa
+package com.taemin.tfa
 
 import io.flutter.embedding.android.FlutterActivity
 

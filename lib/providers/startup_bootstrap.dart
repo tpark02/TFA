@@ -6,11 +6,11 @@ import 'package:TFA/providers/flight/flight_search_controller.dart';
 import 'package:TFA/services/airport_service.dart';
 import 'package:TFA/services/location_service.dart';
 
-final _airportSvc = AirportService();
+final AirportService _airportSvc = AirportService();
 
 /// Runs once at app start. Safe to call without BuildContext.
 Future<void> runStartupBootstrap(ProviderContainer container) async {
-  final ctrl = container.read(flightSearchProvider.notifier);
+  final FlightSearchController ctrl = container.read(flightSearchProvider.notifier);
 
   // 1) Set default depart date if empty
   if ((ctrl.departDate ?? '').isEmpty) {
@@ -22,23 +22,23 @@ Future<void> runStartupBootstrap(ProviderContainer container) async {
     if (container.read(flightSearchProvider).departureAirportCode.isEmpty) {
       final Position pos = await LocationService.getCurrentLocation();
 
-      final airports = await _airportSvc.nearbyAirports(
+      final List<Map<String, dynamic>> airports = await _airportSvc.nearbyAirports(
         lat: pos.latitude,
         lon: pos.longitude,
         radiusKm: 150,
         limit: 5,
       );
 
-      final placemarks = await placemarkFromCoordinates(
+      final List<Placemark> placemarks = await placemarkFromCoordinates(
         pos.latitude,
         pos.longitude,
       );
-      final city = placemarks.isNotEmpty
+      final String city = placemarks.isNotEmpty
           ? (placemarks.first.locality ?? '')
           : '';
 
-      final first = airports.firstWhere(
-        (e) => (e['iataCode'] as String?)?.isNotEmpty == true,
+      final Map<String, dynamic> first = airports.firstWhere(
+        (Map<String, dynamic> e) => (e['iataCode'] as String?)?.isNotEmpty == true,
         orElse: () => const <String, dynamic>{},
       );
       final String? code = (first['iataCode'] as String?)?.toUpperCase();

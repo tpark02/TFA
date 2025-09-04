@@ -120,7 +120,7 @@ class _SelectionContentState<T> extends State<_SelectionContent<T>> {
                     dense: true,
                     contentPadding: const EdgeInsets.symmetric(horizontal: 8),
                     leading: Checkbox(
-                      fillColor: MaterialStateProperty.all(Colors.transparent),
+                      fillColor: WidgetStateProperty.all(Colors.transparent),
                       checkColor: Theme.of(context).colorScheme.primary,
                       shape: const CircleBorder(),
                       side: BorderSide.none,

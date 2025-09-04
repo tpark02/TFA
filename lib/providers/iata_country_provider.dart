@@ -9,8 +9,8 @@ enum PricingMode {
 }
 
 // ✅ make it a FutureProvider so it waits for the CSV
-final iataCountryResolverProvider = FutureProvider<Map<String, String>>((
-  ref,
+final FutureProvider<Map<String, String>> iataCountryResolverProvider = FutureProvider<Map<String, String>>((
+  FutureProviderRef<Map<String, String>> ref,
 ) async {
   final List<Airport> airports = await ref.watch(
     airportDataProvider.future,
@@ -25,8 +25,8 @@ final iataCountryResolverProvider = FutureProvider<Map<String, String>>((
 });
 
 /// Provider to decide round trip pricing mode based on countries.
-final roundTripModeProvider =
-    FutureProvider.family<PricingMode, (String, String)>((ref, pair) async {
+final FutureProviderFamily<PricingMode, (String, String)> roundTripModeProvider =
+    FutureProvider.family<PricingMode, (String, String)>((FutureProviderRef<PricingMode> ref, (String, String) pair) async {
       final (String originIata, String destIata) = pair;
       final Map<String, String> iataToCountry = await ref.watch(
         iataCountryResolverProvider.future,

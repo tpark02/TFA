@@ -37,9 +37,9 @@ class FlightService {
     int maxResults = 5,
   }) async {
     try {
-      final url = apiUri(
+      final Uri url = apiUri(
         '/api/v1/flights/search',
-        query: {
+        query: <String, dynamic>{
           'origin': origin,
           'destination': destination,
           'departure_date': departureDate,

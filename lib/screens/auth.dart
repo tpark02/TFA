@@ -47,11 +47,11 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   }
 
   Future<void> _submit() async {
-    final form = _form.currentState;
+    final FormState? form = _form.currentState;
     if (form == null || !form.validate()) return;
     form.save();
-    final email = _emailCtrl.text.trim();
-    final password = _pwCtrl.text;
+    final String email = _emailCtrl.text.trim();
+    final String password = _pwCtrl.text;
     setState(() => _isSubmitting = true);
     try {
       UserCredential creds;
@@ -67,8 +67,8 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
         );
       }
       try {
-        final idToken = await creds.user!.getIdToken(true);
-        final res = await http.get(
+        final String? idToken = await creds.user!.getIdToken(true);
+        final http.Response res = await http.get(
           apiUri('/api/v1/auth/me'),
           headers: <String, String>{'Authorization': 'Bearer $idToken'},
         );
@@ -92,7 +92,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
       }
     } on FirebaseAuthException catch (e) {
       if (!mounted) return;
-      final msg = switch (e.code) {
+      final String msg = switch (e.code) {
         'email-already-in-use' => 'Email is already in use.',
         'user-not-found' => 'No user found for that email.',
         'wrong-password' => 'Incorrect password.',
@@ -115,12 +115,12 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final text = AppLocalizations.of(context)!;
+    final ColorScheme cs = Theme.of(context).colorScheme;
+    final AppLocalizations text = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: cs.primary,
       body: Stack(
-        children: [
+        children: <Widget>[
           Positioned.fill(
             child: Opacity(
               opacity: 0.3,
@@ -137,7 +137,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                 child: IntrinsicHeight(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
+                    children: <Widget>[
                       const Spacer(),
                       Text(
                         "Welcome",
@@ -178,8 +178,8 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                                   keyboardType: TextInputType.emailAddress,
                                   autocorrect: false,
                                   textCapitalization: TextCapitalization.none,
-                                  validator: (value) {
-                                    final v = (value ?? '').trim();
+                                  validator: (String? value) {
+                                    final String v = (value ?? '').trim();
                                     if (v.isEmpty || !v.contains('@')) {
                                       return text.please_enter_email;
                                     }
@@ -208,8 +208,8 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                                     ),
                                   ),
                                   obscureText: !_showPassword,
-                                  validator: (value) {
-                                    final v = value ?? '';
+                                  validator: (String? value) {
+                                    final String v = value ?? '';
                                     if (v.length < 6) {
                                       return text.password_must_be;
                                     }
@@ -268,7 +268,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                                 ),
                                 const SizedBox(height: 16),
                                 Row(
-                                  children: [
+                                  children: <Widget>[
                                     const Expanded(
                                       child: Divider(thickness: 1),
                                     ),

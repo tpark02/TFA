@@ -41,11 +41,11 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
   Map<String, String> carriersDict = <String, String>{};
 
   Widget _pageBody(BuildContext context, FlightSearchState flightState) {
-    final cs = Theme.of(context).colorScheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
     final bool isLoading = flightState.isLoading;
     int minDuration = 1000000, maxDuration = 0;
     int minLayOver = 1000000, maxLayOver = 0;
-    final text = AppLocalizations.of(context)!;
+    final AppLocalizations text = AppLocalizations.of(context)!;
 
     for (final Map<String, dynamic> e in flightState.processedFlights) {
       final List<String> lst = (e['layOverAirports'] as List<dynamic>)
@@ -132,8 +132,8 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
                         side: BorderSide(color: cs.outlineVariant, width: 1),
                         foregroundColor: cs.onSurface,
                       ).copyWith(
-                        overlayColor: MaterialStateProperty.resolveWith<Color?>(
-                          (states) => states.contains(MaterialState.pressed)
+                        overlayColor: WidgetStateProperty.resolveWith<Color?>(
+                          (Set<WidgetState> states) => states.contains(WidgetState.pressed)
                               ? cs.primary.withValues(alpha: .08)
                               : null,
                         ),
@@ -312,7 +312,7 @@ class _FlightListPageState extends ConsumerState<FlightListPage> {
     ];
 
     return Stack(
-      children: [
+      children: <Widget>[
         AbsorbPointer(
           absorbing: isLoading,
           child: Column(
