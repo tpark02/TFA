@@ -26,6 +26,9 @@ Future<void> main() async {
   await Firebase.initializeApp();
   final ProviderContainer container = ProviderContainer();
 
+  // final t = await FirebaseAuth.instance.currentUser!.getIdToken(true);
+  // await Clipboard.setData(ClipboardData(text: t!));
+
   container.listen<FlightSearchState>(flightSearchProvider, (
     FlightSearchState? prev,
     FlightSearchState next,
@@ -91,7 +94,7 @@ class _AppState extends ConsumerState<App> {
           theme: AppTheme.fromScheme(light),
           darkTheme: AppTheme.fromScheme(dark),
           themeMode: mode,
-          localizationsDelegates: const <LocalizationsDelegate>[
+          localizationsDelegates: const <LocalizationsDelegate<dynamic>>[
             AppLocalizations.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
