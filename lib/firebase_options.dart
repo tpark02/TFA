@@ -60,7 +60,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '34506647750',
     projectId: 'tfa-auth-demo-2025',
     storageBucket: 'tfa-auth-demo-2025.firebasestorage.app',
-    iosBundleId: 'com.example.tfa',
+    iosBundleId: 'com.taemin.tfa',
   );
 
   static const FirebaseOptions web = FirebaseOptions(

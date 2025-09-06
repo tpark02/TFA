@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "750757984956-m8nv5csfetot0bak38gma3luvgv0u188.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.taemin.tfa",
+            "certificate_hash": "4eba7299b639bf2003f5b276d4368d454b2606f9"
+          }
+        },
+        {
           "client_id": "750757984956-84uoe0jqmqlchhc82ltsitem2bocchk4.apps.googleusercontent.com",
           "client_type": 3
         }

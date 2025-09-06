@@ -52,12 +52,18 @@ class _AnywhereMapState extends ConsumerState<AnywhereMapScreen>
       begin: beginCenter.longitude,
       end: dest.longitude,
     );
-    final Tween<double> zoomTween = Tween<double>(begin: beginZoom, end: toZoom);
+    final Tween<double> zoomTween = Tween<double>(
+      begin: beginZoom,
+      end: toZoom,
+    );
     final AnimationController controller = AnimationController(
       duration: const Duration(milliseconds: 500),
       vsync: this,
     );
-    final CurvedAnimation curve = CurvedAnimation(parent: controller, curve: Curves.easeInOut);
+    final CurvedAnimation curve = CurvedAnimation(
+      parent: controller,
+      curve: Curves.easeInOut,
+    );
     controller.addListener(() {
       _mapController.move(
         LatLng(latTween.evaluate(curve), lngTween.evaluate(curve)),
@@ -72,23 +78,25 @@ class _AnywhereMapState extends ConsumerState<AnywhereMapScreen>
     controller.forward();
   }
 
-  static const List<({String code, double lat, double lng, String price})> _pricePoints =
-      <({double lat, double lng, String price, String code})>[
-        (lat: 37.5665, lng: 126.9780, price: '₩380,000', code: 'SEL'),
-        (lat: 35.6895, lng: 139.6917, price: '₩639,500', code: 'TYO'),
-        (lat: 40.7128, lng: -74.0060, price: '₩1,175,000', code: 'NYC'),
-        (lat: 34.6937, lng: 135.5023, price: '₩159,183', code: 'OSA'),
-        (lat: 1.3521, lng: 103.8198, price: '₩328,055', code: 'SIN'),
-        (lat: 22.3193, lng: 114.1694, price: '₩336,360', code: 'HKG'),
-        (lat: 31.2304, lng: 121.4737, price: '₩349,990', code: 'SHA'),
-      ];
+  static const List<({String code, double lat, double lng, String price})>
+  _pricePoints = <({double lat, double lng, String price, String code})>[
+    (lat: 37.5665, lng: 126.9780, price: '₩380,000', code: 'SEL'),
+    (lat: 35.6895, lng: 139.6917, price: '₩639,500', code: 'TYO'),
+    (lat: 40.7128, lng: -74.0060, price: '₩1,175,000', code: 'NYC'),
+    (lat: 34.6937, lng: 135.5023, price: '₩159,183', code: 'OSA'),
+    (lat: 1.3521, lng: 103.8198, price: '₩328,055', code: 'SIN'),
+    (lat: 22.3193, lng: 114.1694, price: '₩336,360', code: 'HKG'),
+    (lat: 31.2304, lng: 121.4737, price: '₩349,990', code: 'SHA'),
+  ];
 
   void _onPinTap({
     required String code,
     required List<AnywhereDestination> destinations,
     required double screenWidth,
   }) {
-    final int idx = destinations.indexWhere((AnywhereDestination d) => d.code == code);
+    final int idx = destinations.indexWhere(
+      (AnywhereDestination d) => d.code == code,
+    );
     if (idx == -1) return;
     const double spacing = 30.0;
     final double tileWidth = screenWidth * 0.9;
@@ -99,15 +107,24 @@ class _AnywhereMapState extends ConsumerState<AnywhereMapScreen>
       curve: Curves.easeInOut,
     );
     _selectedCode.value = code;
-    final ({String code, double lat, double lng, String price}) pin = _pricePoints.firstWhere((({String code, double lat, double lng, String price}) p) => p.code == code);
+    final ({String code, double lat, double lng, String price}) pin =
+        _pricePoints.firstWhere(
+          (({String code, double lat, double lng, String price}) p) =>
+              p.code == code,
+        );
     _animateMapMove(LatLng(pin.lat, pin.lng), _mapController.camera.zoom);
   }
 
   @override
   Widget build(BuildContext context) {
-    final AsyncValue<List<AnywhereDestination>> tiles = ref.watch(anywhereDestinationsProvider);
-    final List<AnywhereDestination> destinations = tiles.asData?.value ?? const <AnywhereDestination>[];
-    final FlightSearchController controller = ref.read(flightSearchProvider.notifier);
+    final AsyncValue<List<AnywhereDestination>> tiles = ref.watch(
+      anywhereDestinationsProvider,
+    );
+    final List<AnywhereDestination> destinations =
+        tiles.asData?.value ?? const <AnywhereDestination>[];
+    final FlightSearchController controller = ref.read(
+      flightSearchProvider.notifier,
+    );
     final double w = MediaQuery.of(context).size.width;
 
     return Column(
@@ -127,17 +144,51 @@ class _AnywhereMapState extends ConsumerState<AnywhereMapScreen>
                   TileLayer(
                     urlTemplate:
                         'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                    userAgentPackageName: 'com.example.tfa',
+                    userAgentPackageName: 'com.taemin.tfa',
                   ),
                   ValueListenableBuilder<String?>(
                     valueListenable: _selectedCode,
                     builder: (_, String? selected, __) {
-                      final List<({String code, double lat, double lng, String price})> ordered = <({String code, double lat, double lng, String price})>[
-                        ..._pricePoints.where((({String code, double lat, double lng, String price}) p) => p.code != selected),
-                        ..._pricePoints.where((({String code, double lat, double lng, String price}) p) => p.code == selected),
-                      ];
+                      final List<
+                        ({String code, double lat, double lng, String price})
+                      >
+                      ordered =
+                          <
+                            ({
+                              String code,
+                              double lat,
+                              double lng,
+                              String price,
+                            })
+                          >[
+                            ..._pricePoints.where(
+                              (
+                                ({
+                                  String code,
+                                  double lat,
+                                  double lng,
+                                  String price,
+                                })
+                                p,
+                              ) => p.code != selected,
+                            ),
+                            ..._pricePoints.where(
+                              (
+                                ({
+                                  String code,
+                                  double lat,
+                                  double lng,
+                                  String price,
+                                })
+                                p,
+                              ) => p.code == selected,
+                            ),
+                          ];
                       return MarkerLayer(
-                        markers: ordered.map((({String code, double lat, double lng, String price}) p) {
+                        markers: ordered.map((
+                          ({String code, double lat, double lng, String price})
+                          p,
+                        ) {
                           final bool isSelected = p.code == selected;
                           return Marker(
                             point: LatLng(p.lat, p.lng),
@@ -168,24 +219,26 @@ class _AnywhereMapState extends ConsumerState<AnywhereMapScreen>
                 child: SizedBox(
                   height: AnywhereDestinationTile.height,
                   child: tiles.when(
-                    data: (List<AnywhereDestination> items) => ListView.separated(
-                      controller: _scrollController,
-                      scrollDirection: Axis.horizontal,
-                      physics: const NeverScrollableScrollPhysics(),
-                      padding: EdgeInsets.zero,
-                      itemCount: items.length,
-                      separatorBuilder: (_, __) => const SizedBox(width: 30),
-                      itemBuilder: (_, int i) => SizedBox(
-                        width: w * 0.9,
-                        child: AnywhereDestinationTile(
-                          item: items[i],
-                          onTap: () => controller.setArrivalCode(
-                            items[i].iata,
-                            items[i].name,
+                    data: (List<AnywhereDestination> items) =>
+                        ListView.separated(
+                          controller: _scrollController,
+                          scrollDirection: Axis.horizontal,
+                          physics: const NeverScrollableScrollPhysics(),
+                          padding: EdgeInsets.zero,
+                          itemCount: items.length,
+                          separatorBuilder: (_, __) =>
+                              const SizedBox(width: 30),
+                          itemBuilder: (_, int i) => SizedBox(
+                            width: w * 0.9,
+                            child: AnywhereDestinationTile(
+                              item: items[i],
+                              onTap: () => controller.setArrivalCode(
+                                items[i].iata,
+                                items[i].name,
+                              ),
+                            ),
                           ),
                         ),
-                      ),
-                    ),
                     loading: () => ListView.separated(
                       scrollDirection: Axis.horizontal,
                       padding: EdgeInsets.zero,
@@ -193,7 +246,8 @@ class _AnywhereMapState extends ConsumerState<AnywhereMapScreen>
                       separatorBuilder: (_, __) => const SizedBox(width: 30),
                       itemBuilder: (_, __) => const SkeletonCard(),
                     ),
-                    error: (Object e, _) => Center(child: Text('Failed to load: $e')),
+                    error: (Object e, _) =>
+                        Center(child: Text('Failed to load: $e')),
                   ),
                 ),
               ),
@@ -217,7 +271,9 @@ class _PriceTag extends StatelessWidget {
       decoration: BoxDecoration(
         color: selected ? Colors.blue : Colors.white,
         borderRadius: BorderRadius.circular(8),
-        boxShadow: const <BoxShadow>[BoxShadow(blurRadius: 2, color: Colors.black26)],
+        boxShadow: const <BoxShadow>[
+          BoxShadow(blurRadius: 2, color: Colors.black26),
+        ],
       ),
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: Text(
